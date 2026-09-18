@@ -136,6 +136,46 @@ public class OAuth2ClientRegistrationHttpMessageConverterTests {
 		assertThat(clientRegistration.getRedirectUris()).containsOnly("https://client.example.com");
 	}
 
+	// gh-19765
+	@Test
+	public void readInternalWhenEmptyScopeThenSuccess() {
+		// @formatter:off
+		String clientRegistrationRequest = "{\n"
+				+ "		\"redirect_uris\": [\n"
+				+ "			\"https://client.example.com\"\n"
+				+ "		]\n,"
+				+ "		\"scope\": \"\""
+				+ "}\n";
+		// @formatter:on
+		MockClientHttpResponse response = new MockClientHttpResponse(clientRegistrationRequest.getBytes(),
+				HttpStatus.OK);
+		OAuth2ClientRegistration clientRegistration = this.messageConverter.readInternal(OAuth2ClientRegistration.class,
+				response);
+
+		assertThat(clientRegistration.getClaims()).hasSize(1);
+		assertThat(clientRegistration.getRedirectUris()).containsOnly("https://client.example.com");
+	}
+
+	// gh-19765
+	@Test
+	public void readInternalWhenNullScopeThenSuccess() {
+		// @formatter:off
+		String clientRegistrationRequest = "{\n"
+				+ "		\"redirect_uris\": [\n"
+				+ "			\"https://client.example.com\"\n"
+				+ "		]\n,"
+				+ "		\"scope\": null"
+				+ "}\n";
+		// @formatter:on
+		MockClientHttpResponse response = new MockClientHttpResponse(clientRegistrationRequest.getBytes(),
+				HttpStatus.OK);
+		OAuth2ClientRegistration clientRegistration = this.messageConverter.readInternal(OAuth2ClientRegistration.class,
+				response);
+
+		assertThat(clientRegistration.getClaims()).hasSize(1);
+		assertThat(clientRegistration.getRedirectUris()).containsOnly("https://client.example.com");
+	}
+
 	@Test
 	public void readInternalWhenFailingConverterThenThrowException() {
 		String errorMessage = "this is not a valid converter";
