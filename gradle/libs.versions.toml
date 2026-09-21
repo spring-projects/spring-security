@@ -15,6 +15,7 @@ org-jetbrains-kotlinx = "1.11.0"
 org-mockito = "5.24.0"
 org-opensaml5 = "5.2.3"
 org-springframework = "7.1.0-M2"
+org-testcontainers = "2.0.5"
 com-password4j = "1.8.4"
 
 [libraries]
@@ -71,6 +72,11 @@ org-eclipse-jetty-jetty-servlet = { module = "org.eclipse.jetty:jetty-servlet", 
 org-hamcrest = "org.hamcrest:hamcrest:2.2"
 org-hibernate-orm-hibernate-core = "org.hibernate.orm:hibernate-core:7.4.11.Final"
 org-hsqldb = "org.hsqldb:hsqldb:2.7.4"
+com-h2database-h2 = "com.h2database:h2:2.3.232"
+org-postgresql-postgresql = "org.postgresql:postgresql:42.7.4"
+com-mysql-mysql-connector-j = "com.mysql:mysql-connector-j:9.1.0"
+com-microsoft-sqlserver-mssql-jdbc = "com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11"
+com-oracle-database-jdbc-ojdbc11 = "com.oracle.database.jdbc:ojdbc11:21.9.0.0"
 org-jetbrains-dokka-dokka-gradle-plugin = { module = "org.jetbrains.dokka:dokka-gradle-plugin", version.ref = "org-jetbrains-dokka" }
 org-jetbrains-kotlin-kotlin-bom = { module = "org.jetbrains.kotlin:kotlin-bom", version.ref = "org-jetbrains-kotlin" }
 org-jetbrains-kotlin-kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "org-jetbrains-kotlin" }
@@ -89,6 +95,7 @@ org-slf4j-slf4j-api = "org.slf4j:slf4j-api:2.0.20"
 org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2026.1.0-M2"
 org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-ldap-core:4.2.0-M1"
 org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "org-springframework" }
+org-testcontainers-testcontainers-bom = { module = "org.testcontainers:testcontainers-bom", version.ref = "org-testcontainers" }
 org-synchronoss-cloud-nio-multipart-parser = "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
 tools-jackson-jackson-bom = "tools.jackson:jackson-bom:3.2.3"
 

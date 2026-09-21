@@ -45,8 +45,39 @@ dependencies {
 	testImplementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 	testImplementation 'io.mockk:mockk'
 
+	testImplementation 'org.springframework:spring-jdbc'
+	testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
+	testImplementation 'org.testcontainers:testcontainers-postgresql'
+	testImplementation 'org.testcontainers:testcontainers-mysql'
+	testImplementation 'org.testcontainers:testcontainers-oracle-free'
+	testImplementation 'org.testcontainers:testcontainers-mssqlserver'
+
 	testRuntimeOnly 'org.hsqldb:hsqldb'
+	testRuntimeOnly 'com.h2database:h2'
+	testRuntimeOnly 'org.postgresql:postgresql'
+	testRuntimeOnly 'com.mysql:mysql-connector-j'
+	testRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+	testRuntimeOnly 'com.oracle.database.jdbc:ojdbc11'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// Schema script tests need a real database, and the container-backed ones need a Docker
+// daemon, so they are tagged "sql" and kept out of the regular test task. Run them with
+// ./gradlew :spring-security-core:sqlTest
+tasks.named("test", Test) {
+	useJUnitPlatform {
+		excludeTags "sql"
+	}
+}
+
+tasks.register("sqlTest", Test) {
+	description = "Runs the tests tagged \"sql\", which verify the .sql schema scripts against real databases."
+	group = "verification"
+	testClassesDirs = sourceSets.test.output.classesDirs
+	classpath = sourceSets.test.runtimeClasspath
+	useJUnitPlatform {
+		includeTags "sql"
+	}
 }
 
 task springVersion(type: org.gradle.api.tasks.WriteProperties) {
