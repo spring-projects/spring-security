@@ -73,4 +73,11 @@ class AuthenticatorTransportTests {
 		assertThat(AuthenticatorTransport.USB).isNotEqualTo(AuthenticatorTransport.NFC);
 	}
 
+	@Test
+	void valuesThenContainsAllAuthenticatorTransports() {
+		assertThat(AuthenticatorTransport.values()).containsExactly(AuthenticatorTransport.USB,
+				AuthenticatorTransport.NFC, AuthenticatorTransport.BLE, AuthenticatorTransport.SMART_CARD,
+				AuthenticatorTransport.HYBRID, AuthenticatorTransport.INTERNAL);
+	}
+
 }
