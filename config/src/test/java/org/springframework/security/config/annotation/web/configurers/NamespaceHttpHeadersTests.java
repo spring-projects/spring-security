@@ -65,6 +65,7 @@ public class NamespaceHttpHeadersTests {
 		defaultHeaders.put("Expires", "0");
 		defaultHeaders.put("Pragma", "no-cache");
 		defaultHeaders.put("X-XSS-Protection", "0");
+		defaultHeaders.put("Referrer-Policy", "no-referrer");
 	}
 	public final SpringTestContext spring = new SpringTestContext(this);
 
