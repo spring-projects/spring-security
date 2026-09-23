@@ -16,8 +16,13 @@
 
 package org.springframework.security.oauth2.server.authorization;
 
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
 
@@ -136,6 +141,126 @@ public class OAuth2AuthorizationTests {
 		assertThat(authorization.getToken(OAuth2AuthorizationCode.class).getToken()).isEqualTo(AUTHORIZATION_CODE);
 		assertThat(authorization.getAccessToken().getToken()).isEqualTo(ACCESS_TOKEN);
 		assertThat(authorization.getRefreshToken().getToken()).isEqualTo(REFRESH_TOKEN);
+	}
+
+	@Test
+	public void clockWhenNullThenThrowIllegalArgumentException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT).clock(null))
+			.withMessage("clock cannot be null");
+	}
+
+	@Test
+	public void isExpiredWhenClockBeforeExpiresAtThenActive() {
+		Instant fixedNow = Instant.parse("2024-01-01T12:00:00Z");
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token",
+				fixedNow.minusSeconds(60), fixedNow.plusSeconds(3600));
+		Clock clock = Clock.fixed(fixedNow, ZoneOffset.UTC);
+
+		OAuth2Authorization authorization = OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT)
+			.principalName(PRINCIPAL_NAME)
+			.authorizationGrantType(AUTHORIZATION_GRANT_TYPE)
+			.clock(clock)
+			.accessToken(accessToken)
+			.build();
+
+		OAuth2Authorization.Token<OAuth2AccessToken> token = authorization.getAccessToken();
+		assertThat(token.isExpired()).isFalse();
+		assertThat(token.isActive()).isTrue();
+	}
+
+	@Test
+	public void isExpiredWhenClockAfterExpiresAtThenInactive() {
+		Instant fixedNow = Instant.parse("2024-01-01T12:00:00Z");
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token",
+				fixedNow.minusSeconds(7200), fixedNow.minusSeconds(3600));
+		Clock clock = Clock.fixed(fixedNow, ZoneOffset.UTC);
+
+		OAuth2Authorization authorization = OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT)
+			.principalName(PRINCIPAL_NAME)
+			.authorizationGrantType(AUTHORIZATION_GRANT_TYPE)
+			.clock(clock)
+			.accessToken(accessToken)
+			.build();
+
+		OAuth2Authorization.Token<OAuth2AccessToken> token = authorization.getAccessToken();
+		assertThat(token.isExpired()).isTrue();
+		assertThat(token.isActive()).isFalse();
+	}
+
+	@Test
+	public void isBeforeUseWhenClockBeforeNbfThenInactive() {
+		Instant fixedNow = Instant.parse("2024-01-01T12:00:00Z");
+		Instant notBefore = fixedNow.plusSeconds(600);
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token",
+				fixedNow, fixedNow.plusSeconds(3600));
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("nbf", notBefore);
+		Clock clock = Clock.fixed(fixedNow, ZoneOffset.UTC);
+
+		OAuth2Authorization authorization = OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT)
+			.principalName(PRINCIPAL_NAME)
+			.authorizationGrantType(AUTHORIZATION_GRANT_TYPE)
+			.clock(clock)
+			.token(accessToken, (metadata) -> metadata.put(OAuth2Authorization.Token.CLAIMS_METADATA_NAME, claims))
+			.build();
+
+		OAuth2Authorization.Token<OAuth2AccessToken> token = authorization.getAccessToken();
+		assertThat(token.isBeforeUse()).isTrue();
+		assertThat(token.isActive()).isFalse();
+	}
+
+	@Test
+	public void isBeforeUseWhenClockAfterNbfThenActive() {
+		Instant fixedNow = Instant.parse("2024-01-01T12:00:00Z");
+		Instant notBefore = fixedNow.minusSeconds(600);
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token",
+				fixedNow.minusSeconds(1200), fixedNow.plusSeconds(3600));
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("nbf", notBefore);
+		Clock clock = Clock.fixed(fixedNow, ZoneOffset.UTC);
+
+		OAuth2Authorization authorization = OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT)
+			.principalName(PRINCIPAL_NAME)
+			.authorizationGrantType(AUTHORIZATION_GRANT_TYPE)
+			.clock(clock)
+			.token(accessToken, (metadata) -> metadata.put(OAuth2Authorization.Token.CLAIMS_METADATA_NAME, claims))
+			.build();
+
+		OAuth2Authorization.Token<OAuth2AccessToken> token = authorization.getAccessToken();
+		assertThat(token.isBeforeUse()).isFalse();
+		assertThat(token.isActive()).isTrue();
+	}
+
+	@Test
+	public void whenClockNotConfiguredThenSystemDefaultZoneUsed() {
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token",
+				Instant.now().minusSeconds(120), Instant.now().minusSeconds(60));
+
+		OAuth2Authorization authorization = OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT)
+			.principalName(PRINCIPAL_NAME)
+			.authorizationGrantType(AUTHORIZATION_GRANT_TYPE)
+			.accessToken(accessToken)
+			.build();
+
+		assertThat(Objects.requireNonNull(authorization.getAccessToken()).isExpired()).isTrue();
+	}
+
+	@Test
+	public void whenClockConfiguredAfterTokenAddedThenStillAppliedOnBuild() {
+		Instant fixedNow = Instant.parse("2024-01-01T12:00:00Z");
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token",
+				fixedNow.minusSeconds(7200), fixedNow.minusSeconds(3600));
+		Clock clock = Clock.fixed(fixedNow, ZoneOffset.UTC);
+
+		OAuth2Authorization authorization = OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT)
+			.principalName(PRINCIPAL_NAME)
+			.authorizationGrantType(AUTHORIZATION_GRANT_TYPE)
+			.accessToken(accessToken)
+			.clock(clock)
+			.build();
+
+		assertThat(authorization.getAccessToken().isExpired()).isTrue();
 	}
 
 }
