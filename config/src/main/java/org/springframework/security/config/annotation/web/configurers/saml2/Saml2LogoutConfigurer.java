@@ -123,6 +123,8 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private LogoutSuccessHandler logoutSuccessHandler;
 
+	private RequestMatcher logoutRequestMatcher;
+
 	private LogoutRequestConfigurer logoutRequestConfigurer;
 
 	private LogoutResponseConfigurer logoutResponseConfigurer;
@@ -204,6 +206,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		if (logout != null) {
 			this.logoutHandlers = logout.getLogoutHandlers();
 			this.logoutSuccessHandler = logout.getLogoutSuccessHandler();
+			this.logoutRequestMatcher = logout.getLogoutRequestMatcher(http);
 		}
 		RelyingPartyRegistrationRepository registrations = getRelyingPartyRegistrationRepository(http);
 		http.addFilterBefore(createLogoutRequestProcessingFilter(registrations), CsrfFilter.class);
@@ -271,7 +274,8 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	private RequestMatcher createLogoutMatcher() {
-		RequestMatcher logout = getRequestMatcherBuilder().matcher(HttpMethod.POST, this.logoutUrl);
+		RequestMatcher logout = (this.logoutRequestMatcher != null) ? this.logoutRequestMatcher
+				: getRequestMatcherBuilder().matcher(HttpMethod.POST, this.logoutUrl);
 		RequestMatcher saml2 = new Saml2RequestMatcher(getSecurityContextHolderStrategy());
 		return new AndRequestMatcher(logout, saml2);
 	}

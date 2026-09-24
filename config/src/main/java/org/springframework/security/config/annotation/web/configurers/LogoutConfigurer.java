@@ -349,7 +349,14 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		return securityContextRepository;
 	}
 
-	private RequestMatcher getLogoutRequestMatcher(H http) {
+	/**
+	 * Gets the {@link RequestMatcher} that will be used to determine if logout should
+	 * occur.
+	 * @param http the builder to use
+	 * @return the {@link RequestMatcher} that will be used to determine if logout
+	 * should occur
+	 */
+	public RequestMatcher getLogoutRequestMatcher(H http) {
 		if (this.logoutRequestMatcher != null) {
 			return this.logoutRequestMatcher;
 		}
