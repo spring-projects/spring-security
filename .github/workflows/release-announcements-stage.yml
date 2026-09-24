@@ -14,11 +14,12 @@ permissions:
   actions: write
   contents: write
   issues: read
+  pull-requests: read
 
 jobs:
   stage-release-announcements:
     name: Stage Release Announcements
-    uses: spring-io/spring-security-release-tools/.github/workflows/release-announcements-stage.yml@dada80d7c2689772a3d45b36dd491e244ea34c49 # 1.0.x
+    uses: spring-io/spring-security-release-tools/.github/workflows/release-announcements-stage.yml@6e2a7a58e3f51d516154a43184af5e02de5e1996 # 1.0.x
     with:
       version: ${{ inputs.version || github.ref_name }}
     secrets: inherit
