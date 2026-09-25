@@ -43,7 +43,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 /**
  * <p>
  * Applies
- * <a href="https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)" >CSRF</a>
+ * <a href="https://community.owasp.org/attacks/csrf" >CSRF</a>
  * protection using a synchronizer token pattern. Developers are required to ensure that
  * {@link CsrfFilter} is invoked for any request that allows state to change. Typically
  * this just means that they should ensure their web application follows proper REST
