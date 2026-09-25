@@ -16,10 +16,12 @@
 
 package org.springframework.security.oauth2.client.web.client.support;
 
+import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.client.ClientRegistrationIdProcessor;
 import org.springframework.security.oauth2.client.web.client.OAuth2ClientHttpRequestInterceptor;
+import org.springframework.util.StringValueResolver;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.support.RestClientHttpServiceGroupConfigurer;
 import org.springframework.web.service.invoker.HttpRequestValues;
@@ -35,14 +37,20 @@ import org.springframework.web.service.invoker.HttpRequestValues;
  * @author Rob Winch
  * @since 7.0
  */
-public final class OAuth2RestClientHttpServiceGroupConfigurer implements RestClientHttpServiceGroupConfigurer {
+public final class OAuth2RestClientHttpServiceGroupConfigurer
+		implements RestClientHttpServiceGroupConfigurer, EmbeddedValueResolverAware {
 
-	private final HttpRequestValues.Processor processor = ClientRegistrationIdProcessor.DEFAULT_INSTANCE;
+	private HttpRequestValues.Processor processor = ClientRegistrationIdProcessor.DEFAULT_INSTANCE;
 
 	private final ClientHttpRequestInterceptor interceptor;
 
 	private OAuth2RestClientHttpServiceGroupConfigurer(ClientHttpRequestInterceptor interceptor) {
 		this.interceptor = interceptor;
+	}
+
+	@Override
+	public void setEmbeddedValueResolver(StringValueResolver resolver) {
+		this.processor = ClientRegistrationIdProcessor.withEmbeddedValueResolver(resolver);
 	}
 
 	@Override

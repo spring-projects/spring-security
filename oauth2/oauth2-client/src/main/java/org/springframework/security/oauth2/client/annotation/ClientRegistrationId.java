@@ -39,7 +39,10 @@ import org.springframework.core.annotation.AliasFor;
 public @interface ClientRegistrationId {
 
 	/**
-	 * Sets the client registration identifier.
+	 * Sets the client registration identifier. As of 7.2 the value can be a property
+	 * placeholder such as <code>${my.client}</code>, provided the configurer that adds
+	 * {@link org.springframework.security.oauth2.client.web.client.ClientRegistrationIdProcessor}
+	 * is a bean, so that the application context supplies it with a resolver.
 	 * @return the client registration identifier
 	 */
 	@AliasFor("value")
