@@ -59,7 +59,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * Adds
- * <a href="https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)" >CSRF</a>
+ * <a href="https://community.owasp.org/attacks/csrf" >CSRF</a>
  * protection for the methods as specified by
  * {@link #requireCsrfProtectionMatcher(RequestMatcher)}.
  *
