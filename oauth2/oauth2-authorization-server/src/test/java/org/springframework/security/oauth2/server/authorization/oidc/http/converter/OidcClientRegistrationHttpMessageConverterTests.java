@@ -115,6 +115,8 @@ public class OidcClientRegistrationHttpMessageConverterTests {
 				+ "		\"scope\": \"scope1 scope2\",\n"
 				+ "		\"jwks_uri\": \"https://client.example.com/jwks\",\n"
 				+ "		\"id_token_signed_response_alg\": \"RS256\",\n"
+				+ "		\"backchannel_logout_uri\": \"https://client.example.com/logout/connect/back-channel\",\n"
+				+ "		\"backchannel_logout_session_required\": \"true\",\n"
 				+ "		\"a-claim\": \"a-value\"\n"
 				+ "}\n";
 		// @formatter:on
@@ -141,6 +143,9 @@ public class OidcClientRegistrationHttpMessageConverterTests {
 		assertThat(clientRegistration.getScopes()).containsExactlyInAnyOrder("scope1", "scope2");
 		assertThat(clientRegistration.getJwkSetUrl()).isEqualTo(new URL("https://client.example.com/jwks"));
 		assertThat(clientRegistration.getIdTokenSignedResponseAlgorithm()).isEqualTo("RS256");
+		assertThat(clientRegistration.getBackChannelLogoutUri())
+			.isEqualTo(new URL("https://client.example.com/logout/connect/back-channel"));
+		assertThat(clientRegistration.isBackChannelLogoutSessionRequired()).isTrue();
 		assertThat(clientRegistration.getClaimAsString("a-claim")).isEqualTo("a-value");
 	}
 

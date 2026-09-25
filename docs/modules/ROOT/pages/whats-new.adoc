@@ -12,4 +12,5 @@
 == OAuth 2.0
 
 * https://github.com/spring-projects/spring-security/pull/18895[gh-18895] - Add `authenticationSuccessHandler` to the Reactive Resource Server DSL
+* https://github.com/spring-projects/spring-security/issues/18296[gh-18296] - Add OpenID Connect Back-Channel Logout client and provider metadata to the Authorization Server
 

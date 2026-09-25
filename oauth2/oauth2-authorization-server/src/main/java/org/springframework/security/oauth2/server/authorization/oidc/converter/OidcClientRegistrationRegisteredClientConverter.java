@@ -136,6 +136,13 @@ public final class OidcClientRegistrationRegisteredClientConverter
 			clientSettingsBuilder.jwkSetUrl(jwkSetUrl.toString());
 		}
 
+		URL backChannelLogoutUri = clientRegistration.getBackChannelLogoutUri();
+		if (backChannelLogoutUri != null) {
+			clientSettingsBuilder
+					.backChannelLogoutUri(backChannelLogoutUri.toString())
+					.backChannelLogoutSessionRequired(clientRegistration.isBackChannelLogoutSessionRequired());
+		}
+
 		builder
 				.clientSettings(clientSettingsBuilder.build())
 				.tokenSettings(TokenSettings.builder()

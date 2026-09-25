@@ -31,6 +31,9 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
  * @see <a target="_blank" href=
  * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata">3. OpenID
  * Provider Metadata</a>
+ * @see <a target="_blank" href=
+ * "https://openid.net/specs/openid-connect-backchannel-1_0.html#BCSupport">2.1.
+ * Indicating OP Support for Back-Channel Logout</a>
  */
 public final class OidcProviderMetadataClaimNames extends OAuth2AuthorizationServerMetadataClaimNames {
 
@@ -56,6 +59,21 @@ public final class OidcProviderMetadataClaimNames extends OAuth2AuthorizationSer
 	 * Session Endpoint
 	 */
 	public static final String END_SESSION_ENDPOINT = "end_session_endpoint";
+
+	/**
+	 * {@code backchannel_logout_supported} - {@code true} if the OpenID Provider supports
+	 * back-channel logout.
+	 * @since 7.2
+	 */
+	public static final String BACKCHANNEL_LOGOUT_SUPPORTED = "backchannel_logout_supported";
+
+	/**
+	 * {@code backchannel_logout_session_supported} - {@code true} if the OpenID Provider
+	 * can pass a {@code sid} (session ID) Claim in the Logout Token to identify the
+	 * Client session with the OpenID Provider.
+	 * @since 7.2
+	 */
+	public static final String BACKCHANNEL_LOGOUT_SESSION_SUPPORTED = "backchannel_logout_session_supported";
 
 	private OidcProviderMetadataClaimNames() {
 	}
