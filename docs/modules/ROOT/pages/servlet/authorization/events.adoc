@@ -84,9 +84,9 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
-AuthorizationEventPublisher authorizationEventPublisher() {
-    SpringAuthorizationEventPublisher eventPublisher = new SpringAuthorizationEventPublisher();
-    eventPublisher.setShouldPublishEvent((result) -> {
+AuthorizationEventPublisher authorizationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+    SpringAuthorizationEventPublisher eventPublisher = new SpringAuthorizationEventPublisher(applicationEventPublisher);
+    eventPublisher.setShouldPublishResult((result) -> {
         if (!result.isGranted()) {
             return true;
         }
@@ -105,9 +105,9 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Bean
-fun authorizationEventPublisher(): AuthorizationEventPublisher {
-    val eventPublisher = SpringAuthorizationEventPublisher()
-    eventPublisher.setShouldPublishEvent { (result) ->
+fun authorizationEventPublisher(applicationEventPublisher: ApplicationEventPublisher?): AuthorizationEventPublisher {
+    val eventPublisher = SpringAuthorizationEventPublisher(applicationEventPublisher)
+    eventPublisher.setShouldPublishResult { (result) ->
         if (!result.isGranted()) {
             return true
         }
