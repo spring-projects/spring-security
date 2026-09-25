@@ -55,6 +55,39 @@ public class DefaultBearerTokenResolverTests {
 		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
 	}
 
+	// gh-19500
+	@Test
+	public void resolveWhenValidHeaderWithOneSpaceIsPresentThenTokenIsResolved() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Bearer " + TEST_TOKEN);
+		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
+	}
+
+	// gh-19500
+	@Test
+	public void resolveWhenValidHeaderWithTwoSpacesIsPresentThenTokenIsResolved() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Bearer  " + TEST_TOKEN);
+		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
+	}
+
+	// gh-19500
+	@Test
+	public void resolveWhenValidHeaderWithThreeSpacesIsPresentThenTokenIsResolved() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Bearer   " + TEST_TOKEN);
+		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
+	}
+
+	// gh-19500
+	@Test
+	public void resolveWhenHeaderWithZeroSpacesIsPresentThenTokenIsNotResolved() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Bearer" + TEST_TOKEN);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.resolver.resolve(request))
+			.withMessageContaining(("Bearer token is malformed"));
+	}
+
 	// gh-8502
 	@Test
 	public void resolveWhenHeaderEndsWithPaddingIndicatorThenTokenIsResolved() {
