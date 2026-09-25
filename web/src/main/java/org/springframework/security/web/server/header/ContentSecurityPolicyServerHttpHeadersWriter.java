@@ -73,8 +73,6 @@ public final class ContentSecurityPolicyServerHttpHeadersWriter implements Serve
 
 	private boolean reportOnly;
 
-	private boolean isNonceBased;
-
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
 		return Mono.justOrEmpty(this.policyDirectives)
@@ -88,7 +86,7 @@ public final class ContentSecurityPolicyServerHttpHeadersWriter implements Serve
 					return Mono.empty();
 				}
 
-				if (!this.isNonceBased) {
+				if (!csp.contains(NONCE_PLACEHOLDER)) {
 					headers.put(headerName, List.of(csp));
 					return Mono.empty();
 				}
@@ -129,7 +127,6 @@ public final class ContentSecurityPolicyServerHttpHeadersWriter implements Serve
 	public void setPolicyDirectives(String policyDirectives) {
 		Assert.hasLength(policyDirectives, "policyDirectives must not be null or empty");
 		this.policyDirectives = policyDirectives;
-		this.isNonceBased = policyDirectives.contains(NONCE_PLACEHOLDER);
 	}
 
 	/**
