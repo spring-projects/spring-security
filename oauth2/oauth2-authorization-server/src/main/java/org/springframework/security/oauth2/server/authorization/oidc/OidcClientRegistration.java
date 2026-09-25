@@ -141,6 +141,31 @@ public final class OidcClientRegistration extends AbstractOAuth2ClientRegistrati
 		}
 
 		/**
+		 * Sets the {@code URL} that will cause the Client to log itself out when sent a
+		 * Logout Token by the OpenID Provider, OPTIONAL.
+		 * @param backChannelLogoutUri the {@code URL} that will cause the Client to log
+		 * itself out when sent a Logout Token
+		 * @return the {@link Builder} for further configuration
+		 * @since 7.2
+		 */
+		public Builder backChannelLogoutUri(String backChannelLogoutUri) {
+			return claim(OidcClientMetadataClaimNames.BACKCHANNEL_LOGOUT_URI, backChannelLogoutUri);
+		}
+
+		/**
+		 * Set to {@code true} if the Client requires that a {@code sid} (session ID)
+		 * Claim be included in the Logout Token, OPTIONAL.
+		 * @param backChannelLogoutSessionRequired {@code true} if the Client requires a
+		 * {@code sid} Claim in the Logout Token
+		 * @return the {@link Builder} for further configuration
+		 * @since 7.2
+		 */
+		public Builder backChannelLogoutSessionRequired(boolean backChannelLogoutSessionRequired) {
+			return claim(OidcClientMetadataClaimNames.BACKCHANNEL_LOGOUT_SESSION_REQUIRED,
+					backChannelLogoutSessionRequired);
+		}
+
+		/**
 		 * Sets the Registration Access Token that can be used at the Client Configuration
 		 * Endpoint, OPTIONAL.
 		 * @param registrationAccessToken the Registration Access Token that can be used
@@ -187,6 +212,10 @@ public final class OidcClientRegistration extends AbstractOAuth2ClientRegistrati
 						"post_logout_redirect_uris must be of type List");
 				Assert.notEmpty((List<?>) getClaims().get(OidcClientMetadataClaimNames.POST_LOGOUT_REDIRECT_URIS),
 						"post_logout_redirect_uris cannot be empty");
+			}
+			if (getClaims().get(OidcClientMetadataClaimNames.BACKCHANNEL_LOGOUT_URI) != null) {
+				validateURL(getClaims().get(OidcClientMetadataClaimNames.BACKCHANNEL_LOGOUT_URI),
+						"backchannel_logout_uri must be a valid URL");
 			}
 		}
 

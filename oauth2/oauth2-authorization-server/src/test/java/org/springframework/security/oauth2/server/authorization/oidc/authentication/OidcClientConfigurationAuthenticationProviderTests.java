@@ -331,6 +331,7 @@ public class OidcClientConfigurationAuthenticationProviderTests {
 			.clientSettings(ClientSettings.builder()
 				.tokenEndpointAuthenticationSigningAlgorithm(SignatureAlgorithm.RS512)
 				.jwkSetUrl("https://client.example.com/jwks")
+				.backChannelLogoutUri("https://client.example.com/logout/connect/back-channel")
 				.build())
 			.build();
 		OAuth2Authorization authorization = TestOAuth2Authorizations
@@ -384,6 +385,9 @@ public class OidcClientConfigurationAuthenticationProviderTests {
 			.isEqualTo(registeredClient.getClientSettings().getTokenEndpointAuthenticationSigningAlgorithm().getName());
 		assertThat(clientRegistrationResult.getJwkSetUrl().toString())
 			.isEqualTo(registeredClient.getClientSettings().getJwkSetUrl());
+		assertThat(clientRegistrationResult.getBackChannelLogoutUri().toString())
+			.isEqualTo("https://client.example.com/logout/connect/back-channel");
+		assertThat(clientRegistrationResult.isBackChannelLogoutSessionRequired()).isFalse();
 		assertThat(clientRegistrationResult.getIdTokenSignedResponseAlgorithm())
 			.isEqualTo(registeredClient.getTokenSettings().getIdTokenSignatureAlgorithm().getName());
 

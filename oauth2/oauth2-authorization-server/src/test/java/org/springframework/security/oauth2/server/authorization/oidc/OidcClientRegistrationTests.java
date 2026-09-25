@@ -402,6 +402,14 @@ public class OidcClientRegistrationTests {
 	}
 
 	@Test
+	public void buildWhenBackChannelLogoutUriNotUrlThenThrowIllegalArgumentException() {
+		OidcClientRegistration.Builder builder = this.minimalBuilder.backChannelLogoutUri("not an url");
+
+		assertThatIllegalArgumentException().isThrownBy(builder::build)
+			.withMessage("backchannel_logout_uri must be a valid URL");
+	}
+
+	@Test
 	public void claimWhenNameNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> OidcClientRegistration.builder().claim(null, "claim-value"))
