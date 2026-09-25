@@ -368,7 +368,7 @@ Java::
 @Bean
 ResponseAuthenticationConverter authenticationConverter() {
 	ResponseAuthenticationConverter authenticationConverter = new ResponseAuthenticationConverter();
-	authenticationConverter.setPrincipalNameConverter((assertion) -> {
+	authenticationConverter.setGrantedAuthoritiesConverter((assertion) -> {
 		// ... grant the needed authorities based on attributes in the assertion
 	});
 	return authenticationConverter;
@@ -382,7 +382,7 @@ Kotlin::
 @Bean
 fun authenticationConverter(): ResponseAuthenticationConverter {
     val authenticationConverter = ResponseAuthenticationConverter()
-    authenticationConverter.setPrincipalNameConverter{ assertion ->
+    authenticationConverter.setGrantedAuthoritiesConverter{ assertion ->
 		// ... grant the needed authorities based on attributes in the assertion
     }
     return authenticationConverter
