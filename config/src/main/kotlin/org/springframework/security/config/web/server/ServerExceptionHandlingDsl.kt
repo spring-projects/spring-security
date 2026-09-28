@@ -18,6 +18,7 @@ package org.springframework.security.config.web.server
 
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher
 
 /**
  * A Kotlin DSL to configure [ServerHttpSecurity] exception handling using idiomatic Kotlin
@@ -35,10 +36,28 @@ class ServerExceptionHandlingDsl {
     var authenticationEntryPoint: ServerAuthenticationEntryPoint? = null
     var accessDeniedHandler: ServerAccessDeniedHandler? = null
 
+    private val defaultEntryPointMappings: LinkedHashMap<ServerWebExchangeMatcher, ServerAuthenticationEntryPoint> = linkedMapOf()
+
+    /**
+     * Sets a default [ServerAuthenticationEntryPoint] to be used which prefers being
+     * invoked for the provided [ServerWebExchangeMatcher].
+     *
+     * @param entryPoint the [ServerAuthenticationEntryPoint] to use
+     * @param preferredMatcher the [ServerWebExchangeMatcher] for this default
+     * [ServerAuthenticationEntryPoint]
+     * @since 7.2
+     */
+    fun defaultAuthenticationEntryPointFor(entryPoint: ServerAuthenticationEntryPoint, preferredMatcher: ServerWebExchangeMatcher) {
+        defaultEntryPointMappings[preferredMatcher] = entryPoint
+    }
+
     internal fun get(): (ServerHttpSecurity.ExceptionHandlingSpec) -> Unit {
         return { exceptionHandling ->
             authenticationEntryPoint?.also { exceptionHandling.authenticationEntryPoint(authenticationEntryPoint) }
             accessDeniedHandler?.also { exceptionHandling.accessDeniedHandler(accessDeniedHandler) }
+            defaultEntryPointMappings.forEach { (matcher, entryPoint) ->
+                exceptionHandling.defaultAuthenticationEntryPointFor(entryPoint, matcher)
+            }
         }
     }
 }
