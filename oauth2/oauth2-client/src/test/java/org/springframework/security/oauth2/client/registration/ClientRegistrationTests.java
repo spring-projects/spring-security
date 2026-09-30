@@ -663,6 +663,24 @@ public class ClientRegistrationTests {
 	}
 
 	@Test
+	public void buildWhenClientSecretSetThenClientSecretNotExposed() {
+		String clientSecret = "client-secret-value";
+		// @formatter:off
+		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+				.clientId(CLIENT_ID)
+				.clientSecret(clientSecret)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.redirectUri(REDIRECT_URI)
+				.authorizationUri(AUTHORIZATION_URI)
+				.tokenUri(TOKEN_URI)
+				.clientName(CLIENT_NAME)
+				.build();
+		// @formatter:on
+		assertThat(registration.toString()).doesNotContain(clientSecret);
+	}
+
+	@Test
 	void clientSettingsWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 			.isThrownBy(() -> ClientRegistration.withRegistrationId(REGISTRATION_ID).clientSettings(null));

@@ -179,7 +179,6 @@ public final class ClientRegistration implements Serializable {
 		return "ClientRegistration{"
 				+ "registrationId='" + this.registrationId + '\''
 				+ ", clientId='" + this.clientId + '\''
-				+ ", clientSecret='" + this.clientSecret + '\''
 				+ ", clientAuthenticationMethod=" + this.clientAuthenticationMethod
 				+ ", authorizationGrantType=" + this.authorizationGrantType
 				+ ", redirectUri='" + this.redirectUri
