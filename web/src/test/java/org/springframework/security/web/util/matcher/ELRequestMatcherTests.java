@@ -18,9 +18,11 @@ package org.springframework.security.web.util.matcher;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.expression.spel.SpelEvaluationException;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Mike Wiesner
@@ -83,6 +85,21 @@ public class ELRequestMatcherTests {
 	public void toStringThenFormatted() {
 		ELRequestMatcher requestMatcher = new ELRequestMatcher("hasHeader('User-Agent','MSIE')");
 		assertThat(requestMatcher.toString()).isEqualTo("EL [el=\"hasHeader('User-Agent','MSIE')\"]");
+	}
+
+	@Test
+	public void testWhenTypeReferenceThenThrowSpelEvaluationException() {
+		ELRequestMatcher requestMatcher = new ELRequestMatcher("T(java.lang.System).getProperty('os.name') != null");
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		assertThatExceptionOfType(SpelEvaluationException.class).isThrownBy(() -> requestMatcher.matches(request));
+	}
+
+	@Test
+	public void testWhenMethodNotOnRootObjectThenThrowSpelEvaluationException() {
+		ELRequestMatcher requestMatcher = new ELRequestMatcher("hasIpAddress('1.1.1.1').getClass() != null");
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRemoteAddr("1.1.1.1");
+		assertThatExceptionOfType(SpelEvaluationException.class).isThrownBy(() -> requestMatcher.matches(request));
 	}
 
 }
