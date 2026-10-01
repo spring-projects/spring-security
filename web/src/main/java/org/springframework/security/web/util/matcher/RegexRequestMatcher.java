@@ -81,7 +81,6 @@ public final class RegexRequestMatcher implements RequestMatcher {
 	 * @since 5.8
 	 */
 	public static RegexRequestMatcher regexMatcher(HttpMethod method, String pattern) {
-		Assert.notNull(method, "method cannot be null");
 		Assert.hasText(pattern, "pattern cannot be empty");
 		return new RegexRequestMatcher(pattern, method.name());
 	}
