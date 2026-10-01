@@ -52,6 +52,7 @@ import reactor.core.publisher.Mono
  * Tests for [ServerOneTimeTokenLoginDsl]
  *
  * @author Max Batischev
+ * @author Andrey Litvitski
  */
 @ExtendWith(SpringTestContextExtension::class)
 class ServerOneTimeTokenLoginDslTests {
@@ -176,10 +177,49 @@ class ServerOneTimeTokenLoginDslTests {
         // @formatter:on
     }
 
+    @Test
+    fun `request when secure and custom login page then redirects to custom login page`() {
+        spring.register(LoginPageConfig::class.java).autowire()
+
+        client.get()
+            .uri("/")
+            .exchange()
+            .expectStatus().is3xxRedirection
+            .expectHeader().valueEquals("Location", "/log-in")
+    }
+
     private fun lastToken():OneTimeToken? =
         spring.context.getBean(TestServerOneTimeTokenGenerationSuccessHandler::class.java)
                 .lastToken
 
+    @Configuration
+    @EnableWebFlux
+    @EnableWebFluxSecurity
+    @Import(UserDetailsServiceConfig::class)
+    open class LoginPageConfig {
+
+        @Bean
+        open fun springWebFilterChain(
+            http: ServerHttpSecurity,
+            ottSuccessHandler: ServerOneTimeTokenGenerationSuccessHandler
+        ): SecurityWebFilterChain {
+            // @formatter:off
+            return http {
+                authorizeExchange {
+                    authorize(anyExchange, authenticated)
+                }
+                oneTimeTokenLogin {
+                    loginPage = "/log-in"
+                    tokenGenerationSuccessHandler = ottSuccessHandler
+                }
+            }
+            // @formatter:on
+        }
+
+        @Bean
+        open fun ottSuccessHandler(): ServerOneTimeTokenGenerationSuccessHandler =
+            TestServerOneTimeTokenGenerationSuccessHandler()
+    }
 
     @Configuration
     @EnableWebFlux
