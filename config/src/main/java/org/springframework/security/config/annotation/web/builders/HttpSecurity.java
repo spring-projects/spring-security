@@ -47,6 +47,7 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configurers.AnonymousConfigurer;
+import org.springframework.security.config.annotation.web.configurers.ApiKeyConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer.AuthorizationManagerRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.configurers.ChannelSecurityConfigurer;
@@ -1569,6 +1570,72 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	public HttpSecurity oneTimeTokenLogin(
 			Customizer<OneTimeTokenLoginConfigurer<HttpSecurity>> oneTimeTokenLoginConfigurerCustomizer) {
 		oneTimeTokenLoginConfigurerCustomizer.customize(getOrApply(new OneTimeTokenLoginConfigurer<>(getContext())));
+		return HttpSecurity.this;
+	}
+
+	/**
+	 * Configures API key authentication support.
+	 *
+	 * <h2>Example Configuration</h2>
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class SecurityConfig {
+	 *
+	 * 	&#064;Bean
+	 * 	public ApiKeyDigest apiKeyDigest() {
+	 * 	    return new Sha3ApiKeyDigest();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public ApiKeySearchService apiKeySearchService(JdbcTemplate jdbc) {
+	 * 	    return new ApiKeySearchServiceImpl(jdbc);
+	 * 	}
+	 *
+	 *   // separate filter chain for service-to-service requests
+	 * 	&#064;Bean
+	 * 	&#064;Order(1)
+	 * 	public SecurityFilterChain apiKeySecurityFilterChain(
+	 * 	     HttpSecurity http,
+	 * 	     ApiKeyDigest digest,
+	 * 	     ApiKeySearchService searchService
+	 * 	) throws Exception {
+	 * 		return http
+	 * 	         .securityMatcher("/s2s/do-something")
+	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
+	 * 					.anyRequest().authenticated()
+	 * 			)
+	 * 			.apiKey(configurer -> configurer
+	 * 		         	.digest(digest)
+	 * 		         	.searchService(searchService())
+	 * 			)
+	 * 		     // API key authentication is used for server-to-service interactions
+	 * 		     // which means there SHOULD be no browser, so no possibility for CSRF
+	 * 		     .csrf(AbstractHttpConfigurer::disable)
+	 * 		     .build();
+	 * 	}
+	 *
+	 *   // filter chain for user requests
+	 * 	&#064;Bean
+	 * 	&#064;Order(2)
+	 * 	public SecurityFilterChain securityFilterChain(
+	 * 	     HttpSecurity http,
+	 * 	     ApiKeyDigest digest,
+	 * 	     ApiKeySearchService searchService
+	 * 	) throws Exception {
+	 * 	     // configure as usual
+	 * 	}
+	 *
+	 * }
+	 * </pre>
+	 * @param configurerCustomizer the {@link Customizer} to provide more options for the
+	 * {@link ApiKeyConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 */
+	public HttpSecurity apiKey(Customizer<ApiKeyConfigurer<HttpSecurity>> configurerCustomizer) throws Exception {
+		configurerCustomizer.customize(getOrApply(new ApiKeyConfigurer<>(getContext())));
 		return HttpSecurity.this;
 	}
 
