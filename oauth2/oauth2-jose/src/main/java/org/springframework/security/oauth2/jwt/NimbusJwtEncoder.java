@@ -235,6 +235,7 @@ public final class NimbusJwtEncoder implements JwtEncoder {
 					.keyType(KeyType.forAlgorithm(jwsAlgorithm))
 					.keyID(headers.getKeyId())
 					.keyUses(KeyUse.SIGNATURE, null)
+					.privateOnly(true)
 					.algorithms(jwsAlgorithm, null)
 					.x509CertSHA256Thumbprint(Base64URL.from(headers.getX509SHA256Thumbprint()))
 					.build();
