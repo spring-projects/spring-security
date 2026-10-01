@@ -79,6 +79,7 @@ import org.springframework.security.oauth2.jose.TestJwks;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationCode;
@@ -99,6 +100,8 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntities;
+import org.springframework.security.web.webauthn.authentication.WebAuthnAuthentication;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.LinkedMultiValueMap;
@@ -113,6 +116,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -322,6 +326,52 @@ public class OidcTests {
 			.decode((String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN));
 
 		assertThat(idToken.<String>getClaim("sid")).isEqualTo(sidClaim);
+	}
+
+	// gh-19202
+	@Test
+	public void requestWhenWebAuthnAuthenticationThenIdTokenContainsSidAndAuthTimeClaims() throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithWebAuthn.class).autowire();
+
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().scope(OidcScopes.OPENID).build();
+		this.registeredClientRepository.save(registeredClient);
+
+		WebAuthnAuthentication webAuthnAuthentication = new WebAuthnAuthentication(
+				TestPublicKeyCredentialUserEntities.userEntity().build(),
+				List.of(FactorGrantedAuthority.fromAuthority(FactorGrantedAuthority.WEBAUTHN_AUTHORITY)));
+
+		MultiValueMap<String, String> authorizationRequestParameters = getAuthorizationRequestParameters(
+				registeredClient);
+		MvcResult mvcResult = this.mvc
+			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI).queryParams(authorizationRequestParameters)
+				.with(authentication(webAuthnAuthentication)))
+			.andExpect(status().is3xxRedirection())
+			.andReturn();
+		String redirectedUrl = mvcResult.getResponse().getRedirectedUrl();
+		assertThat(redirectedUrl).matches(".+\\?code=.{15,}&state=state");
+
+		String authorizationCode = extractParameterFromRedirectUri(redirectedUrl, "code");
+		OAuth2Authorization authorization = this.authorizationService.findByToken(authorizationCode,
+				AUTHORIZATION_CODE_TOKEN_TYPE);
+
+		mvcResult = this.mvc
+			.perform(post(DEFAULT_TOKEN_ENDPOINT_URI).params(getTokenRequestParameters(registeredClient, authorization))
+				.header(HttpHeaders.AUTHORIZATION,
+						"Basic " + encodeBasicAuth(registeredClient.getClientId(), registeredClient.getClientSecret())))
+			.andExpect(status().isOk())
+			.andReturn();
+
+		MockHttpServletResponse servletResponse = mvcResult.getResponse();
+		MockClientHttpResponse httpResponse = new MockClientHttpResponse(servletResponse.getContentAsByteArray(),
+				HttpStatus.valueOf(servletResponse.getStatus()));
+		OAuth2AccessTokenResponse accessTokenResponse = accessTokenHttpResponseConverter
+			.read(OAuth2AccessTokenResponse.class, httpResponse);
+
+		Jwt idToken = this.jwtDecoder
+			.decode((String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN));
+
+		assertThat(idToken.<String>getClaim("sid")).isNotNull();
+		assertThat(idToken.<Object>getClaim("auth_time")).isNotNull();
 	}
 
 	@Test
@@ -692,6 +742,23 @@ public class OidcTests {
 		@Bean
 		SessionRegistry sessionRegistry() {
 			return sessionRegistry;
+		}
+
+	}
+
+	// gh-19202
+	// Uses InMemoryOAuth2AuthorizationService to avoid Jackson serialization complexity
+	// when storing WebAuthnAuthentication (which requires both Jackson 2 and 3 WebAuthn
+	// modules to be registered in JdbcOAuth2AuthorizationService).
+	@EnableWebSecurity
+	@Configuration
+	static class AuthorizationServerConfigurationWithWebAuthn extends AuthorizationServerConfiguration {
+
+		@Bean
+		@Override
+		OAuth2AuthorizationService authorizationService(JdbcOperations jdbcOperations,
+				RegisteredClientRepository registeredClientRepository) {
+			return new InMemoryOAuth2AuthorizationService();
 		}
 
 	}
