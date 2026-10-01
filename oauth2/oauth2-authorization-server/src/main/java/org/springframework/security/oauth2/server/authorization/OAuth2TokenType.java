@@ -19,6 +19,8 @@ package org.springframework.security.oauth2.server.authorization;
 import java.io.Serial;
 import java.io.Serializable;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -64,7 +66,7 @@ public final class OAuth2TokenType implements Serializable {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (this == obj) {
 			return true;
 		}
