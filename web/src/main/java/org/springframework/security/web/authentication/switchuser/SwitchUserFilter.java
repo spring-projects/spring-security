@@ -192,7 +192,9 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 				SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 				context.setAuthentication(targetUser);
 				this.securityContextHolderStrategy.setContext(context);
-				this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", targetUser));
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", targetUser));
+				}
 				this.securityContextRepository.saveContext(context, request, response);
 				// redirect to target url
 				this.successHandler.onAuthenticationSuccess(request, response, targetUser);
@@ -210,14 +212,19 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 			SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 			context.setAuthentication(originalUser);
 			this.securityContextHolderStrategy.setContext(context);
-			this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", originalUser));
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", originalUser));
+			}
 			this.securityContextRepository.saveContext(context, request, response);
 			// redirect to target url
 			this.successHandler.onAuthenticationSuccess(request, response, originalUser);
 			return;
 		}
-		this.logger.trace(LogMessage.format("Did not attempt to switch user since request did not match [%s] or [%s]",
-				this.switchUserMatcher, this.exitUserMatcher));
+		if (this.logger.isTraceEnabled()) {
+			this.logger
+				.trace(LogMessage.format("Did not attempt to switch user since request did not match [%s] or [%s]",
+						this.switchUserMatcher, this.exitUserMatcher));
+		}
 		chain.doFilter(request, response);
 	}
 
@@ -236,7 +243,9 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 		UsernamePasswordAuthenticationToken targetUserRequest;
 		String username = request.getParameter(this.usernameParameter);
 		username = (username != null) ? username : "";
-		this.logger.debug(LogMessage.format("Attempting to switch to user [%s]", username));
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug(LogMessage.format("Attempting to switch to user [%s]", username));
+		}
 		UserDetails targetUser = this.userDetailsService.loadUserByUsername(username);
 		this.userDetailsChecker.check(targetUser);
 		// OK, create the switch user token
@@ -350,7 +359,9 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 			// check for switch user type of authority
 			if (auth instanceof SwitchUserGrantedAuthority) {
 				original = ((SwitchUserGrantedAuthority) auth).getSource();
-				this.logger.debug(LogMessage.format("Found original switch user granted authority [%s]", original));
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug(LogMessage.format("Found original switch user granted authority [%s]", original));
+				}
 			}
 		}
 		return original;

@@ -145,7 +145,9 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 				user = retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
 			}
 			catch (UsernameNotFoundException ex) {
-				this.logger.debug(LogMessage.format("Failed to find user '%s'", username));
+				if (this.logger.isDebugEnabled()) {
+					this.logger.debug(LogMessage.format("Failed to find user '%s'", username));
+				}
 				String message = this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials",
 						"Bad credentials");
 				if (!this.hideUserNotFoundExceptions) {
