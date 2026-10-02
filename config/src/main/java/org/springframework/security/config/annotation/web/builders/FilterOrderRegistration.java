@@ -85,8 +85,11 @@ final class FilterOrderRegistration {
 		put(SecurityContextPersistenceFilter.class, order.next());
 		put(HeaderWriterFilter.class, order.next());
 		put(CorsFilter.class, order.next());
-		put(CsrfFilter.class, order.next());
-		put(CrossOriginProtectionFilter.class, order.next());
+		int csrfOrder = order.next();
+		put(CsrfFilter.class, csrfOrder);
+		// takes CsrfFilter's place, so filters added before or after CsrfFilter keep
+		// their order
+		put(CrossOriginProtectionFilter.class, csrfOrder);
 		put(LogoutFilter.class, order.next());
 		this.filterToOrder.put(
 				"org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter",

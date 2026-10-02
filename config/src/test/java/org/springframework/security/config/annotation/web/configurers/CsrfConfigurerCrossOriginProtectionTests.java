@@ -50,6 +50,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -112,6 +113,17 @@ public class CsrfConfigurerCrossOriginProtectionTests {
 			.andExpect(status().isOk());
 		this.mvc.perform(post("/path").header("Sec-Fetch-Site", "cross-site").header("Origin", "https://evil.example"))
 			.andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void postWhenCrossSiteThenRejectedBeforeFilterAddedAfterCsrfFilter() throws Exception {
+		this.spring.register(FilterAfterCsrfFilterConfig.class, BasicController.class).autowire();
+		this.mvc.perform(post("/path").header("Sec-Fetch-Site", "cross-site"))
+			.andExpect(status().isForbidden())
+			.andExpect(header().doesNotExist("X-After-Csrf"));
+		this.mvc.perform(post("/path").header("Sec-Fetch-Site", "same-origin"))
+			.andExpect(status().isOk())
+			.andExpect(header().string("X-After-Csrf", "reached"));
 	}
 
 	@Test
@@ -207,6 +219,28 @@ public class CsrfConfigurerCrossOriginProtectionTests {
 				.csrf((csrf) -> csrf
 					.crossOriginProtection((crossOrigin) -> crossOrigin
 						.trustedOrigins("https://partner.example")));
+			return http.build();
+			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class FilterAfterCsrfFilterConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			Filter afterCsrf = (request, response, chain) -> {
+				((HttpServletResponse) response).setHeader("X-After-Csrf", "reached");
+				chain.doFilter(request, response);
+			};
+			// @formatter:off
+			http
+				.csrf((csrf) -> csrf
+					.crossOriginProtection(Customizer.withDefaults()))
+				.addFilterAfter(afterCsrf, CsrfFilter.class);
 			return http.build();
 			// @formatter:on
 		}
