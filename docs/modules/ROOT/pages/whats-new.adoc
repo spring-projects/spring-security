@@ -7,6 +7,7 @@
 
 == Web
 
+* https://github.com/spring-projects/spring-security/issues/9663[gh-9663] - Add `defaultAuthenticationEntryPointFor` to the Reactive `exceptionHandling` DSL
 * Since Spring Framework's `HttpMethod#valueOf` now normalizes casing, `StrictServerWebExchangeFirewall` no longer detects a non-canonical-case HTTP method (for example, `get` instead of `GET`) as a distinct value; such requests are processed as the canonical method instead of being rejected. Applications with a customized `ServerExchangeRejectedHandler` should be aware it is no longer invoked for this case.
 
 == OAuth 2.0
