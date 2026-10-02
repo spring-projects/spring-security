@@ -480,7 +480,7 @@ public class ServerHttpSecurity {
 
 	/**
 	 * Configures <a href=
-	 * "https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet">CSRF
+	 * "https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html">CSRF
 	 * Protection</a> which is enabled by default. You can disable it using:
 	 *
 	 * <pre class="code">
@@ -1827,7 +1827,7 @@ public class ServerHttpSecurity {
 
 	/**
 	 * Configures <a href=
-	 * "https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet">CSRF
+	 * "https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html">CSRF
 	 * Protection</a>.
 	 *
 	 * @author Rob Winch
