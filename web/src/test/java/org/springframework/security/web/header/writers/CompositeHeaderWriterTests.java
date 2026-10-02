@@ -18,14 +18,20 @@ package org.springframework.security.web.header.writers;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.header.HeaderWriter;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatRuntimeException;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -47,6 +53,19 @@ public class CompositeHeaderWriterTests {
 		headerWriter.writeHeaders(request, response);
 		verify(one).writeHeaders(request, response);
 		verify(two).writeHeaders(request, response);
+	}
+
+	@Test
+	void writeHeadersWhenSomeWriterThrowsThenOthersStillWrite() {
+		HttpServletRequest request = new MockHttpServletRequest();
+		HttpServletResponse response = new MockHttpServletResponse();
+		HeaderWriter writer1 = mock(HeaderWriter.class);
+		HeaderWriter writer2 = mock(HeaderWriter.class);
+		CompositeHeaderWriter headerWriter = new CompositeHeaderWriter(List.of(writer1, writer2));
+		willThrow(RuntimeException.class).given(writer1).writeHeaders(request, response);
+		assertThatRuntimeException().isThrownBy(() -> headerWriter.writeHeaders(request, response));
+		then(writer1).should().writeHeaders(request, response);
+		then(writer2).should().writeHeaders(request, response);
 	}
 
 	@Test
