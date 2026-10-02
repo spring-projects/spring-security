@@ -214,8 +214,8 @@ public class FilterChainProxy extends GenericFilterBean {
 			throws IOException, ServletException {
 		FirewalledRequest firewallRequest = this.firewall.getFirewalledRequest((HttpServletRequest) request);
 		HttpServletResponse firewallResponse = this.firewall.getFirewalledResponse((HttpServletResponse) response);
-		List<Filter> filters = getFilters(firewallRequest);
-		if (filters == null || filters.isEmpty()) {
+		SecurityFilterChain matched = matchChain(firewallRequest);
+		if (matched == null || matched.getFilters().isEmpty()) {
 			if (logger.isTraceEnabled()) {
 				logger.trace(LogMessage.of(() -> "No security for " + requestLine(firewallRequest)));
 			}
@@ -223,12 +223,15 @@ public class FilterChainProxy extends GenericFilterBean {
 			this.filterChainDecorator.decorate(chain).doFilter(firewallRequest, firewallResponse);
 			return;
 		}
+		List<Filter> filters = matched.getFilters();
+		String chainName = matched.getName();
+		String suffix = (chainName != null) ? " [" + chainName + "]" : "";
 		if (logger.isDebugEnabled()) {
-			logger.debug(LogMessage.of(() -> "Securing " + requestLine(firewallRequest)));
+			logger.debug(LogMessage.of(() -> "Securing " + requestLine(firewallRequest) + suffix));
 		}
 		FilterChain reset = (req, res) -> {
 			if (logger.isDebugEnabled()) {
-				logger.debug(LogMessage.of(() -> "Secured " + requestLine(firewallRequest)));
+				logger.debug(LogMessage.of(() -> "Secured " + requestLine(firewallRequest) + suffix));
 			}
 			// Deactivate path stripping as we exit the security filter chain
 			firewallRequest.reset();
@@ -238,22 +241,37 @@ public class FilterChainProxy extends GenericFilterBean {
 	}
 
 	/**
-	 * Returns the first filter chain matching the supplied URL.
+	 * Returns the first filter chain matching the supplied request.
 	 * @param request the request to match
-	 * @return an ordered array of Filters defining the filter chain
+	 * @return the matching {@link SecurityFilterChain}, or {@code null} if none matches
 	 */
-	private @Nullable List<Filter> getFilters(HttpServletRequest request) {
+	private @Nullable SecurityFilterChain matchChain(HttpServletRequest request) {
 		int count = 0;
-		for (SecurityFilterChain chain : this.filterChains) {
+		for (SecurityFilterChain candidate : this.filterChains) {
 			if (logger.isTraceEnabled()) {
-				logger.trace(LogMessage.format("Trying to match request against %s (%d/%d)", chain, ++count,
+				logger.trace(LogMessage.format("Trying to match request against %s (%d/%d)", candidate, ++count,
 						this.filterChains.size()));
 			}
-			if (chain.matches(request)) {
-				return chain.getFilters();
+			if (candidate.matches(request)) {
+				return candidate;
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Returns the filters of the first chain matching the supplied request.
+	 * <p>
+	 * NOTE: this method is invoked reflectively by Spring Security's test support
+	 * (see {@code WebTestUtils.findFilter}). Renaming or changing its signature
+	 * is a breaking change to that contract.
+	 * @param request the request to match
+	 * @return an ordered list of Filters defining the matched filter chain, or
+	 * {@code null} if no chain matches
+	 */
+	private @Nullable List<Filter> getFilters(HttpServletRequest request) {
+		SecurityFilterChain matched = matchChain(request);
+		return (matched != null) ? matched.getFilters() : null;
 	}
 
 	/**
