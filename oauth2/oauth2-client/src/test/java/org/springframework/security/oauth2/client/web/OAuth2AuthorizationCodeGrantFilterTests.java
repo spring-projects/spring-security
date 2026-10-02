@@ -28,6 +28,7 @@ import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -35,6 +36,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -48,6 +50,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
@@ -57,6 +60,8 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
@@ -150,6 +155,16 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 	@Test
 	public void setRequestCacheWhenRequestCacheIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRequestCache(null));
+	}
+
+	@Test
+	public void setAuthenticationSuccessHandlerWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAuthenticationSuccessHandler(null));
+	}
+
+	@Test
+	public void setAuthenticationFailureHandlerWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAuthenticationFailureHandler(null));
 	}
 
 	@Test
@@ -279,6 +294,30 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 	}
 
 	@Test
+	public void doFilterWhenAuthorizationFailsAndAuthenticationFailureHandlerSetThenHandlerInvoked() throws Exception {
+		MockHttpServletRequest authorizationRequest = createAuthorizationRequest("/callback/client-1");
+		MockHttpServletRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain filterChain = mock(FilterChain.class);
+		this.setUpAuthorizationRequest(authorizationRequest, response, this.registration1);
+		OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT);
+		given(this.authenticationManager.authenticate(any(Authentication.class)))
+			.willThrow(new OAuth2AuthorizationException(error));
+		AuthenticationFailureHandler failureHandler = mock(AuthenticationFailureHandler.class);
+		this.filter.setAuthenticationFailureHandler(failureHandler);
+		this.filter.doFilter(authorizationResponse, response, filterChain);
+		ArgumentCaptor<AuthenticationException> exception = ArgumentCaptor.forClass(AuthenticationException.class);
+		verify(failureHandler).onAuthenticationFailure(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				exception.capture());
+		assertThat(exception.getValue()).isInstanceOf(OAuth2AuthenticationException.class);
+		assertThat(((OAuth2AuthenticationException) exception.getValue()).getError()).isEqualTo(error);
+		assertThat(exception.getValue().getAuthenticationRequest())
+			.isInstanceOf(OAuth2AuthorizationCodeAuthenticationToken.class);
+		assertThat(response.getRedirectedUrl()).isNull();
+		verifyNoInteractions(filterChain);
+	}
+
+	@Test
 	public void doFilterWhenAuthorizationSucceedsThenAuthorizedClientSavedToService() throws Exception {
 		MockHttpServletRequest authorizationRequest = createAuthorizationRequest("/callback/client-1");
 		MockHttpServletRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
@@ -306,6 +345,27 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		this.setUpAuthenticationResult(this.registration1);
 		this.filter.doFilter(authorizationResponse, response, filterChain);
 		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/callback/client-1");
+	}
+
+	@Test
+	public void doFilterWhenAuthorizationSucceedsAndAuthenticationSuccessHandlerSetThenHandlerInvoked()
+			throws Exception {
+		MockHttpServletRequest authorizationRequest = createAuthorizationRequest("/callback/client-1");
+		MockHttpServletRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain filterChain = mock(FilterChain.class);
+		this.setUpAuthorizationRequest(authorizationRequest, response, this.registration1);
+		this.setUpAuthenticationResult(this.registration1);
+		AuthenticationSuccessHandler successHandler = mock(AuthenticationSuccessHandler.class);
+		this.filter.setAuthenticationSuccessHandler(successHandler);
+		this.filter.doFilter(authorizationResponse, response, filterChain);
+		verify(successHandler).onAuthenticationSuccess(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				any(OAuth2AuthorizationCodeAuthenticationToken.class));
+		OAuth2AuthorizedClient authorizedClient = this.authorizedClientService
+			.loadAuthorizedClient(this.registration1.getRegistrationId(), this.principalName1);
+		assertThat(authorizedClient).isNotNull();
+		assertThat(response.getRedirectedUrl()).isNull();
+		verifyNoInteractions(filterChain);
 	}
 
 	@Test
