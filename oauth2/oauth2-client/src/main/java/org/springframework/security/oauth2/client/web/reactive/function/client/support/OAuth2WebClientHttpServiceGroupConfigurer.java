@@ -16,11 +16,13 @@
 
 package org.springframework.security.oauth2.client.web.reactive.function.client.support;
 
+import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.client.ClientRegistrationIdProcessor;
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction;
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction;
+import org.springframework.util.StringValueResolver;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientHttpServiceGroupConfigurer;
@@ -33,14 +35,20 @@ import org.springframework.web.service.invoker.HttpRequestValues;
  * @author Rob Winch
  * @since 7.0
  */
-public final class OAuth2WebClientHttpServiceGroupConfigurer implements WebClientHttpServiceGroupConfigurer {
+public final class OAuth2WebClientHttpServiceGroupConfigurer
+		implements WebClientHttpServiceGroupConfigurer, EmbeddedValueResolverAware {
 
-	private final HttpRequestValues.Processor processor = ClientRegistrationIdProcessor.DEFAULT_INSTANCE;
+	private HttpRequestValues.Processor processor = ClientRegistrationIdProcessor.DEFAULT_INSTANCE;
 
 	private final ExchangeFilterFunction filter;
 
 	private OAuth2WebClientHttpServiceGroupConfigurer(ExchangeFilterFunction filter) {
 		this.filter = filter;
+	}
+
+	@Override
+	public void setEmbeddedValueResolver(StringValueResolver resolver) {
+		this.processor = ClientRegistrationIdProcessor.withEmbeddedValueResolver(resolver);
 	}
 
 	@Override
