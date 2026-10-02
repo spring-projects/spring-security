@@ -40,6 +40,7 @@ import org.springframework.security.web.authentication.ui.DefaultOneTimeTokenSub
 import org.springframework.security.web.authentication.ui.DefaultResourcesFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.authentication.www.DigestAuthenticationFilter;
+import org.springframework.security.web.context.ScopedSecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
@@ -82,6 +83,7 @@ final class FilterOrderRegistration {
 		put(WebAsyncManagerIntegrationFilter.class, order.next());
 		put(SecurityContextHolderFilter.class, order.next());
 		put(SecurityContextPersistenceFilter.class, order.next());
+		put(ScopedSecurityContextHolderFilter.class, order.next());
 		put(HeaderWriterFilter.class, order.next());
 		put(CorsFilter.class, order.next());
 		put(CsrfFilter.class, order.next());
