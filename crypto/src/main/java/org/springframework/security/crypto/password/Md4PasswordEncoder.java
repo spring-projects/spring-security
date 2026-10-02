@@ -17,8 +17,8 @@
 package org.springframework.security.crypto.password;
 
 import java.util.Base64;
+import java.util.HexFormat;
 
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
@@ -122,7 +122,7 @@ public class Md4PasswordEncoder extends AbstractValidatingPasswordEncoder {
 		if (this.encodeHashAsBase64) {
 			return Utf8.decode(Base64.getEncoder().encode(digest));
 		}
-		return new String(Hex.encode(digest));
+		return HexFormat.of().formatHex(digest);
 	}
 
 	/**

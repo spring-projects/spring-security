@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,7 +30,6 @@ import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.authentication.password.CompromisedPasswordDecision;
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
@@ -60,7 +60,7 @@ public final class HaveIBeenPwnedRestApiPasswordChecker implements CompromisedPa
 			return new CompromisedPasswordDecision(false);
 		}
 		byte[] hash = getSha1Digest().digest(password.getBytes(StandardCharsets.UTF_8));
-		String encoded = new String(Hex.encode(hash)).toUpperCase(Locale.ROOT);
+		String encoded = HexFormat.of().formatHex(hash).toUpperCase(Locale.ROOT);
 		String prefix = encoded.substring(0, PREFIX_LENGTH);
 		String suffix = encoded.substring(PREFIX_LENGTH);
 

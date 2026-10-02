@@ -17,13 +17,13 @@
 package org.springframework.security.crypto.encrypt;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HexFormat;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.PBEKeySpec;
 
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm;
@@ -56,7 +56,8 @@ class AesCbcBytesEncryptorTests {
 	@Test
 	void roundtripWhenUsingSecretKeyThenEncryptsAndDecrypts() {
 		CryptoAssumptions.assumeCBCJCE();
-		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), Hex.decode(this.hexSalt), 1024, 256);
+		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), HexFormat.of().parseHex(this.hexSalt), 1024,
+				256);
 		SecretKey secretKey = CipherUtils.newSecretKey(SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1.name(), keySpec);
 		AesCbcBytesEncryptor encryptor = AesCbcBytesEncryptor.withSecretKey(secretKey).build();
 		byte[] encrypted = encryptor.encrypt(this.secret.getBytes());
@@ -67,13 +68,14 @@ class AesCbcBytesEncryptorTests {
 	void encryptWhenUsingMockIvThenProducesKnownCiphertext() {
 		CryptoAssumptions.assumeCBCJCE();
 		BytesKeyGenerator mockGenerator = mock(BytesKeyGenerator.class);
-		given(mockGenerator.generateKey()).willReturn(Hex.decode("4b0febebd439db7ca77153cb254520c3"));
+		given(mockGenerator.generateKey()).willReturn(HexFormat.of().parseHex("4b0febebd439db7ca77153cb254520c3"));
 		given(mockGenerator.getKeyLength()).willReturn(16);
 		AesCbcBytesEncryptor encryptor = AesCbcBytesEncryptor.withPassword(this.password, this.hexSalt)
 			.ivGenerator(mockGenerator)
 			.build();
 		byte[] encrypted = encryptor.encrypt(this.secret.getBytes());
-		assertThat(Hex.encode(encrypted)).isEqualTo("4b0febebd439db7ca77153cb254520c3b7232ac29355d07869433f1ecf55fe94");
+		assertThat(HexFormat.of().formatHex(encrypted))
+			.isEqualTo("4b0febebd439db7ca77153cb254520c3b7232ac29355d07869433f1ecf55fe94");
 		assertThat(new String(encryptor.decrypt(encrypted))).isEqualTo(this.secret);
 	}
 
@@ -112,7 +114,8 @@ class AesCbcBytesEncryptorTests {
 	@SuppressWarnings("deprecation")
 	void withSecretWhenAesBytesEncryptorEncryptsThenDecrypts() {
 		CryptoAssumptions.assumeCBCJCE();
-		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), Hex.decode(this.hexSalt), 1024, 256);
+		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), HexFormat.of().parseHex(this.hexSalt), 1024,
+				256);
 		SecretKey key = CipherUtils.newSecretKey(SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1.name(), keySpec);
 		AesBytesEncryptor deprecated = new AesBytesEncryptor(key, KeyGenerators.secureRandom(16),
 				AesBytesEncryptor.CipherAlgorithm.CBC);
@@ -125,7 +128,8 @@ class AesCbcBytesEncryptorTests {
 	@SuppressWarnings("deprecation")
 	void aesBytesEncryptorWhenEncryptsThenAesCbcBytesEncryptorDecrypts() {
 		CryptoAssumptions.assumeCBCJCE();
-		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), Hex.decode(this.hexSalt), 1024, 256);
+		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), HexFormat.of().parseHex(this.hexSalt), 1024,
+				256);
 		SecretKey key = CipherUtils.newSecretKey(SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1.name(), keySpec);
 		AesCbcBytesEncryptor encryptor = AesCbcBytesEncryptor.withSecretKey(key).build();
 		AesBytesEncryptor deprecated = new AesBytesEncryptor(key, KeyGenerators.secureRandom(16),
@@ -138,7 +142,7 @@ class AesCbcBytesEncryptorTests {
 	void roundtripWhenUsingCustomIvGeneratorThenEncryptsAndDecrypts() {
 		CryptoAssumptions.assumeCBCJCE();
 		BytesKeyGenerator customIvGenerator = mock(BytesKeyGenerator.class);
-		given(customIvGenerator.generateKey()).willReturn(Hex.decode("4b0febebd439db7ca77153cb254520c3"));
+		given(customIvGenerator.generateKey()).willReturn(HexFormat.of().parseHex("4b0febebd439db7ca77153cb254520c3"));
 		given(customIvGenerator.getKeyLength()).willReturn(16);
 		AesCbcBytesEncryptor encryptor = AesCbcBytesEncryptor.withPassword(this.password, this.hexSalt)
 			.ivGenerator(customIvGenerator)
