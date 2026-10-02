@@ -87,14 +87,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * 	&lt;property name=&quot;userDetailsService&quot; ref=&quot;inMemoryUserDetailsService&quot; /&gt;
  * &lt;/bean&gt;
  *
- * &lt;bean id=&quot;inMemoryUserDetailsService&quot;
- * 	class=&quot;org.springframework.security.core.userdetails.memory.InMemoryDaoImpl&quot;&gt;
- * 	&lt;property name=&quot;userProperties&quot;&gt;
- * 		&lt;value&gt;
- * 			mike@SECPOD.DE=notUsed,ROLE_ADMIN
- * 		&lt;/value&gt;
- * 	&lt;/property&gt;
- * &lt;/bean&gt;
+ * &lt;sec:user-service id=&quot;inMemoryUserDetailsService&quot;&gt;
+ * 	&lt;sec:user name=&quot;mike@SECPOD.DE&quot; authorities=&quot;ROLE_ADMIN&quot; /&gt;
+ * &lt;/sec:user-service&gt;
  * &lt;/beans&gt;
  * </pre>
  *
