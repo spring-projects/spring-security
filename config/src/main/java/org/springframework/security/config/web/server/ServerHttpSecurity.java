@@ -27,9 +27,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -175,6 +177,7 @@ import org.springframework.security.web.server.context.ReactorContextWebFilter;
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
+import org.springframework.security.web.server.csrf.CrossOriginProtectionWebFilter;
 import org.springframework.security.web.server.csrf.CsrfServerLogoutHandler;
 import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
@@ -1841,9 +1844,13 @@ public class ServerHttpSecurity {
 
 		private CsrfWebFilter filter = new CsrfWebFilter();
 
+		private CrossOriginProtectionWebFilter crossOriginProtectionFilter = new CrossOriginProtectionWebFilter();
+
 		private ServerCsrfTokenRepository csrfTokenRepository = new WebSessionServerCsrfTokenRepository();
 
 		private boolean specifiedRequireCsrfProtectionMatcher;
+
+		private CrossOriginProtectionSpec crossOriginProtection;
 
 		/**
 		 * Configures the {@link ServerAccessDeniedHandler} used when a CSRF token is
@@ -1854,6 +1861,7 @@ public class ServerHttpSecurity {
 		 */
 		public CsrfSpec accessDeniedHandler(ServerAccessDeniedHandler accessDeniedHandler) {
 			this.filter.setAccessDeniedHandler(accessDeniedHandler);
+			this.crossOriginProtectionFilter.setAccessDeniedHandler(accessDeniedHandler);
 			return this;
 		}
 
@@ -1877,6 +1885,7 @@ public class ServerHttpSecurity {
 		 */
 		public CsrfSpec requireCsrfProtectionMatcher(ServerWebExchangeMatcher requireCsrfProtectionMatcher) {
 			this.filter.setRequireCsrfProtectionMatcher(requireCsrfProtectionMatcher);
+			this.crossOriginProtectionFilter.setRequireProtectionMatcher(requireCsrfProtectionMatcher);
 			this.specifiedRequireCsrfProtectionMatcher = true;
 			return this;
 		}
@@ -1894,6 +1903,36 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Protects against CSRF by checking where each request came from, instead of
+		 * requiring a token. A request that requires protection is rejected when the
+		 * browser reports that it came from another origin, through the
+		 * {@code Sec-Fetch-Site} header or, from older browsers, the {@code Origin}
+		 * header. Requests without either header are not from a browser and are allowed,
+		 * so non-browser clients need no exemption. See
+		 * {@link CrossOriginProtectionWebFilter} for the details.
+		 *
+		 * <p>
+		 * No token is generated, stored or required, so the
+		 * {@link #csrfTokenRepository(ServerCsrfTokenRepository)} and
+		 * {@link #csrfTokenRequestHandler(ServerCsrfTokenRequestHandler)} are not used,
+		 * no session is started for CSRF, and a page or request already in the browser
+		 * cannot become invalid because its session expired or was replaced. The
+		 * {@link #requireCsrfProtectionMatcher(ServerWebExchangeMatcher)} and
+		 * {@link #accessDeniedHandler(ServerAccessDeniedHandler)} still apply.
+		 * @param crossOriginProtectionCustomizer the {@link Customizer} to provide more
+		 * options for the {@link CrossOriginProtectionSpec}
+		 * @return the {@link CsrfSpec} for additional configuration
+		 * @since 7.2
+		 */
+		public CsrfSpec crossOriginProtection(Customizer<CrossOriginProtectionSpec> crossOriginProtectionCustomizer) {
+			if (this.crossOriginProtection == null) {
+				this.crossOriginProtection = new CrossOriginProtectionSpec();
+			}
+			crossOriginProtectionCustomizer.customize(this.crossOriginProtection);
+			return this;
+		}
+
+		/**
 		 * Disables CSRF Protection. Disabling CSRF Protection is only recommended when
 		 * the application is never used within a browser.
 		 * @return the {@link ServerHttpSecurity} to continue configuring
@@ -1904,6 +1943,12 @@ public class ServerHttpSecurity {
 		}
 
 		void configure(ServerHttpSecurity http) {
+			if (this.crossOriginProtection != null) {
+				this.crossOriginProtectionFilter.setTrustedOrigins(this.crossOriginProtection.trustedOrigins);
+				this.crossOriginProtectionFilter.setReportOnly(this.crossOriginProtection.reportOnly);
+				http.addFilterAt(this.crossOriginProtectionFilter, SecurityWebFiltersOrder.CSRF);
+				return;
+			}
 			if (this.csrfTokenRepository != null) {
 				this.filter.setCsrfTokenRepository(this.csrfTokenRepository);
 				if (ServerHttpSecurity.this.logout != null) {
@@ -1912,6 +1957,48 @@ public class ServerHttpSecurity {
 				}
 			}
 			http.addFilterAt(this.filter, SecurityWebFiltersOrder.CSRF);
+		}
+
+		/**
+		 * Options for {@link CsrfSpec#crossOriginProtection(Customizer)}.
+		 *
+		 * @since 7.2
+		 */
+		public final class CrossOriginProtectionSpec {
+
+			private final Set<String> trustedOrigins = new LinkedHashSet<>();
+
+			private boolean reportOnly;
+
+			private CrossOriginProtectionSpec() {
+			}
+
+			/**
+			 * Allows requests from these origins even though they come from another
+			 * origin, for example from another application that posts to this one by
+			 * design. Each is written as a browser sends it in the {@code Origin} header,
+			 * such as {@code https://partner.example}.
+			 * @param trustedOrigins the origins to trust
+			 * @return the {@link CrossOriginProtectionSpec} for additional configuration
+			 */
+			public CrossOriginProtectionSpec trustedOrigins(String... trustedOrigins) {
+				Assert.notNull(trustedOrigins, "trustedOrigins cannot be null");
+				this.trustedOrigins.addAll(Arrays.asList(trustedOrigins));
+				return this;
+			}
+
+			/**
+			 * Only logs, at WARN level, a request that would be rejected, and allows it.
+			 * This shows what the protection would reject before it is enforced, for
+			 * example while finding the origins to trust. The default is {@code false}.
+			 * @param reportOnly {@code true} to log rejections instead of enforcing them
+			 * @return the {@link CrossOriginProtectionSpec} for further customizations
+			 */
+			public CrossOriginProtectionSpec reportOnly(boolean reportOnly) {
+				this.reportOnly = reportOnly;
+				return this;
+			}
+
 		}
 
 	}

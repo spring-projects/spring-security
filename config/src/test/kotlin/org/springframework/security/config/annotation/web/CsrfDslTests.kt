@@ -345,4 +345,99 @@ class CsrfDslTests {
             return http.build()
         }
     }
+
+    @Test
+    fun `POST when cross origin protection then rejects only requests from another origin`() {
+        this.spring.register(CrossOriginProtectionConfig::class.java, BasicController::class.java).autowire()
+
+        this.mockMvc.post("/test1") {
+            header("Sec-Fetch-Site", "cross-site")
+        }.andExpect {
+            status { isForbidden() }
+        }
+        this.mockMvc.post("/test1") {
+            header("Sec-Fetch-Site", "same-origin")
+        }.andExpect {
+            status { isOk() }
+        }
+        this.mockMvc.post("/test1")
+                .andExpect {
+                    status { isOk() }
+                }
+    }
+
+    @Test
+    fun `POST when cross origin protection with trusted origin then allowed from it`() {
+        this.spring.register(CrossOriginProtectionTrustedOriginsConfig::class.java, BasicController::class.java).autowire()
+
+        this.mockMvc.post("/test1") {
+            header("Sec-Fetch-Site", "cross-site")
+            header("Origin", "https://partner.example")
+        }.andExpect {
+            status { isOk() }
+        }
+        this.mockMvc.post("/test1") {
+            header("Sec-Fetch-Site", "cross-site")
+            header("Origin", "https://evil.example")
+        }.andExpect {
+            status { isForbidden() }
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class CrossOriginProtectionConfig {
+        @Bean
+        open fun filterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                csrf {
+                    crossOriginProtection { }
+                }
+            }
+            return http.build()
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class CrossOriginProtectionTrustedOriginsConfig {
+        @Bean
+        open fun filterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                csrf {
+                    crossOriginProtection {
+                        trustedOrigins = listOf("https://partner.example")
+                    }
+                }
+            }
+            return http.build()
+        }
+    }
+
+    @Test
+    fun `POST when cross origin protection report only then allowed from another origin`() {
+        this.spring.register(CrossOriginProtectionReportOnlyConfig::class.java, BasicController::class.java).autowire()
+
+        this.mockMvc.post("/test1") {
+            header("Sec-Fetch-Site", "cross-site")
+        }.andExpect {
+            status { isOk() }
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class CrossOriginProtectionReportOnlyConfig {
+        @Bean
+        open fun filterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                csrf {
+                    crossOriginProtection {
+                        reportOnly = true
+                    }
+                }
+            }
+            return http.build()
+        }
+    }
 }

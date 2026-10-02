@@ -30,6 +30,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -92,7 +93,7 @@ public class DefaultWebAuthnRegistrationPageGeneratingFilter extends OncePerRequ
 		response.getWriter().write(processedTemplate);
 	}
 
-	private String passkeyRows(String username, String contextPath, CsrfToken csrfToken) {
+	private String passkeyRows(String username, String contextPath, @Nullable CsrfToken csrfToken) {
 		PublicKeyCredentialUserEntity userEntity = this.userEntities.findByUsername(username);
 		List<CredentialRecord> credentials = (userEntity != null)
 				? this.userCredentials.findByUserId(userEntity.getId()) : Collections.emptyList();
@@ -106,16 +107,25 @@ public class DefaultWebAuthnRegistrationPageGeneratingFilter extends OncePerRequ
 			.collect(Collectors.joining("\n"));
 	}
 
-	private String renderPasskeyRow(CredentialRecord credential, String contextPath, CsrfToken csrfToken) {
+	private String renderPasskeyRow(CredentialRecord credential, String contextPath, @Nullable CsrfToken csrfToken) {
 		return HtmlTemplates.fromTemplate(PASSKEY_ROW_TEMPLATE)
 			.withValue("label", credential.getLabel())
 			.withValue("created", formatInstant(credential.getCreated()))
 			.withValue("lastUsed", formatInstant(credential.getLastUsed()))
 			.withValue("signatureCount", credential.getSignatureCount())
 			.withValue("credentialId", credential.getCredentialId().toBase64UrlString())
+			.withRawHtml("csrfInput", renderCsrfInput(csrfToken))
+			.withValue("contextPath", contextPath)
+			.render();
+	}
+
+	private static String renderCsrfInput(@Nullable CsrfToken csrfToken) {
+		if (csrfToken == null) {
+			return "";
+		}
+		return HtmlTemplates.fromTemplate(CSRF_INPUT)
 			.withValue("csrfParameterName", csrfToken.getParameterName())
 			.withValue("csrfToken", csrfToken.getToken())
-			.withValue("contextPath", contextPath)
 			.render();
 	}
 
@@ -125,7 +135,10 @@ public class DefaultWebAuthnRegistrationPageGeneratingFilter extends OncePerRequ
 			.format(DateTimeFormatter.ISO_INSTANT);
 	}
 
-	private String renderCsrfHeader(CsrfToken csrfToken) {
+	private String renderCsrfHeader(@Nullable CsrfToken csrfToken) {
+		if (csrfToken == null) {
+			return "{}";
+		}
 		return HtmlTemplates.fromTemplate(CSRF_HEADERS)
 			.withValue("headerName", csrfToken.getHeaderName())
 			.withValue("headerValue", csrfToken.getToken())
@@ -205,12 +218,15 @@ public class DefaultWebAuthnRegistrationPageGeneratingFilter extends OncePerRequ
 									<td>
 										<form class="delete-form no-margin" method="post" action="{{contextPath}}/webauthn/register/{{credentialId}}">
 											<input type="hidden" name="method" value="delete">
-											<input type="hidden" name="{{csrfParameterName}}" value="{{csrfToken}}">
+											{{csrfInput}}
 											<button class="primary small" type="submit">Delete</button>
 										</form>
 									</td>
 								</tr>
 			""";
+
+	private static final String CSRF_INPUT = """
+			<input type="hidden" name="{{csrfParameterName}}" value="{{csrfToken}}">""";
 
 	private static final String CSRF_HEADERS = """
 			{"{{headerName}}" : "{{headerValue}}"}""";

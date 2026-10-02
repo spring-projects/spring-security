@@ -17,8 +17,11 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import io.micrometer.observation.ObservationRegistry;
@@ -38,6 +41,7 @@ import org.springframework.security.web.access.DelegatingAccessDeniedHandler;
 import org.springframework.security.web.access.ObservationMarkingAccessDeniedHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CrossOriginProtectionFilter;
 import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
@@ -68,7 +72,8 @@ import org.springframework.util.StringUtils;
  * The following Filters are populated
  *
  * <ul>
- * <li>{@link CsrfFilter}</li>
+ * <li>{@link CsrfFilter}, or {@link CrossOriginProtectionFilter} when
+ * {@link #crossOriginProtection(Customizer)} is used</li>
  * </ul>
  *
  * <h2>Shared Objects Created</h2>
@@ -99,6 +104,8 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	private SessionAuthenticationStrategy sessionAuthenticationStrategy;
 
 	private CsrfTokenRequestHandler requestHandler;
+
+	private CrossOriginProtectionConfig crossOriginProtection;
 
 	private final ApplicationContext context;
 
@@ -237,23 +244,66 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		return this;
 	}
 
+	/**
+	 * <p>
+	 * Protects against CSRF by checking where each request came from, instead of
+	 * requiring a token. A request that requires protection is rejected when the browser
+	 * reports that it came from another origin, through the {@code Sec-Fetch-Site} header
+	 * or, from older browsers, the {@code Origin} header. Requests without either header
+	 * are not from a browser and are allowed, so non-browser clients need no exemption.
+	 * See {@link CrossOriginProtectionFilter} for the details.
+	 * </p>
+	 *
+	 * <p>
+	 * No token is generated, stored or required, so the
+	 * {@link #csrfTokenRepository(CsrfTokenRepository)} and
+	 * {@link #csrfTokenRequestHandler(CsrfTokenRequestHandler)} are not used, no session
+	 * is created for CSRF, and a page or request already in the browser cannot become
+	 * invalid because its session expired or was replaced. The
+	 * {@link #requireCsrfProtectionMatcher(RequestMatcher)} and
+	 * {@link #ignoringRequestMatchers(String...)} still select which requests are
+	 * protected, and logout still requires a POST.
+	 * </p>
+	 *
+	 * <p>
+	 * For example, the following configuration protects every request this way and also
+	 * allows requests from another application that posts to this one by design:
+	 * </p>
+	 *
+	 * <pre>
+	 * http
+	 *     .csrf((csrf) -&gt; csrf
+	 *         .crossOriginProtection((crossOrigin) -&gt; crossOrigin
+	 *             .trustedOrigins("https://partner.example")))
+	 *     ...
+	 * </pre>
+	 * @param crossOriginProtectionCustomizer the {@link Customizer} to provide more
+	 * options for the {@link CrossOriginProtectionConfig}
+	 * @return the {@link CsrfConfigurer} for further customizations
+	 * @since 7.2
+	 */
+	public CsrfConfigurer<H> crossOriginProtection(
+			Customizer<CrossOriginProtectionConfig> crossOriginProtectionCustomizer) {
+		if (this.crossOriginProtection == null) {
+			this.crossOriginProtection = new CrossOriginProtectionConfig();
+		}
+		crossOriginProtectionCustomizer.customize(this.crossOriginProtection);
+		return this;
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure(H http) {
+		if (this.crossOriginProtection != null) {
+			configureCrossOriginProtection(http);
+			return;
+		}
 		CsrfFilter filter = new CsrfFilter(this.csrfTokenRepository);
 		RequestMatcher requireCsrfProtectionMatcher = getRequireCsrfProtectionMatcher();
 		if (requireCsrfProtectionMatcher != null) {
 			filter.setRequireCsrfProtectionMatcher(requireCsrfProtectionMatcher);
 		}
-		AccessDeniedHandler accessDeniedHandler = createAccessDeniedHandler(http);
-		ObservationRegistry registry = getObservationRegistry();
-		if (!registry.isNoop()) {
-			ObservationMarkingAccessDeniedHandler observable = new ObservationMarkingAccessDeniedHandler(registry);
-			accessDeniedHandler = new CompositeAccessDeniedHandler(observable, accessDeniedHandler);
-		}
-		if (accessDeniedHandler != null) {
-			filter.setAccessDeniedHandler(accessDeniedHandler);
-		}
+		filter.setAccessDeniedHandler(getAccessDeniedHandler(http));
 		LogoutConfigurer<H> logoutConfigurer = http.getConfigurer(LogoutConfigurer.class);
 		if (logoutConfigurer != null) {
 			logoutConfigurer.addLogoutHandler(new CsrfLogoutHandler(this.csrfTokenRepository));
@@ -267,6 +317,32 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 		filter = postProcess(filter);
 		http.addFilter(filter);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void configureCrossOriginProtection(H http) {
+		CrossOriginProtectionFilter filter = new CrossOriginProtectionFilter();
+		filter.setRequireProtectionMatcher(getRequireCsrfProtectionMatcher());
+		filter.setTrustedOrigins(this.crossOriginProtection.trustedOrigins);
+		filter.setReportOnly(this.crossOriginProtection.reportOnly);
+		filter.setAccessDeniedHandler(getAccessDeniedHandler(http));
+		if (this.sessionAuthenticationStrategy != null) {
+			SessionManagementConfigurer<H> sessionConfigurer = http.getConfigurer(SessionManagementConfigurer.class);
+			if (sessionConfigurer != null) {
+				sessionConfigurer.addSessionAuthenticationStrategy(this.sessionAuthenticationStrategy);
+			}
+		}
+		http.addFilter(postProcess(filter));
+	}
+
+	private AccessDeniedHandler getAccessDeniedHandler(H http) {
+		AccessDeniedHandler accessDeniedHandler = createAccessDeniedHandler(http);
+		ObservationRegistry registry = getObservationRegistry();
+		if (!registry.isNoop()) {
+			ObservationMarkingAccessDeniedHandler observable = new ObservationMarkingAccessDeniedHandler(registry);
+			accessDeniedHandler = new CompositeAccessDeniedHandler(observable, accessDeniedHandler);
+		}
+		return accessDeniedHandler;
 	}
 
 	/**
@@ -389,6 +465,48 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		@Override
 		protected IgnoreCsrfProtectionRegistry chainRequestMatchers(List<RequestMatcher> requestMatchers) {
 			CsrfConfigurer.this.ignoredCsrfProtectionMatchers.addAll(requestMatchers);
+			return this;
+		}
+
+	}
+
+	/**
+	 * Options for {@link CsrfConfigurer#crossOriginProtection(Customizer)}.
+	 *
+	 * @since 7.2
+	 */
+	public final class CrossOriginProtectionConfig {
+
+		private final Set<String> trustedOrigins = new LinkedHashSet<>();
+
+		private boolean reportOnly;
+
+		private CrossOriginProtectionConfig() {
+		}
+
+		/**
+		 * Allows requests from these origins even though they come from another origin,
+		 * for example from another application that posts to this one by design. Each is
+		 * written as a browser sends it in the {@code Origin} header, such as
+		 * {@code https://partner.example}.
+		 * @param trustedOrigins the origins to trust
+		 * @return the {@link CrossOriginProtectionConfig} for further customizations
+		 */
+		public CrossOriginProtectionConfig trustedOrigins(String... trustedOrigins) {
+			Assert.notNull(trustedOrigins, "trustedOrigins cannot be null");
+			this.trustedOrigins.addAll(Arrays.asList(trustedOrigins));
+			return this;
+		}
+
+		/**
+		 * Only logs, at WARN level, a request that would be rejected, and allows it. This
+		 * shows what the protection would reject before it is enforced, for example while
+		 * finding the origins to trust. The default is {@code false}.
+		 * @param reportOnly {@code true} to log rejections instead of enforcing them
+		 * @return the {@link CrossOriginProtectionConfig} for further customizations
+		 */
+		public CrossOriginProtectionConfig reportOnly(boolean reportOnly) {
+			this.reportOnly = reportOnly;
 			return this;
 		}
 
