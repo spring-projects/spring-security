@@ -17,13 +17,39 @@
 package org.springframework.security.web.util;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Test for {@link UrlUtils}
+ *
  * @author Luke Taylor
  */
 public class UrlUtilsTests {
+
+	@ParameterizedTest
+	@CsvSource(textBlock = """
+			 , https://example.com,
+			'', https://example.com,
+			/, https://example.com/,
+			requestUri, https://example.com/requestUri,
+			/requestUri, https://example.com/requestUri,
+			requestUri/, https://example.com/requestUri/,
+			/requestUri/, https://example.com/requestUri/,
+			//requestUri//, https://example.com//requestUri//
+			""")
+	public void buildFullRequestUrl(String requestUri, String expected) {
+
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setScheme("https");
+		request.setServerName("example.com");
+		request.setServerPort(443);
+		assertThat(UrlUtils.buildFullRequestUrl(request)).isEqualTo(expected);
+	}
 
 	@Test
 	public void absoluteUrlsAreMatchedAsAbsolute() {
