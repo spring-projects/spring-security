@@ -84,6 +84,29 @@ public interface OidcClientMetadataClaimAccessor extends OAuth2ClientMetadataCla
 	}
 
 	/**
+	 * Returns the {@code URL} that will cause the Client to log itself out when sent a
+	 * Logout Token by the OpenID Provider {@code (backchannel_logout_uri)}.
+	 * @return the {@code URL} that will cause the Client to log itself out when sent a
+	 * Logout Token, or {@code null} if not set
+	 * @since 7.2
+	 */
+	default @Nullable URL getBackChannelLogoutUri() {
+		return getClaimAsURL(OidcClientMetadataClaimNames.BACKCHANNEL_LOGOUT_URI);
+	}
+
+	/**
+	 * Returns {@code true} if the Client requires that a {@code sid} (session ID) Claim
+	 * be included in the Logout Token {@code (backchannel_logout_session_required)}. The
+	 * default is {@code false}.
+	 * @return {@code true} if the Client requires a {@code sid} Claim in the Logout
+	 * Token, {@code false} otherwise
+	 * @since 7.2
+	 */
+	default boolean isBackChannelLogoutSessionRequired() {
+		return Boolean.TRUE.equals(getClaimAsBoolean(OidcClientMetadataClaimNames.BACKCHANNEL_LOGOUT_SESSION_REQUIRED));
+	}
+
+	/**
 	 * Returns the Registration Access Token that can be used at the Client Configuration
 	 * Endpoint.
 	 * @return the Registration Access Token that can be used at the Client Configuration

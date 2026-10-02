@@ -349,7 +349,7 @@ public abstract class AbstractOAuth2ClientRegistration implements OAuth2ClientMe
 			valuesConsumer.accept(values);
 		}
 
-		private static void validateURL(Object url, String errorMessage) {
+		protected static void validateURL(Object url, String errorMessage) {
 			if (URL.class.isAssignableFrom(url.getClass())) {
 				return;
 			}

@@ -64,6 +64,8 @@ public class OidcProviderConfigurationTests {
 			.tokenEndpointAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC.getValue())
 			.clientRegistrationEndpoint("https://example.com/connect/register")
 			.endSessionEndpoint("https://example.com/connect/logout")
+			.backChannelLogoutSupported(true)
+			.backChannelLogoutSessionSupported(true)
 			.claim("a-claim", "a-value")
 			.build();
 
@@ -84,6 +86,8 @@ public class OidcProviderConfigurationTests {
 		assertThat(providerConfiguration.getClientRegistrationEndpoint())
 			.isEqualTo(url("https://example.com/connect/register"));
 		assertThat(providerConfiguration.getEndSessionEndpoint()).isEqualTo(url("https://example.com/connect/logout"));
+		assertThat(providerConfiguration.isBackChannelLogoutSupported()).isTrue();
+		assertThat(providerConfiguration.isBackChannelLogoutSessionSupported()).isTrue();
 		assertThat(providerConfiguration.<String>getClaim("a-claim")).isEqualTo("a-value");
 	}
 
@@ -111,6 +115,8 @@ public class OidcProviderConfigurationTests {
 		assertThat(providerConfiguration.getSubjectTypes()).containsExactly("public");
 		assertThat(providerConfiguration.getIdTokenSigningAlgorithms()).containsExactly("RS256");
 		assertThat(providerConfiguration.getTokenEndpointAuthenticationMethods()).isNull();
+		assertThat(providerConfiguration.isBackChannelLogoutSupported()).isFalse();
+		assertThat(providerConfiguration.isBackChannelLogoutSessionSupported()).isFalse();
 	}
 
 	@Test

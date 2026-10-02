@@ -89,6 +89,24 @@ public class OidcClientRegistrationAuthenticationValidatorTests {
 	}
 
 	@Test
+	public void defaultBackChannelLogoutUriValidatorWhenHttpThenRejected() {
+		assertRejected(backChannelLogoutContext("http://169.254.169.254/logout"), "invalid_client_metadata",
+				OidcClientMetadataClaimNames.BACKCHANNEL_LOGOUT_URI);
+	}
+
+	@Test
+	public void defaultBackChannelLogoutUriValidatorWhenFragmentThenRejected() {
+		assertRejected(backChannelLogoutContext("https://client.example.com/logout#fragment"),
+				"invalid_client_metadata", OidcClientMetadataClaimNames.BACKCHANNEL_LOGOUT_URI);
+	}
+
+	@Test
+	public void defaultBackChannelLogoutUriValidatorWhenHttpsThenAccepted() {
+		assertThatNoException().isThrownBy(
+				() -> this.validator.accept(backChannelLogoutContext("https://client.example.com/logout?tenant=a")));
+	}
+
+	@Test
 	public void defaultScopeValidatorWhenNonEmptyThenRejected() {
 		OidcClientRegistrationAuthenticationContext context = OidcClientRegistrationAuthenticationContext
 			.with(new OidcClientRegistrationAuthenticationToken(principal(),
@@ -172,6 +190,16 @@ public class OidcClientRegistrationAuthenticationValidatorTests {
 		}
 		return OidcClientRegistrationAuthenticationContext
 			.with(new OidcClientRegistrationAuthenticationToken(principal(), builder.build()))
+			.build();
+	}
+
+	private static OidcClientRegistrationAuthenticationContext backChannelLogoutContext(String backChannelLogoutUri) {
+		OidcClientRegistration clientRegistration = OidcClientRegistration.builder()
+			.redirectUri("https://client.example.com")
+			.backChannelLogoutUri(backChannelLogoutUri)
+			.build();
+		return OidcClientRegistrationAuthenticationContext
+			.with(new OidcClientRegistrationAuthenticationToken(principal(), clientRegistration))
 			.build();
 	}
 

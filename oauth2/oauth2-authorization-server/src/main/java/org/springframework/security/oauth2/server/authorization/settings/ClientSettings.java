@@ -100,6 +100,29 @@ public final class ClientSettings extends AbstractSettings {
 	}
 
 	/**
+	 * Returns the {@code URL} that will cause the client to log itself out when sent a
+	 * Logout Token by the OpenID Provider, as defined by OpenID Connect Back-Channel
+	 * Logout 1.0.
+	 * @return the {@code URL} of the client's back-channel logout endpoint, or
+	 * {@code null} if not set
+	 * @since 7.2
+	 */
+	public @Nullable String getBackChannelLogoutUri() {
+		return getSetting(ConfigurationSettingNames.Client.BACK_CHANNEL_LOGOUT_URI);
+	}
+
+	/**
+	 * Returns {@code true} if the client requires that a {@code sid} (session ID) Claim
+	 * be included in the Logout Token. The default is {@code false}.
+	 * @return {@code true} if the client requires a {@code sid} Claim in the Logout
+	 * Token, {@code false} otherwise
+	 * @since 7.2
+	 */
+	public boolean isBackChannelLogoutSessionRequired() {
+		return Boolean.TRUE.equals(getSetting(ConfigurationSettingNames.Client.BACK_CHANNEL_LOGOUT_SESSION_REQUIRED));
+	}
+
+	/**
 	 * Constructs a new {@link Builder} with the default settings.
 	 * @return the {@link Builder}
 	 */
@@ -183,6 +206,32 @@ public final class ClientSettings extends AbstractSettings {
 		 */
 		public Builder x509CertificateSubjectDN(String x509CertificateSubjectDN) {
 			return setting(ConfigurationSettingNames.Client.X509_CERTIFICATE_SUBJECT_DN, x509CertificateSubjectDN);
+		}
+
+		/**
+		 * Sets the {@code URL} that will cause the client to log itself out when sent a
+		 * Logout Token by the OpenID Provider, as defined by OpenID Connect Back-Channel
+		 * Logout 1.0.
+		 * @param backChannelLogoutUri the {@code URL} of the client's back-channel logout
+		 * endpoint
+		 * @return the {@link Builder} for further configuration
+		 * @since 7.2
+		 */
+		public Builder backChannelLogoutUri(String backChannelLogoutUri) {
+			return setting(ConfigurationSettingNames.Client.BACK_CHANNEL_LOGOUT_URI, backChannelLogoutUri);
+		}
+
+		/**
+		 * Set to {@code true} if the client requires that a {@code sid} (session ID)
+		 * Claim be included in the Logout Token.
+		 * @param backChannelLogoutSessionRequired {@code true} if the client requires a
+		 * {@code sid} Claim in the Logout Token, {@code false} otherwise
+		 * @return the {@link Builder} for further configuration
+		 * @since 7.2
+		 */
+		public Builder backChannelLogoutSessionRequired(boolean backChannelLogoutSessionRequired) {
+			return setting(ConfigurationSettingNames.Client.BACK_CHANNEL_LOGOUT_SESSION_REQUIRED,
+					backChannelLogoutSessionRequired);
 		}
 
 		/**

@@ -73,6 +73,22 @@ public class ClientSettingsTests {
 	}
 
 	@Test
+	public void backChannelLogoutWhenProvidedThenSet() {
+		ClientSettings clientSettings = ClientSettings.builder()
+			.backChannelLogoutUri("https://client.example.com/logout/connect/back-channel")
+			.backChannelLogoutSessionRequired(true)
+			.build();
+		assertThat(clientSettings.getBackChannelLogoutUri())
+			.isEqualTo("https://client.example.com/logout/connect/back-channel");
+		assertThat(clientSettings.isBackChannelLogoutSessionRequired()).isTrue();
+	}
+
+	@Test
+	public void backChannelLogoutSessionRequiredWhenNotSetThenFalse() {
+		assertThat(ClientSettings.builder().build().isBackChannelLogoutSessionRequired()).isFalse();
+	}
+
+	@Test
 	public void settingWhenCustomThenSet() {
 		ClientSettings clientSettings = ClientSettings.builder()
 			.setting("name1", "value1")

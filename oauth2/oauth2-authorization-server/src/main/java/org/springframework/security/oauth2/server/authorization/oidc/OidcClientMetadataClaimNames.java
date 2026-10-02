@@ -36,6 +36,9 @@ import org.springframework.security.oauth2.server.authorization.OAuth2ClientMeta
  * @see <a target="_blank" href=
  * "https://openid.net/specs/openid-connect-rpinitiated-1_0.html#ClientMetadata">3.1.
  * Client Registration Metadata</a>
+ * @see <a target="_blank" href=
+ * "https://openid.net/specs/openid-connect-backchannel-1_0.html#BCRegistration">2.2.
+ * Indicating RP Support for Back-Channel Logout</a>
  */
 public final class OidcClientMetadataClaimNames extends OAuth2ClientMetadataClaimNames {
 
@@ -61,6 +64,22 @@ public final class OidcClientMetadataClaimNames extends OAuth2ClientMetadataClai
 	 * required for signing the {@link OidcIdToken ID Token} issued to the Client.
 	 */
 	public static final String ID_TOKEN_SIGNED_RESPONSE_ALG = "id_token_signed_response_alg";
+
+	/**
+	 * {@code backchannel_logout_uri} - the {@code URL} that will cause the Client to log
+	 * itself out when sent a Logout Token by the OpenID Provider.
+	 * @since 7.2
+	 */
+	public static final String BACKCHANNEL_LOGOUT_URI = "backchannel_logout_uri";
+
+	/**
+	 * {@code backchannel_logout_session_required} - {@code true} if the Client requires
+	 * that a {@code sid} (session ID) Claim be included in the Logout Token to identify
+	 * the Client session with the OpenID Provider when the {@code backchannel_logout_uri}
+	 * is used.
+	 * @since 7.2
+	 */
+	public static final String BACKCHANNEL_LOGOUT_SESSION_REQUIRED = "backchannel_logout_session_required";
 
 	/**
 	 * {@code registration_access_token} - the Registration Access Token that can be used

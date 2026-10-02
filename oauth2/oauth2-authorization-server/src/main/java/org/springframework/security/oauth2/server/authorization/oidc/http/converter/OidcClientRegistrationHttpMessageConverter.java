@@ -145,6 +145,8 @@ public class OidcClientRegistrationHttpMessageConverter extends AbstractHttpMess
 
 		private static final TypeDescriptor STRING_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(String.class);
 
+		private static final TypeDescriptor BOOLEAN_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(Boolean.class);
+
 		private static final TypeDescriptor INSTANT_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(Instant.class);
 
 		private static final TypeDescriptor URL_TYPE_DESCRIPTOR = TypeDescriptor.valueOf(URL.class);
@@ -158,6 +160,7 @@ public class OidcClientRegistrationHttpMessageConverter extends AbstractHttpMess
 			Converter<Object, ?> collectionStringConverter = getConverter(
 					TypeDescriptor.collection(Collection.class, STRING_TYPE_DESCRIPTOR));
 			Converter<Object, ?> urlConverter = getConverter(URL_TYPE_DESCRIPTOR);
+			Converter<Object, ?> booleanConverter = getConverter(BOOLEAN_TYPE_DESCRIPTOR);
 
 			Map<String, Converter<Object, ?>> claimConverters = new HashMap<>();
 			claimConverters.put(OidcClientMetadataClaimNames.CLIENT_ID, stringConverter);
@@ -175,6 +178,8 @@ public class OidcClientRegistrationHttpMessageConverter extends AbstractHttpMess
 			claimConverters.put(OidcClientMetadataClaimNames.SCOPE, MapOidcClientRegistrationConverter::convertScope);
 			claimConverters.put(OidcClientMetadataClaimNames.JWKS_URI, urlConverter);
 			claimConverters.put(OidcClientMetadataClaimNames.ID_TOKEN_SIGNED_RESPONSE_ALG, stringConverter);
+			claimConverters.put(OidcClientMetadataClaimNames.BACKCHANNEL_LOGOUT_URI, urlConverter);
+			claimConverters.put(OidcClientMetadataClaimNames.BACKCHANNEL_LOGOUT_SESSION_REQUIRED, booleanConverter);
 			this.claimTypeConverter = new ClaimTypeConverter(claimConverters);
 		}
 

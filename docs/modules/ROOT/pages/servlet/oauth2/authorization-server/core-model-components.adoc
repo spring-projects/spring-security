@@ -113,6 +113,10 @@ public final class ClientSettings extends AbstractSettings {
 
     public String getX509CertificateSubjectDN() ... <5>
 
+    public String getBackChannelLogoutUri() ... <6>
+
+    public boolean isBackChannelLogoutSessionRequired() ... <7>
+
 	...
 
 }
@@ -122,6 +126,8 @@ public final class ClientSettings extends AbstractSettings {
 <3> `getJwkSetUrl()`: The `URL` for the client's JSON Web Key Set. Used for `private_key_jwt`, `self_signed_tls_client_auth` and `client_secret_jwt` client authentication methods.
 <4> `getTokenEndpointAuthenticationSigningAlgorithm()`: The `JwsAlgorithm` that must be used for signing the JWT used to authenticate the client at the Token Endpoint for `private_key_jwt` and `client_secret_jwt` authentication methods.
 <5> `getX509CertificateSubjectDN()`: The expected subject distinguished name associated to the client `X509Certificate` received during client authentication when using the `tls_client_auth` method.
+<6> `getBackChannelLogoutUri()`: The `URL` that the client exposes to receive a Logout Token, as defined by https://openid.net/specs/openid-connect-backchannel-1_0.html[OpenID Connect Back-Channel Logout 1.0].
+<7> `isBackChannelLogoutSessionRequired()`: If `true`, the client requires a `sid` (session ID) claim in the Logout Token. The default is `false`.
 
 [NOTE]
 https://datatracker.ietf.org/doc/html/rfc7636[Proof Key for Code Exchange (PKCE)] is enabled by default for all clients using the Authorization Code grant. To disable PKCE, set `requireProofKey` to `false`.
