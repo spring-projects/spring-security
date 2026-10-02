@@ -40,6 +40,9 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
@@ -64,6 +67,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -191,6 +195,49 @@ public class OAuth2ClientBeanDefinitionParserTests {
 		OAuth2AuthorizedClient authorizedClient = authorizedClientCaptor.getValue();
 		assertThat(authorizedClient.getClientRegistration()).isEqualTo(clientRegistration);
 		assertThat(authorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
+	}
+
+	// gh-11069
+	@Test
+	public void requestWhenCustomAuthenticationSuccessHandlerThenCalled() throws Exception {
+		this.spring.configLocations(xml("CustomAuthenticationHandlers")).autowire();
+		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("google");
+		OAuth2AuthorizationRequest authorizationRequest = createAuthorizationRequest(clientRegistration);
+		given(this.authorizationRequestRepository.loadAuthorizationRequest(any())).willReturn(authorizationRequest);
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
+			.willReturn(authorizationRequest);
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(accessTokenResponse);
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("code", "code123");
+		params.add("state", authorizationRequest.getState());
+		// @formatter:off
+		this.mvc.perform(get(authorizationRequest.getRedirectUri()).params(params))
+				.andExpect(status().isOk())
+				.andExpect(forwardedUrl("/authorized"));
+		// @formatter:on
+		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), any(), any(), any());
+	}
+
+	// gh-11069
+	@Test
+	public void requestWhenCustomAuthenticationFailureHandlerThenCalled() throws Exception {
+		this.spring.configLocations(xml("CustomAuthenticationHandlers")).autowire();
+		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("google");
+		OAuth2AuthorizationRequest authorizationRequest = createAuthorizationRequest(clientRegistration);
+		given(this.authorizationRequestRepository.loadAuthorizationRequest(any())).willReturn(authorizationRequest);
+		given(this.authorizationRequestRepository.removeAuthorizationRequest(any(), any()))
+			.willReturn(authorizationRequest);
+		given(this.accessTokenResponseClient.getTokenResponse(any()))
+			.willThrow(new OAuth2AuthorizationException(new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT)));
+		MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+		params.add("code", "code123");
+		params.add("state", authorizationRequest.getState());
+		// @formatter:off
+		this.mvc.perform(get(authorizationRequest.getRedirectUri()).params(params))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/authorization-failed"));
+		// @formatter:on
 	}
 
 	@WithMockUser

@@ -1792,6 +1792,20 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="authentication-success-handler-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the AuthenticationSuccessHandler invoked after the Authorization Response has
+                been processed
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authentication-failure-handler-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the AuthenticationFailureHandler invoked when the Authorization Response is
+                rejected
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="client-registrations">
       <xs:annotation>
