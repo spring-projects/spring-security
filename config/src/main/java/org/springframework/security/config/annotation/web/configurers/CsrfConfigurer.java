@@ -324,6 +324,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		CrossOriginProtectionFilter filter = new CrossOriginProtectionFilter();
 		filter.setRequireProtectionMatcher(getRequireCsrfProtectionMatcher());
 		filter.setTrustedOrigins(this.crossOriginProtection.trustedOrigins);
+		filter.setReportOnly(this.crossOriginProtection.reportOnly);
 		filter.setAccessDeniedHandler(getAccessDeniedHandler(http));
 		if (this.sessionAuthenticationStrategy != null) {
 			SessionManagementConfigurer<H> sessionConfigurer = http.getConfigurer(SessionManagementConfigurer.class);
@@ -478,6 +479,8 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 
 		private final Set<String> trustedOrigins = new LinkedHashSet<>();
 
+		private boolean reportOnly;
+
 		private CrossOriginProtectionConfig() {
 		}
 
@@ -492,6 +495,18 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		public CrossOriginProtectionConfig trustedOrigins(String... trustedOrigins) {
 			Assert.notNull(trustedOrigins, "trustedOrigins cannot be null");
 			this.trustedOrigins.addAll(Arrays.asList(trustedOrigins));
+			return this;
+		}
+
+		/**
+		 * Only logs, at WARN level, a request that would be rejected, and allows it. This
+		 * shows what the protection would reject before it is enforced, for example while
+		 * finding the origins to trust. The default is {@code false}.
+		 * @param reportOnly {@code true} to log rejections instead of enforcing them
+		 * @return the {@link CrossOriginProtectionConfig} for further customizations
+		 */
+		public CrossOriginProtectionConfig reportOnly(boolean reportOnly) {
+			this.reportOnly = reportOnly;
 			return this;
 		}
 

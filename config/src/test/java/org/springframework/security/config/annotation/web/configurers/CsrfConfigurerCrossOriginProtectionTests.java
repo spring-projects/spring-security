@@ -35,7 +35,7 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.csrf.CrossOriginProtectionFilter;
-import org.springframework.security.web.csrf.CsrfException;
+import org.springframework.security.web.csrf.CrossOriginRequestException;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.test.web.servlet.MockMvc;
@@ -115,11 +115,17 @@ public class CsrfConfigurerCrossOriginProtectionTests {
 	}
 
 	@Test
+	public void postWhenCrossSiteAndReportOnlyThenOk() throws Exception {
+		this.spring.register(ReportOnlyConfig.class, BasicController.class).autowire();
+		this.mvc.perform(post("/path").header("Sec-Fetch-Site", "cross-site")).andExpect(status().isOk());
+	}
+
+	@Test
 	public void postWhenCrossSiteThenExceptionHandlingAccessDeniedHandlerUsed() throws Exception {
 		this.spring.register(AccessDeniedHandlerConfig.class, BasicController.class).autowire();
 		this.mvc.perform(post("/path").header("Sec-Fetch-Site", "cross-site"))
 			.andExpect(status().is(HttpStatus.I_AM_A_TEAPOT.value()));
-		verify(AccessDeniedHandlerConfig.handler).handle(any(), any(), any(CsrfException.class));
+		verify(AccessDeniedHandlerConfig.handler).handle(any(), any(), any(CrossOriginRequestException.class));
 	}
 
 	@Test
@@ -201,6 +207,24 @@ public class CsrfConfigurerCrossOriginProtectionTests {
 				.csrf((csrf) -> csrf
 					.crossOriginProtection((crossOrigin) -> crossOrigin
 						.trustedOrigins("https://partner.example")));
+			return http.build();
+			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class ReportOnlyConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.csrf((csrf) -> csrf
+					.crossOriginProtection((crossOrigin) -> crossOrigin
+						.reportOnly(true)));
 			return http.build();
 			// @formatter:on
 		}

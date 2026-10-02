@@ -590,6 +590,16 @@ public class ServerHttpSecurityTests {
 	}
 
 	@Test
+	public void postWhenCrossOriginProtectionReportOnlyThenAllowsRequestsFromAnotherOrigin() {
+		SecurityWebFilterChain securityFilterChain = this.http
+			.csrf((csrf) -> csrf.crossOriginProtection((crossOrigin) -> crossOrigin.reportOnly(true)))
+			.build();
+		WebFilterChainProxy springSecurityFilterChain = new WebFilterChainProxy(securityFilterChain);
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
+		client.post().uri("/").header("Sec-Fetch-Site", "cross-site").exchange().expectStatus().isOk();
+	}
+
+	@Test
 	public void postWhenCrossOriginProtectionThenRequireCsrfProtectionMatcherAndAccessDeniedHandlerUsed() {
 		// @formatter:off
 		SecurityWebFilterChain securityFilterChain = this.http

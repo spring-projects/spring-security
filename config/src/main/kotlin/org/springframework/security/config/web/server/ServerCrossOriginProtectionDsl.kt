@@ -25,14 +25,18 @@ package org.springframework.security.config.web.server
  * @property trustedOrigins origins whose requests are allowed even though they come from
  * another origin, each written as a browser sends it in the `Origin` header, such as
  * `https://partner.example`.
+ * @property reportOnly when `true`, a request that would be rejected is only logged, at
+ * WARN level, and allowed, to see what the protection would reject before enforcing it.
  */
 @ServerSecurityMarker
 class ServerCrossOriginProtectionDsl {
     var trustedOrigins: List<String>? = null
+    var reportOnly: Boolean? = null
 
     internal fun get(): (ServerHttpSecurity.CsrfSpec.CrossOriginProtectionSpec) -> Unit {
         return { crossOriginProtection ->
             trustedOrigins?.also { crossOriginProtection.trustedOrigins(*it.toTypedArray()) }
+            reportOnly?.also { crossOriginProtection.reportOnly(it) }
         }
     }
 }

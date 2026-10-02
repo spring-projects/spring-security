@@ -421,4 +421,38 @@ class ServerCsrfDslTests {
             }
         }
     }
+
+    @Test
+    fun `post when cross origin protection report only then allowed from another origin`() {
+        this.spring.register(CrossOriginProtectionReportOnlyConfig::class.java).autowire()
+
+        this.client.post()
+                .uri("/")
+                .header("Sec-Fetch-Site", "cross-site")
+                .exchange()
+                .expectStatus().isOk
+    }
+
+    @Configuration
+    @EnableWebFluxSecurity
+    @EnableWebFlux
+    open class CrossOriginProtectionReportOnlyConfig {
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                csrf {
+                    crossOriginProtection {
+                        reportOnly = true
+                    }
+                }
+            }
+        }
+
+        @RestController
+        internal class TestController {
+            @PostMapping("/")
+            fun home() {
+            }
+        }
+    }
 }

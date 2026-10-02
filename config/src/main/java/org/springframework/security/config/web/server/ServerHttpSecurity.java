@@ -1945,6 +1945,7 @@ public class ServerHttpSecurity {
 		void configure(ServerHttpSecurity http) {
 			if (this.crossOriginProtection != null) {
 				this.crossOriginProtectionFilter.setTrustedOrigins(this.crossOriginProtection.trustedOrigins);
+				this.crossOriginProtectionFilter.setReportOnly(this.crossOriginProtection.reportOnly);
 				http.addFilterAt(this.crossOriginProtectionFilter, SecurityWebFiltersOrder.CSRF);
 				return;
 			}
@@ -1967,6 +1968,8 @@ public class ServerHttpSecurity {
 
 			private final Set<String> trustedOrigins = new LinkedHashSet<>();
 
+			private boolean reportOnly;
+
 			private CrossOriginProtectionSpec() {
 			}
 
@@ -1981,6 +1984,18 @@ public class ServerHttpSecurity {
 			public CrossOriginProtectionSpec trustedOrigins(String... trustedOrigins) {
 				Assert.notNull(trustedOrigins, "trustedOrigins cannot be null");
 				this.trustedOrigins.addAll(Arrays.asList(trustedOrigins));
+				return this;
+			}
+
+			/**
+			 * Only logs, at WARN level, a request that would be rejected, and allows it.
+			 * This shows what the protection would reject before it is enforced, for
+			 * example while finding the origins to trust. The default is {@code false}.
+			 * @param reportOnly {@code true} to log rejections instead of enforcing them
+			 * @return the {@link CrossOriginProtectionSpec} for further customizations
+			 */
+			public CrossOriginProtectionSpec reportOnly(boolean reportOnly) {
+				this.reportOnly = reportOnly;
 				return this;
 			}
 

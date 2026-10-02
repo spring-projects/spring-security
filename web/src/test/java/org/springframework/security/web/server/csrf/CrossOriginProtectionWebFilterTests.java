@@ -135,9 +135,9 @@ public class CrossOriginProtectionWebFilterTests {
 	}
 
 	@Test
-	public void filterWhenRejectedThenAccessDeniedHandlerReceivesCsrfException() {
+	public void filterWhenRejectedThenAccessDeniedHandlerReceivesCrossOriginRequestException() {
 		this.filter.setAccessDeniedHandler((exchange, denied) -> {
-			assertThat(denied).isInstanceOf(CsrfException.class)
+			assertThat(denied).isInstanceOf(CrossOriginRequestException.class)
 				.hasMessage("Cross-origin request rejected: Sec-Fetch-Site is cross-site");
 			exchange.getResponse().setStatusCode(HttpStatus.I_AM_A_TEAPOT);
 			return Mono.empty();
@@ -146,6 +146,12 @@ public class CrossOriginProtectionWebFilterTests {
 		StepVerifier.create(this.filter.filter(exchange, this.chain)).verifyComplete();
 		this.chainResult.assertWasNotSubscribed();
 		assertThat(exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.I_AM_A_TEAPOT);
+	}
+
+	@Test
+	public void filterWhenReportOnlyAndFromAnotherOriginThenContinues() {
+		this.filter.setReportOnly(true);
+		assertContinued(MockServerWebExchange.from(post().header("Sec-Fetch-Site", "cross-site")));
 	}
 
 	@Test

@@ -60,7 +60,9 @@ import org.springframework.web.server.WebFilterChain;
  * either header, and is allowed.</li>
  * </ol>
  * A request whose {@code Origin} is one of the {@link #setTrustedOrigins(Collection)
- * trusted origins} is allowed in all cases.
+ * trusted origins} is allowed in all cases. A rejected request is passed to the
+ * {@link ServerAccessDeniedHandler} with a {@link CrossOriginRequestException}; in
+ * {@link #setReportOnly(boolean) report-only} mode it is logged and allowed instead.
  *
  * <p>
  * Unlike {@link CsrfWebFilter}, this filter keeps no state: it neither creates nor reads
@@ -90,6 +92,8 @@ public final class CrossOriginProtectionWebFilter implements WebFilter {
 
 	private @Nullable CorsConfiguration trustedOrigins;
 
+	private boolean reportOnly;
+
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		if (CsrfWebFilter.isSkipped(exchange)) {
@@ -100,10 +104,15 @@ public final class CrossOriginProtectionWebFilter implements WebFilter {
 			if (rejection == null) {
 				return chain.filter(exchange);
 			}
+			if (this.reportOnly) {
+				this.logger.warn(LogMessage.format("Would have rejected cross-origin request %s %s (%s)",
+						exchange.getRequest().getMethod(), exchange.getRequest().getPath(), rejection));
+				return chain.filter(exchange);
+			}
 			this.logger.debug(LogMessage.of(() -> "Rejected cross-origin request to " + exchange.getRequest().getURI()
 					+ " (" + rejection + ")"));
 			return this.accessDeniedHandler.handle(exchange,
-					new CsrfException("Cross-origin request rejected: " + rejection));
+					new CrossOriginRequestException("Cross-origin request rejected: " + rejection));
 		});
 	}
 
@@ -172,6 +181,16 @@ public final class CrossOriginProtectionWebFilter implements WebFilter {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(new ArrayList<>(trustedOrigins));
 		this.trustedOrigins = trustedOrigins.isEmpty() ? null : configuration;
+	}
+
+	/**
+	 * Specifies whether a request that would be rejected is only logged, at WARN level,
+	 * and allowed. This shows what the protection would reject before it is enforced, for
+	 * example while finding the origins to trust. The default is {@code false}.
+	 * @param reportOnly {@code true} to log rejections instead of enforcing them
+	 */
+	public void setReportOnly(boolean reportOnly) {
+		this.reportOnly = reportOnly;
 	}
 
 }

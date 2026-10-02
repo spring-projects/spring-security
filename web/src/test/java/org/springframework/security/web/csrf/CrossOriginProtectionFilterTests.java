@@ -194,6 +194,16 @@ public class CrossOriginProtectionFilterTests {
 	}
 
 	@Test
+	public void doFilterWhenReportOnlyAndFromAnotherOriginThenContinues() throws Exception {
+		this.filter.setReportOnly(true);
+		MockHttpServletRequest request = post();
+		request.addHeader("Sec-Fetch-Site", "cross-site");
+		this.filter.doFilter(request, this.response, this.filterChain);
+		verify(this.filterChain).doFilter(request, this.response);
+		verifyNoInteractions(this.accessDeniedHandler);
+	}
+
+	@Test
 	public void doFilterThenDoesNotCreateSession() throws Exception {
 		MockHttpServletRequest request = post();
 		request.addHeader("Sec-Fetch-Site", "same-origin");
@@ -224,7 +234,7 @@ public class CrossOriginProtectionFilterTests {
 	private void assertAccessDenied(MockHttpServletRequest request, String message) throws Exception {
 		ArgumentCaptor<AccessDeniedException> exception = ArgumentCaptor.forClass(AccessDeniedException.class);
 		verify(this.accessDeniedHandler).handle(any(), any(), exception.capture());
-		assertThat(exception.getValue()).isInstanceOf(CsrfException.class).hasMessage(message);
+		assertThat(exception.getValue()).isInstanceOf(CrossOriginRequestException.class).hasMessage(message);
 		verifyNoInteractions(this.filterChain);
 	}
 
