@@ -41,7 +41,41 @@ class ServerCsrfDsl {
     var requireCsrfProtectionMatcher: ServerWebExchangeMatcher? = null
     var csrfTokenRequestHandler: ServerCsrfTokenRequestHandler? = null
 
+    private var crossOriginProtection: ((ServerHttpSecurity.CsrfSpec.CrossOriginProtectionSpec) -> Unit)? = null
     private var disabled = false
+
+    /**
+     * Protects against CSRF by checking where each request came from, instead of
+     * requiring a token: a request is rejected when the browser reports that it came
+     * from another origin. Requests without the browser's headers are not from a browser
+     * and are allowed, so non-browser clients need no exemption.
+     *
+     * Example:
+     *
+     * ```
+     * @Configuration
+     * @EnableWebFluxSecurity
+     * class SecurityConfig {
+     *
+     *     @Bean
+     *     fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+     *         return http {
+     *             csrf {
+     *                 crossOriginProtection {
+     *                     trustedOrigins = listOf("https://partner.example")
+     *                 }
+     *             }
+     *         }
+     *     }
+     * }
+     * ```
+     *
+     * @param crossOriginProtectionConfig the customization to apply to the protection
+     * @since 7.2
+     */
+    fun crossOriginProtection(crossOriginProtectionConfig: ServerCrossOriginProtectionDsl.() -> Unit) {
+        this.crossOriginProtection = ServerCrossOriginProtectionDsl().apply(crossOriginProtectionConfig).get()
+    }
 
     /**
      * Disables CSRF protection
@@ -56,6 +90,7 @@ class ServerCsrfDsl {
             csrfTokenRepository?.also { csrf.csrfTokenRepository(csrfTokenRepository) }
             requireCsrfProtectionMatcher?.also { csrf.requireCsrfProtectionMatcher(requireCsrfProtectionMatcher) }
             csrfTokenRequestHandler?.also { csrf.csrfTokenRequestHandler(csrfTokenRequestHandler) }
+            crossOriginProtection?.also { csrf.crossOriginProtection(crossOriginProtection) }
             if (disabled) {
                 csrf.disable()
             }

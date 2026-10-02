@@ -71,6 +71,7 @@ import org.springframework.security.web.server.authentication.logout.ServerLogou
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
+import org.springframework.security.web.server.csrf.CrossOriginProtectionWebFilter;
 import org.springframework.security.web.server.csrf.CsrfServerLogoutHandler;
 import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
@@ -80,6 +81,7 @@ import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestHandle
 import org.springframework.security.web.server.csrf.XorServerCsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.server.savedrequest.ServerRequestCache;
 import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
@@ -544,6 +546,71 @@ public class ServerHttpSecurityTests {
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
 		client.post().uri("/").exchange().expectStatus().isForbidden();
 		verify(customServerCsrfTokenRepository).loadToken(any());
+	}
+
+	@Test
+	public void postWhenCrossOriginProtectionThenRejectsOnlyRequestsFromAnotherOrigin() {
+		SecurityWebFilterChain securityFilterChain = this.http
+			.csrf((csrf) -> csrf.crossOriginProtection(withDefaults()))
+			.build();
+		WebFilterChainProxy springSecurityFilterChain = new WebFilterChainProxy(securityFilterChain);
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
+		client.post().uri("/").header("Sec-Fetch-Site", "cross-site").exchange().expectStatus().isForbidden();
+		client.post().uri("/").header("Sec-Fetch-Site", "same-origin").exchange().expectStatus().isOk();
+		client.post().uri("/").exchange().expectStatus().isOk();
+		assertThat(getWebFilter(securityFilterChain, CrossOriginProtectionWebFilter.class)).isPresent();
+		assertThat(getWebFilter(securityFilterChain, CsrfWebFilter.class)).isNotPresent();
+	}
+
+	@Test
+	public void postWhenCrossOriginProtectionWithTrustedOriginThenAllowsIt() {
+		// @formatter:off
+		SecurityWebFilterChain securityFilterChain = this.http
+			.csrf((csrf) -> csrf
+				.crossOriginProtection((crossOrigin) -> crossOrigin
+					.trustedOrigins("https://partner.example")))
+			.build();
+		// @formatter:on
+		WebFilterChainProxy springSecurityFilterChain = new WebFilterChainProxy(securityFilterChain);
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
+		client.post()
+			.uri("/")
+			.header("Sec-Fetch-Site", "cross-site")
+			.header("Origin", "https://partner.example")
+			.exchange()
+			.expectStatus()
+			.isOk();
+		client.post()
+			.uri("/")
+			.header("Sec-Fetch-Site", "cross-site")
+			.header("Origin", "https://evil.example")
+			.exchange()
+			.expectStatus()
+			.isForbidden();
+	}
+
+	@Test
+	public void postWhenCrossOriginProtectionThenRequireCsrfProtectionMatcherAndAccessDeniedHandlerUsed() {
+		// @formatter:off
+		SecurityWebFilterChain securityFilterChain = this.http
+			.csrf((csrf) -> csrf
+				.requireCsrfProtectionMatcher(ServerWebExchangeMatchers.pathMatchers("/protected"))
+				.accessDeniedHandler((exchange, denied) -> {
+					exchange.getResponse().setStatusCode(HttpStatus.I_AM_A_TEAPOT);
+					return exchange.getResponse().setComplete();
+				})
+				.crossOriginProtection(withDefaults()))
+			.build();
+		// @formatter:on
+		WebFilterChainProxy springSecurityFilterChain = new WebFilterChainProxy(securityFilterChain);
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
+		client.post()
+			.uri("/protected")
+			.header("Sec-Fetch-Site", "cross-site")
+			.exchange()
+			.expectStatus()
+			.isEqualTo(HttpStatus.I_AM_A_TEAPOT);
+		client.post().uri("/other").header("Sec-Fetch-Site", "cross-site").exchange().expectStatus().isOk();
 	}
 
 	@Test
