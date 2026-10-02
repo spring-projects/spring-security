@@ -157,7 +157,7 @@ public final class OAuth2TokenIntrospectionEndpointFilter extends OncePerRequest
 	/**
 	 * Sets the {@link AuthenticationFailureHandler} used for handling an
 	 * {@link OAuth2AuthenticationException} and returning the {@link OAuth2Error Error
-	 * Resonse}.
+	 * Response}.
 	 * @param authenticationFailureHandler the {@link AuthenticationFailureHandler} used
 	 * for handling an {@link OAuth2AuthenticationException}
 	 */

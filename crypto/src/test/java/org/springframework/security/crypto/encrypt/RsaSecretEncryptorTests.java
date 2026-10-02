@@ -108,7 +108,7 @@ public class RsaSecretEncryptorTests {
 	@Test
 	public void publicKeyCannotDecrypt() {
 		RsaSecretEncryptor encryptor = new RsaSecretEncryptor(this.encryptor.getPublicKey());
-		assertThat(encryptor.canDecrypt()).as("Encryptor schould not be able to decrypt").isFalse();
+		assertThat(encryptor.canDecrypt()).as("Encryptor should not be able to decrypt").isFalse();
 		CryptoAssertions.assertThat(() -> encryptor.decrypt(encryptor.encrypt("encryptor")))
 			.doesNotDecryptTo("encryptor");
 	}

@@ -239,7 +239,7 @@ public final class JdbcAssertingPartyMetadataRepository implements AssertingPart
 		 *
 		 * <p>
 		 * This is equipped with an allowlist of classes that can be deserialized. If you
-		 * implement your own, you are responsible for to protecte against insecure
+		 * implement your own, you are responsible for protecting against insecure
 		 * deserialization.
 		 *
 		 * @since 7.0.5

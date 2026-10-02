@@ -63,7 +63,7 @@ public class CompositeSessionAuthenticationStrategy implements SessionAuthentica
 	public CompositeSessionAuthenticationStrategy(List<SessionAuthenticationStrategy> delegateStrategies) {
 		Assert.notEmpty(delegateStrategies, "delegateStrategies cannot be null or empty");
 		for (SessionAuthenticationStrategy strategy : delegateStrategies) {
-			Assert.notNull(strategy, () -> "delegateStrategies cannot contain null entires. Got " + delegateStrategies);
+			Assert.notNull(strategy, () -> "delegateStrategies cannot contain null entries. Got " + delegateStrategies);
 		}
 		this.delegateStrategies = delegateStrategies;
 	}

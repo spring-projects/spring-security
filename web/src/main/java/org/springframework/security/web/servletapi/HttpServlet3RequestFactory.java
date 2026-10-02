@@ -109,7 +109,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	 * is not authenticated.
 	 * </p>
 	 * <p>
-	 * If the value is null (default), then the default container behavior will be be
+	 * If the value is null (default), then the default container behavior will be
 	 * retained when invoking {@link HttpServletRequest#authenticate(HttpServletResponse)}
 	 * .
 	 * </p>
