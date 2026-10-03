@@ -28,6 +28,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -111,6 +113,30 @@ public class FormPostRedirectStrategyTests {
 		assertThat(this.response.getContentAsString()).contains("action=\"https://example.com/cb\"");
 		assertThat(this.response.getContentAsString())
 			.contains("<input name=\"payload\" type=\"hidden\" value=\"a+b/c=\" />");
+		assertThat(this.response).satisfies(hasScriptSrcNonce());
+	}
+
+	@Test
+	public void repeatedQueryParametersRemainSeparateFormFields() throws IOException {
+		this.redirectStrategy.sendRedirect(this.request, this.response, "https://example.com/path?param=one&param=two");
+		assertThat(this.response.getContentAsString()).contains("action=\"https://example.com/path\"")
+			.contains("<input name=\"param\" type=\"hidden\" value=\"one\" />")
+			.contains("<input name=\"param\" type=\"hidden\" value=\"two\" />");
+	}
+
+	@Test
+	public void explicitFormParametersKeepActionQueryAndEscapeValues() throws IOException {
+		MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
+		formParameters.add("SAMLResponse", "value&<tag>");
+		formParameters.add("RelayState", "relay&state");
+		this.redirectStrategy.sendRedirect(this.request, this.response,
+				"https://example.com/slo?binding=post&tenant=a%26b", formParameters);
+		assertThat(this.response.getContentAsString())
+			.contains("action=\"https://example.com/slo?binding=post&amp;tenant=a%26b\"")
+			.contains("<input name=\"SAMLResponse\" type=\"hidden\" value=\"value&amp;&lt;tag&gt;\" />")
+			.contains("<input name=\"RelayState\" type=\"hidden\" value=\"relay&amp;state\" />")
+			.doesNotContain("name=\"binding\"")
+			.doesNotContain("name=\"tenant\"");
 		assertThat(this.response).satisfies(hasScriptSrcNonce());
 	}
 
