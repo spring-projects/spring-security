@@ -303,7 +303,13 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 		// grant an additional authority that contains the original Authentication object
 		// which will be used to 'exit' from the current switched user.
 		Authentication currentAuthentication = getCurrentAuthentication(request);
-		Assert.notNull(currentAuthentication, "currentAuthentication cannot be null");
+		if (currentAuthentication == null) {
+			// Align with attemptExitUser / SwitchUserWebFilter: switch-user requires an
+			// authenticated source; raise AuthenticationException so doFilter's failure
+			// handler runs instead of an uncaught IllegalArgumentException.
+			throw new AuthenticationCredentialsNotFoundException(this.messages
+				.getMessage("SwitchUserFilter.noCurrentUser", "No current user associated with this request"));
+		}
 		GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(this.switchAuthorityRole,
 				currentAuthentication);
 		// get the original authorities
