@@ -49,7 +49,7 @@ public class SecurityContextHolderFilter extends GenericFilterBean {
 
 	private static final String FILTER_APPLIED = SecurityContextHolderFilter.class.getName() + ".APPLIED";
 
-	private final SecurityContextRepository securityContextRepository;
+	private SecurityContextRepository securityContextRepository;
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
@@ -69,6 +69,10 @@ public class SecurityContextHolderFilter extends GenericFilterBean {
 		doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
 	}
 
+	public void setSecurityContextRepository(SecurityContextRepository securityContextRepository) {
+		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
+		this.securityContextRepository = securityContextRepository;
+	}
 	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
 		if (request.getAttribute(FILTER_APPLIED) != null) {
