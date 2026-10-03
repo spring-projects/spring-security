@@ -99,4 +99,13 @@ public class InMemoryClientRegistrationRepositoryTests {
 		assertThat(this.clients).containsOnly(this.registration);
 	}
 
+	@Test
+	public void constructorWhenVarArgsThenIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new InMemoryClientRegistrationRepository());
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new InMemoryClientRegistrationRepository((ClientRegistration[]) null));
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> new InMemoryClientRegistrationRepository((ClientRegistration) null));
+	}
+
 }
