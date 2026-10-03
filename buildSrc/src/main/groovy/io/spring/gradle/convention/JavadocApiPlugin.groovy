@@ -26,6 +26,7 @@ import org.gradle.api.Action;
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.VersionCatalogsExtension;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.javadoc.Javadoc;
@@ -72,6 +73,14 @@ public class JavadocApiPlugin implements Plugin<Project> {
 
 		api.setMaxMemory("1024m");
 		api.setDestinationDir(project.layout.getBuildDirectory().dir("api").get().getAsFile());
+
+		def versionCatalogs = project.rootProject.extensions.findByType(VersionCatalogsExtension.class)
+		def versionCatalog = versionCatalogs?.find("libs")?.orElse(null)
+		if (versionCatalog != null) {
+			def springFrameworkVersion = versionCatalog.findLibrary("org-springframework-spring-framework-bom").get().get().version
+			def springLdapVersion = versionCatalog.findLibrary("org-springframework-ldap-spring-ldap-core").get().get().version
+			api.options.links(JavadocExternalLinks.externalLinks(springFrameworkVersion, springLdapVersion) as String[])
+		}
 
 		project.getPluginManager().apply("io.spring.convention.javadoc-options");
 	}
