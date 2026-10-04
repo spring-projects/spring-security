@@ -190,7 +190,7 @@ javadoc:org.springframework.security.config.annotation.web.builders.HttpSecurity
 * `#addFilterAfter(Filter, Class<?>)` adds your filter immediately after another filter
 * `#addFilterAt(Filter, Class<?>)` replaces another filter with your filter
 
-For Example, if your original chain is: A → B → C
+For Example, if your original chain is: A → B → C,
 and you do: http.addFilterBefore(X, C.class);
 the result is: A → B → X → C
 
