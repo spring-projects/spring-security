@@ -22,7 +22,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.jdbc.AbstractSqlSchemaScriptTests;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 
 import static org.assertj.core.api.Assertions.assertThat;

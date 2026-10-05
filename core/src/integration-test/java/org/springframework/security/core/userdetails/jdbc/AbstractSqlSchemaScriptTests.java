@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.jdbc;
+package org.springframework.security.core.userdetails.jdbc;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -25,7 +25,6 @@ import java.util.function.Supplier;
 
 import javax.sql.DataSource;
 
-import org.junit.jupiter.api.Tag;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.mssqlserver.MSSQLServerContainer;
@@ -70,20 +69,14 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  *
  * <p>
  * These tests need a real database, and the container-backed ones need a Docker daemon
- * and several minutes to run, so they are tagged {@value #TAG} and excluded from the
- * {@code test} task. Run them with {@code ./gradlew :spring-security-core:sqlTest}. The
- * tag is inherited, so every subclass is excluded too.
+ * and several minutes to run, so they live in the {@code integration-test} source set
+ * rather than alongside the unit tests. Run them with
+ * {@code ./gradlew :spring-security-core:integrationTest}.
  *
  * @author Josh Long
  * @see Database
  */
-@Tag(AbstractSqlSchemaScriptTests.TAG)
-public abstract class AbstractSqlSchemaScriptTests {
-
-	/**
-	 * JUnit tag applied to every schema script test.
-	 */
-	public static final String TAG = "sql";
+abstract class AbstractSqlSchemaScriptTests {
 
 	/**
 	 * Runs {@code script} against a newly provisioned {@code database} and hands the
@@ -176,7 +169,7 @@ public abstract class AbstractSqlSchemaScriptTests {
 	 * Callback invoked once the schema script has been executed successfully.
 	 */
 	@FunctionalInterface
-	public interface SchemaVerifier {
+	interface SchemaVerifier {
 
 		void verify(SchemaContext context) throws Exception;
 
@@ -186,7 +179,7 @@ public abstract class AbstractSqlSchemaScriptTests {
 	 * How the character columns a schema script declares compare text. Determines whether
 	 * a lookup can rely on plain equality or has to lower-case both sides.
 	 */
-	public enum ColumnCase {
+	enum ColumnCase {
 
 		/**
 		 * The columns ignore case, as HSQLDB and H2 {@code varchar_ignorecase} columns
@@ -206,7 +199,7 @@ public abstract class AbstractSqlSchemaScriptTests {
 	 * The databases a schema script can be verified against, and the capabilities of each
 	 * that a verifier needs to adapt to.
 	 */
-	public enum Database {
+	enum Database {
 
 		/**
 		 * HSQLDB, in-process. Declares {@code varchar_ignorecase} columns.
@@ -274,7 +267,7 @@ public abstract class AbstractSqlSchemaScriptTests {
 		 * used to name the platform-specific schema scripts, for example
 		 * {@code postgresql} for {@code users-postgresql.sql}.
 		 */
-		public static Database forName(String name) {
+		static Database forName(String name) {
 			for (Database database : values()) {
 				if (database.name.equalsIgnoreCase(name)) {
 					return database;
@@ -287,7 +280,7 @@ public abstract class AbstractSqlSchemaScriptTests {
 			return "schema_" + UUID.randomUUID().toString().replace("-", "");
 		}
 
-		public String getName() {
+		String getName() {
 			return this.name;
 		}
 
@@ -295,11 +288,11 @@ public abstract class AbstractSqlSchemaScriptTests {
 		 * How the character columns declared by this platform's own schema script compare
 		 * text. Used as the default when a caller does not say otherwise.
 		 */
-		public ColumnCase getDefaultColumnCase() {
+		ColumnCase getDefaultColumnCase() {
 			return this.defaultColumnCase;
 		}
 
-		public boolean isContainerBased() {
+		boolean isContainerBased() {
 			return this.container != null;
 		}
 
@@ -326,7 +319,7 @@ public abstract class AbstractSqlSchemaScriptTests {
 	 * initialized database along with the queries appropriate to the platform's handling
 	 * of case.
 	 */
-	public static final class SchemaContext {
+	static final class SchemaContext {
 
 		private final Database database;
 
@@ -340,11 +333,11 @@ public abstract class AbstractSqlSchemaScriptTests {
 			this.dataSource = dataSource;
 		}
 
-		public Database getDatabase() {
+		Database getDatabase() {
 			return this.database;
 		}
 
-		public DataSource getDataSource() {
+		DataSource getDataSource() {
 			return this.dataSource;
 		}
 
@@ -352,14 +345,14 @@ public abstract class AbstractSqlSchemaScriptTests {
 		 * A connection to the initialized database. The caller is responsible for closing
 		 * it.
 		 */
-		public Connection getConnection() throws SQLException {
+		Connection getConnection() throws SQLException {
 			return this.dataSource.getConnection();
 		}
 
 		/**
 		 * How the columns created by the script that has just run compare text.
 		 */
-		public ColumnCase getColumnCase() {
+		ColumnCase getColumnCase() {
 			return this.columnCase;
 		}
 
@@ -370,7 +363,7 @@ public abstract class AbstractSqlSchemaScriptTests {
 		 * compared directly; otherwise both sides are lower-cased.
 		 * @param column the column to compare
 		 */
-		public String caseInsensitiveComparison(String column) {
+		String caseInsensitiveComparison(String column) {
 			if (this.columnCase == ColumnCase.INSENSITIVE) {
 				return column + " = ?";
 			}
@@ -381,7 +374,7 @@ public abstract class AbstractSqlSchemaScriptTests {
 		 * The {@code usersByUsernameQuery} to configure on the object under test so that
 		 * lookups ignore case on this platform.
 		 */
-		public String getUsersByUsernameQuery() {
+		String getUsersByUsernameQuery() {
 			return "select username,password,enabled from users where " + caseInsensitiveComparison("username");
 		}
 
@@ -389,7 +382,7 @@ public abstract class AbstractSqlSchemaScriptTests {
 		 * The {@code authoritiesByUsernameQuery} to configure on the object under test so
 		 * that lookups ignore case on this platform.
 		 */
-		public String getAuthoritiesByUsernameQuery() {
+		String getAuthoritiesByUsernameQuery() {
 			return "select username,authority from authorities where " + caseInsensitiveComparison("username");
 		}
 
@@ -397,7 +390,7 @@ public abstract class AbstractSqlSchemaScriptTests {
 		 * The {@code userExistsSql} to configure on the object under test so that lookups
 		 * ignore case on this platform.
 		 */
-		public String getUserExistsSql() {
+		String getUserExistsSql() {
 			return "select count(*) from users where " + caseInsensitiveComparison("username");
 		}
 
