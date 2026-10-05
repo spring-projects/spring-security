@@ -1218,15 +1218,22 @@ public class ServerHttpSecurity {
 	}
 
 	private ServerAuthenticationEntryPoint getAuthenticationEntryPoint() {
-		if (this.authenticationEntryPoint != null || this.defaultEntryPoints.isEmpty()) {
+		if (this.authenticationEntryPoint != null) {
 			return this.authenticationEntryPoint;
 		}
-		if (this.defaultEntryPoints.size() == 1) {
-			return this.defaultEntryPoints.get(0).getEntryPoint();
+		List<DelegateEntry> entryPoints = new ArrayList<>();
+		if (this.exceptionHandling != null) {
+			entryPoints.addAll(this.exceptionHandling.defaultEntryPoints);
 		}
-		DelegatingServerAuthenticationEntryPoint result = new DelegatingServerAuthenticationEntryPoint(
-				this.defaultEntryPoints);
-		result.setDefaultEntryPoint(this.defaultEntryPoints.get(this.defaultEntryPoints.size() - 1).getEntryPoint());
+		entryPoints.addAll(this.defaultEntryPoints);
+		if (entryPoints.isEmpty()) {
+			return null;
+		}
+		if (entryPoints.size() == 1) {
+			return entryPoints.get(0).getEntryPoint();
+		}
+		DelegatingServerAuthenticationEntryPoint result = new DelegatingServerAuthenticationEntryPoint(entryPoints);
+		result.setDefaultEntryPoint(entryPoints.get(entryPoints.size() - 1).getEntryPoint());
 		return result;
 	}
 
@@ -1925,6 +1932,8 @@ public class ServerHttpSecurity {
 	 */
 	public final class ExceptionHandlingSpec {
 
+		private final List<DelegateEntry> defaultEntryPoints = new ArrayList<>();
+
 		private ExceptionHandlingSpec() {
 		}
 
@@ -1935,6 +1944,38 @@ public class ServerHttpSecurity {
 		 */
 		public ExceptionHandlingSpec authenticationEntryPoint(ServerAuthenticationEntryPoint authenticationEntryPoint) {
 			ServerHttpSecurity.this.authenticationEntryPoint = authenticationEntryPoint;
+			return this;
+		}
+
+		/**
+		 * Sets a default {@link ServerAuthenticationEntryPoint} to be used which prefers
+		 * being invoked for the provided {@link ServerWebExchangeMatcher}.
+		 *
+		 * <p>
+		 * Entry points added with this method are consulted in the order they were added
+		 * and before the defaults contributed by other features, such as
+		 * {@link ServerHttpSecurity#formLogin(Customizer)} or
+		 * {@link ServerHttpSecurity#httpBasic(Customizer)}. If only a single default
+		 * {@link ServerAuthenticationEntryPoint} is available, it will be used for all
+		 * requests. Otherwise, a {@link DelegatingServerAuthenticationEntryPoint} is
+		 * used, falling back to the last default when no matcher matches.
+		 * </p>
+		 *
+		 * <p>
+		 * This has no effect if
+		 * {@link #authenticationEntryPoint(ServerAuthenticationEntryPoint)} is specified.
+		 * </p>
+		 * @param entryPoint the {@link ServerAuthenticationEntryPoint} to use
+		 * @param preferredMatcher the {@link ServerWebExchangeMatcher} for this default
+		 * {@link ServerAuthenticationEntryPoint}
+		 * @return the {@link ExceptionHandlingSpec} to configure
+		 * @since 7.2
+		 */
+		public ExceptionHandlingSpec defaultAuthenticationEntryPointFor(ServerAuthenticationEntryPoint entryPoint,
+				ServerWebExchangeMatcher preferredMatcher) {
+			Assert.notNull(entryPoint, "entryPoint cannot be null");
+			Assert.notNull(preferredMatcher, "preferredMatcher cannot be null");
+			this.defaultEntryPoints.add(new DelegateEntry(preferredMatcher, entryPoint));
 			return this;
 		}
 
