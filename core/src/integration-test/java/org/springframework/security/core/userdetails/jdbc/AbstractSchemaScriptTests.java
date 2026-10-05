@@ -76,7 +76,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * @author Josh Long
  * @see Database
  */
-abstract class AbstractSqlSchemaScriptTests {
+abstract class AbstractSchemaScriptTests {
 
 	/**
 	 * Runs {@code script} against a newly provisioned {@code database} and hands the

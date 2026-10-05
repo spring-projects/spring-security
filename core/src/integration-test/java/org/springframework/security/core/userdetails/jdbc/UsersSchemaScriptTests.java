@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  *
  * @author Josh Long
  */
-class UsersSchemaScriptTests extends AbstractSqlSchemaScriptTests {
+class UsersSchemaScriptTests extends AbstractSchemaScriptTests {
 
 	private static final String LOCATION = "org/springframework/security/core/userdetails/jdbc/";
 
