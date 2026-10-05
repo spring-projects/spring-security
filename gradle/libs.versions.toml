@@ -18,7 +18,7 @@ org-springframework = "7.1.0-M2"
 com-password4j = "1.8.4"
 
 [libraries]
-ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.6.4"
+ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.6.5"
 com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.22.3"
 com-google-inject-guice = "com.google.inject:guice:3.0"
 com-netflix-nebula-nebula-project-plugin = "com.netflix.nebula:nebula-project-plugin:8.2.0"
