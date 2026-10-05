@@ -90,14 +90,15 @@ public class LdapShaPasswordEncoderTests extends AbstractPasswordEncoderValidati
 	public void correctPrefixCaseIsUsed() {
 		LdapShaPasswordEncoder ldap = getEncoder();
 		ldap.setForceLowerCasePrefix(false);
-		assertThat(ldap.encode("somepassword").startsWith("{SSHA}"));
+		assertThat(ldap.encode("somepassword")).startsWith("{SSHA}");
 		ldap.setForceLowerCasePrefix(true);
-		assertThat(ldap.encode("somepassword").startsWith("{ssha}"));
+		assertThat(ldap.encode("somepassword")).startsWith("{ssha}");
 		setEncoder(new LdapShaPasswordEncoder(KeyGenerators.shared(0)));
+		ldap = getEncoder();
 		ldap.setForceLowerCasePrefix(false);
-		assertThat(getEncoder().encode("somepassword").startsWith("{SHA}"));
+		assertThat(ldap.encode("somepassword")).startsWith("{SHA}");
 		ldap.setForceLowerCasePrefix(true);
-		assertThat(getEncoder().encode("somepassword").startsWith("{SSHA}"));
+		assertThat(ldap.encode("somepassword")).startsWith("{sha}");
 	}
 
 	@Test
