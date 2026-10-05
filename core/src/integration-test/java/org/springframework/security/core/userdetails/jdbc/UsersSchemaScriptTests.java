@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
- * Verifies the platform-specific {@code users-*.sql} schema scripts by running each one
+ * Verifies the platform-specific {@code users-*.ddl} schema scripts by running each one
  * against a real instance of the database it targets and then exercising
  * {@link JdbcUserDetailsManager} and {@link JdbcDaoImpl} against the result.
  *
@@ -44,48 +44,48 @@ class UsersSchemaScriptTests extends AbstractSqlSchemaScriptTests {
 
 	@Test
 	void hsqldbSchemaSupportsUserDetailsManager() throws Exception {
-		verifySchemaScript("hsqldb", LOCATION + "users-hsqldb.sql", this::exerciseUserDetailsManager);
+		verifySchemaScript("hsqldb", LOCATION + "users-hsqldb.ddl", this::exerciseUserDetailsManager);
 	}
 
 	@Test
 	void h2SchemaSupportsUserDetailsManager() throws Exception {
-		verifySchemaScript("h2", LOCATION + "users-h2.sql", this::exerciseUserDetailsManager);
+		verifySchemaScript("h2", LOCATION + "users-h2.ddl", this::exerciseUserDetailsManager);
 	}
 
 	@Test
 	void postgresqlSchemaSupportsUserDetailsManager() throws Exception {
-		verifySchemaScript("postgresql", LOCATION + "users-postgresql.sql", this::exerciseUserDetailsManager);
+		verifySchemaScript("postgresql", LOCATION + "users-postgresql.ddl", this::exerciseUserDetailsManager);
 	}
 
 	@Test
 	void mysqlSchemaSupportsUserDetailsManager() throws Exception {
-		verifySchemaScript("mysql", LOCATION + "users-mysql.sql", this::exerciseUserDetailsManager);
+		verifySchemaScript("mysql", LOCATION + "users-mysql.ddl", this::exerciseUserDetailsManager);
 	}
 
 	@Test
 	void oracleSchemaSupportsUserDetailsManager() throws Exception {
-		verifySchemaScript("oracle", LOCATION + "users-oracle.sql", this::exerciseUserDetailsManager);
+		verifySchemaScript("oracle", LOCATION + "users-oracle.ddl", this::exerciseUserDetailsManager);
 	}
 
 	@Test
 	void sqlserverSchemaSupportsUserDetailsManager() throws Exception {
-		verifySchemaScript("sqlserver", LOCATION + "users-sqlserver.sql", this::exerciseUserDetailsManager);
+		verifySchemaScript("sqlserver", LOCATION + "users-sqlserver.ddl", this::exerciseUserDetailsManager);
 	}
 
 	@Test
 	void genericSchemaSupportsUserDetailsManagerOnHsqldb() throws Exception {
-		verifySchemaScript("hsqldb", LOCATION + "users-all.sql", ColumnCase.SENSITIVE,
+		verifySchemaScript("hsqldb", LOCATION + "users-all.ddl", ColumnCase.SENSITIVE,
 				this::exerciseUserDetailsManager);
 	}
 
 	@Test
 	void genericSchemaSupportsUserDetailsManagerOnH2() throws Exception {
-		verifySchemaScript("h2", LOCATION + "users-all.sql", ColumnCase.SENSITIVE, this::exerciseUserDetailsManager);
+		verifySchemaScript("h2", LOCATION + "users-all.ddl", ColumnCase.SENSITIVE, this::exerciseUserDetailsManager);
 	}
 
 	@Test
 	void genericSchemaSupportsUserDetailsManagerOnPostgresql() throws Exception {
-		verifySchemaScript("postgresql", LOCATION + "users-all.sql", ColumnCase.SENSITIVE,
+		verifySchemaScript("postgresql", LOCATION + "users-all.ddl", ColumnCase.SENSITIVE,
 				this::exerciseUserDetailsManager);
 	}
 

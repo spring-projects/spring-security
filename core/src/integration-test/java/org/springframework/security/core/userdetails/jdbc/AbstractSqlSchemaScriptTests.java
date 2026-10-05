@@ -39,7 +39,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
- * Base class for tests that execute one of the {@code .sql} schema scripts shipped in
+ * Base class for tests that execute one of the {@code .ddl} schema scripts shipped in
  * {@code src/main/resources} against a real database and then verify the result.
  *
  * <p>
@@ -84,7 +84,7 @@ abstract class AbstractSqlSchemaScriptTests {
 	 * is idiomatic for that platform.
 	 * @param database the name of the database to provision, for example
 	 * {@code postgresql}. Must be one of the names understood by {@link Database}.
-	 * @param script the classpath location of the {@code .sql} script to execute
+	 * @param script the classpath location of the {@code .ddl} script to execute
 	 * @param verifier invoked with the initialized database
 	 */
 	protected void verifySchemaScript(String database, String script, SchemaVerifier verifier) throws Exception {
@@ -97,13 +97,13 @@ abstract class AbstractSqlSchemaScriptTests {
 	 *
 	 * <p>
 	 * Case sensitivity is a property of the script as much as of the platform: HSQLDB and
-	 * H2 only ignore case because {@code users-hsqldb.sql} and {@code users-h2.sql}
+	 * H2 only ignore case because {@code users-hsqldb.ddl} and {@code users-h2.ddl}
 	 * declare {@code varchar_ignorecase} columns. A portable script that sticks to
 	 * standard {@code varchar} is case-sensitive on those same platforms, so it has to
 	 * say so here.
 	 * @param database the name of the database to provision, for example
 	 * {@code postgresql}. Must be one of the names understood by {@link Database}.
-	 * @param script the classpath location of the {@code .sql} script to execute
+	 * @param script the classpath location of the {@code .ddl} script to execute
 	 * @param columnCase how the columns the script declares compare text, overriding
 	 * {@link Database#getDefaultColumnCase() the platform default}
 	 * @param verifier invoked with the initialized database
@@ -265,7 +265,7 @@ abstract class AbstractSqlSchemaScriptTests {
 		/**
 		 * Returns the {@code Database} matching {@code name}, which is the same token
 		 * used to name the platform-specific schema scripts, for example
-		 * {@code postgresql} for {@code users-postgresql.sql}.
+		 * {@code postgresql} for {@code users-postgresql.ddl}.
 		 */
 		static Database forName(String name) {
 			for (Database database : values()) {
