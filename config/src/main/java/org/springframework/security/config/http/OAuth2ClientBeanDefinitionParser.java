@@ -50,6 +50,10 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String ATT_ACCESS_TOKEN_RESPONSE_CLIENT_REF = "access-token-response-client-ref";
 
+	private static final String ATT_AUTHENTICATION_SUCCESS_HANDLER_REF = "authentication-success-handler-ref";
+
+	private static final String ATT_AUTHENTICATION_FAILURE_HANDLER_REF = "authentication-failure-handler-ref";
+
 	private final BeanReference requestCache;
 
 	private final BeanReference authenticationManager;
@@ -113,6 +117,18 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 			.addConstructorArgValue(authorizedClientRepository)
 			.addConstructorArgValue(this.authenticationManager)
 			.addPropertyValue("authorizationRequestRepository", authorizationRequestRepository);
+		String authenticationSuccessHandlerRef = (authorizationCodeGrantElt != null)
+				? authorizationCodeGrantElt.getAttribute(ATT_AUTHENTICATION_SUCCESS_HANDLER_REF) : null;
+		if (StringUtils.hasLength(authenticationSuccessHandlerRef)) {
+			authorizationCodeGrantFilterBldr.addPropertyReference("authenticationSuccessHandler",
+					authenticationSuccessHandlerRef);
+		}
+		String authenticationFailureHandlerRef = (authorizationCodeGrantElt != null)
+				? authorizationCodeGrantElt.getAttribute(ATT_AUTHENTICATION_FAILURE_HANDLER_REF) : null;
+		if (StringUtils.hasLength(authenticationFailureHandlerRef)) {
+			authorizationCodeGrantFilterBldr.addPropertyReference("authenticationFailureHandler",
+					authenticationFailureHandlerRef);
+		}
 		this.authorizationCodeGrantFilter = authorizationCodeGrantFilterBldr.getBeanDefinition();
 
 		BeanMetadataElement accessTokenResponseClient = getAccessTokenResponseClient(authorizationCodeGrantElt);
