@@ -44,7 +44,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.hamcrest.Matchers.matchesRegex;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -710,13 +709,10 @@ public class HttpHeadersConfigTests {
 	}
 
 	@Test
-	void requestWhenContentSecurityPolicyDirectivesConfiguredWithNoncePlaceholderThenHeaderContainsNonce()
-			throws Exception {
-		this.spring.configLocations(this.xml("ContentSecurityPolicyWithNonceBasedDirectives")).autowire();
-		this.mvc.perform(get("/").secure(true))
-			.andExpect(status().isOk())
-			.andExpect(header().string("Content-Security-Policy",
-					matchesRegex("^script-src 'self' 'nonce-[A-Za-z0-9+/]{22,}={0,2}'$")));
+	public void configureWhenContentSecurityPolicyDirectivesContainNoncePlaceholderThenAutowireFails() {
+		assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(
+				() -> this.spring.configLocations(this.xml("ContentSecurityPolicyWithNonceBasedDirectives")).autowire())
+			.withMessageContaining("Nonce-based content-security-policy is not supported in XML configuration");
 	}
 
 	@Test

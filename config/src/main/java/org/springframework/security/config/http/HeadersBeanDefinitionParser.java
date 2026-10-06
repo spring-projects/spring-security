@@ -33,7 +33,6 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.ManagedList;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
-import org.springframework.security.web.header.ContentSecurityPolicyNonceGeneratingFilter;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.header.writers.CacheControlHeadersWriter;
 import org.springframework.security.web.header.writers.ContentSecurityPolicyHeaderWriter;
@@ -55,7 +54,6 @@ import org.springframework.security.web.header.writers.frameoptions.WhiteListedA
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
-import org.springframework.web.filter.CompositeFilter;
 
 /**
  * Parser for the {@code HeadersFilter}.
@@ -135,8 +133,6 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
 	private ManagedList<BeanMetadataElement> headerWriters;
 
-	private BeanDefinition nonceGeneratingFilter;
-
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		this.headerWriters = new ManagedList<>();
@@ -168,13 +164,7 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 			return null;
 		}
 		builder.addConstructorArgValue(this.headerWriters);
-		BeanDefinition headerWriterFilter = builder.getBeanDefinition();
-		if (this.nonceGeneratingFilter == null) {
-			return headerWriterFilter;
-		}
-		return BeanDefinitionBuilder.rootBeanDefinition(CompositeFilter.class)
-			.addPropertyValue("filters", ManagedList.of(this.nonceGeneratingFilter, headerWriterFilter))
-			.getBeanDefinition();
+		return builder.getBeanDefinition();
 	}
 
 	/**
@@ -325,6 +315,12 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 			context.getReaderContext()
 				.error(ATT_POLICY_DIRECTIVES + " requires a 'value' to be set.", contentSecurityPolicyElement);
 		}
+		else if (resolveAttribute(context, contentSecurityPolicyElement, ATT_POLICY_DIRECTIVES).contains("{nonce}")) {
+			context.getReaderContext()
+				.error("Nonce-based " + CONTENT_SECURITY_POLICY_ELEMENT
+						+ " is not supported in XML configuration; use Java configuration instead.",
+						contentSecurityPolicyElement);
+		}
 		else {
 			headersWriter.addConstructorArgValue(policyDirectives);
 		}
@@ -333,9 +329,6 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 			headersWriter.addPropertyValue("reportOnly", reportOnly);
 		}
 		this.headerWriters.add(headersWriter.getBeanDefinition());
-		this.nonceGeneratingFilter = BeanDefinitionBuilder
-			.rootBeanDefinition(ContentSecurityPolicyNonceGeneratingFilter.class)
-			.getBeanDefinition();
 	}
 
 	private void parseReferrerPolicyElement(Element element, ParserContext context) {
