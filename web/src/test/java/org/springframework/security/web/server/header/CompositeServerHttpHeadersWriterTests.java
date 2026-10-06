@@ -98,6 +98,16 @@ public class CompositeServerHttpHeadersWriterTests {
 	}
 
 	@Test
+	void writeHttpHeadersWhenOneWriterErrorsThenThatErrorIsPropagated() {
+		IllegalStateException failure = new IllegalStateException("failed");
+		given(this.writer1.writeHttpHeaders(this.exchange)).willReturn(Mono.error(failure));
+		given(this.writer2.writeHttpHeaders(this.exchange)).willReturn(Mono.empty());
+		Mono<Void> result = this.writer.writeHttpHeaders(this.exchange);
+		StepVerifier.create(result).expectErrorSatisfies((ex) -> assertThat(ex).isSameAs(failure)).verify();
+		then(this.writer2).should().writeHttpHeaders(this.exchange);
+	}
+
+	@Test
 	public void writeHttpHeadersSequential() throws Exception {
 		AtomicBoolean slowDone = new AtomicBoolean();
 		CountDownLatch latch = new CountDownLatch(1);

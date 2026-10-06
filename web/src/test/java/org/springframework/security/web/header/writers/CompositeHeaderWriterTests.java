@@ -28,6 +28,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.header.HeaderWriter;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatRuntimeException;
 import static org.mockito.BDDMockito.then;
@@ -66,6 +68,56 @@ public class CompositeHeaderWriterTests {
 		assertThatRuntimeException().isThrownBy(() -> headerWriter.writeHeaders(request, response));
 		then(writer1).should().writeHeaders(request, response);
 		then(writer2).should().writeHeaders(request, response);
+	}
+
+	@Test
+	void writeHeadersWhenOneWriterThrowsThenThatExceptionIsPropagated() {
+		HttpServletRequest request = new MockHttpServletRequest();
+		HttpServletResponse response = new MockHttpServletResponse();
+		HeaderWriter writer1 = mock(HeaderWriter.class);
+		HeaderWriter writer2 = mock(HeaderWriter.class);
+		CompositeHeaderWriter headerWriter = new CompositeHeaderWriter(List.of(writer1, writer2));
+		IllegalStateException failure = new IllegalStateException("failed");
+		willThrow(failure).given(writer1).writeHeaders(request, response);
+		assertThatExceptionOfType(IllegalStateException.class)
+			.isThrownBy(() -> headerWriter.writeHeaders(request, response))
+			.isSameAs(failure);
+		assertThat(failure.getSuppressed()).isEmpty();
+		then(writer2).should().writeHeaders(request, response);
+	}
+
+	@Test
+	void writeHeadersWhenSeveralWritersThrowThenFirstIsPropagatedWithOthersSuppressed() {
+		HttpServletRequest request = new MockHttpServletRequest();
+		HttpServletResponse response = new MockHttpServletResponse();
+		HeaderWriter writer1 = mock(HeaderWriter.class);
+		HeaderWriter writer2 = mock(HeaderWriter.class);
+		HeaderWriter writer3 = mock(HeaderWriter.class);
+		CompositeHeaderWriter headerWriter = new CompositeHeaderWriter(List.of(writer1, writer2, writer3));
+		IllegalStateException first = new IllegalStateException("first");
+		IllegalArgumentException second = new IllegalArgumentException("second");
+		willThrow(first).given(writer1).writeHeaders(request, response);
+		willThrow(second).given(writer2).writeHeaders(request, response);
+		assertThatExceptionOfType(IllegalStateException.class)
+			.isThrownBy(() -> headerWriter.writeHeaders(request, response))
+			.isSameAs(first);
+		assertThat(first.getSuppressed()).containsExactly(second);
+		then(writer3).should().writeHeaders(request, response);
+	}
+
+	@Test
+	void writeHeadersWhenSeveralWritersThrowSameExceptionThenItIsPropagated() {
+		HttpServletRequest request = new MockHttpServletRequest();
+		HttpServletResponse response = new MockHttpServletResponse();
+		HeaderWriter writer1 = mock(HeaderWriter.class);
+		HeaderWriter writer2 = mock(HeaderWriter.class);
+		CompositeHeaderWriter headerWriter = new CompositeHeaderWriter(List.of(writer1, writer2));
+		IllegalStateException failure = new IllegalStateException("failed");
+		willThrow(failure).given(writer1).writeHeaders(request, response);
+		willThrow(failure).given(writer2).writeHeaders(request, response);
+		assertThatExceptionOfType(IllegalStateException.class)
+			.isThrownBy(() -> headerWriter.writeHeaders(request, response))
+			.isSameAs(failure);
 	}
 
 	@Test
