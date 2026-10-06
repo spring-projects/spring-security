@@ -490,6 +490,15 @@ public class HeadersConfigurerTests {
 	}
 
 	@Test
+	public void configureWhenContentSecurityPolicyConfiguredTwiceThenSecondCallReplacesFirst() throws Exception {
+		this.spring.register(ContentSecurityPolicyConfiguredTwiceConfig.class).autowire();
+		this.mvc.perform(get("/bar/foo").secure(true))
+			.andExpect(header().string(HttpHeaders.CONTENT_SECURITY_POLICY, "default-src 'self'"));
+		this.mvc.perform(get("/foo/bar").secure(true))
+			.andExpect(header().doesNotExist(HttpHeaders.CONTENT_SECURITY_POLICY));
+	}
+
+	@Test
 	public void getWhenReferrerPolicyConfiguredThenReferrerPolicyHeaderInResponse() throws Exception {
 		this.spring.register(ReferrerPolicyDefaultConfig.class).autowire();
 		ResultMatcher referrerPolicy = header().string("Referrer-Policy", ReferrerPolicy.NO_REFERRER.getPolicy());
@@ -1289,6 +1298,28 @@ public class HeadersConfigurerTests {
 						.policyDirectives("default-src 'self'")
 						.requestMatcher(AnyRequestMatcher.INSTANCE)
 						.requestMatchers("/**")));
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class ContentSecurityPolicyConfiguredTwiceConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) {
+			// @formatter:off
+			http
+				.headers((headers) -> headers
+					.defaultsDisabled()
+					.contentSecurityPolicy((csp) -> csp
+						.policyDirectives("script-src 'self'")
+						.requestMatchers("/foo/**"))
+					.contentSecurityPolicy((csp) -> csp
+						.policyDirectives("default-src 'self'")
+						.requestMatchers("/bar/**")));
 			// @formatter:on
 			return http.build();
 		}

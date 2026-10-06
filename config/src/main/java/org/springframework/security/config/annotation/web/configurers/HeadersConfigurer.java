@@ -100,7 +100,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private final HpkpConfig hpkp = new HpkpConfig();
 
-	private final ContentSecurityPolicyConfig contentSecurityPolicy = new ContentSecurityPolicyConfig();
+	private @Nullable ContentSecurityPolicyConfig contentSecurityPolicy;
 
 	private final ReferrerPolicyConfig referrerPolicy = new ReferrerPolicyConfig();
 
@@ -251,8 +251,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public HeadersConfigurer<H> contentSecurityPolicy(
 			Customizer<ContentSecurityPolicyConfig> contentSecurityCustomizer) {
-		this.contentSecurityPolicy.writer = new ContentSecurityPolicyHeaderWriter();
-		this.contentSecurityPolicy.nonceGeneratingFilter = new ContentSecurityPolicyNonceGeneratingFilter();
+		this.contentSecurityPolicy = new ContentSecurityPolicyConfig();
 		contentSecurityCustomizer.customize(this.contentSecurityPolicy);
 		return HeadersConfigurer.this;
 	}
@@ -280,8 +279,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	public void configure(H http) {
 		HeaderWriterFilter headersFilter = createHeaderWriterFilter();
 		http.addFilter(headersFilter);
-		// nonceGeneratingFilter is instantiated iff CSP is configured
-		if (this.contentSecurityPolicy.nonceGeneratingFilter != null) {
+		// the nonce is only needed when CSP is configured
+		if (this.contentSecurityPolicy != null) {
 			http.addFilterBefore(this.contentSecurityPolicy.nonceGeneratingFilter, HeaderWriterFilter.class);
 		}
 	}
@@ -313,7 +312,9 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		addIfNotNull(writers, this.hsts.writer);
 		addIfNotNull(writers, this.frameOptions.writer);
 		addIfNotNull(writers, this.hpkp.writer);
-		addIfNotNull(writers, this.contentSecurityPolicy.writer);
+		if (this.contentSecurityPolicy != null) {
+			writers.add(this.contentSecurityPolicy.writer);
+		}
 		addIfNotNull(writers, this.referrerPolicy.writer);
 		addIfNotNull(writers, this.featurePolicy.writer);
 		addIfNotNull(writers, this.permissionsPolicy.writer);
@@ -946,9 +947,9 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 	public final class ContentSecurityPolicyConfig {
 
-		private ContentSecurityPolicyHeaderWriter writer;
+		private final ContentSecurityPolicyHeaderWriter writer = new ContentSecurityPolicyHeaderWriter();
 
-		private ContentSecurityPolicyNonceGeneratingFilter nonceGeneratingFilter;
+		private final ContentSecurityPolicyNonceGeneratingFilter nonceGeneratingFilter = new ContentSecurityPolicyNonceGeneratingFilter();
 
 		private @Nullable RequestMatcher requestMatcher;
 
