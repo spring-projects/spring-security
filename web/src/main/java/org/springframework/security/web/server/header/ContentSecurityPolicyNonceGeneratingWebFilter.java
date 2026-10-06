@@ -18,6 +18,7 @@ package org.springframework.security.web.server.header;
 
 import java.util.Base64;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import reactor.core.publisher.Mono;
 
@@ -25,6 +26,7 @@ import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
 import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 import org.springframework.util.Assert;
+import org.springframework.util.function.SingletonSupplier;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -38,6 +40,11 @@ import org.springframework.web.server.WebFilterChain;
  * can use the attribute to write a nonce-based Content Security Policy header, and a view
  * technology can render the nonce in generated HTML to allow intended inline
  * {@code <script>} or {@code <style>} blocks.
+ *
+ * <p>
+ * The nonce is generated lazily, the first time
+ * {@link ContentSecurityPolicyNonce#getNonce()} is called, and every caller during the
+ * same exchange sees the same value.
  *
  * @author Ziqin Wang
  * @since 7.2
@@ -70,13 +77,11 @@ public final class ContentSecurityPolicyNonceGeneratingWebFilter implements WebF
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		Mono<? extends ContentSecurityPolicyNonce> deferredNonce = Mono
-			.fromSupplier(() -> new SimpleContentSecurityPolicyNonce(this.nonceGenerator.generateKey()))
-			.cache();
+		ContentSecurityPolicyNonce deferredNonce = new DeferredContentSecurityPolicyNonce(this.nonceGenerator);
 		Map<String, Object> attributes = exchange.getAttributes();
 
 		// For internal use
-		attributes.put(ContentSecurityPolicyNonce.class.getName(), deferredNonce);
+		attributes.put(ContentSecurityPolicyNonce.class.getName(), Mono.just(deferredNonce));
 
 		// Exposed to users
 		attributes.put(this.attributeName, deferredNonce);
@@ -95,17 +100,17 @@ public final class ContentSecurityPolicyNonceGeneratingWebFilter implements WebF
 		this.attributeName = attributeName;
 	}
 
-	private static final class SimpleContentSecurityPolicyNonce implements ContentSecurityPolicyNonce {
+	private static final class DeferredContentSecurityPolicyNonce implements ContentSecurityPolicyNonce {
 
-		private final String nonce;
+		private final Supplier<String> delegate;
 
-		private SimpleContentSecurityPolicyNonce(String nonce) {
-			this.nonce = nonce;
+		private DeferredContentSecurityPolicyNonce(StringKeyGenerator nonceGenerator) {
+			this.delegate = SingletonSupplier.of(nonceGenerator::generateKey);
 		}
 
 		@Override
 		public String getNonce() {
-			return this.nonce;
+			return this.delegate.get();
 		}
 
 	}

@@ -44,8 +44,7 @@ import org.springframework.web.server.ServerWebExchange;
  * placeholder in the {@code policyDirectives} with a real nonce value read from a
  * {@link ServerWebExchange#getAttribute(String) request attribute}. A
  * {@link ContentSecurityPolicyNonceGeneratingWebFilter} can be configured to generate a
- * unique secure random {@code Mono<ContentSecurityPolicyNonce>} attribute for each
- * request.
+ * unique secure random {@link ContentSecurityPolicyNonce} for each request.
  *
  * <p>
  * For example, if the configured {@code policyDirectives} is {@code script-src 'self'
