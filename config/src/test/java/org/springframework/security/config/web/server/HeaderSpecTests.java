@@ -527,6 +527,27 @@ public class HeaderSpecTests {
 	}
 
 	@Test
+	public void headersWhenContentSecurityPolicyConfiguredTwiceThenSecondCallReplacesFirst() {
+		String headerName = ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY;
+		String policyDirectives = "default-src 'self'";
+		// @formatter:off
+		this.http.headers((headers) -> headers
+			.contentSecurityPolicy((csp) -> csp
+				.exchangeMatchers("/foo/**")
+				.policyDirectives("script-src 'self'"))
+			.contentSecurityPolicy((csp) -> csp
+				.policyDirectives(policyDirectives)));
+		// @formatter:on
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.http.build()).build();
+		// @formatter:off
+		client.get()
+			.uri("https://example.com/bar")
+			.exchange()
+			.expectHeader().valueEquals(headerName, policyDirectives);
+		// @formatter:on
+	}
+
+	@Test
 	public void headersWhenReferrerPolicyEnabledThenFeaturePolicyWritten() {
 		this.expectedHeaders.add(ReferrerPolicyServerHttpHeadersWriter.REFERRER_POLICY,
 				ReferrerPolicy.NO_REFERRER.getPolicy());

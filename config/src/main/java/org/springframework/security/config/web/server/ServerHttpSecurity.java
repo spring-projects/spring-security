@@ -2850,6 +2850,7 @@ public class ServerHttpSecurity {
 
 			private ContentSecurityPolicySpec() {
 				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(DEFAULT_SRC_SELF_POLICY);
+				HeaderSpec.this.contentSecurityPolicy.setExchangeMatcher(ServerWebExchangeMatchers.anyExchange());
 				HeaderSpec.this.nonceGeneratingFilter = new ContentSecurityPolicyNonceGeneratingWebFilter();
 			}
 
@@ -2876,6 +2877,10 @@ public class ServerHttpSecurity {
 			public HeaderSpec policyDirectives(String policyDirectives) {
 				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(policyDirectives);
 				return HeaderSpec.this;
+			}
+
+			private ContentSecurityPolicySpec(String policyDirectives) {
+				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(policyDirectives);
 			}
 
 			/**
