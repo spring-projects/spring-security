@@ -144,7 +144,8 @@ public class ContentSecurityPolicyHeaderWriterTests {
 		this.writer.setPolicyDirectives("script-src 'nonce-{nonce}'");
 		assertThatIllegalStateException().isThrownBy(() -> this.writer.writeHeaders(this.request, this.response))
 			.withMessage("Failed to replace {nonce} placeholders since no nonce found as a request attribute "
-					+ ContentSecurityPolicyNonce.class.getName());
+					+ ContentSecurityPolicyNonce.class.getName()
+					+ ". Please ensure that a ContentSecurityPolicyNonceGeneratingFilter runs before headers are written.");
 	}
 
 }

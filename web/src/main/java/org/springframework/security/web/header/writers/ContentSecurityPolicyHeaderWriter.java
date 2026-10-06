@@ -151,7 +151,6 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	 * jakarta.servlet.http.HttpServletResponse)
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		if (!this.requestMatcher.matches(request)) {
 			return;
@@ -165,7 +164,8 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 					.getAttribute(ContentSecurityPolicyNonce.class.getName());
 				Assert.state(nonce != null,
 						() -> "Failed to replace {nonce} placeholders since no nonce found as a request attribute "
-								+ ContentSecurityPolicyNonce.class.getName());
+								+ ContentSecurityPolicyNonce.class.getName()
+								+ ". Please ensure that a ContentSecurityPolicyNonceGeneratingFilter runs before headers are written.");
 				csp = this.policyDirectives.replace(NONCE_PLACEHOLDER, nonce.getNonce());
 			}
 			else {

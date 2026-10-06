@@ -2486,7 +2486,7 @@ public class ServerHttpSecurity {
 
 		private CrossOriginResourcePolicyServerHttpHeadersWriter crossOriginResourcePolicy = new CrossOriginResourcePolicyServerHttpHeadersWriter();
 
-		private ContentSecurityPolicyNonceGeneratingWebFilter nonceGeneratingFilter;
+		private @Nullable ContentSecurityPolicyNonceGeneratingWebFilter nonceGeneratingFilter;
 
 		private HeaderSpec() {
 			this.writers = new ArrayList<>(Arrays.asList(this.cacheControl, this.contentTypeOptions, this.hsts,
@@ -2847,10 +2847,12 @@ public class ServerHttpSecurity {
 
 			private @Nullable ServerWebExchangeMatcher exchangeMatcher;
 
+			private final ContentSecurityPolicyNonceGeneratingWebFilter nonceGeneratingFilter = new ContentSecurityPolicyNonceGeneratingWebFilter();
+
 			private ContentSecurityPolicySpec() {
 				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(DEFAULT_SRC_SELF_POLICY);
 				HeaderSpec.this.contentSecurityPolicy.setExchangeMatcher(ServerWebExchangeMatchers.anyExchange());
-				HeaderSpec.this.nonceGeneratingFilter = new ContentSecurityPolicyNonceGeneratingWebFilter();
+				HeaderSpec.this.nonceGeneratingFilter = this.nonceGeneratingFilter;
 			}
 
 			/**
@@ -2894,7 +2896,7 @@ public class ServerHttpSecurity {
 			 */
 			public ContentSecurityPolicySpec nonceAttributeName(String nonceAttributeName) {
 				Assert.hasLength(nonceAttributeName, "NonceAttributeName must not be null or empty");
-				HeaderSpec.this.nonceGeneratingFilter.setAttributeName(nonceAttributeName);
+				this.nonceGeneratingFilter.setAttributeName(nonceAttributeName);
 				return this;
 			}
 

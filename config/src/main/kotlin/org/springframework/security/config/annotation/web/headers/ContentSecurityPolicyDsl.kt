@@ -58,7 +58,7 @@ class ContentSecurityPolicyDsl {
      */
     var requestMatcher: RequestMatcher? = null
 
-    private var requireCspPathPatterns: Array<out String>? = null
+    private var requestMatcherPatterns: Array<out String>? = null
 
     /**
      * Specify the matching path patterns for determining when CSP should be applied.
@@ -72,7 +72,7 @@ class ContentSecurityPolicyDsl {
      * @see requestMatcher
      */
     fun requestMatchers(vararg pathPatterns: String) {
-        requireCspPathPatterns = pathPatterns
+        requestMatcherPatterns = pathPatterns
     }
 
     internal fun get(): (HeadersConfigurer<HttpSecurity>.ContentSecurityPolicyConfig) -> Unit {
@@ -87,7 +87,7 @@ class ContentSecurityPolicyDsl {
             }
             nonceAttributeName?.also(contentSecurityPolicy::nonceAttributeName)
             requestMatcher?.also(contentSecurityPolicy::requestMatcher)
-            requireCspPathPatterns?.also(contentSecurityPolicy::requestMatchers)
+            requestMatcherPatterns?.also(contentSecurityPolicy::requestMatchers)
         }
     }
 }
