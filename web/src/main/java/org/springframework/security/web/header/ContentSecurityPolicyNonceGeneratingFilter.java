@@ -55,7 +55,7 @@ public final class ContentSecurityPolicyNonceGeneratingFilter extends OncePerReq
 	 * @param nonceGenerator a {@link StringKeyGenerator} for generating nonce
 	 * @throws IllegalArgumentException if {@code nonceGenerator} is {@code null}
 	 */
-	public ContentSecurityPolicyNonceGeneratingFilter(StringKeyGenerator nonceGenerator) {
+	ContentSecurityPolicyNonceGeneratingFilter(StringKeyGenerator nonceGenerator) {
 		Assert.notNull(nonceGenerator, "NonceGenerator must not be null");
 		this.nonceGenerator = nonceGenerator;
 	}
