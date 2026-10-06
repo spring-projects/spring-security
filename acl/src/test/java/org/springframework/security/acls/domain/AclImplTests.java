@@ -357,7 +357,7 @@ public class AclImplTests {
 		// Change each permission
 		((AuditableAcl) acl).updateAuditing(0, true, true);
 		((AuditableAcl) acl).updateAuditing(1, true, true);
-		// Check the change was successfuly made
+		// Check the change was successfully made
 		assertThat(acl.getEntries()).extracting("auditSuccess").containsOnly(true, true);
 		assertThat(acl.getEntries()).extracting("auditFailure").containsOnly(true, true);
 	}

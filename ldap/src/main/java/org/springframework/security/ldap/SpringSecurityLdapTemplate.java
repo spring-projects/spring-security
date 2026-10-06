@@ -162,7 +162,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	 */
 	public Set<Map<String, List<String>>> searchForMultipleAttributeValues(String base, String filter, Object[] params,
 			String @Nullable [] attributeNames) {
-		// Escape the params acording to RFC2254
+		// Escape the params according to RFC2254
 		Object[] encodedParams = new String[params.length];
 		for (int i = 0; i < params.length; i++) {
 			encodedParams[i] = LdapEncoder.filterEncode(params[i].toString());

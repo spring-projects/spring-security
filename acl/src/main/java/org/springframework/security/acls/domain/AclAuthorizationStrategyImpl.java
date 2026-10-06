@@ -114,7 +114,7 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 			return;
 		}
 
-		// Not authorized by ACL ownership; try via adminstrative permissions
+		// Not authorized by ACL ownership; try via administrative permissions
 		GrantedAuthority requiredAuthority = getRequiredAuthority(changeType);
 
 		if (authorities.contains(requiredAuthority.getAuthority())) {
