@@ -55,7 +55,7 @@ class ServerContentSecurityPolicyDsl {
      */
     var exchangeMatcher: ServerWebExchangeMatcher? = null
 
-    private var requireCspPathPatterns: Array<out String>? = null
+    private var exchangeMatcherPatterns: Array<out String>? = null
 
     /**
      * Specify the matching path patterns for determining when CSP should be applied.
@@ -68,7 +68,7 @@ class ServerContentSecurityPolicyDsl {
      * @see exchangeMatcher
      */
     fun exchangeMatchers(vararg pathPatterns: String) {
-        requireCspPathPatterns = pathPatterns
+        exchangeMatcherPatterns = pathPatterns
     }
 
     internal fun get(): (ServerHttpSecurity.HeaderSpec.ContentSecurityPolicySpec) -> Unit {
@@ -81,7 +81,7 @@ class ServerContentSecurityPolicyDsl {
             }
             nonceAttributeName?.also(contentSecurityPolicy::nonceAttributeName)
             exchangeMatcher?.also(contentSecurityPolicy::exchangeMatcher)
-            requireCspPathPatterns?.also(contentSecurityPolicy::exchangeMatchers)
+            exchangeMatcherPatterns?.also(contentSecurityPolicy::exchangeMatchers)
         }
     }
 }

@@ -115,7 +115,8 @@ public class ContentSecurityPolicyServerHttpHeadersWriterTests {
 		StepVerifier.create(this.writer.writeHttpHeaders(this.exchange))
 			.expectErrorSatisfies((ex) -> assertThat(ex).isInstanceOf(IllegalStateException.class)
 				.hasMessage("Failed to replace {nonce} placeholders since no nonce found as an exchange attribute "
-						+ ContentSecurityPolicyNonce.class.getName()))
+						+ ContentSecurityPolicyNonce.class.getName()
+						+ ". Please ensure that a ContentSecurityPolicyNonceGeneratingWebFilter runs before headers are written."))
 			.verify();
 	}
 
