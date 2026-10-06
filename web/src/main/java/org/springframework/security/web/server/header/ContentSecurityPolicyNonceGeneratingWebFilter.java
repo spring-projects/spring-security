@@ -60,7 +60,7 @@ public final class ContentSecurityPolicyNonceGeneratingWebFilter implements WebF
 	 * @param nonceGenerator a {@link StringKeyGenerator} for generating nonce
 	 * @throws IllegalArgumentException if {@code nonceGenerator} is {@code null}
 	 */
-	public ContentSecurityPolicyNonceGeneratingWebFilter(StringKeyGenerator nonceGenerator) {
+	ContentSecurityPolicyNonceGeneratingWebFilter(StringKeyGenerator nonceGenerator) {
 		Assert.notNull(nonceGenerator, "NonceGenerator must not be null");
 		this.nonceGenerator = nonceGenerator;
 	}
