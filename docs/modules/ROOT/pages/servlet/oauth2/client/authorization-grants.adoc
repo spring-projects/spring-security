@@ -444,6 +444,67 @@ Xml::
 ----
 ======
 
+[[oauth2-client-authorization-code-authorization-response-handlers]]
+=== Handling the Authorization Response
+
+By default, once the Authorization Response has been processed and the `OAuth2AuthorizedClient` has been saved, `OAuth2AuthorizationCodeGrantFilter` redirects the user-agent to the previously saved request (if available) or else to the `redirect_uri` of the Authorization Request.
+If the Authorization Response cannot be processed (for example, because the access token request failed), the user-agent is redirected to the `redirect_uri` with the `error`, `error_description` and `error_uri` parameters appended.
+
+If you need different behavior, such as rendering an error page or redirecting to a specific location, you can configure an `AuthenticationSuccessHandler` and an `AuthenticationFailureHandler` as follows:
+
+.Authorization Response Handlers Configuration
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+public class OAuth2ClientSecurityConfig {
+
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http
+			.oauth2Client((oauth2) -> oauth2
+				.authorizationCodeGrant((codeGrant) -> codeGrant
+					.successHandler(this.successHandler())
+					.failureHandler(this.failureHandler())
+					// ...
+				)
+			);
+		return http.build();
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebSecurity
+class OAuth2ClientSecurityConfig {
+
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
+        http {
+            oauth2Client {
+                authorizationCodeGrant {
+                    authenticationSuccessHandler = successHandler()
+                    authenticationFailureHandler = failureHandler()
+                }
+            }
+        }
+        return http.build()
+    }
+}
+----
+======
+
+The `Authentication` passed to the `AuthenticationSuccessHandler` is the `OAuth2AuthorizationCodeAuthenticationToken`, which contains the `ClientRegistration`, the access token and the authorization exchange.
+The `AuthenticationFailureHandler` receives an `OAuth2AuthenticationException` holding the `OAuth2Error`, and `AuthenticationException#getAuthenticationRequest()` returns the `OAuth2AuthorizationCodeAuthenticationToken` that failed.
+
 [[oauth2-client-refresh-token]]
 == [[oauth2Client-refresh-token-grant]]Refresh Token
 

@@ -31,6 +31,7 @@ import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest
 import org.springframework.security.oauth2.client.endpoint.RestClientAuthorizationCodeTokenResponseClient
@@ -40,12 +41,18 @@ import org.springframework.security.oauth2.client.web.AuthorizationRequestReposi
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver
 import org.springframework.security.oauth2.core.OAuth2AccessToken
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException
+import org.springframework.security.oauth2.core.OAuth2Error
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames
 import org.springframework.security.web.DefaultRedirectStrategy
 import org.springframework.security.web.RedirectStrategy
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.AuthenticationFailureHandler
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 
@@ -224,6 +231,78 @@ class AuthorizationCodeGrantDslTests {
                 oauth2Client {
                     authorizationCodeGrant {
                         authorizationRequestResolver = requestResolver
+                    }
+                }
+                authorizeHttpRequests {
+                    authorize(anyRequest, authenticated)
+                }
+            }
+            return http.build()
+        }
+    }
+
+    @Test
+    fun `oauth2Client when custom authentication success handler then handler used`() {
+        this.spring.register(AuthenticationHandlersConfig::class.java, ClientConfig::class.java).autowire()
+        val config = this.spring.context.getBean(AuthenticationHandlersConfig::class.java)
+        config.setUpAuthorizationRequest(getOAuth2AuthorizationRequest())
+        every {
+            config.client.getTokenResponse(any())
+        } returns OAuth2AccessTokenResponse
+            .withToken("token")
+            .tokenType(OAuth2AccessToken.TokenType.BEARER)
+            .build()
+
+        this.mockMvc.get("/callback") {
+            param("state", "test")
+            param("code", "123")
+        }
+
+        verify(exactly = 1) { config.successHandler.onAuthenticationSuccess(any(), any(), any<Authentication>()) }
+    }
+
+    @Test
+    fun `oauth2Client when custom authentication failure handler then handler used`() {
+        this.spring.register(AuthenticationHandlersConfig::class.java, ClientConfig::class.java).autowire()
+        val config = this.spring.context.getBean(AuthenticationHandlersConfig::class.java)
+        config.setUpAuthorizationRequest(getOAuth2AuthorizationRequest())
+        every {
+            config.client.getTokenResponse(any())
+        } throws OAuth2AuthorizationException(OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT))
+
+        this.mockMvc.get("/callback") {
+            param("state", "test")
+            param("code", "123")
+        }
+
+        verify(exactly = 1) {
+            config.failureHandler.onAuthenticationFailure(any(), any(), any<OAuth2AuthenticationException>())
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class AuthenticationHandlersConfig {
+
+        val requestRepository: AuthorizationRequestRepository<OAuth2AuthorizationRequest> = mockk()
+        val client: OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> = mockk()
+        val successHandler: AuthenticationSuccessHandler = mockk(relaxed = true)
+        val failureHandler: AuthenticationFailureHandler = mockk(relaxed = true)
+
+        fun setUpAuthorizationRequest(authorizationRequest: OAuth2AuthorizationRequest?) {
+            every { requestRepository.loadAuthorizationRequest(any()) } returns authorizationRequest
+            every { requestRepository.removeAuthorizationRequest(any(), any()) } returns authorizationRequest
+        }
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                oauth2Client {
+                    authorizationCodeGrant {
+                        authorizationRequestRepository = requestRepository
+                        accessTokenResponseClient = client
+                        authenticationSuccessHandler = successHandler
+                        authenticationFailureHandler = failureHandler
                     }
                 }
                 authorizeHttpRequests {

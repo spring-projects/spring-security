@@ -27,6 +27,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
@@ -40,6 +41,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authoriza
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
@@ -48,6 +50,8 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResp
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
@@ -123,6 +127,10 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 
 	private RequestCache requestCache = new HttpSessionRequestCache();
 
+	private @Nullable AuthenticationSuccessHandler authenticationSuccessHandler;
+
+	private @Nullable AuthenticationFailureHandler authenticationFailureHandler;
+
 	/**
 	 * Constructs an {@code OAuth2AuthorizationCodeGrantFilter} using the provided
 	 * parameters.
@@ -175,6 +183,47 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
+	/**
+	 * Sets the {@link AuthenticationSuccessHandler} used for handling a successful
+	 * Authorization Response, after the {@link OAuth2AuthorizedClient} has been saved.
+	 * The {@link Authentication} passed to the handler is the
+	 * {@link OAuth2AuthorizationCodeAuthenticationToken} returned by the
+	 * {@link AuthenticationManager}.
+	 *
+	 * <p>
+	 * By default, the user-agent is redirected to the previously saved request (if
+	 * available, see {@link #setRequestCache(RequestCache)}) or else to the
+	 * {@link OAuth2AuthorizationRequest#getRedirectUri() redirect_uri} of the
+	 * Authorization Request.
+	 * @param authenticationSuccessHandler the {@link AuthenticationSuccessHandler} to use
+	 * @since 7.2
+	 */
+	public void setAuthenticationSuccessHandler(AuthenticationSuccessHandler authenticationSuccessHandler) {
+		Assert.notNull(authenticationSuccessHandler, "authenticationSuccessHandler cannot be null");
+		this.authenticationSuccessHandler = authenticationSuccessHandler;
+	}
+
+	/**
+	 * Sets the {@link AuthenticationFailureHandler} used for handling a failed
+	 * Authorization Response. The {@link OAuth2AuthorizationException} is passed to the
+	 * handler as an {@link OAuth2AuthenticationException}, whose
+	 * {@link OAuth2AuthenticationException#getAuthenticationRequest() authentication
+	 * request} is the {@link OAuth2AuthorizationCodeAuthenticationToken} that failed.
+	 *
+	 * <p>
+	 * By default, the user-agent is redirected to the
+	 * {@link OAuth2AuthorizationRequest#getRedirectUri() redirect_uri} of the
+	 * Authorization Request, with the {@link OAuth2ParameterNames#ERROR error},
+	 * {@link OAuth2ParameterNames#ERROR_DESCRIPTION error_description} and
+	 * {@link OAuth2ParameterNames#ERROR_URI error_uri} parameters appended.
+	 * @param authenticationFailureHandler the {@link AuthenticationFailureHandler} to use
+	 * @since 7.2
+	 */
+	public void setAuthenticationFailureHandler(AuthenticationFailureHandler authenticationFailureHandler) {
+		Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
+		this.authenticationFailureHandler = authenticationFailureHandler;
+	}
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -219,7 +268,7 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 	}
 
 	private void processAuthorizationResponse(HttpServletRequest request, HttpServletResponse response)
-			throws IOException {
+			throws IOException, ServletException {
 		OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestRepository
 			.removeAuthorizationRequest(request, response);
 		Assert.notNull(authorizationRequest, "authorizationRequest cannot be null");
@@ -240,6 +289,13 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 				.authenticate(authenticationRequest);
 		}
 		catch (OAuth2AuthorizationException ex) {
+			if (this.authenticationFailureHandler != null) {
+				OAuth2AuthenticationException authenticationException = new OAuth2AuthenticationException(ex.getError(),
+						ex);
+				authenticationException.setAuthenticationRequest(authenticationRequest);
+				this.authenticationFailureHandler.onAuthenticationFailure(request, response, authenticationException);
+				return;
+			}
 			OAuth2Error error = ex.getError();
 			String errorRedirectUri = authorizationRequest.getRedirectUri();
 			Assert.hasText(errorRedirectUri, "redirectUri cannot be empty");
@@ -264,6 +320,10 @@ public class OAuth2AuthorizationCodeGrantFilter extends OncePerRequestFilter {
 				authenticationResult.getClientRegistration(), principalName, authenticationResult.getAccessToken(),
 				authenticationResult.getRefreshToken());
 		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, principal, request, response);
+		if (this.authenticationSuccessHandler != null) {
+			this.authenticationSuccessHandler.onAuthenticationSuccess(request, response, authenticationResult);
+			return;
+		}
 		String redirectUrl = authorizationRequest.getRedirectUri();
 		SavedRequest savedRequest = this.requestCache.getRequest(request, response);
 		if (savedRequest != null) {
