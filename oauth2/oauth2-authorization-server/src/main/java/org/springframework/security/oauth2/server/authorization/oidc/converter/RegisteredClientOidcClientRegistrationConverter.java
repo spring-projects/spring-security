@@ -101,6 +101,12 @@ public final class RegisteredClientOidcClientRegistrationConverter
 			builder.tokenEndpointAuthenticationSigningAlgorithm(clientSettings.getTokenEndpointAuthenticationSigningAlgorithm().getName());
 		}
 
+		if (clientSettings.getBackChannelLogoutUri() != null) {
+			builder
+					.backChannelLogoutUri(clientSettings.getBackChannelLogoutUri())
+					.backChannelLogoutSessionRequired(clientSettings.isBackChannelLogoutSessionRequired());
+		}
+
 		return builder.build();
 		// @formatter:on
 	}

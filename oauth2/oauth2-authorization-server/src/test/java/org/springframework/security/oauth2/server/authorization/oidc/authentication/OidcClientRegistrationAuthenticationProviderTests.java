@@ -667,6 +667,7 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 			.setAuthenticationValidator(OidcClientRegistrationAuthenticationValidator.DEFAULT_REDIRECT_URI_VALIDATOR
 				.andThen(OidcClientRegistrationAuthenticationValidator.DEFAULT_POST_LOGOUT_REDIRECT_URI_VALIDATOR)
 				.andThen(OidcClientRegistrationAuthenticationValidator.DEFAULT_JWK_SET_URI_VALIDATOR)
+				.andThen(OidcClientRegistrationAuthenticationValidator.DEFAULT_BACK_CHANNEL_LOGOUT_URI_VALIDATOR)
 				.andThen(OidcClientRegistrationAuthenticationValidator.SIMPLE_SCOPE_VALIDATOR));
 		Jwt jwt = createJwtClientRegistration();
 		OAuth2AccessToken jwtAccessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
@@ -687,6 +688,8 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 				.clientName("client-name")
 				.redirectUri("https://client.example.com")
 				.postLogoutRedirectUri("https://client.example.com/oidc-post-logout")
+				.backChannelLogoutUri("https://client.example.com/logout/connect/back-channel")
+				.backChannelLogoutSessionRequired(true)
 				.grantType(AuthorizationGrantType.AUTHORIZATION_CODE.getValue())
 				.grantType(AuthorizationGrantType.CLIENT_CREDENTIALS.getValue())
 				.scope("scope1")
@@ -739,6 +742,9 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 		assertThat(registeredClientResult.getScopes()).containsExactlyInAnyOrder("scope1", "scope2");
 		assertThat(registeredClientResult.getClientSettings().isRequireProofKey()).isTrue();
 		assertThat(registeredClientResult.getClientSettings().isRequireAuthorizationConsent()).isTrue();
+		assertThat(registeredClientResult.getClientSettings().getBackChannelLogoutUri())
+			.isEqualTo("https://client.example.com/logout/connect/back-channel");
+		assertThat(registeredClientResult.getClientSettings().isBackChannelLogoutSessionRequired()).isTrue();
 		assertThat(registeredClientResult.getTokenSettings().getIdTokenSignatureAlgorithm())
 			.isEqualTo(SignatureAlgorithm.RS256);
 
@@ -754,6 +760,9 @@ public class OidcClientRegistrationAuthenticationProviderTests {
 			.containsExactlyInAnyOrderElementsOf(registeredClientResult.getRedirectUris());
 		assertThat(clientRegistrationResult.getPostLogoutRedirectUris())
 			.containsExactlyInAnyOrderElementsOf(registeredClientResult.getPostLogoutRedirectUris());
+		assertThat(clientRegistrationResult.getBackChannelLogoutUri().toString())
+			.isEqualTo("https://client.example.com/logout/connect/back-channel");
+		assertThat(clientRegistrationResult.isBackChannelLogoutSessionRequired()).isTrue();
 
 		List<String> grantTypes = new ArrayList<>();
 		registeredClientResult.getAuthorizationGrantTypes()

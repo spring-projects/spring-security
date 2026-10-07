@@ -334,6 +334,38 @@ public class OidcClientRegistrationTests {
 	}
 
 	@Test
+	public void requestWhenClientRegistersWithBackChannelLogoutThenReturnedInClientConfiguration() throws Exception {
+		this.spring.register(AuthorizationServerConfiguration.class).autowire();
+
+		// @formatter:off
+		OidcClientRegistration clientRegistration = OidcClientRegistration.builder()
+				.clientName("client-name")
+				.redirectUri("https://client.example.com")
+				.grantType(AuthorizationGrantType.AUTHORIZATION_CODE.getValue())
+				.backChannelLogoutUri("https://client.example.com/logout/connect/back-channel")
+				.backChannelLogoutSessionRequired(true)
+				.build();
+		// @formatter:on
+
+		OidcClientRegistration clientRegistrationResponse = registerClient(clientRegistration);
+		assertThat(clientRegistrationResponse.getBackChannelLogoutUri().toString())
+			.isEqualTo("https://client.example.com/logout/connect/back-channel");
+		assertThat(clientRegistrationResponse.isBackChannelLogoutSessionRequired()).isTrue();
+
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.setBearerAuth(clientRegistrationResponse.getRegistrationAccessToken());
+		MvcResult mvcResult = this.mvc
+			.perform(get(clientRegistrationResponse.getRegistrationClientUrl().toURI()).headers(httpHeaders))
+			.andExpect(status().isOk())
+			.andReturn();
+		OidcClientRegistration clientConfigurationResponse = readClientRegistrationResponse(mvcResult.getResponse());
+
+		assertThat(clientConfigurationResponse.getBackChannelLogoutUri().toString())
+			.isEqualTo("https://client.example.com/logout/connect/back-channel");
+		assertThat(clientConfigurationResponse.isBackChannelLogoutSessionRequired()).isTrue();
+	}
+
+	@Test
 	public void requestWhenClientRegistrationEndpointCustomizedThenUsed() throws Exception {
 		this.spring.register(CustomClientRegistrationConfiguration.class).autowire();
 
@@ -618,6 +650,19 @@ public class OidcClientRegistrationTests {
 				  "grant_types": ["authorization_code"],
 				  "jwks_uri": "http://169.254.169.254/keys",
 				  "token_endpoint_auth_method": "private_key_jwt"
+				}
+				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
+	}
+
+	@Test
+	public void requestWhenHttpBackChannelLogoutUriThenBadRequest() throws Exception {
+		this.spring.register(DefaultValidatorConfiguration.class).autowire();
+		assertThat(requestWhenInvalidClientMetadataThenBadRequest("""
+				{
+				  "client_name": "client-name",
+				  "redirect_uris": ["https://client.example.com"],
+				  "grant_types": ["authorization_code"],
+				  "backchannel_logout_uri": "http://169.254.169.254/logout"
 				}
 				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
 	}

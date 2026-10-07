@@ -45,7 +45,8 @@ import org.springframework.util.CollectionUtils;
  * <p>
  * The default implementation validates {@link OidcClientRegistration#getRedirectUris()
  * redirect_uris}, {@link OidcClientRegistration#getPostLogoutRedirectUris()
- * post_logout_redirect_uris}, {@link OidcClientRegistration#getJwkSetUrl() jwks_uri}, and
+ * post_logout_redirect_uris}, {@link OidcClientRegistration#getJwkSetUrl() jwks_uri},
+ * {@link OidcClientRegistration#getBackChannelLogoutUri() backchannel_logout_uri}, and
  * {@link OidcClientRegistration#getScopes() scope}. If validation fails, an
  * {@link OAuth2AuthenticationException} is thrown.
  *
@@ -118,6 +119,14 @@ public final class OidcClientRegistrationAuthenticationValidator
 	public static final Consumer<OidcClientRegistrationAuthenticationContext> SIMPLE_JWK_SET_URI_VALIDATOR = OidcClientRegistrationAuthenticationValidator::validateJwkSetUriSimple;
 
 	/**
+	 * The default validator for {@link OidcClientRegistration#getBackChannelLogoutUri()
+	 * backchannel_logout_uri}. Rejects URIs that contain a fragment or do not use the
+	 * {@code https} scheme.
+	 * @since 7.2
+	 */
+	public static final Consumer<OidcClientRegistrationAuthenticationContext> DEFAULT_BACK_CHANNEL_LOGOUT_URI_VALIDATOR = OidcClientRegistrationAuthenticationValidator::validateBackChannelLogoutUri;
+
+	/**
 	 * The default validator for {@link OidcClientRegistration#getScopes() scope}. Rejects
 	 * any request that includes a non-empty scope value. Deployers that need to accept
 	 * scopes during Dynamic Client Registration must configure their own validator (for
@@ -135,6 +144,7 @@ public final class OidcClientRegistrationAuthenticationValidator
 	private final Consumer<OidcClientRegistrationAuthenticationContext> authenticationValidator = DEFAULT_REDIRECT_URI_VALIDATOR
 		.andThen(DEFAULT_POST_LOGOUT_REDIRECT_URI_VALIDATOR)
 		.andThen(DEFAULT_JWK_SET_URI_VALIDATOR)
+		.andThen(DEFAULT_BACK_CHANNEL_LOGOUT_URI_VALIDATOR)
 		.andThen(DEFAULT_SCOPE_VALIDATOR);
 
 	@Override
@@ -270,6 +280,31 @@ public final class OidcClientRegistrationAuthenticationValidator
 
 	private static void validateJwkSetUriSimple(OidcClientRegistrationAuthenticationContext authenticationContext) {
 		// No validation. Preserves prior behavior.
+	}
+
+	private static void validateBackChannelLogoutUri(
+			OidcClientRegistrationAuthenticationContext authenticationContext) {
+		OidcClientRegistrationAuthenticationToken clientRegistrationAuthentication = authenticationContext
+			.getAuthentication();
+		Assert.notNull(clientRegistrationAuthentication.getClientRegistration(), "clientRegistration cannot be null");
+		URL backChannelLogoutUri = clientRegistrationAuthentication.getClientRegistration().getBackChannelLogoutUri();
+		if (backChannelLogoutUri == null) {
+			return;
+		}
+		if (!"https".equalsIgnoreCase(backChannelLogoutUri.getProtocol())) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug(LogMessage.format("Invalid request: backchannel_logout_uri does not use https ('%s')",
+						backChannelLogoutUri));
+			}
+			throw createException("invalid_client_metadata", OidcClientMetadataClaimNames.BACKCHANNEL_LOGOUT_URI);
+		}
+		if (backChannelLogoutUri.getRef() != null) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug(LogMessage.format("Invalid request: backchannel_logout_uri contains a fragment ('%s')",
+						backChannelLogoutUri));
+			}
+			throw createException("invalid_client_metadata", OidcClientMetadataClaimNames.BACKCHANNEL_LOGOUT_URI);
+		}
 	}
 
 	private static void validateScope(OidcClientRegistrationAuthenticationContext authenticationContext) {

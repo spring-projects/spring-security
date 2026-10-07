@@ -149,6 +149,31 @@ public final class OidcProviderConfiguration extends AbstractOAuth2Authorization
 		}
 
 		/**
+		 * Use this {@code backchannel_logout_supported} in the resulting
+		 * {@link OidcProviderConfiguration}, OPTIONAL.
+		 * @param backChannelLogoutSupported {@code true} if the OpenID Provider supports
+		 * back-channel logout
+		 * @return the {@link Builder} for further configuration
+		 * @since 7.2
+		 */
+		public Builder backChannelLogoutSupported(boolean backChannelLogoutSupported) {
+			return claim(OidcProviderMetadataClaimNames.BACKCHANNEL_LOGOUT_SUPPORTED, backChannelLogoutSupported);
+		}
+
+		/**
+		 * Use this {@code backchannel_logout_session_supported} in the resulting
+		 * {@link OidcProviderConfiguration}, OPTIONAL.
+		 * @param backChannelLogoutSessionSupported {@code true} if the OpenID Provider
+		 * can pass a {@code sid} Claim in the Logout Token
+		 * @return the {@link Builder} for further configuration
+		 * @since 7.2
+		 */
+		public Builder backChannelLogoutSessionSupported(boolean backChannelLogoutSessionSupported) {
+			return claim(OidcProviderMetadataClaimNames.BACKCHANNEL_LOGOUT_SESSION_SUPPORTED,
+					backChannelLogoutSessionSupported);
+		}
+
+		/**
 		 * Validate the claims and build the {@link OidcProviderConfiguration}.
 		 * <p>
 		 * The following claims are REQUIRED: {@code issuer},

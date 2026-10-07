@@ -78,6 +78,22 @@ public final class ConfigurationSettingNames {
 		public static final String X509_CERTIFICATE_SUBJECT_DN = CLIENT_SETTINGS_NAMESPACE
 			.concat("x509-certificate-subject-dn");
 
+		/**
+		 * Set the {@code URL} that will cause the client to log itself out when sent a
+		 * Logout Token by the OpenID Provider.
+		 * @since 7.2
+		 */
+		public static final String BACK_CHANNEL_LOGOUT_URI = CLIENT_SETTINGS_NAMESPACE
+			.concat("back-channel-logout-uri");
+
+		/**
+		 * Set to {@code true} if the client requires that a {@code sid} (session ID)
+		 * Claim be included in the Logout Token.
+		 * @since 7.2
+		 */
+		public static final String BACK_CHANNEL_LOGOUT_SESSION_REQUIRED = CLIENT_SETTINGS_NAMESPACE
+			.concat("back-channel-logout-session-required");
+
 		private Client() {
 		}
 

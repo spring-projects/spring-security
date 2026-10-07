@@ -107,6 +107,8 @@ public class OidcProviderConfigurationHttpMessageConverterTests {
 				+ "		\"subject_types_supported\": [\"public\"],\n"
 				+ "		\"id_token_signing_alg_values_supported\": [\"RS256\"],\n"
 				+ "		\"token_endpoint_auth_methods_supported\": [\"client_secret_basic\"],\n"
+				+ "		\"backchannel_logout_supported\": true,\n"
+				+ "		\"backchannel_logout_session_supported\": true,\n"
 				+ "		\"custom_claim\": \"value\",\n"
 				+ "		\"custom_collection_claim\": [\"value1\", \"value2\"]\n"
 				+ "}\n";
@@ -130,6 +132,8 @@ public class OidcProviderConfigurationHttpMessageConverterTests {
 		assertThat(providerConfiguration.getIdTokenSigningAlgorithms()).containsExactly("RS256");
 		assertThat(providerConfiguration.getTokenEndpointAuthenticationMethods())
 			.containsExactly(ClientAuthenticationMethod.CLIENT_SECRET_BASIC.getValue());
+		assertThat(providerConfiguration.isBackChannelLogoutSupported()).isTrue();
+		assertThat(providerConfiguration.isBackChannelLogoutSessionSupported()).isTrue();
 		assertThat(providerConfiguration.<String>getClaim("custom_claim")).isEqualTo("value");
 		assertThat(providerConfiguration.getClaimAsStringList("custom_collection_claim"))
 			.containsExactlyInAnyOrder("value1", "value2");

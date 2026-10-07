@@ -89,4 +89,28 @@ public interface OidcProviderMetadataClaimAccessor extends OAuth2AuthorizationSe
 		return endSessionEndpoint;
 	}
 
+	/**
+	 * Returns {@code true} if the OpenID Provider supports back-channel logout
+	 * {@code (backchannel_logout_supported)}. The default is {@code false}.
+	 * @return {@code true} if the OpenID Provider supports back-channel logout,
+	 * {@code false} otherwise
+	 * @since 7.2
+	 */
+	default boolean isBackChannelLogoutSupported() {
+		return Boolean.TRUE.equals(getClaimAsBoolean(OidcProviderMetadataClaimNames.BACKCHANNEL_LOGOUT_SUPPORTED));
+	}
+
+	/**
+	 * Returns {@code true} if the OpenID Provider can pass a {@code sid} (session ID)
+	 * Claim in the Logout Token {@code (backchannel_logout_session_supported)}. The
+	 * default is {@code false}.
+	 * @return {@code true} if the OpenID Provider can pass a {@code sid} Claim in the
+	 * Logout Token, {@code false} otherwise
+	 * @since 7.2
+	 */
+	default boolean isBackChannelLogoutSessionSupported() {
+		return Boolean.TRUE
+			.equals(getClaimAsBoolean(OidcProviderMetadataClaimNames.BACKCHANNEL_LOGOUT_SESSION_SUPPORTED));
+	}
+
 }
