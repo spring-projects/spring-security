@@ -1,3 +1,12 @@
+buildscript {
+	repositories {
+		gradlePluginPortal()
+	}
+	dependencies {
+		classpath libs.io.spring.security.project.plugin
+	}
+}
+
 plugins {
 	id "java-gradle-plugin"
 	id "groovy-gradle-plugin"
@@ -9,20 +18,11 @@ java {
 	sourceCompatibility = JavaVersion.VERSION_17
 }
 
+apply plugin: 'io.spring.security.project'
+
 repositories {
 	gradlePluginPortal()
 	mavenCentral()
-	maven { url = 'https://repo.spring.io/snapshot' }
-	if (System.getenv("RELEASE_TRAIN_MAVEN_REPOSITORY_URL") != null) {
-		maven {
-			name = "Release Train"
-			url = System.getenv("RELEASE_TRAIN_MAVEN_REPOSITORY_URL")
-			credentials {
-				username = System.getenv("RELEASE_TRAIN_MAVEN_REPOSITORY_USERNAME")
-				password = System.getenv("RELEASE_TRAIN_MAVEN_REPOSITORY_PASSWORD")
-			}
-		}
-	}
 }
 
 sourceSets {
