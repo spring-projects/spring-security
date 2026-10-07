@@ -2880,10 +2880,6 @@ public class ServerHttpSecurity {
 				return HeaderSpec.this;
 			}
 
-			private ContentSecurityPolicySpec(String policyDirectives) {
-				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(policyDirectives);
-			}
-
 			/**
 			 * Sets the name of the {@link ServerWebExchange#getAttribute(String) exchange
 			 * attribute} for the generated nonce. Views can read this attribute to render
