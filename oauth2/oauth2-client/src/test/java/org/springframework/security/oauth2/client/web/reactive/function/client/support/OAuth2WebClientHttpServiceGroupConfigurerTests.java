@@ -16,6 +16,9 @@
 
 package org.springframework.security.oauth2.client.web.reactive.function.client.support;
 
+import java.lang.reflect.Method;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -23,13 +26,21 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.env.MapPropertySource;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.annotation.ClientRegistrationId;
+import org.springframework.security.oauth2.client.web.ClientAttributes;
 import org.springframework.security.oauth2.client.web.client.ClientRegistrationIdProcessor;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.service.invoker.HttpRequestValues;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 import org.springframework.web.service.registry.HttpServiceGroupConfigurer;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
@@ -40,6 +51,8 @@ import static org.mockito.Mockito.verify;
  */
 @ExtendWith(MockitoExtension.class)
 class OAuth2WebClientHttpServiceGroupConfigurerTests {
+
+	private static final String REGISTRATION_ID = "okta";
 
 	@Mock
 	private OAuth2AuthorizedClientManager authoriedClientManager;
@@ -59,6 +72,9 @@ class OAuth2WebClientHttpServiceGroupConfigurerTests {
 	@Mock
 	private WebClient.Builder clientBuilder;
 
+	@Captor
+	private ArgumentCaptor<HttpRequestValues.Processor> processor;
+
 	@Test
 	void configureGroupsConfigureProxyFactory() {
 
@@ -74,6 +90,27 @@ class OAuth2WebClientHttpServiceGroupConfigurerTests {
 	}
 
 	@Test
+	void configureGroupsWhenBeanThenProcessorResolvesClientRegistrationIdPlaceholder() {
+		try (AnnotationConfigApplicationContext context = createContext()) {
+			OAuth2WebClientHttpServiceGroupConfigurer configurer = context
+				.getBean(OAuth2WebClientHttpServiceGroupConfigurer.class);
+
+			configurer.configureGroups(this.groups);
+			verify(this.groups).forEachProxyFactory(this.forProxyFactory.capture());
+
+			this.forProxyFactory.getValue().withProxyFactory(null, this.factoryBuilder);
+
+			verify(this.factoryBuilder).httpRequestValuesProcessor(this.processor.capture());
+			HttpRequestValues.Builder requestValues = HttpRequestValues.builder();
+			Method getMessage = ReflectionUtils.findMethod(MessageClient.class, "getMessage");
+			this.processor.getValue().process(getMessage, null, null, requestValues);
+
+			String registrationId = ClientAttributes.resolveClientRegistrationId(requestValues.build().getAttributes());
+			assertThat(registrationId).isEqualTo(REGISTRATION_ID);
+		}
+	}
+
+	@Test
 	void configureGroupsConfigureClient() {
 		OAuth2WebClientHttpServiceGroupConfigurer configurer = OAuth2WebClientHttpServiceGroupConfigurer
 			.from(this.authoriedClientManager);
@@ -84,6 +121,25 @@ class OAuth2WebClientHttpServiceGroupConfigurerTests {
 		this.configureClient.getValue().withClient(null, this.clientBuilder);
 
 		verify(this.clientBuilder).filter(any(ExchangeFilterFunction.class));
+	}
+
+	private AnnotationConfigApplicationContext createContext() {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+		context.getEnvironment()
+			.getPropertySources()
+			.addFirst(new MapPropertySource("test", Map.of("test.registration-id", REGISTRATION_ID)));
+		context.registerBean(PropertySourcesPlaceholderConfigurer.class);
+		context.registerBean(OAuth2WebClientHttpServiceGroupConfigurer.class,
+				() -> OAuth2WebClientHttpServiceGroupConfigurer.from(this.authoriedClientManager));
+		context.refresh();
+		return context;
+	}
+
+	interface MessageClient {
+
+		@ClientRegistrationId("${test.registration-id}")
+		String getMessage();
+
 	}
 
 }

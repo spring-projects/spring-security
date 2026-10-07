@@ -51,6 +51,11 @@ include-code::./UserService[tag=getAuthenticatedUser]
 
 The xref:features/integrations/rest/http-service-client.adoc#client-registration-id[`@ClientRegistrationId`] will be processed by xref:features/integrations/rest/http-service-client.adoc#client-registration-id-processor[`ClientRegistrationIdProcessor`]
 
+The value can also be a property placeholder such as `${my.client}`, using the same syntax as `@GetExchange` and the other `@HttpExchange` annotations.
+Resolution requires the xref:features/integrations/rest/http-service-client.adoc#configuration[configurer] to be a bean, so that the application context supplies it with a resolver.
+Unlike an `@HttpExchange` url, the value is resolved on first use rather than when the HTTP service proxy is created, so an unresolvable placeholder fails on the first call rather than at startup.
+If you build the `HttpServiceProxyFactory` yourself, create the processor with javadoc:org.springframework.security.oauth2.client.web.client.ClientRegistrationIdProcessor#withEmbeddedValueResolver(org.springframework.util.StringValueResolver)[] instead of using `DEFAULT_INSTANCE`.
+
 [[type]]
 === Type Level Declarations
 

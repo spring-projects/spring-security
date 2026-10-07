@@ -17,6 +17,8 @@
 package org.springframework.security.oauth2.client.web.client;
 
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.jspecify.annotations.Nullable;
 
@@ -25,6 +27,8 @@ import org.springframework.security.core.annotation.SecurityAnnotationScanner;
 import org.springframework.security.core.annotation.SecurityAnnotationScanners;
 import org.springframework.security.oauth2.client.annotation.ClientRegistrationId;
 import org.springframework.security.oauth2.client.web.ClientAttributes;
+import org.springframework.util.Assert;
+import org.springframework.util.StringValueResolver;
 import org.springframework.web.service.invoker.HttpRequestValues;
 
 /**
@@ -36,10 +40,39 @@ import org.springframework.web.service.invoker.HttpRequestValues;
  */
 public final class ClientRegistrationIdProcessor implements HttpRequestValues.Processor {
 
-	public static ClientRegistrationIdProcessor DEFAULT_INSTANCE = new ClientRegistrationIdProcessor();
+	/**
+	 * An instance that uses the {@link ClientRegistrationId} value as is, without
+	 * resolving property placeholders in it. Use
+	 * {@link #withEmbeddedValueResolver(StringValueResolver)} to resolve them.
+	 */
+	public static ClientRegistrationIdProcessor DEFAULT_INSTANCE = new ClientRegistrationIdProcessor(null);
 
 	private SecurityAnnotationScanner<ClientRegistrationId> securityAnnotationScanner = SecurityAnnotationScanners
 		.requireUnique(ClientRegistrationId.class);
+
+	private final @Nullable StringValueResolver embeddedValueResolver;
+
+	private final Map<String, String> resolvedRegistrationIds = new ConcurrentHashMap<>();
+
+	private ClientRegistrationIdProcessor(@Nullable StringValueResolver embeddedValueResolver) {
+		this.embeddedValueResolver = embeddedValueResolver;
+	}
+
+	/**
+	 * Creates an instance that resolves property placeholders such as
+	 * <code>${my.client}</code> in the {@link ClientRegistrationId} value. The syntax is
+	 * the same as for {@link org.springframework.web.service.annotation.HttpExchange}
+	 * values, but each value is resolved on first use rather than when the HTTP service
+	 * proxy is created.
+	 * @param embeddedValueResolver the resolver used to resolve the value; cannot be
+	 * null.
+	 * @return a processor that resolves placeholders with the given resolver.
+	 * @since 7.2
+	 */
+	public static ClientRegistrationIdProcessor withEmbeddedValueResolver(StringValueResolver embeddedValueResolver) {
+		Assert.notNull(embeddedValueResolver, "embeddedValueResolver cannot be null");
+		return new ClientRegistrationIdProcessor(embeddedValueResolver);
+	}
 
 	@Override
 	public void process(Method method, MethodParameter[] parameters, @Nullable Object[] arguments,
@@ -47,12 +80,21 @@ public final class ClientRegistrationIdProcessor implements HttpRequestValues.Pr
 		ClientRegistrationId registeredId = this.securityAnnotationScanner.scan(method, method.getDeclaringClass());
 
 		if (registeredId != null) {
-			String registrationId = registeredId.registrationId();
+			String registrationId = resolveRegistrationId(registeredId.registrationId());
 			builder.configureAttributes(ClientAttributes.clientRegistrationId(registrationId));
 		}
 	}
 
-	private ClientRegistrationIdProcessor() {
+	private String resolveRegistrationId(String registrationId) {
+		StringValueResolver resolver = this.embeddedValueResolver;
+		if (resolver == null) {
+			return registrationId;
+		}
+		return this.resolvedRegistrationIds.computeIfAbsent(registrationId, (value) -> {
+			String resolved = resolver.resolveStringValue(value);
+			Assert.state(resolved != null, () -> "Could not resolve the client registration id from \"" + value + "\"");
+			return resolved;
+		});
 	}
 
 }
