@@ -9,7 +9,28 @@ on:
 run-name: Merge Dependabot PR ${{ github.ref_name }}
 
 jobs:
+  dependabot-metadata:
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      update-type: ${{ steps.metadata.outputs.update-type }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          show-progress: false
+
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
   merge-dependabot-pr:
+    needs: dependabot-metadata
+    if: needs.dependabot-metadata.outputs.update-type == 'version-update:semver-patch'
     permissions: write-all
     uses: spring-io/spring-github-workflows/.github/workflows/spring-merge-dependabot-pr.yml@fa7e8a8f981064983e9468225e052f14af7c67d4
     with:
