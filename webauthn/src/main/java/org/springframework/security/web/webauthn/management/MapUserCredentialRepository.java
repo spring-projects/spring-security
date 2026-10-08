@@ -57,10 +57,17 @@ public class MapUserCredentialRepository implements UserCredentialRepository {
 	@Override
 	public void save(CredentialRecord credentialRecord) {
 		Assert.notNull(credentialRecord, "credentialRecord cannot be null");
-		this.credentialIdToUserCredential.put(credentialRecord.getCredentialId(), credentialRecord);
+		Bytes credentialId = credentialRecord.getCredentialId();
+		CredentialRecord previous = this.credentialIdToUserCredential.put(credentialId, credentialRecord);
+		if (previous != null) {
+			Set<Bytes> previousIds = this.userEntityIdToUserCredentialIds.get(previous.getUserEntityUserId());
+			if (previousIds != null) {
+				previousIds.remove(credentialId);
+			}
+		}
 		this.userEntityIdToUserCredentialIds
 			.computeIfAbsent(credentialRecord.getUserEntityUserId(), (id) -> new HashSet<>())
-			.add(credentialRecord.getCredentialId());
+			.add(credentialId);
 	}
 
 	@Override
