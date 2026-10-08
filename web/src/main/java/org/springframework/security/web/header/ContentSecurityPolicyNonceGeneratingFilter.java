@@ -41,6 +41,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * technology can render the nonce in generated HTML to allow intended inline
  * {@code <script>} or {@code <style>} blocks.
  *
+ * <p>
+ * The nonce is generated lazily the first time
+ * {@link ContentSecurityPolicyNonce#getNonce()} is called, and every caller during the
+ * same request sees the same value.
+ *
  * @author Ziqin Wang
  * @since 7.2
  */
