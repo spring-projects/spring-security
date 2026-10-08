@@ -30,6 +30,7 @@ dependencies {
 	api platform(libs.org.jetbrains.kotlinx.kotlinx.coroutines.bom)
 	api platform(libs.com.fasterxml.jackson.jackson.bom)
 	api platform(libs.tools.jackson.jackson.bom)
+	api platform(libs.org.testcontainers.testcontainers.bom)
 	constraints {
 		api libs.ch.qos.logback.logback.classic
 		api libs.com.google.inject.guice
@@ -65,6 +66,11 @@ dependencies {
 		api libs.org.hamcrest
 		api libs.org.hibernate.orm.hibernate.core
 		api libs.org.hsqldb
+		api libs.com.h2database.h2
+		api libs.org.postgresql.postgresql
+		api libs.com.mysql.mysql.connector.j
+		api libs.com.microsoft.sqlserver.mssql.jdbc
+		api libs.com.oracle.database.jdbc.ojdbc11
 		api libs.com.jayway.jsonpath.json.path
 		api libs.org.apereo.cas.client.cas.client.core
 		api libs.org.opensaml.opensaml5.saml.api

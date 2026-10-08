@@ -47,6 +47,19 @@ dependencies {
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	integrationTestImplementation 'org.springframework:spring-jdbc'
+	integrationTestImplementation 'org.testcontainers:testcontainers-junit-jupiter'
+	integrationTestImplementation 'org.testcontainers:testcontainers-postgresql'
+	integrationTestImplementation 'org.testcontainers:testcontainers-mysql'
+	integrationTestImplementation 'org.testcontainers:testcontainers-oracle-free'
+	integrationTestImplementation 'org.testcontainers:testcontainers-mssqlserver'
+
+	integrationTestRuntimeOnly 'com.h2database:h2'
+	integrationTestRuntimeOnly 'org.postgresql:postgresql'
+	integrationTestRuntimeOnly 'com.mysql:mysql-connector-j'
+	integrationTestRuntimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+	integrationTestRuntimeOnly 'com.oracle.database.jdbc:ojdbc11'
 }
 
 task springVersion(type: org.gradle.api.tasks.WriteProperties) {
