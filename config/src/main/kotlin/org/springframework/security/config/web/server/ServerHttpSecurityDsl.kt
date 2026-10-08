@@ -123,7 +123,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      *     // @formatter:off
      *     return Customizer { headers -> headers
      *         .contentSecurityPolicy { csp -> csp
-     *             .policyDirectives("object-src 'none'")
+     *             .directives("object-src 'none'")
      *         }
      *     }
      *     // @formatter:on
