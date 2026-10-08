@@ -363,6 +363,22 @@ public class HeaderSpecTests {
 	}
 
 	@Test
+	public void headersWhenContentSecurityPolicyMethodsChainedThenReportOnlyPolicyWritten() {
+		String policyDirectives = "default-src 'self' *.trusted.com";
+		this.expectedHeaders.add(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY_REPORT_ONLY,
+				policyDirectives);
+		// @formatter:off
+		this.http.headers((headers) -> headers
+				.contentSecurityPolicy((csp) -> csp
+						.directives(policyDirectives)
+						.reportOnly()
+				)
+		);
+		// @formatter:on
+		assertHeaders();
+	}
+
+	@Test
 	public void headersWhenContentSecurityPolicyEnabledWithDefaultsInLambdaThenDefaultPolicyWritten() {
 		String expectedPolicyDirectives = "default-src 'self'";
 		this.expectedHeaders.add(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY,
