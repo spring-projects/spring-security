@@ -105,6 +105,7 @@ public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntro
 			RestClient.RequestBodySpec spec = this.restClient.post()
 				.uri(this.introspectionUri)
 				.headers((h) -> h.setAccept(List.of(MediaType.APPLICATION_JSON)))
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 				.body(requestBody(token));
 			return spec.retrieve().toEntity(STRING_OBJECT_MAP);
 		}

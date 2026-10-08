@@ -136,6 +136,26 @@ public class RestClientOpaqueTokenIntrospectorTests {
 	}
 
 	@Test
+	public void introspectWhenActiveTokenThenSendsFormUrlEncodedRequest() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, ACTIVE_RESPONSE));
+			String introspectUri = server.url("/introspect").toString();
+			OpaqueTokenIntrospector introspectionClient = RestClientOpaqueTokenIntrospector
+				.withIntrospectionUri(introspectUri)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.build();
+			introspectionClient.introspect("token");
+			RecordedRequest request = server.takeRequest();
+			assertThat(request.getMethod()).isEqualTo("POST");
+			assertThat(request.getHeader(HttpHeaders.CONTENT_TYPE))
+				.startsWith(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+			assertThat(request.getHeader(HttpHeaders.ACCEPT)).contains(MediaType.APPLICATION_JSON_VALUE);
+			assertThat(request.getBody().readUtf8()).isEqualTo("token=token");
+		}
+	}
+
+	@Test
 	public void introspectWhenBadClientCredentialsThenError() throws IOException {
 		try (MockWebServer server = new MockWebServer()) {
 			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, ACTIVE_RESPONSE));
