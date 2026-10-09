@@ -125,6 +125,66 @@ public class OAuth2TokenExchangeAuthenticationProviderTests {
 	}
 
 	@Test
+	public void setAuthenticationValidatorWhenNullThenThrowIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authenticationProvider.setAuthenticationValidator(null))
+				.withMessage("authenticationValidator cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void authenticateWhenCustomAuthenticationValidatorThenUsed() {
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient()
+			.authorizationGrantType(AuthorizationGrantType.TOKEN_EXCHANGE)
+			.build();
+		OAuth2TokenExchangeAuthenticationToken authentication = createDelegationRequest(registeredClient);
+		OAuth2Authorization subjectAuthorization = TestOAuth2Authorizations.authorization(registeredClient)
+			.token(createAccessToken(SUBJECT_TOKEN))
+			.build();
+		OAuth2Authorization actorAuthorization = TestOAuth2Authorizations.authorization(registeredClient)
+			.token(createAccessToken(ACTOR_TOKEN))
+			.build();
+		given(this.authorizationService.findByToken(anyString(), any(OAuth2TokenType.class)))
+			.willReturn(subjectAuthorization, actorAuthorization);
+		OAuth2AccessToken accessToken = createAccessToken("token-value");
+		given(this.tokenGenerator.generate(any(OAuth2TokenContext.class))).willReturn(accessToken);
+
+		Consumer<OAuth2TokenExchangeAuthenticationContext> customValidator = mock(Consumer.class);
+		this.authenticationProvider.setAuthenticationValidator(customValidator);
+		this.authenticationProvider.authenticate(authentication);
+
+		verify(customValidator).accept(any(OAuth2TokenExchangeAuthenticationContext.class));
+	}
+
+	@Test
+	public void authenticateWhenCustomAuthenticationValidatorThrowsThenPropagated() {
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient()
+			.authorizationGrantType(AuthorizationGrantType.TOKEN_EXCHANGE)
+			.build();
+		OAuth2TokenExchangeAuthenticationToken authentication = createDelegationRequest(registeredClient);
+		OAuth2Authorization subjectAuthorization = TestOAuth2Authorizations.authorization(registeredClient)
+			.token(createAccessToken(SUBJECT_TOKEN))
+			.build();
+		OAuth2Authorization actorAuthorization = TestOAuth2Authorizations.authorization(registeredClient)
+			.token(createAccessToken(ACTOR_TOKEN))
+			.build();
+		given(this.authorizationService.findByToken(anyString(), any(OAuth2TokenType.class)))
+			.willReturn(subjectAuthorization, actorAuthorization);
+
+		this.authenticationProvider
+			.setAuthenticationValidator((ctx) -> { throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST); });
+		// @formatter:off
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+				.extracting(OAuth2AuthenticationException::getError)
+				.extracting(OAuth2Error::getErrorCode)
+				.isEqualTo(OAuth2ErrorCodes.INVALID_REQUEST);
+		// @formatter:on
+		verifyNoInteractions(this.tokenGenerator);
+	}
+
+	@Test
 	public void constructorWhenAuthorizationServiceNullThenThrowIllegalArgumentException() {
 		// @formatter:off
 		assertThatIllegalArgumentException()
