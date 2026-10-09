@@ -62,10 +62,8 @@ public final class JwtClaimValidator<T> implements OAuth2TokenValidator<Jwt> {
 	public OAuth2TokenValidatorResult validate(Jwt token) {
 		Assert.notNull(token, "token cannot be null");
 		T claimValue = token.getClaim(this.claim);
-		if (claimValue != null) {
-			if (this.test.test(claimValue)) {
-				return OAuth2TokenValidatorResult.success();
-			}
+		if (this.test.test(claimValue)) {
+			return OAuth2TokenValidatorResult.success();
 		}
 		this.logger.debug(this.error.getDescription());
 		return OAuth2TokenValidatorResult.failure(this.error);
