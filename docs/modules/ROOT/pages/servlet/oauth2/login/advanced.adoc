@@ -893,7 +893,7 @@ class OAuth2LoginSecurityConfig {
 ======
 
 
-[[oauth2login-advanced-userinfo-jwt]]
+[[userinfo-jwt]]
 === Signed and Encrypted UserInfo Responses
 
 An OpenID Connect 1.0 Provider returns the UserInfo Response as a JWT, using the `application/jwt` content type, instead of as a JSON object when the client has registered for a https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata[signed or encrypted response] (`userinfo_signed_response_alg` and `userinfo_encrypted_response_alg`).
