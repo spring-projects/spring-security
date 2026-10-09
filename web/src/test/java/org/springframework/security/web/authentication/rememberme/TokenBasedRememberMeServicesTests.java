@@ -362,6 +362,19 @@ public class TokenBasedRememberMeServicesTests {
 	}
 
 	@Test
+	public void loginSuccessSetsNoCookieIfUserDetailsServiceReturnsNull() {
+		udsWillReturnNull();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addParameter(AbstractRememberMeServices.DEFAULT_PARAMETER, "true");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		// the token carries no credentials, so the password is looked up via the
+		// UserDetailsService
+		Authentication authentication = new TestingAuthenticationToken("someone", null, "ROLE_ABC");
+		this.services.loginSuccess(request, response, authentication);
+		assertThat(response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY)).isNull();
+	}
+
+	@Test
 	public void loginSuccessNormalWithNonUserDetailsBasedPrincipalSetsExpectedCookie() {
 		// SEC-822
 		this.services.setTokenValiditySeconds(500000000);
