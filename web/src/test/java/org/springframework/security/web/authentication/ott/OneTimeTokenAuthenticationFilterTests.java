@@ -20,19 +20,25 @@ import java.io.IOException;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ott.OneTimeTokenAuthentication;
+import org.springframework.security.authentication.ott.OneTimeTokenAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.servlet.MockServletContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -126,6 +132,45 @@ class OneTimeTokenAuthenticationFilterTests {
 				this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpStatus.FOUND.value());
 		assertThat(this.response.getHeader("location")).endsWith("/");
+	}
+
+	// gh-19863
+	@Test
+	@SuppressWarnings("removal")
+	void doFilterWhenHttpServletRequestHasAuthenticationDetailsThenAuthenticationRequestHasDetails()
+			throws ServletException, IOException {
+		String ipAddress = "10.0.0.100";
+		given(this.authenticationManager.authenticate(any()))
+			.willReturn(new OneTimeTokenAuthentication("username", AuthorityUtils.NO_AUTHORITIES));
+		MockHttpServletRequest request = post("/login/ott").param("token", "some-token-value")
+			.buildRequest(new MockServletContext());
+		request.setRemoteAddr(ipAddress);
+		this.filter.doFilter(request, this.response, this.chain);
+
+		ArgumentCaptor<OneTimeTokenAuthenticationToken> authenticationCaptor = ArgumentCaptor
+			.forClass(OneTimeTokenAuthenticationToken.class);
+		verify(this.authenticationManager).authenticate(authenticationCaptor.capture());
+
+		OneTimeTokenAuthenticationToken authenticationRequest = authenticationCaptor.getValue();
+		assertThat(authenticationRequest.getDetails()).isInstanceOf(WebAuthenticationDetails.class);
+
+		WebAuthenticationDetails details = (WebAuthenticationDetails) authenticationRequest.getDetails();
+		assertThat(details.getRemoteAddress()).isEqualTo(ipAddress);
+	}
+
+	// gh-19863
+	@Test
+	@SuppressWarnings({ "removal", "unchecked" })
+	void doFilterWhenCustomAuthenticationDetailsSourceThenUsed() throws ServletException, IOException {
+		given(this.authenticationManager.authenticate(any()))
+			.willReturn(new OneTimeTokenAuthentication("username", AuthorityUtils.NO_AUTHORITIES));
+		AuthenticationDetailsSource<HttpServletRequest, WebAuthenticationDetails> authenticationDetailsSource = mock(
+				AuthenticationDetailsSource.class);
+		this.filter.setAuthenticationDetailsSource(authenticationDetailsSource);
+		this.filter.doFilter(
+				post("/login/ott").param("token", "some-token-value").buildRequest(new MockServletContext()),
+				this.response, this.chain);
+		verify(authenticationDetailsSource).buildDetails(any());
 	}
 
 }
