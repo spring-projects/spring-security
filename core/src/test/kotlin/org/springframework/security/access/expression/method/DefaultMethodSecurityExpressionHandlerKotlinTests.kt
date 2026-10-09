@@ -66,7 +66,7 @@ class DefaultMethodSecurityExpressionHandlerKotlinTests {
             "key3" to "value3",
         )
 
-        val filtered: Any = handler.filter(
+        val filtered: Any? = handler.filter(
             /* filterTarget = */ nonEmptyMap,
             /* filterExpression = */ expression,
             /* ctx = */ context,
@@ -89,7 +89,7 @@ class DefaultMethodSecurityExpressionHandlerKotlinTests {
         )
         val emptyMap: Map<String, String> = emptyMap()
 
-        val filtered: Any = handler.filter(
+        val filtered: Any? = handler.filter(
             /* filterTarget = */ emptyMap,
             /* filterExpression = */ expression,
             /* ctx = */ context,
@@ -114,7 +114,7 @@ class DefaultMethodSecurityExpressionHandlerKotlinTests {
             "string1",
         )
 
-        val filtered: Any = handler.filter(
+        val filtered: Any? = handler.filter(
             /* filterTarget = */ nonEmptyCollection,
             /* filterExpression = */ expression,
             /* ctx = */ context,
@@ -136,7 +136,7 @@ class DefaultMethodSecurityExpressionHandlerKotlinTests {
         )
         val emptyCollection: Collection<String> = emptyList()
 
-        val filtered: Any = handler.filter(
+        val filtered: Any? = handler.filter(
             /* filterTarget = */ emptyCollection,
             /* filterExpression = */ expression,
             /* ctx = */ context,
@@ -161,7 +161,7 @@ class DefaultMethodSecurityExpressionHandlerKotlinTests {
             "string1",
         )
 
-        val filtered: Any = handler.filter(
+        val filtered: Any? = handler.filter(
             /* filterTarget = */ nonEmptyArray,
             /* filterExpression = */ expression,
             /* ctx = */ context,
@@ -183,7 +183,7 @@ class DefaultMethodSecurityExpressionHandlerKotlinTests {
         )
         val emptyArray: Array<String> = emptyArray()
 
-        val filtered: Any = handler.filter(
+        val filtered: Any? = handler.filter(
             /* filterTarget = */ emptyArray,
             /* filterExpression = */ expression,
             /* ctx = */ context,
@@ -208,7 +208,7 @@ class DefaultMethodSecurityExpressionHandlerKotlinTests {
             "string1",
         ).stream()
 
-        val filtered: Any = handler.filter(
+        val filtered: Any? = handler.filter(
             /* filterTarget = */ nonEmptyStream,
             /* filterExpression = */ expression,
             /* ctx = */ context,
@@ -230,7 +230,7 @@ class DefaultMethodSecurityExpressionHandlerKotlinTests {
         )
         val emptyStream: Stream<String> = emptyList<String>().stream()
 
-        val filtered: Any = handler.filter(
+        val filtered: Any? = handler.filter(
             /* filterTarget = */ emptyStream,
             /* filterExpression = */ expression,
             /* ctx = */ context,
@@ -240,5 +240,21 @@ class DefaultMethodSecurityExpressionHandlerKotlinTests {
         @Suppress("UNCHECKED_CAST")
         val result = (filtered as Stream<String>).toList()
         assertThat(result).hasSize(0)
+    }
+
+    @Test
+    fun `allows null filter results`() {
+        val handler = NullReturningMethodSecurityExpressionHandler()
+        val expression: Expression = handler.expressionParser.parseExpression("filterObject eq 'string2'")
+        val context: EvaluationContext = handler.createEvaluationContext(
+            /* authentication = */ authentication,
+            /* invocation = */ methodInvocation,
+        )
+
+        assertThat(handler.filter(null, expression, context)).isNull()
+    }
+
+    private class NullReturningMethodSecurityExpressionHandler : DefaultMethodSecurityExpressionHandler() {
+        override fun filter(filterTarget: Any?, filterExpression: Expression, ctx: EvaluationContext): Any? = null
     }
 }
