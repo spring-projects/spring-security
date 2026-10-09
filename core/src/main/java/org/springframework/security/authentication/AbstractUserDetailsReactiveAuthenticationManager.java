@@ -179,6 +179,17 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 
 	/**
 	 * Sets the strategy which will be used to validate the loaded <tt>UserDetails</tt>
+	 * object before authentication occurs.
+	 * @param preAuthenticationChecks The {@link UserDetailsChecker}
+	 * @since 7.1
+	 */
+	public void setPreAuthenticationChecks(UserDetailsChecker preAuthenticationChecks) {
+		Assert.notNull(preAuthenticationChecks, "preAuthenticationChecks cannot be null");
+		this.preAuthenticationChecks = preAuthenticationChecks;
+	}
+
+	/**
+	 * Sets the strategy which will be used to validate the loaded <tt>UserDetails</tt>
 	 * object after authentication occurs.
 	 * @param postAuthenticationChecks The {@link UserDetailsChecker}
 	 * @since 5.2
