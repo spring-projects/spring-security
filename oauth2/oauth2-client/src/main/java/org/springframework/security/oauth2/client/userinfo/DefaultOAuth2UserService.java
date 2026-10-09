@@ -16,12 +16,18 @@
 
 package org.springframework.security.oauth2.client.userinfo;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
@@ -71,6 +77,8 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 
 	private static final String INVALID_USER_INFO_RESPONSE_ERROR_CODE = "invalid_user_info_response";
 
+	private static final MediaType APPLICATION_JWT = MediaType.parseMediaType("application/jwt");
+
 	private static final ParameterizedTypeReference<Map<String, Object>> PARAMETERIZED_RESPONSE_TYPE = new ParameterizedTypeReference<>() {
 	};
 
@@ -78,6 +86,8 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 
 	private Converter<OAuth2UserRequest, Converter<Map<String, Object>, Map<String, Object>>> attributesConverter = (
 			request) -> (attributes) -> attributes;
+
+	private @Nullable Converter<OAuth2UserRequest, Converter<String, Map<String, Object>>> jwtResponseConverter;
 
 	@SuppressWarnings("removal")
 	private RestOperations restOperations;
@@ -93,7 +103,7 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 		Assert.notNull(userRequest, "userRequest cannot be null");
 		String userNameAttributeName = getUserNameAttributeName(userRequest);
-		RequestEntity<?> request = this.requestEntityConverter.convert(userRequest);
+		RequestEntity<?> request = acceptJwtIfSupported(this.requestEntityConverter.convert(userRequest));
 		ResponseEntity<Map<String, Object>> response = getResponse(userRequest, request);
 		OAuth2AccessToken token = userRequest.getAccessToken();
 		Map<String, Object> body = response.getBody();
@@ -129,6 +139,65 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 		this.attributesConverter = attributesConverter;
 	}
 
+	/**
+	 * Enables support for a signed and/or encrypted UserInfo Response, which the UserInfo
+	 * Endpoint returns as a JWT with the {@code application/jwt} content type, see
+	 * <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse">OpenID
+	 * Connect Core 1.0, Successful UserInfo Response</a>.
+	 *
+	 * <p>
+	 * The supplied {@link Converter} is given the {@link OAuth2UserRequest} and returns a
+	 * {@link Converter} that verifies, and decrypts if necessary, the serialized JWT from
+	 * the response body and returns its claims, which become the user attributes. It
+	 * should throw an {@link OAuth2AuthenticationException} (or any other
+	 * {@link RuntimeException}, which is wrapped) if the JWT is not acceptable. A
+	 * {@code application/json} response is still processed as usual.
+	 *
+	 * <p>
+	 * When set, {@code application/jwt} is added to the {@code Accept} header of the
+	 * UserInfo Request, unless the {@link #setRequestEntityConverter request entity
+	 * converter} already accepts it. By default, a {@code application/jwt} response is
+	 * rejected.
+	 *
+	 * <p>
+	 * For example, using {@code OidcUserInfoJwtDecoderFactory}:
+	 *
+	 * <pre>
+	 *     OidcUserInfoJwtDecoderFactory decoderFactory = new OidcUserInfoJwtDecoderFactory();
+	 *     DefaultOAuth2UserService userService = new DefaultOAuth2UserService();
+	 *     userService.setJwtResponseConverter((userRequest) -> (jwt) ->
+	 *         decoderFactory.createDecoder(userRequest.getClientRegistration()).decode(jwt).getClaims());
+	 * </pre>
+	 * @param jwtResponseConverter the strategy that converts a serialized JWT UserInfo
+	 * Response into the user attributes
+	 * @since 7.2
+	 */
+	public final void setJwtResponseConverter(
+			Converter<OAuth2UserRequest, Converter<String, Map<String, Object>>> jwtResponseConverter) {
+		Assert.notNull(jwtResponseConverter, "jwtResponseConverter cannot be null");
+		this.jwtResponseConverter = jwtResponseConverter;
+	}
+
+	private <T> RequestEntity<T> acceptJwtIfSupported(RequestEntity<T> request) {
+		if (this.jwtResponseConverter == null) {
+			return request;
+		}
+		List<MediaType> accept = new ArrayList<>(request.getHeaders().getAccept());
+		if (accept.contains(APPLICATION_JWT)) {
+			return request;
+		}
+		if (accept.isEmpty()) {
+			accept.add(MediaType.APPLICATION_JSON);
+		}
+		accept.add(APPLICATION_JWT);
+		HttpHeaders headers = new HttpHeaders();
+		headers.addAll(request.getHeaders());
+		headers.setAccept(accept);
+		return new RequestEntity<>(request.getBody(), headers, request.getMethod(), request.getUrl(),
+				request.getType());
+	}
+
 	private ResponseEntity<Map<String, Object>> getResponse(OAuth2UserRequest userRequest, RequestEntity<?> request) {
 		try {
 			return this.restOperations.exchange(request, PARAMETERIZED_RESPONSE_TYPE);
@@ -150,6 +219,12 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
 		}
 		catch (UnknownContentTypeException ex) {
+			Converter<OAuth2UserRequest, Converter<String, Map<String, Object>>> jwtResponseConverter = this.jwtResponseConverter;
+			if (jwtResponseConverter != null && APPLICATION_JWT.isCompatibleWith(ex.getContentType())) {
+				Map<String, Object> attributes = convertJwtResponse(userRequest, jwtResponseConverter,
+						ex.getResponseBodyAsString().trim());
+				return new ResponseEntity<>(attributes, ex.getResponseHeaders(), ex.getStatusCode());
+			}
 			String errorMessage = "An error occurred while attempting to retrieve the UserInfo Resource from '"
 					+ userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri()
 					+ "': response contains invalid content type '" + ex.getContentType().toString() + "'. "
@@ -164,6 +239,28 @@ public class DefaultOAuth2UserService implements OAuth2UserService<OAuth2UserReq
 		catch (RestClientException ex) {
 			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
 					"An error occurred while attempting to retrieve the UserInfo Resource: " + ex.getMessage(), null);
+			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
+		}
+	}
+
+	private Map<String, Object> convertJwtResponse(OAuth2UserRequest userRequest,
+			Converter<OAuth2UserRequest, Converter<String, Map<String, Object>>> jwtResponseConverter, String jwt) {
+		try {
+			Map<String, Object> attributes = jwtResponseConverter.convert(userRequest).convert(jwt);
+			if (attributes == null) {
+				throw new IllegalStateException("The converter did not return any attributes");
+			}
+			return attributes;
+		}
+		catch (OAuth2AuthenticationException ex) {
+			throw ex;
+		}
+		catch (RuntimeException ex) {
+			OAuth2Error oauth2Error = new OAuth2Error(INVALID_USER_INFO_RESPONSE_ERROR_CODE,
+					"An error occurred while attempting to process the signed and/or encrypted UserInfo Resource from '"
+							+ userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri()
+							+ "': " + ex.getMessage(),
+					null);
 			throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString(), ex);
 		}
 	}

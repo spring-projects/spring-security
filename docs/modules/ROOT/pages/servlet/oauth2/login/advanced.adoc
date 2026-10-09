@@ -893,6 +893,37 @@ class OAuth2LoginSecurityConfig {
 ======
 
 
+[[oauth2login-advanced-userinfo-jwt]]
+=== Signed and Encrypted UserInfo Responses
+
+An OpenID Connect 1.0 Provider returns the UserInfo Response as a JWT, using the `application/jwt` content type, instead of as a JSON object when the client has registered for a https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata[signed or encrypted response] (`userinfo_signed_response_alg` and `userinfo_encrypted_response_alg`).
+See https://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse[Successful UserInfo Response] for details.
+
+By default, `DefaultOAuth2UserService` requests and accepts only a JSON object, and it rejects an `application/jwt` response.
+To support such a Provider, provide `DefaultOAuth2UserService.setJwtResponseConverter()` with a `Converter` that verifies the JWT and returns its claims, which become the user attributes.
+When it is set, `DefaultOAuth2UserService` also accepts `application/jwt` in the `Accept` header of the UserInfo Request, and it keeps processing an `application/json` response as before.
+
+`OidcUserInfoJwtDecoderFactory` creates the `JwtDecoder` for a `ClientRegistration`.
+It verifies the signature in the same way as the xref:servlet/oauth2/login/advanced.adoc#oauth2login-advanced-idtoken-verify[ID Token], by using the keys of the Provider's JWK Set (`jwk-set-uri`) or, for a HMAC algorithm, the client secret, and it validates the following:
+
+* the `iss` claim, if present, matches the issuer of the Provider (`issuer-uri`), if it is configured
+* the `aud` claim, if present, contains the client id
+* the `exp` and `nbf` claims, if present
+
+Like the `OidcIdTokenDecoderFactory`, it expects a RS256 signature by default.
+Use `OidcUserInfoJwtDecoderFactory.setJwsAlgorithmResolver()` if the client has registered a different `userinfo_signed_response_alg`.
+If the Provider also encrypts the response, it has to sign it first and encrypt it afterwards.
+In that case, provide `OidcUserInfoJwtDecoderFactory.setJweDecryptionKeyResolver()` with the `JWK` (an RSA, EC or symmetric key) that matches the `userinfo_encrypted_response_alg` of the client.
+
+The following example expects an `ES256` signature and an encrypted response, and registers the resulting `OidcUserService`:
+
+include-code::./OidcUserInfoJwtConfiguration[tag=user-service,indent=0]
+
+Then, configure it as the `OidcUserService` of OAuth 2.0 Login:
+
+include-code::./OidcUserInfoJwtConfiguration[tag=filter-chain,indent=0]
+
+
 [[oauth2login-advanced-idtoken-verify]]
 == ID Token Signature Verification
 
