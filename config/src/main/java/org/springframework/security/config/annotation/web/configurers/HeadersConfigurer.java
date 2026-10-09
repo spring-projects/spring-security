@@ -251,7 +251,9 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public HeadersConfigurer<H> contentSecurityPolicy(
 			Customizer<ContentSecurityPolicyConfig> contentSecurityCustomizer) {
-		this.contentSecurityPolicy = new ContentSecurityPolicyConfig();
+		if (this.contentSecurityPolicy == null) {
+			this.contentSecurityPolicy = new ContentSecurityPolicyConfig();
+		}
 		contentSecurityCustomizer.customize(this.contentSecurityPolicy);
 		return HeadersConfigurer.this;
 	}
