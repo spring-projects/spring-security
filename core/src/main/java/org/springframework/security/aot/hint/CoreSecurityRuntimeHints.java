@@ -16,6 +16,7 @@
 
 package org.springframework.security.aot.hint;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -46,6 +47,7 @@ import org.springframework.security.authentication.event.AuthenticationFailurePr
 import org.springframework.security.authentication.event.AuthenticationFailureProxyUntrustedEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureServiceExceptionEvent;
 import org.springframework.security.authentication.ott.OneTimeTokenAuthentication;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
@@ -67,6 +69,7 @@ class CoreSecurityRuntimeHints implements RuntimeHintsRegistrar {
 		hints.resources().registerResourceBundle("org.springframework.security.messages");
 		registerDefaultJdbcSchemaFileHint(hints);
 		registerSecurityContextHints(hints);
+		registerFactorGrantedAuthorityHints(hints);
 	}
 
 	private void registerMethodSecurityHints(RuntimeHints hints) {
@@ -116,6 +119,17 @@ class CoreSecurityRuntimeHints implements RuntimeHintsRegistrar {
 		hints.reflection()
 			.registerType(SecurityContextImpl.class,
 					(builder) -> builder.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS));
+	}
+
+	private void registerFactorGrantedAuthorityHints(RuntimeHints hints) {
+		// FactorGrantedAuthority is java.io.Serializable and carries an Instant, so it
+		// needs both reflection and Java serialization hints to be cached with, for
+		// example, Spring Session's JdkSerializationRedisSerializer under a native
+		// image. Instant's own serialized form delegates to the JDK-internal
+		// java.time.Ser proxy, which needs the same treatment.
+		hints.reflection()
+			.registerTypes(List.of(TypeReference.of(FactorGrantedAuthority.class), TypeReference.of(Instant.class),
+					TypeReference.of("java.time.Ser")), (builder) -> builder.withJavaSerialization(true));
 	}
 
 	private void registerAdditionalAuthenticationTypes(RuntimeHints hints) {
