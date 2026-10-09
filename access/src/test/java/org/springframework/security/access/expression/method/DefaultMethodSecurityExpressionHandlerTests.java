@@ -106,9 +106,9 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 		Expression expression = this.handler.getExpressionParser().parseExpression("filterObject.key eq 'key2'");
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.methodInvocation);
 		Object filtered = this.handler.filter(map, expression, context);
-		assertThat(filtered == map);
+		assertThat(filtered).isSameAs(map);
 		Map<String, String> result = ((Map<String, String>) filtered);
-		assertThat(result.size() == 1);
+		assertThat(result).hasSize(1);
 		assertThat(result).containsKey("key2");
 		assertThat(result).containsValue("value2");
 	}
@@ -124,9 +124,9 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 		Expression expression = this.handler.getExpressionParser().parseExpression("filterObject.value eq 'value3'");
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.methodInvocation);
 		Object filtered = this.handler.filter(map, expression, context);
-		assertThat(filtered == map);
+		assertThat(filtered).isSameAs(map);
 		Map<String, String> result = ((Map<String, String>) filtered);
-		assertThat(result.size() == 1);
+		assertThat(result).hasSize(1);
 		assertThat(result).containsKey("key3");
 		assertThat(result).containsValue("value3");
 	}
@@ -143,9 +143,9 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 			.parseExpression("(filterObject.key eq 'key1') or (filterObject.value eq 'value2')");
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.methodInvocation);
 		Object filtered = this.handler.filter(map, expression, context);
-		assertThat(filtered == map);
+		assertThat(filtered).isSameAs(map);
 		Map<String, String> result = ((Map<String, String>) filtered);
-		assertThat(result.size() == 2);
+		assertThat(result).hasSize(2);
 		assertThat(result).containsKeys("key1", "key2");
 		assertThat(result).containsValues("value1", "value2");
 	}
