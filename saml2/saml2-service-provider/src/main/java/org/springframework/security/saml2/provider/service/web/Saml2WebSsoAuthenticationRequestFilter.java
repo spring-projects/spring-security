@@ -32,8 +32,9 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2R
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver;
 import org.springframework.security.web.FormPostRedirectStrategy;
-import org.springframework.security.web.RedirectStrategy;
 import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -68,7 +69,7 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 
 	private Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository = new HttpSessionSaml2AuthenticationRequestRepository();
 
-	private final RedirectStrategy formPostRedirectStrategy = new FormPostRedirectStrategy();
+	private final FormPostRedirectStrategy formPostRedirectStrategy = new FormPostRedirectStrategy();
 
 	/**
 	 * Construct a {@link Saml2WebSsoAuthenticationRequestFilter} with the strategy for
@@ -135,11 +136,15 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 	private void sendPost(HttpServletRequest request, HttpServletResponse response,
 			Saml2PostAuthenticationRequest authenticationRequest) throws IOException {
 		this.authenticationRequestRepository.saveAuthenticationRequest(authenticationRequest, request, response);
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder
-			.fromUriString(authenticationRequest.getAuthenticationRequestUri());
-		addParameter(Saml2ParameterNames.SAML_REQUEST, authenticationRequest.getSamlRequest(), uriBuilder);
-		addParameter(Saml2ParameterNames.RELAY_STATE, authenticationRequest.getRelayState(), uriBuilder);
-		this.formPostRedirectStrategy.sendRedirect(request, response, uriBuilder.build(true).toUriString());
+		MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
+		if (StringUtils.hasText(authenticationRequest.getSamlRequest())) {
+			formParameters.add(Saml2ParameterNames.SAML_REQUEST, authenticationRequest.getSamlRequest());
+		}
+		if (StringUtils.hasText(authenticationRequest.getRelayState())) {
+			formParameters.add(Saml2ParameterNames.RELAY_STATE, authenticationRequest.getRelayState());
+		}
+		this.formPostRedirectStrategy.sendRedirect(request, response,
+				authenticationRequest.getAuthenticationRequestUri(), formParameters);
 	}
 
 }
