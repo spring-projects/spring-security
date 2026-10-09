@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -208,7 +209,8 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 			loginPageGeneratingFilter.setPasskeysEnabled(true);
 			loginPageGeneratingFilter.setResolveHeaders((request) -> {
 				CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-				return Map.of(csrfToken.getHeaderName(), csrfToken.getToken());
+				return (csrfToken != null) ? Map.of(csrfToken.getHeaderName(), csrfToken.getToken())
+						: Collections.emptyMap();
 			});
 		}
 

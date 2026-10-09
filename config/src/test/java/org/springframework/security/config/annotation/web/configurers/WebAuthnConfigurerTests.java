@@ -270,6 +270,17 @@ public class WebAuthnConfigurerTests {
 	}
 
 	@Test
+	public void webauthnWhenCsrfCrossOriginProtectionThenPagesRenderWithoutCsrfToken() throws Exception {
+		this.spring.register(CrossOriginProtectionWebauthnConfiguration.class).autowire();
+		this.mvc.perform(get("/login")).andExpect(status().isOk());
+		this.mvc
+			.perform(get("/webauthn/register")
+				.with(authentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"))))
+			.andExpect(status().isOk())
+			.andExpect(content().string(containsString("setupRegistration({}")));
+	}
+
+	@Test
 	void webauthnWhenDeleteAndCredentialBelongsToUserThenNoContent() throws Exception {
 		this.spring.register(DeleteCredentialConfiguration.class).autowire();
 		this.mvc
@@ -462,6 +473,31 @@ public class WebAuthnConfigurerTests {
 			// @formatter:off
 			http
 				.formLogin(Customizer.withDefaults())
+				.webAuthn((authn) -> authn
+					.rpId("example.com")
+				);
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class CrossOriginProtectionWebauthnConfiguration {
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager();
+		}
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.formLogin(Customizer.withDefaults())
+				.csrf((csrf) -> csrf
+					.crossOriginProtection(Customizer.withDefaults()))
 				.webAuthn((authn) -> authn
 					.rpId("example.com")
 				);
