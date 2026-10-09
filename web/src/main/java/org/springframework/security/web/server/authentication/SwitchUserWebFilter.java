@@ -159,9 +159,11 @@ public class SwitchUserWebFilter implements WebFilter {
 		final WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
 		return switchUser(webFilterExchange).switchIfEmpty(Mono.defer(() -> exitSwitchUser(webFilterExchange)))
 			.switchIfEmpty(Mono.defer(() -> {
-				this.logger
-					.trace(LogMessage.format("Did not attempt to switch user since request did not match [%s] or [%s]",
-							this.switchUserMatcher, this.exitUserMatcher));
+				if (this.logger.isTraceEnabled()) {
+					this.logger.trace(
+							LogMessage.format("Did not attempt to switch user since request did not match [%s] or [%s]",
+									this.switchUserMatcher, this.exitUserMatcher));
+				}
 				return chain.filter(exchange).then(Mono.empty());
 			}))
 			.flatMap((authentication) -> onAuthenticationSuccess(authentication, webFilterExchange))
@@ -220,7 +222,9 @@ public class SwitchUserWebFilter implements WebFilter {
 	private @NonNull Mono<Authentication> attemptSwitchUser(Authentication currentAuthentication,
 			@Nullable String userName) {
 		Assert.notNull(userName, "The userName can not be null.");
-		this.logger.debug(LogMessage.format("Attempting to switch to user [%s]", userName));
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug(LogMessage.format("Attempting to switch to user [%s]", userName));
+		}
 		return this.userDetailsService.findByUsername(userName)
 			.switchIfEmpty(Mono.error(this::noTargetAuthenticationException))
 			.doOnNext(this.userDetailsChecker::check)
@@ -239,8 +243,11 @@ public class SwitchUserWebFilter implements WebFilter {
 	private Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {
 		ServerWebExchange exchange = webFilterExchange.getExchange();
 		SecurityContextImpl securityContext = new SecurityContextImpl(authentication);
-		return this.securityContextRepository.save(exchange, securityContext)
-			.doOnSuccess((v) -> this.logger.debug(LogMessage.format("Switched user to %s", authentication)))
+		return this.securityContextRepository.save(exchange, securityContext).doOnSuccess((v) -> {
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(LogMessage.format("Switched user to %s", authentication));
+			}
+		})
 			.then(this.successHandler.onAuthenticationSuccess(webFilterExchange, authentication))
 			.contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
 	}
@@ -256,8 +263,10 @@ public class SwitchUserWebFilter implements WebFilter {
 		Optional<Authentication> sourceAuthentication = extractSourceAuthentication(currentAuthentication);
 		if (sourceAuthentication.isPresent()) {
 			// SEC-1763. Check first if we are already switched.
-			this.logger.debug(
-					LogMessage.format("Found original switch user granted authority [%s]", sourceAuthentication.get()));
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(LogMessage.format("Found original switch user granted authority [%s]",
+						sourceAuthentication.get()));
+			}
 			currentAuthentication = sourceAuthentication.get();
 		}
 		GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(ROLE_PREVIOUS_ADMINISTRATOR,
