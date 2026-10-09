@@ -1315,8 +1315,7 @@ public class HeadersConfigurerTests {
 				.headers((headers) -> headers
 					.defaultsDisabled()
 					.contentSecurityPolicy((csp) -> csp
-						.policyDirectives("script-src 'self'")
-						.requestMatchers("/foo/**"))
+						.policyDirectives("script-src 'self'"))
 					.contentSecurityPolicy((csp) -> csp
 						.policyDirectives("default-src 'self'")
 						.requestMatchers("/bar/**")));
