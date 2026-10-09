@@ -17,8 +17,10 @@
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -84,7 +86,9 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.access.PathPatternRequestTransformer;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
@@ -163,6 +167,8 @@ import org.springframework.util.ReflectionUtils;
  */
 public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		extends AbstractAuthenticationFilterConfigurer<B, OAuth2LoginConfigurer<B>, OAuth2LoginAuthenticationFilter> {
+
+	private final Log logger = LogFactory.getLog(getClass());
 
 	private final AuthorizationEndpointConfig authorizationEndpointConfig = new AuthorizationEndpointConfig();
 
@@ -404,6 +410,53 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		}
 		configureOidcSessionRegistry(http);
 		super.configure(http);
+		warnIfSecurityMatcherDoesNotMatchEndpoints(http);
+	}
+
+	private void warnIfSecurityMatcherDoesNotMatchEndpoints(B http) {
+		RequestMatcher securityMatcher = http.getSharedObject(RequestMatcher.class);
+		if (securityMatcher == null || securityMatcher instanceof AnyRequestMatcher) {
+			return;
+		}
+		List<String> unmatchedEndpoints = new ArrayList<>();
+		String authorizationRequestEndpoint = getAuthorizationRequestEndpointPattern();
+		if (authorizationRequestEndpoint != null && !matches(securityMatcher, authorizationRequestEndpoint)) {
+			unmatchedEndpoints.add(authorizationRequestEndpoint);
+		}
+		String authorizationResponseEndpoint = getAuthorizationResponseEndpointPattern();
+		if (!matches(securityMatcher, authorizationResponseEndpoint)) {
+			unmatchedEndpoints.add(authorizationResponseEndpoint);
+		}
+		if (!unmatchedEndpoints.isEmpty()) {
+			this.logger.warn("The configured securityMatcher (" + securityMatcher
+					+ ") does not match the oauth2Login() endpoint(s) " + unmatchedEndpoints + ". Requests to these"
+					+ " endpoints may return 404. Consider updating HttpSecurity#securityMatcher to include these"
+					+ " endpoint(s).");
+		}
+	}
+
+	private String getAuthorizationRequestEndpointPattern() {
+		if (this.authorizationEndpointConfig.authorizationRequestResolver != null) {
+			return null;
+		}
+		String baseUri = (this.authorizationEndpointConfig.authorizationRequestBaseUri != null)
+				? this.authorizationEndpointConfig.authorizationRequestBaseUri
+				: OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
+		return baseUri + "/{registrationId}";
+	}
+
+	private String getAuthorizationResponseEndpointPattern() {
+		return (this.redirectionEndpointConfig.authorizationResponseBaseUri != null)
+				? this.redirectionEndpointConfig.authorizationResponseBaseUri : this.loginProcessingUrl;
+	}
+
+	private boolean matches(RequestMatcher securityMatcher, String endpointPattern) {
+		String endpointPath = endpointPattern.replaceAll("\\{[^/]+}", "registration-id")
+			.replace("*", "registration-id");
+		PathPatternRequestTransformer requestTransformer = new PathPatternRequestTransformer();
+		HttpServletRequest request = requestTransformer
+			.transform(new FilterInvocation(endpointPath, "GET").getRequest());
+		return securityMatcher.matches(request);
 	}
 
 	@Override
