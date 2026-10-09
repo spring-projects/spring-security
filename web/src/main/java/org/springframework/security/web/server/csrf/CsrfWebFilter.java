@@ -60,6 +60,7 @@ import org.springframework.web.server.WebFilterChain;
  * @author Rob Winch
  * @author Parikshit Dutta
  * @author Steve Riesenberg
+ * @author Andrey Litvitski
  * @since 5.0
  */
 public class CsrfWebFilter implements WebFilter {
@@ -147,8 +148,7 @@ public class CsrfWebFilter implements WebFilter {
 	private Mono<Void> continueFilterChain(ServerWebExchange exchange, WebFilterChain chain) {
 		return Mono.defer(() -> {
 			Mono<CsrfToken> csrfToken = csrfToken(exchange);
-			this.requestHandler.handle(exchange, csrfToken);
-			return chain.filter(exchange);
+			return this.requestHandler.handleAsync(exchange, csrfToken).then(chain.filter(exchange));
 		});
 	}
 
