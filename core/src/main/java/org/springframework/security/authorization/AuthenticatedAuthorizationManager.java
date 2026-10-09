@@ -32,7 +32,7 @@ import org.springframework.util.Assert;
  * @author Evgeniy Cheban
  * @since 5.5
  */
-public final class AuthenticatedAuthorizationManager<T> implements AuthorizationManager<T> {
+public final class AuthenticatedAuthorizationManager<T extends @Nullable Object> implements AuthorizationManager<T> {
 
 	private final AbstractAuthorizationStrategy authorizationStrategy;
 
@@ -69,7 +69,7 @@ public final class AuthenticatedAuthorizationManager<T> implements Authorization
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
 	 */
-	public static <T> AuthenticatedAuthorizationManager<T> authenticated() {
+	public static <T extends @Nullable Object> AuthenticatedAuthorizationManager<T> authenticated() {
 		return new AuthenticatedAuthorizationManager<>();
 	}
 
@@ -80,7 +80,7 @@ public final class AuthenticatedAuthorizationManager<T> implements Authorization
 	 * @return the new instance
 	 * @since 5.8
 	 */
-	public static <T> AuthenticatedAuthorizationManager<T> fullyAuthenticated() {
+	public static <T extends @Nullable Object> AuthenticatedAuthorizationManager<T> fullyAuthenticated() {
 		return new AuthenticatedAuthorizationManager<>(new FullyAuthenticatedAuthorizationStrategy());
 	}
 
@@ -91,7 +91,7 @@ public final class AuthenticatedAuthorizationManager<T> implements Authorization
 	 * @return the new instance
 	 * @since 5.8
 	 */
-	public static <T> AuthenticatedAuthorizationManager<T> rememberMe() {
+	public static <T extends @Nullable Object> AuthenticatedAuthorizationManager<T> rememberMe() {
 		return new AuthenticatedAuthorizationManager<>(new RememberMeAuthorizationStrategy());
 	}
 
@@ -102,7 +102,7 @@ public final class AuthenticatedAuthorizationManager<T> implements Authorization
 	 * @return the new instance
 	 * @since 5.8
 	 */
-	public static <T> AuthenticatedAuthorizationManager<T> anonymous() {
+	public static <T extends @Nullable Object> AuthenticatedAuthorizationManager<T> anonymous() {
 		return new AuthenticatedAuthorizationManager<>(new AnonymousAuthorizationStrategy());
 	}
 

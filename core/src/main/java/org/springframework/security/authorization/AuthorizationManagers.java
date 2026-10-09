@@ -42,7 +42,7 @@ public final class AuthorizationManagers {
 	 * @return the {@link AuthorizationManager} to use
 	 */
 	@SafeVarargs
-	public static <T> AuthorizationManager<T> anyOf(AuthorizationManager<T>... managers) {
+	public static <T extends @Nullable Object> AuthorizationManager<T> anyOf(AuthorizationManager<T>... managers) {
 		return anyOf(new AuthorizationDecision(false), managers);
 	}
 
@@ -58,8 +58,8 @@ public final class AuthorizationManagers {
 	 * @since 6.3
 	 */
 	@SafeVarargs
-	public static <T> AuthorizationManager<T> anyOf(AuthorizationDecision allAbstainDefaultDecision,
-			AuthorizationManager<T>... managers) {
+	public static <T extends @Nullable Object> AuthorizationManager<T> anyOf(
+			AuthorizationDecision allAbstainDefaultDecision, AuthorizationManager<T>... managers) {
 		return (AuthorizationManagerCheckAdapter<T>) (Supplier<? extends @Nullable Authentication> authentication,
 				T object) -> {
 			List<AuthorizationResult> results = new ArrayList<>();
@@ -89,7 +89,7 @@ public final class AuthorizationManagers {
 	 * @return the {@link AuthorizationManager} to use
 	 */
 	@SafeVarargs
-	public static <T> AuthorizationManager<T> allOf(AuthorizationManager<T>... managers) {
+	public static <T extends @Nullable Object> AuthorizationManager<T> allOf(AuthorizationManager<T>... managers) {
 		return allOf(new AuthorizationDecision(true), managers);
 	}
 
@@ -105,8 +105,8 @@ public final class AuthorizationManagers {
 	 * @since 6.3
 	 */
 	@SafeVarargs
-	public static <T> AuthorizationManager<T> allOf(AuthorizationDecision allAbstainDefaultDecision,
-			AuthorizationManager<T>... managers) {
+	public static <T extends @Nullable Object> AuthorizationManager<T> allOf(
+			AuthorizationDecision allAbstainDefaultDecision, AuthorizationManager<T>... managers) {
 		return (AuthorizationManagerCheckAdapter<T>) (Supplier<? extends @Nullable Authentication> authentication,
 				T object) -> {
 			List<AuthorizationResult> results = new ArrayList<>();
@@ -136,7 +136,7 @@ public final class AuthorizationManagers {
 	 * @return the reversing {@link AuthorizationManager}
 	 * @since 6.3
 	 */
-	public static <T> AuthorizationManager<T> not(AuthorizationManager<T> manager) {
+	public static <T extends @Nullable Object> AuthorizationManager<T> not(AuthorizationManager<T> manager) {
 		return (Supplier<? extends @Nullable Authentication> authentication, T object) -> {
 			AuthorizationResult result = manager.authorize(authentication, object);
 			if (result == null) {
@@ -183,7 +183,7 @@ public final class AuthorizationManagers {
 
 	}
 
-	private interface AuthorizationManagerCheckAdapter<T> extends AuthorizationManager<T> {
+	private interface AuthorizationManagerCheckAdapter<T extends @Nullable Object> extends AuthorizationManager<T> {
 
 		@Override
 		AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication, T object);
