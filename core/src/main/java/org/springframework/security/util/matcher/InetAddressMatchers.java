@@ -18,7 +18,11 @@ package org.springframework.security.util.matcher;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,6 +35,7 @@ import org.springframework.util.Assert;
  * strategies for IP addresses.
  *
  * @author Rob Winch
+ * @author Andrey Litvitski
  * @since 7.1
  */
 public final class InetAddressMatchers {
@@ -86,15 +91,22 @@ public final class InetAddressMatchers {
 	 * @author Gábor Vaspöri
 	 * @author Rossen Stoyanchev
 	 * @author Rob Winch
+	 * @author Andrey Litvitski
 	 */
 	public static final class Builder {
 
-		private final List<InetAddressMatcher> matchers = new ArrayList<>();
+		private final Set<String> includeAddresses = new LinkedHashSet<>();
+
+		private final Set<String> excludeAddresses = new LinkedHashSet<>();
+
+		private final List<InetAddressMatcher> customMatchers = new ArrayList<>();
 
 		private boolean reportOnly;
 
 		/**
-		 * Adds an include list matcher that permits only the specified addresses.
+		 * Adds IP address patterns to the include list that permits only the specified
+		 * addresses. If called multiple times, the addresses are combined into a single
+		 * include rule.
 		 * @param addresses the list of IP address patterns to include (cannot be null or
 		 * empty)
 		 * @return this builder for method chaining
@@ -102,15 +114,13 @@ public final class InetAddressMatchers {
 		 */
 		public Builder includeAddresses(List<String> addresses) {
 			Assert.notEmpty(addresses, "addresses cannot be empty");
-			List<InetAddressMatcher> matchers = addresses.stream()
-				.<InetAddressMatcher>map(IpInetAddressMatcher::new)
-				.toList();
-			this.matchers.add(new IncludeListInetAddressMatcher(matchers));
+			this.includeAddresses.addAll(addresses);
 			return this;
 		}
 
 		/**
-		 * Adds an exclude list matcher that blocks the specified addresses.
+		 * Adds IP address patterns to the exclude list that blocks the specified
+		 * addresses.
 		 * @param addresses the list of IP address patterns to exclude (cannot be null or
 		 * empty)
 		 * @return this builder for method chaining
@@ -118,10 +128,7 @@ public final class InetAddressMatchers {
 		 */
 		public Builder excludeAddresses(List<String> addresses) {
 			Assert.notEmpty(addresses, "addresses cannot be empty");
-			List<InetAddressMatcher> matchers = addresses.stream()
-				.<InetAddressMatcher>map(IpInetAddressMatcher::new)
-				.toList();
-			this.matchers.add(new ExcludeListInetAddressMatcher(matchers));
+			this.excludeAddresses.addAll(addresses);
 			return this;
 		}
 
@@ -135,9 +142,7 @@ public final class InetAddressMatchers {
 		 */
 		public Builder matchAll(InetAddressMatcher... matchers) {
 			Assert.notEmpty(matchers, "matchers cannot be empty");
-			for (InetAddressMatcher matcher : matchers) {
-				this.matchers.add(matcher);
-			}
+			Collections.addAll(this.customMatchers, matchers);
 			return this;
 		}
 
@@ -157,7 +162,23 @@ public final class InetAddressMatchers {
 		 * @return the constructed {@link InetAddressMatcher}
 		 */
 		public InetAddressMatcher build() {
-			return new CompositeInetAddressMatcher(this.matchers, this.reportOnly);
+			List<InetAddressMatcher> result = new ArrayList<>();
+			if (!this.includeAddresses.isEmpty()) {
+				result.add(createListMatcher(this.includeAddresses, IncludeListInetAddressMatcher::new));
+			}
+			if (!this.excludeAddresses.isEmpty()) {
+				result.add(createListMatcher(this.excludeAddresses, ExcludeListInetAddressMatcher::new));
+			}
+			result.addAll(this.customMatchers);
+			return new CompositeInetAddressMatcher(result, this.reportOnly);
+		}
+
+		private InetAddressMatcher createListMatcher(Set<String> addresses,
+				Function<List<InetAddressMatcher>, InetAddressMatcher> constructor) {
+			List<InetAddressMatcher> matchers = addresses.stream()
+				.<InetAddressMatcher>map(IpInetAddressMatcher::new)
+				.toList();
+			return constructor.apply(matchers);
 		}
 
 	}
