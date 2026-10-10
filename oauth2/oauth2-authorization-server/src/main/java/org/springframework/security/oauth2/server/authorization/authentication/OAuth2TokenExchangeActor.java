@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.security.oauth2.core.ClaimAccessor;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenClaimNames;
 import org.springframework.util.Assert;
@@ -65,7 +67,7 @@ public final class OAuth2TokenExchangeActor implements ClaimAccessor, Serializab
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if (!(obj instanceof OAuth2TokenExchangeActor other)) {
 			return false;
 		}
