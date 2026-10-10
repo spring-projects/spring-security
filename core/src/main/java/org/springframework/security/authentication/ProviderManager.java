@@ -222,6 +222,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 				// handled the request
 			}
 			catch (AuthenticationException ex) {
+				logger.debug(LogMessage.format("Authentication failed: %s", ex.getMessage()));
 				parentException = ex;
 				lastException = ex;
 			}
