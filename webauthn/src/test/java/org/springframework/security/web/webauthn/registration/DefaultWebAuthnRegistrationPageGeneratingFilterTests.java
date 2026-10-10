@@ -31,6 +31,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
+import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 import org.springframework.security.web.webauthn.api.ImmutableCredentialRecord;
 import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
@@ -102,6 +103,20 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 					<input type="hidden" name="_csrf" value="CSRF_TOKEN">
 					<button class="primary small" type="submit">Delete</button>
 				</form>""".replaceAll("\\s", ""));
+	}
+
+	@Test
+	void doFilterWhenCspNonceAttrPresent() throws Exception {
+		PublicKeyCredentialUserEntity userEntity = ImmutablePublicKeyCredentialUserEntity.builder()
+			.name("user")
+			.id(TestBytes.get())
+			.displayName("User")
+			.build();
+		given(this.userEntities.findByUsername(any())).willReturn(userEntity);
+		given(this.userCredentials.findByUserId(userEntity.getId())).willReturn(Collections.emptyList());
+		ContentSecurityPolicyNonce cspNonce = () -> "TEST/CONTENT+SECURITY+POLICY/NONCE";
+		String body = bodyAsString(matchingRequest().requestAttr(ContentSecurityPolicyNonce.class.getName(), cspNonce));
+		assertThat(body).contains("<script type=\"text/javascript\" nonce=\"TEST/CONTENT+SECURITY+POLICY/NONCE\">");
 	}
 
 	@Test
