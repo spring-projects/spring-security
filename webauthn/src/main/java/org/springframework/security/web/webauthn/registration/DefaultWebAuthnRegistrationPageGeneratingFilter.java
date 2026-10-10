@@ -34,6 +34,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.webauthn.api.CredentialRecord;
@@ -42,6 +43,7 @@ import org.springframework.security.web.webauthn.management.PublicKeyCredentialU
 import org.springframework.security.web.webauthn.management.UserCredentialRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.HtmlUtils;
 
 /**
  * A {@link jakarta.servlet.Filter} that renders a default WebAuthn registration page.
@@ -81,12 +83,16 @@ public class DefaultWebAuthnRegistrationPageGeneratingFilter extends OncePerRequ
 		}
 
 		CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+		ContentSecurityPolicyNonce cspNonce = (ContentSecurityPolicyNonce) request
+			.getAttribute(ContentSecurityPolicyNonce.class.getName());
 		response.setContentType(MediaType.TEXT_HTML_VALUE);
 		response.setStatus(HttpServletResponse.SC_OK);
 		String processedTemplate = HtmlTemplates.fromTemplate(HTML_TEMPLATE)
 			.withValue("contextPath", request.getContextPath())
 			.withRawHtml("csrfHeaders", renderCsrfHeader(csrfToken))
 			.withRawHtml("passkeys", passkeyRows(request.getRemoteUser(), request.getContextPath(), csrfToken))
+			.withRawHtml("nonceAttr",
+					(cspNonce != null) ? " nonce=\"%s\"".formatted(HtmlUtils.htmlEscape(cspNonce.getNonce())) : "")
 			.render();
 
 		response.getWriter().write(processedTemplate);
@@ -142,11 +148,11 @@ public class DefaultWebAuthnRegistrationPageGeneratingFilter extends OncePerRequ
 					<title>WebAuthn Registration</title>
 					<link href="{{contextPath}}/default-ui.css" rel="stylesheet" />
 					<script type="text/javascript" src="{{contextPath}}/login/webauthn.js"></script>
-					<script type="text/javascript">
+					<script type="text/javascript"{{nonceAttr}}>
 					<!--
 						const ui = {
-							getRegisterButton: function() {
-								return document.getElementById('register')
+							getRegisterForm: function() {
+								return document.getElementById("register-form")
 							},
 							getSuccess: function() {
 								return document.getElementById('success')
@@ -168,14 +174,14 @@ public class DefaultWebAuthnRegistrationPageGeneratingFilter extends OncePerRequ
 				<body>
 					<div class="content">
 						<h2 class="center">WebAuthn Registration</h2>
-						<form class="default-form" method="post" action="#" onclick="return false">
+						<form id="register-form" class="default-form" method="post" action="#">
 							<div id="success" class="alert alert-success" role="alert">Success!</div>
 							<div id="error" class="alert alert-danger" role="alert"></div>
 							<p>
 								<label for="label" class="screenreader">Passkey Label</label>
 								<input type="text" id="label" name="label" placeholder="Passkey Label" required autofocus>
 							</p>
-							<button id="register" class="primary" type="submit">Register</button>
+							<button class="primary" type="submit">Register</button>
 						</form>
 						<table class="table table-striped">
 							<thead>

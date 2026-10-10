@@ -315,6 +315,12 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 			context.getReaderContext()
 				.error(ATT_POLICY_DIRECTIVES + " requires a 'value' to be set.", contentSecurityPolicyElement);
 		}
+		else if (resolveAttribute(context, contentSecurityPolicyElement, ATT_POLICY_DIRECTIVES).contains("{nonce}")) {
+			context.getReaderContext()
+				.error("Nonce-based " + CONTENT_SECURITY_POLICY_ELEMENT
+						+ " is not supported in XML configuration; use Java configuration instead.",
+						contentSecurityPolicyElement);
+		}
 		else {
 			headersWriter.addConstructorArgValue(policyDirectives);
 		}
