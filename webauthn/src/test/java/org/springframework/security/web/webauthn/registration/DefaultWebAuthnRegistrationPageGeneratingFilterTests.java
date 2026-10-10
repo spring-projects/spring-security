@@ -31,6 +31,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
+import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 import org.springframework.security.web.webauthn.api.ImmutableCredentialRecord;
 import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
@@ -112,6 +113,20 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 		assertThat(body).contains("<div id=\"success\" class=\"alert alert-success\" role=\"alert\" hidden>");
 		assertThat(body).contains("<div id=\"error\" class=\"alert alert-danger\" role=\"alert\" hidden>");
 		assertThat(body).contains("<button id=\"register\" class=\"primary\" type=\"submit\" disabled>");
+	}
+
+	@Test
+	void doFilterWhenCspNonceAttrPresent() throws Exception {
+		PublicKeyCredentialUserEntity userEntity = ImmutablePublicKeyCredentialUserEntity.builder()
+			.name("user")
+			.id(TestBytes.get())
+			.displayName("User")
+			.build();
+		given(this.userEntities.findByUsername(any())).willReturn(userEntity);
+		given(this.userCredentials.findByUserId(userEntity.getId())).willReturn(Collections.emptyList());
+		ContentSecurityPolicyNonce cspNonce = () -> "TEST/CONTENT+SECURITY+POLICY/NONCE";
+		String body = bodyAsString(matchingRequest().requestAttr(ContentSecurityPolicyNonce.class.getName(), cspNonce));
+		assertThat(body).contains("<script type=\"text/javascript\" nonce=\"TEST/CONTENT+SECURITY+POLICY/NONCE\">");
 	}
 
 	@Test
