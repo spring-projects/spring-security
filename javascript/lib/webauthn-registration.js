@@ -66,7 +66,7 @@ async function submitDeleteForm(contextPath, form, headers) {
  *
  * @param headers headers added to the credentials creation POST request, typically CSRF
  * @param contextPath the contextPath from which the app is served
- * @param ui contains getRegisterButton(), getSuccess(), getError(), getLabelInput(), getDeleteForms()
+ * @param ui contains getRegisterForm()/getRegisterButton(), getSuccess(), getError(), getLabelInput(), getDeleteForms()
  * @returns {Promise<void>}
  */
 export async function setupRegistration(headers, contextPath, ui) {
@@ -82,7 +82,7 @@ export async function setupRegistration(headers, contextPath, ui) {
     setSuccess(ui);
   }
 
-  ui.getRegisterButton().addEventListener("click", async () => {
+  async function handleRegister() {
     resetPopups(ui);
     const label = ui.getLabelInput().value;
     try {
@@ -92,7 +92,17 @@ export async function setupRegistration(headers, contextPath, ui) {
       setError(ui, err.message);
       console.error(err);
     }
-  });
+  }
+
+  if ("getRegisterForm" in ui) {
+    ui.getRegisterForm().addEventListener("submit", (e) => {
+      e.preventDefault();
+      return handleRegister();
+    });
+  } else {
+    // Kept for compatibility
+    ui.getRegisterButton().addEventListener("click", handleRegister);
+  }
 
   ui.getDeleteForms().forEach((form) =>
     form.addEventListener("submit", async function (e) {

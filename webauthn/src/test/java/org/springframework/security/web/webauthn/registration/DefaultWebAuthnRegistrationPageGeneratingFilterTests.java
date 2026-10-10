@@ -169,8 +169,8 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 								<script type="text/javascript">
 								<!--
 									const ui = {
-										getRegisterButton: function() {
-											return document.getElementById('register')
+										getRegisterForm: function() {
+											return document.getElementById("register-form")
 										},
 										getSuccess: function() {
 											return document.getElementById('success')
@@ -192,14 +192,14 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 							<body>
 								<div class="content">
 									<h2 class="center">WebAuthn Registration</h2>
-									<form class="default-form" method="post" action="#" onclick="return false">
+									<form id="register-form" class="default-form" method="post" action="#">
 										<div id="success" class="alert alert-success" role="alert">Success!</div>
 										<div id="error" class="alert alert-danger" role="alert"></div>
 										<p>
 											<label for="label" class="screenreader">Passkey Label</label>
 											<input type="text" id="label" name="label" placeholder="Passkey Label" required autofocus>
 										</p>
-										<button id="register" class="primary" type="submit">Register</button>
+										<button class="primary" type="submit">Register</button>
 									</form>
 									<table class="table table-striped">
 										<thead>
