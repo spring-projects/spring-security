@@ -38,8 +38,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
+import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -291,10 +293,14 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 	private String renderJavaScript(HttpServletRequest request, String contextPath) {
 		if (this.passkeysEnabled) {
+			ContentSecurityPolicyNonce cspNonce = (ContentSecurityPolicyNonce) request
+				.getAttribute(ContentSecurityPolicyNonce.class.getName());
 			return HtmlTemplates.fromTemplate(PASSKEY_SCRIPT_TEMPLATE)
 				.withValue("loginPageUrl", this.loginPageUrl)
 				.withValue("contextPath", contextPath)
 				.withRawHtml("csrfHeaders", renderHeaders(request))
+				.withRawHtml("nonceAttr",
+						(cspNonce != null) ? " nonce=\"%s\"".formatted(HtmlUtils.htmlEscape(cspNonce.getNonce())) : "")
 				.render();
 		}
 		return "";
@@ -510,7 +516,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 	private static final String PASSKEY_SCRIPT_TEMPLATE = """
 				<script type="text/javascript" src="{{contextPath}}/login/webauthn.js"></script>
-				<script type="text/javascript">
+				<script type="text/javascript"{{nonceAttr}}>
 				<!--
 					document.addEventListener("DOMContentLoaded",() => setupLogin({{csrfHeaders}}, "{{contextPath}}", document.getElementById('passkey-signin')));
 
