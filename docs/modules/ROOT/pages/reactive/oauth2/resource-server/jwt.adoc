@@ -967,7 +967,7 @@ Java::
 @Bean
 JwtDecoder jwtDecoder() {
     NimbusReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(issuerUri)
-            .validateTypes(false).build();
+            .validateType(false).build();
     jwtDecoder.setJwtValidator(JwtValidators.createAtJwtValidator()
             .audience("https://audience.example.org")
             .clientId("client-identifier")
@@ -983,7 +983,7 @@ Kotlin::
 @Bean
 fun jwtDecoder(): JwtDecoder {
     val jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(issuerUri)
-            .validateTypes(false).build()
+            .validateType(false).build()
     jwtDecoder.setJwtValidator(JwtValidators.createAtJwtValidator()
             .audience("https://audience.example.org")
             .clientId("client-identifier")
