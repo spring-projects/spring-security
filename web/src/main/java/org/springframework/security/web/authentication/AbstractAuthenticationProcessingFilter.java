@@ -126,7 +126,8 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 		.getContextHolderStrategy();
 
-	@Nullable protected ApplicationEventPublisher eventPublisher;
+	@Nullable
+	protected ApplicationEventPublisher eventPublisher;
 
 	protected AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 

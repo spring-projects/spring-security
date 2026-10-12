@@ -49,6 +49,7 @@ public interface PublicKeyCredentialRequestOptionsRepository {
 	 * @return the {@link PublicKeyCredentialRequestOptions} that was saved, otherwise
 	 * null.
 	 */
-	@Nullable PublicKeyCredentialRequestOptions load(HttpServletRequest request);
+	@Nullable
+	PublicKeyCredentialRequestOptions load(HttpServletRequest request);
 
 }

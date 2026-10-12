@@ -43,7 +43,8 @@ public interface Saml2ResponseAssertionAccessor extends Serializable {
 	 * @param <A> the type of the attribute
 	 * @return the first attribute value or {@code null} otherwise
 	 */
-	@Nullable default <A> A getFirstAttribute(String name) {
+	@Nullable
+	default <A> A getFirstAttribute(String name) {
 		List<A> values = getAttribute(name);
 		return CollectionUtils.firstElement(values);
 	}
@@ -54,7 +55,8 @@ public interface Saml2ResponseAssertionAccessor extends Serializable {
 	 * @param <A> the type of the attribute
 	 * @return the attribute or {@code null} otherwise
 	 */
-	@Nullable default <A> List<A> getAttribute(String name) {
+	@Nullable
+	default <A> List<A> getAttribute(String name) {
 		return (List<A>) getAttributes().get(name);
 	}
 
