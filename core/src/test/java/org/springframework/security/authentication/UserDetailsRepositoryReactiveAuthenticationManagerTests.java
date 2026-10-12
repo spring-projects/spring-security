@@ -36,6 +36,7 @@ import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,6 +48,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
@@ -171,6 +173,53 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 	}
 
 	@Test
+	public void authenticateWhenUserNotFoundThenPasswordEncoded() {
+		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.empty());
+		given(this.encoder.encode(any())).willReturn("encoded");
+		this.manager.setPasswordEncoder(this.encoder);
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("missing",
+				"password");
+		assertThatExceptionOfType(BadCredentialsException.class)
+			.isThrownBy(() -> this.manager.authenticate(token).block());
+		verify(this.encoder).matches(eq("password"), any());
+	}
+
+	@Test
+	public void authenticateWhenUserNotFoundAndNoCredentialsThenPasswordEncoderNotInvoked() {
+		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.empty());
+		this.manager.setPasswordEncoder(this.encoder);
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("missing",
+				null);
+		assertThatExceptionOfType(BadCredentialsException.class)
+			.isThrownBy(() -> this.manager.authenticate(token).block());
+		verifyNoInteractions(this.encoder);
+	}
+
+	@Test
+	public void authenticateWhenUserFoundAndNoCredentialsThenBadCredentials() {
+		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(this.user));
+		this.manager.setPasswordEncoder(this.encoder);
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(this.user,
+				null);
+		assertThatExceptionOfType(BadCredentialsException.class)
+			.isThrownBy(() -> this.manager.authenticate(token).block());
+		verifyNoInteractions(this.encoder);
+	}
+
+	@Test
+	public void authenticateWhenUserDetailsServiceErrorsWithUsernameNotFoundThenPasswordEncoded() {
+		given(this.userDetailsService.findByUsername(any()))
+			.willReturn(Mono.error(new UsernameNotFoundException("missing")));
+		given(this.encoder.encode(any())).willReturn("encoded");
+		this.manager.setPasswordEncoder(this.encoder);
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("missing",
+				"password");
+		assertThatExceptionOfType(BadCredentialsException.class)
+			.isThrownBy(() -> this.manager.authenticate(token).block());
+		verify(this.encoder).matches(eq("password"), any());
+	}
+
+	@Test
 	public void authenticateWhenPostAuthenticationChecksNotSet() {
 		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(this.user));
 		given(this.encoder.matches(any(), any())).willReturn(true);
@@ -212,6 +261,40 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(lockedUser,
 				lockedUser.getPassword());
 		assertThatExceptionOfType(LockedException.class).isThrownBy(() -> this.manager.authenticate(token).block());
+	}
+
+	@Test
+	public void authenticateWhenAccountLockedThenPasswordEncoded() {
+		// @formatter:off
+		UserDetails lockedUser = User.withUsername("user")
+				.password("password")
+				.roles("USER")
+				.accountLocked(true)
+				.build();
+		// @formatter:on
+		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(lockedUser));
+		this.manager.setPasswordEncoder(this.encoder);
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(lockedUser,
+				"wrong-password");
+		assertThatExceptionOfType(LockedException.class).isThrownBy(() -> this.manager.authenticate(token).block());
+		verify(this.encoder).matches(eq("wrong-password"), eq(lockedUser.getPassword()));
+	}
+
+	@Test
+	public void authenticateWhenAccountLockedAndNoCredentialsThenPasswordEncoderNotInvoked() {
+		// @formatter:off
+		UserDetails lockedUser = User.withUsername("user")
+				.password("password")
+				.roles("USER")
+				.accountLocked(true)
+				.build();
+		// @formatter:on
+		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(lockedUser));
+		this.manager.setPasswordEncoder(this.encoder);
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(lockedUser,
+				null);
+		assertThatExceptionOfType(LockedException.class).isThrownBy(() -> this.manager.authenticate(token).block());
+		verifyNoInteractions(this.encoder);
 	}
 
 	@Test
