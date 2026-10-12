@@ -21,7 +21,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.expression.spel.support.SimpleEvaluationContext;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.util.Assert;
 
@@ -64,7 +64,10 @@ public class ELRequestMatcher implements RequestMatcher {
 	 * @return EL root context which is used to evaluate the expression
 	 */
 	public EvaluationContext createELContext(HttpServletRequest request) {
-		return new StandardEvaluationContext(new ELRequestMatcherContext(request));
+		return SimpleEvaluationContext.forReadOnlyDataBinding()
+			.withInstanceMethods()
+			.withRootObject(new ELRequestMatcherContext(request))
+			.build();
 	}
 
 	@Override
