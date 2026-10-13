@@ -123,6 +123,28 @@ public class ClientSecretBasicAuthenticationConverterTests {
 				entry("custom-param", new String[] { "custom-value-1", "custom-value-2" }));
 	}
 
+	@Test
+	public void convertWhenConfidentialClientWithMultipleCodeThenInvalidRequestError() throws Exception {
+		MockHttpServletRequest request = createPkceTokenRequest();
+		request.addParameter(OAuth2ParameterNames.CODE, "code-2");
+		request.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + encodeBasicAuth("clientId", "secret"));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.converter.convert(request))
+			.extracting(OAuth2AuthenticationException::getError)
+			.extracting("errorCode")
+			.isEqualTo(OAuth2ErrorCodes.INVALID_REQUEST);
+	}
+
+	@Test
+	public void convertWhenConfidentialClientWithMultipleCodeVerifierThenInvalidRequestError() throws Exception {
+		MockHttpServletRequest request = createPkceTokenRequest();
+		request.addParameter(PkceParameterNames.CODE_VERIFIER, "code-verifier-2");
+		request.addHeader(HttpHeaders.AUTHORIZATION, "Basic " + encodeBasicAuth("clientId", "secret"));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.converter.convert(request))
+			.extracting(OAuth2AuthenticationException::getError)
+			.extracting("errorCode")
+			.isEqualTo(OAuth2ErrorCodes.INVALID_REQUEST);
+	}
+
 	private static String encodeBasicAuth(String clientId, String secret) throws Exception {
 		clientId = URLEncoder.encode(clientId, StandardCharsets.UTF_8.name());
 		secret = URLEncoder.encode(secret, StandardCharsets.UTF_8.name());

@@ -110,6 +110,30 @@ public class ClientSecretPostAuthenticationConverterTests {
 				entry("custom-param", new String[] { "custom-value-1", "custom-value-2" }));
 	}
 
+	@Test
+	public void convertWhenConfidentialClientWithMultipleCodeThenInvalidRequestError() {
+		MockHttpServletRequest request = createPkceTokenRequest();
+		request.addParameter(OAuth2ParameterNames.CLIENT_ID, "client-1");
+		request.addParameter(OAuth2ParameterNames.CLIENT_SECRET, "client-secret");
+		request.addParameter(OAuth2ParameterNames.CODE, "code-2");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.converter.convert(request))
+			.extracting(OAuth2AuthenticationException::getError)
+			.extracting("errorCode")
+			.isEqualTo(OAuth2ErrorCodes.INVALID_REQUEST);
+	}
+
+	@Test
+	public void convertWhenConfidentialClientWithMultipleCodeVerifierThenInvalidRequestError() {
+		MockHttpServletRequest request = createPkceTokenRequest();
+		request.addParameter(OAuth2ParameterNames.CLIENT_ID, "client-1");
+		request.addParameter(OAuth2ParameterNames.CLIENT_SECRET, "client-secret");
+		request.addParameter(PkceParameterNames.CODE_VERIFIER, "code-verifier-2");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.converter.convert(request))
+			.extracting(OAuth2AuthenticationException::getError)
+			.extracting("errorCode")
+			.isEqualTo(OAuth2ErrorCodes.INVALID_REQUEST);
+	}
+
 	private static MockHttpServletRequest createPkceTokenRequest() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantType.AUTHORIZATION_CODE.getValue());
