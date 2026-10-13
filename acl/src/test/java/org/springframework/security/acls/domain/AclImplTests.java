@@ -392,6 +392,33 @@ public class AclImplTests {
 	}
 
 	@Test
+	public void setParentRejectsAncestor() {
+		MutableAcl parentAcl = new AclImpl(new ObjectIdentityImpl(TARGET_CLASS, 101), 101,
+				this.authzStrategy, this.pgs, null, null, true, new PrincipalSid("joe"));
+		MutableAcl childAcl = new AclImpl(new ObjectIdentityImpl(TARGET_CLASS, 102), 102,
+				this.authzStrategy, this.pgs, null, null, true, new PrincipalSid("joe"));
+
+		childAcl.setParent(parentAcl);
+
+		assertThatIllegalArgumentException().isThrownBy(() -> parentAcl.setParent(childAcl));
+	}
+
+	@Test
+	public void setParentRejectsIndirectAncestor() {
+		MutableAcl grandParentAcl = new AclImpl(new ObjectIdentityImpl(TARGET_CLASS, 101), 101,
+				this.authzStrategy, this.pgs, null, null, true, new PrincipalSid("joe"));
+		MutableAcl parentAcl = new AclImpl(new ObjectIdentityImpl(TARGET_CLASS, 102), 102,
+				this.authzStrategy, this.pgs, null, null, true, new PrincipalSid("joe"));
+		MutableAcl childAcl = new AclImpl(new ObjectIdentityImpl(TARGET_CLASS, 103), 103,
+				this.authzStrategy, this.pgs, null, null, true, new PrincipalSid("joe"));
+
+		parentAcl.setParent(grandParentAcl);
+		childAcl.setParent(parentAcl);
+
+		assertThatIllegalArgumentException().isThrownBy(() -> grandParentAcl.setParent(childAcl));
+	}
+
+	@Test
 	public void isSidLoadedBehavesAsExpected() {
 		List<Sid> loadedSids = Arrays.asList(new PrincipalSid("ben"), new GrantedAuthoritySid("ROLE_IGNORED"));
 		MutableAcl acl = new AclImpl(this.objectIdentity, 1, this.authzStrategy, this.pgs, null, loadedSids, true,
