@@ -376,4 +376,83 @@ class ServerCsrfDslTests {
             }
         }
     }
+
+    @Test
+    fun `post when cross origin protection then rejects only requests from another origin`() {
+        this.spring.register(CrossOriginProtectionConfig::class.java).autowire()
+
+        this.client.post()
+                .uri("/")
+                .header("Sec-Fetch-Site", "cross-site")
+                .exchange()
+                .expectStatus().isForbidden
+        this.client.post()
+                .uri("/")
+                .header("Sec-Fetch-Site", "same-origin")
+                .exchange()
+                .expectStatus().isOk
+        this.client.post()
+                .uri("/")
+                .header("Sec-Fetch-Site", "cross-site")
+                .header("Origin", "https://partner.example")
+                .exchange()
+                .expectStatus().isOk
+    }
+
+    @Configuration
+    @EnableWebFluxSecurity
+    @EnableWebFlux
+    open class CrossOriginProtectionConfig {
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                csrf {
+                    crossOriginProtection {
+                        trustedOrigins = listOf("https://partner.example")
+                    }
+                }
+            }
+        }
+
+        @RestController
+        internal class TestController {
+            @PostMapping("/")
+            fun home() {
+            }
+        }
+    }
+
+    @Test
+    fun `post when cross origin protection report only then allowed from another origin`() {
+        this.spring.register(CrossOriginProtectionReportOnlyConfig::class.java).autowire()
+
+        this.client.post()
+                .uri("/")
+                .header("Sec-Fetch-Site", "cross-site")
+                .exchange()
+                .expectStatus().isOk
+    }
+
+    @Configuration
+    @EnableWebFluxSecurity
+    @EnableWebFlux
+    open class CrossOriginProtectionReportOnlyConfig {
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                csrf {
+                    crossOriginProtection {
+                        reportOnly = true
+                    }
+                }
+            }
+        }
+
+        @RestController
+        internal class TestController {
+            @PostMapping("/")
+            fun home() {
+            }
+        }
+    }
 }
