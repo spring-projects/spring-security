@@ -148,6 +148,13 @@ public class OAuth2TokenExchangeAuthenticationProviderTests {
 	}
 
 	@Test
+	public void setDPoPProofVerifierFactoryWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException()
+			.isThrownBy(() -> this.authenticationProvider.setDPoPProofVerifierFactory(null))
+			.withMessage("dPoPProofVerifierFactory cannot be null");
+	}
+
+	@Test
 	public void authenticateWhenClientNotAuthenticatedThenThrowOAuth2AuthenticationException() {
 		OAuth2ClientAuthenticationToken clientPrincipal = new OAuth2ClientAuthenticationToken("client-1",
 				ClientAuthenticationMethod.CLIENT_SECRET_BASIC, null, null);
