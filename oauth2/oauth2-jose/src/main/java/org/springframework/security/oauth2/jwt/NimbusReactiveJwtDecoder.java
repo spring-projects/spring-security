@@ -58,6 +58,7 @@ import com.nimbusds.jwt.proc.JWTProcessor;
 import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
@@ -97,7 +98,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 
 	private final Converter<JWT, Mono<JWTClaimsSet>> jwtProcessor;
 
-	private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
+	private Converter<Jwt, Mono<OAuth2TokenValidatorResult>> jwtValidator;
 
 	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = MappedJwtClaimSetConverter
 		.withDefaults(Collections.emptyMap());
@@ -127,6 +128,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	 */
 	public NimbusReactiveJwtDecoder(Converter<JWT, Mono<JWTClaimsSet>> jwtProcessor) {
 		this.jwtProcessor = jwtProcessor;
+		setJwtValidator(JwtValidators.createDefault());
 	}
 
 	/**
@@ -134,6 +136,17 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	 * @param jwtValidator the {@link OAuth2TokenValidator} to use
 	 */
 	public void setJwtValidator(OAuth2TokenValidator<Jwt> jwtValidator) {
+		Assert.notNull(jwtValidator, "jwtValidator cannot be null");
+		this.jwtValidator = jwt -> Mono.fromSupplier(() -> jwtValidator.validate(jwt))
+			.subscribeOn(Schedulers.boundedElastic());
+	}
+
+	/**
+	 * Use the provided {@link Converter} to validate incoming {@link Jwt}s. This replaces
+	 * the {@link OAuth2TokenValidator}, but allows for reactive validation.
+	 * @param jwtValidator the {@link Converter} to use
+	 */
+	public void setJwtValidator(Converter<Jwt, Mono<OAuth2TokenValidatorResult>> jwtValidator) {
 		Assert.notNull(jwtValidator, "jwtValidator cannot be null");
 		this.jwtValidator = jwtValidator;
 	}
@@ -167,7 +180,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 			// @formatter:off
 			return this.jwtProcessor.convert(parsedToken)
 					.map((set) -> createJwt(parsedToken, set))
-					.map(this::validateJwt)
+					.flatMap(this::validateJwt)
 					.onErrorMap((ex) -> !(ex instanceof IllegalStateException) && !(ex instanceof JwtException),
 							(ex) -> new JwtException("An error occurred while attempting to decode the Jwt: ", ex));
 			// @formatter:on
@@ -194,14 +207,17 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 		}
 	}
 
-	private Jwt validateJwt(Jwt jwt) {
-		OAuth2TokenValidatorResult result = this.jwtValidator.validate(jwt);
-		if (result.hasErrors()) {
-			Collection<OAuth2Error> errors = result.getErrors();
-			String validationErrorString = getJwtValidationExceptionMessage(errors);
-			throw new JwtValidationException(validationErrorString, errors);
-		}
-		return jwt;
+	private Mono<Jwt> validateJwt(Jwt jwt) {
+		return this.jwtValidator.convert(jwt).handle((result, sink) -> {
+			if (result.hasErrors()) {
+				Collection<OAuth2Error> errors = result.getErrors();
+				String validationErrorString = getJwtValidationExceptionMessage(errors);
+				sink.error(new JwtValidationException(validationErrorString, errors));
+			}
+			else {
+				sink.next(jwt);
+			}
+		});
 	}
 
 	private String getJwtValidationExceptionMessage(Collection<OAuth2Error> errors) {
