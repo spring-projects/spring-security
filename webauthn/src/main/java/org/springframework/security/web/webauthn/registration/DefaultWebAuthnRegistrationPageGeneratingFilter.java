@@ -168,14 +168,17 @@ public class DefaultWebAuthnRegistrationPageGeneratingFilter extends OncePerRequ
 				<body>
 					<div class="content">
 						<h2 class="center">WebAuthn Registration</h2>
+						<noscript>
+							<div class="alert alert-danger" role="alert">JavaScript is required to register a passkey</div>
+						</noscript>
 						<form class="default-form" method="post" action="#" onclick="return false">
-							<div id="success" class="alert alert-success" role="alert">Success!</div>
-							<div id="error" class="alert alert-danger" role="alert"></div>
+							<div id="success" class="alert alert-success" role="alert" hidden>Success!</div>
+							<div id="error" class="alert alert-danger" role="alert" hidden></div>
 							<p>
 								<label for="label" class="screenreader">Passkey Label</label>
 								<input type="text" id="label" name="label" placeholder="Passkey Label" required autofocus>
 							</p>
-							<button id="register" class="primary" type="submit">Register</button>
+							<button id="register" class="primary" type="submit" disabled>Register</button>
 						</form>
 						<table class="table table-striped">
 							<thead>
