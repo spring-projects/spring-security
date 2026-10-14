@@ -39,7 +39,7 @@ jobs:
   deploy-schema:
     name: Deploy Schema
     needs: [ build ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@33d8b6e0a246353d4b659d7676173436a302ab2b # v1.0.18
+    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@6803d775925cdca5990e1e68b5a1c1fe38fa3947 # v1.0.20
     with:
       should-deploy-schema: ${{ needs.build.outputs.should-deploy-artifacts }}
       java-version: 25

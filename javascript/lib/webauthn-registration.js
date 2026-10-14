@@ -22,6 +22,7 @@ function setVisibility(element, value) {
   if (!element) {
     return;
   }
+  element.hidden = !value;
   element.style.display = value ? "block" : "none";
 }
 
@@ -93,6 +94,7 @@ export async function setupRegistration(headers, contextPath, ui) {
       console.error(err);
     }
   });
+  ui.getRegisterButton().disabled = false;
 
   ui.getDeleteForms().forEach((form) =>
     form.addEventListener("submit", async function (e) {

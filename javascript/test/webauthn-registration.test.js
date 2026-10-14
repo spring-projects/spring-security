@@ -27,10 +27,12 @@ describe("webauthn-registration", () => {
     Assertion.addProperty("visible", function () {
       const obj = util.flag(this, "object");
       new Assertion(obj).to.have.nested.property("style.display", "block");
+      new Assertion(obj).to.have.property("hidden", false);
     });
     Assertion.addProperty("hidden", function () {
       const obj = util.flag(this, "object");
       new Assertion(obj).to.have.nested.property("style.display", "none");
+      new Assertion(obj).to.have.property("hidden", true);
     });
   });
 
@@ -59,6 +61,7 @@ describe("webauthn-registration", () => {
       };
       registerButton = {
         addEventListener: fake(),
+        disabled: true,
       };
       labelField = {
         value: undefined,
@@ -107,6 +110,12 @@ describe("webauthn-registration", () => {
         assert.notCalled(registerButton.addEventListener);
       });
 
+      it("keeps the register button disabled", async () => {
+        await setupRegistration({}, "/", ui);
+
+        expect(registerButton.disabled).to.be.true;
+      });
+
       it("shows an error popup", async () => {
         await setupRegistration({}, "/", ui);
 
@@ -132,6 +141,12 @@ describe("webauthn-registration", () => {
         await setupRegistration({}, "/some/path", ui);
 
         assert.calledOnceWithMatch(registerButton.addEventListener, "click", match.typeOf("function"));
+      });
+
+      it("enables the register button", async () => {
+        await setupRegistration({}, "/some/path", ui);
+
+        expect(registerButton.disabled).to.be.false;
       });
 
       describe(`when the query string contains "success"`, () => {
