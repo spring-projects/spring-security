@@ -52,11 +52,14 @@ class ContentSecurityPolicyDsl {
      * The default is to enable CSP in every response if
      * [org.springframework.security.config.annotation.web.HeadersDsl.contentSecurityPolicy]
      * is configured.
-     * You can configure either this property or [requestMatchers], but not both.
      * @since 7.2
      * @see requestMatchers
      */
     var requestMatcher: RequestMatcher? = null
+        set(value) {
+            field = value
+            requestMatcherPatterns = null
+        }
 
     private var requestMatcherPatterns: Array<out String>? = null
 
@@ -65,13 +68,13 @@ class ContentSecurityPolicyDsl {
      * The default is to write CSP header in every response if
      * [org.springframework.security.config.annotation.web.HeadersDsl.contentSecurityPolicy]
      * is configured.
-     * You can configure either this method or [requestMatcher], but not both.
      * @param pathPatterns the path patterns to be matched with a
      * [org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher]
      * @since 7.2
      * @see requestMatcher
      */
     fun requestMatchers(vararg pathPatterns: String) {
+        requestMatcher = null
         requestMatcherPatterns = pathPatterns
     }
 

@@ -953,8 +953,6 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 		private final ContentSecurityPolicyNonceGeneratingFilter nonceGeneratingFilter = new ContentSecurityPolicyNonceGeneratingFilter();
 
-		private @Nullable RequestMatcher requestMatcher;
-
 		private ContentSecurityPolicyConfig() {
 		}
 
@@ -1003,16 +1001,12 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @param requestMatcher the {@link RequestMatcher} to use
 		 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
 		 * @throws IllegalArgumentException if {@code requestMatcher} is null
-		 * @throws IllegalStateException if a {@link RequestMatcher} is already configured
-		 * by a previous call of this method or {@link #requestMatchers(String...)}
 		 * @since 7.2
 		 * @see #requestMatchers(String...)
 		 */
 		public ContentSecurityPolicyConfig requestMatcher(RequestMatcher requestMatcher) {
 			Assert.notNull(requestMatcher, "RequestMatcher cannot be null");
-			Assert.state(this.requestMatcher == null, "RequestMatcher(s) is already configured");
 			this.writer.setRequestMatcher(requestMatcher);
-			this.requestMatcher = requestMatcher;
 			return this;
 		}
 
@@ -1025,8 +1019,6 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
 		 * @throws IllegalArgumentException if any path pattern if rejected by
 		 * {@link PathPatternRequestMatcher.Builder#matcher(String)}
-		 * @throws IllegalStateException if a {@link RequestMatcher} is already configured
-		 * by a previous call of this method or {@link #requestMatcher(RequestMatcher)}
 		 * @since 7.2
 		 * @see #requestMatcher(RequestMatcher)
 		 */

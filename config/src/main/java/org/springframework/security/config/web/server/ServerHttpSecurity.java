@@ -2846,8 +2846,6 @@ public class ServerHttpSecurity {
 
 			private static final String DEFAULT_SRC_SELF_POLICY = "default-src 'self'";
 
-			private @Nullable ServerWebExchangeMatcher exchangeMatcher;
-
 			private final ContentSecurityPolicyNonceGeneratingWebFilter nonceGeneratingFilter = new ContentSecurityPolicyNonceGeneratingWebFilter();
 
 			private ContentSecurityPolicySpec() {
@@ -2904,17 +2902,12 @@ public class ServerHttpSecurity {
 			 * @param matcher the {@link ServerWebExchangeMatcher} to use
 			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
 			 * @throws IllegalArgumentException if {@code matcher} is {@code null}
-			 * @throws IllegalStateException if a {@link ServerWebExchangeMatcher} is
-			 * already configured by a previous call of this method or
-			 * {@link #exchangeMatchers(String...)}
 			 * @since 7.2
 			 * @see #exchangeMatchers(String...)
 			 */
 			public ContentSecurityPolicySpec exchangeMatcher(ServerWebExchangeMatcher matcher) {
 				Assert.notNull(matcher, "Matcher must not be null");
-				Assert.state(this.exchangeMatcher == null, "ExchangeMatcher(s) is already configured");
 				HeaderSpec.this.contentSecurityPolicy.setExchangeMatcher(matcher);
-				this.exchangeMatcher = matcher;
 				return this;
 			}
 
@@ -2927,9 +2920,6 @@ public class ServerHttpSecurity {
 			 * @return the {@link ContentSecurityPolicySpec} to continue configuring
 			 * @throws IllegalArgumentException if any path pattern is rejected by
 			 * {@link PathPatternParserServerWebExchangeMatcher}
-			 * @throws IllegalStateException if a {@link ServerWebExchangeMatcher} is
-			 * already configured by a previous call of this method or
-			 * {@link #exchangeMatcher(ServerWebExchangeMatcher)}
 			 * @since 7.2
 			 * @see #exchangeMatcher(ServerWebExchangeMatcher)
 			 */

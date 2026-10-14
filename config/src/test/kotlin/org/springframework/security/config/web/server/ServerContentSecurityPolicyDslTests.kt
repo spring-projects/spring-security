@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.web.server
 
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -258,11 +257,18 @@ class ServerContentSecurityPolicyDslTests {
     }
 
     @Test
-    fun `when matchers overridden then fails to configure`() {
-        assertThatThrownBy {
-            this.spring.register(CspPathOverriddenMatchersConfig::class.java).autowire()
-        }.hasRootCauseInstanceOf(IllegalStateException::class.java)
-            .hasRootCauseMessage("ExchangeMatcher(s) is already configured")
+    fun `request when matchers overridden then last one wins`() {
+        val headerName = ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY
+        this.spring.register(CspPathOverriddenMatchersConfig::class.java).autowire()
+
+        this.client.get()
+            .uri("https://example.com/foo/bar")
+            .exchange()
+            .expectHeader().valueEquals(headerName, "default-src 'self'")
+        this.client.get()
+            .uri("https://example.com/bar/foo")
+            .exchange()
+            .expectHeader().doesNotExist(headerName)
     }
 
     @Configuration
@@ -274,8 +280,8 @@ class ServerContentSecurityPolicyDslTests {
             headers {
                 contentSecurityPolicy {
                     policyDirectives = "default-src 'self'"
-                    exchangeMatcher = ServerWebExchangeMatchers.anyExchange()
                     exchangeMatchers("/**")
+                    exchangeMatcher = ServerWebExchangeMatchers.pathMatchers("/foo/**")
                 }
             }
         }
