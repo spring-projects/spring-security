@@ -38,8 +38,8 @@ io-spring-javaformat-spring-javaformat-checkstyle = { module = "io.spring.javafo
 io-spring-javaformat-spring-javaformat-gradle-plugin = { module = "io.spring.javaformat:spring-javaformat-gradle-plugin", version.ref = "io-spring-javaformat" }
 io-spring-nohttp-nohttp-checkstyle = { module = "io.spring.nohttp:nohttp-checkstyle", version.ref = "io-spring-nohttp" }
 io-spring-nohttp-nohttp-gradle = { module = "io.spring.nohttp:nohttp-gradle", version.ref = "io-spring-nohttp" }
-io-spring-security-release-plugin = "io.spring.gradle:spring-security-release-plugin:1.0.17"
-io-spring-security-project-plugin = "io.spring.gradle:spring-security-project-plugin:1.0.19"
+io-spring-security-release-plugin = "io.spring.gradle:spring-security-release-plugin:1.0.20"
+io-spring-security-project-plugin = "io.spring.gradle:spring-security-project-plugin:1.0.20"
 jakarta-annotation-jakarta-annotation-api = "jakarta.annotation:jakarta.annotation-api:3.0.0"
 jakarta-inject-jakarta-inject-api = "jakarta.inject:jakarta.inject-api:2.0.1"
 jakarta-persistence-jakarta-persistence-api = "jakarta.persistence:jakarta.persistence-api:3.2.0"
@@ -83,7 +83,7 @@ org-seleniumhq-selenium-selenium-java = "org.seleniumhq.selenium:selenium-java:4
 org-seleniumhq-selenium-selenium-support = "org.seleniumhq.selenium:selenium-support:3.141.59"
 org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 org-slf4j-log4j-over-slf4j = "org.slf4j:log4j-over-slf4j:1.7.36"
-org-slf4j-slf4j-api = "org.slf4j:slf4j-api:2.0.19"
+org-slf4j-slf4j-api = "org.slf4j:slf4j-api:2.0.20"
 org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2025.1.7"
 org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-ldap-core:4.0.5"
 org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "org-springframework" }
