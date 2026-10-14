@@ -52,7 +52,6 @@ import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
@@ -513,16 +512,25 @@ public class HeaderSpecTests {
 	}
 
 	@Test
-	public void headersWhenContentSecurityPolicyWithOverriddenMatchersThenFailToConfigure() {
+	public void headersWhenContentSecurityPolicyWithOverriddenMatchersThenLastOneWins() {
+		String headerName = ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY;
 		// @formatter:off
-		assertThatIllegalStateException()
-			.isThrownBy(() -> this.http
-				.headers((headers) -> headers
-					.contentSecurityPolicy((csp) -> csp
-						.exchangeMatcher(ServerWebExchangeMatchers.anyExchange())
-						.exchangeMatchers("/**")
-						.policyDirectives("default-src 'self'"))))
-			.withMessage("ExchangeMatcher(s) is already configured");
+		this.http.headers((headers) -> headers
+			.contentSecurityPolicy((csp) -> csp
+				.exchangeMatcher(ServerWebExchangeMatchers.anyExchange())
+				.exchangeMatchers("/foo/**")
+				.policyDirectives("default-src 'self'")));
+		// @formatter:on
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.http.build()).build();
+		// @formatter:off
+		client.get()
+			.uri("https://example.com/foo/bar")
+			.exchange()
+			.expectHeader().valueEquals(headerName, "default-src 'self'");
+		client.get()
+			.uri("https://example.com/bar/foo")
+			.exchange()
+			.expectHeader().doesNotExist(headerName);
 		// @formatter:on
 	}
 

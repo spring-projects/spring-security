@@ -53,7 +53,6 @@ import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -481,12 +480,12 @@ public class HeadersConfigurerTests {
 	}
 
 	@Test
-	public void configureWhenContentSecurityPolicyWithOverriddenMatchersThenThrows() {
-		assertThatException()
-			.isThrownBy(() -> this.spring.register(ContentSecurityPolicyOverriddenMatchersConfig.class).autowire())
-			.havingRootCause()
-			.isInstanceOf(IllegalStateException.class)
-			.withMessage("RequestMatcher(s) is already configured");
+	public void configureWhenContentSecurityPolicyWithOverriddenMatchersThenLastOneWins() throws Exception {
+		this.spring.register(ContentSecurityPolicyOverriddenMatchersConfig.class).autowire();
+		this.mvc.perform(get("/foo/bar").secure(true))
+			.andExpect(header().string(HttpHeaders.CONTENT_SECURITY_POLICY, "default-src 'self'"));
+		this.mvc.perform(get("/bar/foo").secure(true))
+			.andExpect(header().doesNotExist(HttpHeaders.CONTENT_SECURITY_POLICY));
 	}
 
 	@Test
@@ -1297,7 +1296,7 @@ public class HeadersConfigurerTests {
 					.contentSecurityPolicy((csp) -> csp
 						.policyDirectives("default-src 'self'")
 						.requestMatcher(AnyRequestMatcher.INSTANCE)
-						.requestMatchers("/**")));
+						.requestMatchers("/foo/**")));
 			// @formatter:on
 			return http.build();
 		}

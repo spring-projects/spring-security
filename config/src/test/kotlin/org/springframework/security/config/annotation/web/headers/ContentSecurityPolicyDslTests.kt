@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.annotation.web.headers
 
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.hamcrest.Matchers.matchesPattern
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -31,7 +30,7 @@ import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.util.matcher.AnyRequestMatcher
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
@@ -281,11 +280,21 @@ class ContentSecurityPolicyDslTests {
     }
 
     @Test
-    fun `headers when content security policy configured with overridden matchers then throws`() {
-        assertThatThrownBy {
-            this.spring.register(ContentSecurityPolicyOverriddenMatchersConfig::class.java).autowire()
-        }.hasRootCauseInstanceOf(IllegalStateException::class.java)
-            .hasRootCauseMessage("RequestMatcher(s) is already configured")
+    fun `headers when content security policy configured with overridden matchers then last one wins`() {
+        this.spring.register(ContentSecurityPolicyOverriddenMatchersConfig::class.java).autowire()
+
+        this.mockMvc.get("/foo/bar") {
+            secure = true
+        }.andExpect {
+            header {
+                string(CONTENT_SECURITY_POLICY, "default-src 'self'")
+            }
+        }
+        this.mockMvc.get("/bar/foo") {
+            secure = true
+        }.andExpect {
+            header { doesNotExist(CONTENT_SECURITY_POLICY) }
+        }
     }
 
     @Configuration
@@ -298,8 +307,8 @@ class ContentSecurityPolicyDslTests {
                     defaultsDisabled = true
                     contentSecurityPolicy {
                         policyDirectives = "default-src 'self'"
-                        requestMatcher = AnyRequestMatcher.INSTANCE
                         requestMatchers("/**")
+                        requestMatcher = PathPatternRequestMatcher.pathPattern("/foo/**")
                     }
                 }
             }
