@@ -19,7 +19,10 @@ package org.springframework.security.web.header.writers;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 import org.springframework.security.web.header.HeaderWriter;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 /**
@@ -55,6 +58,32 @@ import org.springframework.util.Assert;
  * </p>
  *
  * <p>
+ * With related directives specified, web clients could block inline {@code <script>} or
+ * {@code <style>} blocks in the HTML to mitigate XSS attacks injecting malicious inline
+ * blocks. To allow intended inline blocks, a CSP directive (usually {@code script-src} or
+ * {@code style-src}) may specify a hard-to-guess nonce matching the nonce attributes of
+ * inline HTML blocks.
+ * </p>
+ *
+ * <p>
+ * To ease writing nonce-based CSP headers, this class replaces the {@code {nonce}}
+ * placeholder in the {@code policyDirectives} with a real nonce value read from a servlet
+ * request attribute. A
+ * {@link org.springframework.security.web.header.ContentSecurityPolicyNonceGeneratingFilter}
+ * can be configured to generate a unique secure random {@link ContentSecurityPolicyNonce}
+ * attribute for each request.
+ * </p>
+ *
+ * <p>
+ * For example, if the configured {@code policyDirectives} is {@code script-src 'self'
+ * 'nonce-{nonce}'}, and a
+ * {@link org.springframework.security.web.header.ContentSecurityPolicyNonceGeneratingFilter}
+ * has set a {@link ContentSecurityPolicyNonce} of {@code "Nc3n83cnSAd3wc3Sasdfn9"}, then
+ * the written HTTP header value would be
+ * {@code script-src 'self' 'nonce-Nc3n83cnSAd3wc3Sasdfn9'}.
+ * </p>
+ *
+ * <p>
  * This implementation of {@link HeaderWriter} writes one of the following headers:
  * </p>
  * <ul>
@@ -79,7 +108,9 @@ import org.springframework.util.Assert;
  *
  * @author Joe Grandja
  * @author Ankur Pathak
+ * @author Ziqin Wang
  * @since 4.1
+ * @see org.springframework.security.web.header.ContentSecurityPolicyNonceGeneratingFilter
  */
 public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 
@@ -88,6 +119,10 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	private static final String CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER = "Content-Security-Policy-Report-Only";
 
 	private static final String DEFAULT_SRC_SELF_POLICY = "default-src 'self'";
+
+	private static final String NONCE_PLACEHOLDER = "{nonce}";
+
+	private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
 
 	private String policyDirectives;
 
@@ -117,16 +152,46 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	 * jakarta.servlet.http.HttpServletResponse)
 	 */
 	@Override
+	@SuppressWarnings("unchecked")
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
+		if (!this.requestMatcher.matches(request)) {
+			return;
+		}
 		String headerName = (!this.reportOnly) ? CONTENT_SECURITY_POLICY_HEADER
 				: CONTENT_SECURITY_POLICY_REPORT_ONLY_HEADER;
 		if (!response.containsHeader(headerName)) {
-			response.setHeader(headerName, this.policyDirectives);
+			String csp;
+			if (this.policyDirectives.contains(NONCE_PLACEHOLDER)) {
+				ContentSecurityPolicyNonce nonce = (ContentSecurityPolicyNonce) request
+					.getAttribute(ContentSecurityPolicyNonce.class.getName());
+				Assert.state(nonce != null,
+						() -> "Failed to replace {nonce} placeholders since no nonce found as a request attribute "
+								+ ContentSecurityPolicyNonce.class.getName());
+				csp = this.policyDirectives.replace(NONCE_PLACEHOLDER, nonce.getNonce());
+			}
+			else {
+				csp = this.policyDirectives;
+			}
+			response.setHeader(headerName, csp);
 		}
 	}
 
 	/**
-	 * Sets the security policy directive(s) to be used in the response header.
+	 * Sets the {@link RequestMatcher} which determines whether CSP should be written. The
+	 * default is to write CSP unconditionally.
+	 * @param requestMatcher the {@link RequestMatcher} to use
+	 * @throws IllegalArgumentException if {@code requestMatcher} is null
+	 * @since 7.2
+	 */
+	public void setRequestMatcher(RequestMatcher requestMatcher) {
+		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
+		this.requestMatcher = requestMatcher;
+	}
+
+	/**
+	 * Sets the security policy directive(s) to be used in the response header. The
+	 * {@code policyDirectives} may contain {@code {nonce}} as placeholders to be
+	 * replaced.
 	 * @param policyDirectives the security policy directive(s)
 	 * @throws IllegalArgumentException if policyDirectives is null or empty
 	 */
@@ -146,8 +211,8 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 
 	@Override
 	public String toString() {
-		return getClass().getName() + " [policyDirectives=" + this.policyDirectives + "; reportOnly=" + this.reportOnly
-				+ "]";
+		return getClass().getName() + " [requestMatcher=" + this.requestMatcher + "; policyDirectives="
+				+ this.policyDirectives + "; reportOnly=" + this.reportOnly + "]";
 	}
 
 }

@@ -18,16 +18,19 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.header.ContentSecurityPolicyNonceGeneratingFilter;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.header.writers.CacheControlHeadersWriter;
@@ -45,6 +48,8 @@ import org.springframework.security.web.header.writers.XContentTypeOptionsHeader
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
@@ -75,6 +80,7 @@ import org.springframework.util.Assert;
  * @author Vedran Pavic
  * @author Ankur Pathak
  * @author Daniel Garnier-Moiroux
+ * @author Ziqin Wang
  * @since 3.2
  */
 public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
@@ -246,6 +252,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	public HeadersConfigurer<H> contentSecurityPolicy(
 			Customizer<ContentSecurityPolicyConfig> contentSecurityCustomizer) {
 		this.contentSecurityPolicy.writer = new ContentSecurityPolicyHeaderWriter();
+		this.contentSecurityPolicy.nonceGeneratingFilter = new ContentSecurityPolicyNonceGeneratingFilter();
 		contentSecurityCustomizer.customize(this.contentSecurityPolicy);
 		return HeadersConfigurer.this;
 	}
@@ -273,6 +280,10 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	public void configure(H http) {
 		HeaderWriterFilter headersFilter = createHeaderWriterFilter();
 		http.addFilter(headersFilter);
+		// nonceGeneratingFilter is instantiated iff CSP is configured
+		if (this.contentSecurityPolicy.nonceGeneratingFilter != null) {
+			http.addFilterBefore(this.contentSecurityPolicy.nonceGeneratingFilter, HeaderWriterFilter.class);
+		}
 	}
 
 	/**
@@ -939,11 +950,17 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 		private ContentSecurityPolicyHeaderWriter writer;
 
+		private ContentSecurityPolicyNonceGeneratingFilter nonceGeneratingFilter;
+
+		private @Nullable RequestMatcher requestMatcher;
+
 		private ContentSecurityPolicyConfig() {
 		}
 
 		/**
-		 * Sets the security policy directive(s) to be used in the response header.
+		 * Sets the security policy directive(s) to be used in the response header. The
+		 * {@code policyDirectives} may contain {@code {nonce}} as placeholders for a
+		 * generated secure random nonce, e.g., {@code script-src 'self' 'nonce-{nonce}'}.
 		 * @param policyDirectives the security policy directive(s)
 		 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
 		 * @throws IllegalArgumentException if policyDirectives is null or empty
@@ -961,6 +978,61 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		public ContentSecurityPolicyConfig reportOnly() {
 			this.writer.setReportOnly(true);
 			return this;
+		}
+
+		/**
+		 * Sets the name of the servlet request attribute for the generated nonce. Views
+		 * can read this attribute to render the nonce in HTML.
+		 * @param nonceAttributeName the name of the nonce attribute
+		 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
+		 * @throws IllegalArgumentException if {@code nonceAttributeName} is {@code null}
+		 * or empty
+		 * @since 7.2
+		 */
+		public ContentSecurityPolicyConfig nonceAttributeName(String nonceAttributeName) {
+			Assert.hasLength(nonceAttributeName, "NonceAttributeName must not be null or empty");
+			this.nonceGeneratingFilter.setAttributeName(nonceAttributeName);
+			return this;
+		}
+
+		/**
+		 * Specifies the {@link RequestMatcher} to use for determining when CSP should be
+		 * applied. The default is to enable CSP in every response if
+		 * {@link HeadersConfigurer#contentSecurityPolicy(Customizer)} is configured.
+		 * @param requestMatcher the {@link RequestMatcher} to use
+		 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
+		 * @throws IllegalArgumentException if {@code requestMatcher} is null
+		 * @throws IllegalStateException if a {@link RequestMatcher} is already configured
+		 * by a previous call of this method or {@link #requestMatchers(String...)}
+		 * @since 7.2
+		 * @see #requestMatchers(String...)
+		 */
+		public ContentSecurityPolicyConfig requestMatcher(RequestMatcher requestMatcher) {
+			Assert.notNull(requestMatcher, "RequestMatcher cannot be null");
+			Assert.state(this.requestMatcher == null, "RequestMatcher(s) is already configured");
+			this.writer.setRequestMatcher(requestMatcher);
+			this.requestMatcher = requestMatcher;
+			return this;
+		}
+
+		/**
+		 * Specifies the matching path patterns for determining when CSP should be
+		 * applied. The default is to enable CSP in every response if
+		 * {@link HeadersConfigurer#contentSecurityPolicy(Customizer)} is configured.
+		 * @param pathPatterns the path patterns to be matched with a
+		 * {@link PathPatternRequestMatcher}
+		 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
+		 * @throws IllegalArgumentException if any path pattern if rejected by
+		 * {@link PathPatternRequestMatcher.Builder#matcher(String)}
+		 * @throws IllegalStateException if a {@link RequestMatcher} is already configured
+		 * by a previous call of this method or {@link #requestMatcher(RequestMatcher)}
+		 * @since 7.2
+		 * @see #requestMatcher(RequestMatcher)
+		 */
+		public ContentSecurityPolicyConfig requestMatchers(String... pathPatterns) {
+			PathPatternRequestMatcher.Builder builder = HeadersConfigurer.this.getRequestMatcherBuilder();
+			OrRequestMatcher matcher = new OrRequestMatcher(Arrays.stream(pathPatterns).map(builder::matcher).toList());
+			return this.requestMatcher(matcher);
 		}
 
 	}
