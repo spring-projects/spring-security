@@ -195,7 +195,10 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 											return Array.from(document.getElementsByClassName("delete-form"))
 										},
 									}
-									document.addEventListener("DOMContentLoaded",() => setupRegistration({"X-CSRF-TOKEN" : "CSRF_TOKEN"}, "", ui));
+									document.addEventListener("DOMContentLoaded", () => {
+										setupRegistration({"X-CSRF-TOKEN" : "CSRF_TOKEN"}, "", ui)
+										document.getElementById("register-form").addEventListener("submit", (e) => e.preventDefault())
+									})
 								//-->
 								</script>
 							</head>
@@ -205,7 +208,7 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 									<noscript>
 										<div class="alert alert-danger" role="alert">JavaScript is required to register a passkey</div>
 									</noscript>
-									<form class="default-form" method="post" action="#" onclick="return false">
+									<form id="register-form" class="default-form" method="post" action="#">
 										<div id="success" class="alert alert-success" role="alert" hidden>Success!</div>
 										<div id="error" class="alert alert-danger" role="alert" hidden></div>
 										<p>
@@ -276,8 +279,9 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 		given(this.userCredentials.findByUserId(userEntity.getId())).willReturn(Arrays.asList(credential));
 		String body = bodyAsString(matchingRequest());
 		assertThat(body).contains("<script type=\"text/javascript\" src=\"/login/webauthn.js\"></script>");
-		assertThat(body).contains(
-				"document.addEventListener(\"DOMContentLoaded\",() => setupRegistration({\"X-CSRF-TOKEN\" : \"CSRF_TOKEN\"}, \"\",");
+		assertThat(body).containsIgnoringWhitespaces("""
+				document.addEventListener("DOMContentLoaded", () => {
+					setupRegistration({"X-CSRF-TOKEN" : "CSRF_TOKEN"}, "",""");
 	}
 
 	@Test
