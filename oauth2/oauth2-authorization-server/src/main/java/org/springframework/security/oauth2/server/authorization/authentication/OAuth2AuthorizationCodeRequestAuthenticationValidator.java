@@ -68,11 +68,11 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationValidator
 
 	private static final Log LOGGER = LogFactory.getLog(OAuth2AuthorizationCodeRequestAuthenticationValidator.class);
 
-	static final Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> DEFAULT_AUTHORIZATION_GRANT_TYPE_VALIDATOR = OAuth2AuthorizationCodeRequestAuthenticationValidator::validateAuthorizationGrantType;
-
-	static final Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> DEFAULT_CODE_CHALLENGE_VALIDATOR = OAuth2AuthorizationCodeRequestAuthenticationValidator::validateCodeChallenge;
-
-	static final Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> DEFAULT_PROMPT_VALIDATOR = OAuth2AuthorizationCodeRequestAuthenticationValidator::validatePrompt;
+	/**
+	 * The default validator for {@link OAuth2ParameterNames#GRANT_TYPE grant_type}.
+	 * @since 7.2
+	 */
+	public static final Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> DEFAULT_AUTHORIZATION_GRANT_TYPE_VALIDATOR = OAuth2AuthorizationCodeRequestAuthenticationValidator::validateAuthorizationGrantType;
 
 	/**
 	 * The default validator for
@@ -85,6 +85,18 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationValidator
 	 * {@link OAuth2AuthorizationCodeRequestAuthenticationToken#getScopes()}.
 	 */
 	public static final Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> DEFAULT_SCOPE_VALIDATOR = OAuth2AuthorizationCodeRequestAuthenticationValidator::validateScope;
+
+	/**
+	 * The default validator for {@link PkceParameterNames#CODE_CHALLENGE code_challenge}.
+	 * @since 7.2
+	 */
+	public static final Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> DEFAULT_CODE_CHALLENGE_VALIDATOR = OAuth2AuthorizationCodeRequestAuthenticationValidator::validateCodeChallenge;
+
+	/**
+	 * The default validator for {@code prompt}.
+	 * @since 7.2
+	 */
+	public static final Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> DEFAULT_PROMPT_VALIDATOR = OAuth2AuthorizationCodeRequestAuthenticationValidator::validatePrompt;
 
 	private final Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authenticationValidator = DEFAULT_REDIRECT_URI_VALIDATOR
 		.andThen(DEFAULT_SCOPE_VALIDATOR);

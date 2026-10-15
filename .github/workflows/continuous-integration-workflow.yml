@@ -17,7 +17,7 @@ permissions:
 jobs:
   build:
     name: Build
-    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@3f6cc7ffc137ca160061749d5f34dc30d5f36986 # v1.0.17
+    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@6803d775925cdca5990e1e68b5a1c1fe38fa3947 # v1.0.20
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest ]
@@ -30,7 +30,7 @@ jobs:
   deploy-artifacts:
     name: Deploy Artifacts
     needs: [ build ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@3f6cc7ffc137ca160061749d5f34dc30d5f36986 # v1.0.17
+    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@d1199a03aee6023578d50c34ec6f09e37889672c # v1.0.19
     with:
       should-deploy-artifacts: ${{ needs.build.outputs.should-deploy-artifacts }}
       default-publish-milestones-central: true
@@ -39,7 +39,7 @@ jobs:
   deploy-schema:
     name: Deploy Schema
     needs: [ build ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@3f6cc7ffc137ca160061749d5f34dc30d5f36986 # v1.0.17
+    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@6803d775925cdca5990e1e68b5a1c1fe38fa3947 # v1.0.20
     with:
       should-deploy-schema: ${{ needs.build.outputs.should-deploy-artifacts }}
       java-version: 25
@@ -51,6 +51,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send Notification
-        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@3f6cc7ffc137ca160061749d5f34dc30d5f36986 # v1.0.17
+        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@d1199a03aee6023578d50c34ec6f09e37889672c # v1.0.19
         with:
           webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}

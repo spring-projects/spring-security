@@ -722,6 +722,13 @@ public class HttpHeadersConfigTests {
 	}
 
 	@Test
+	public void configureWhenContentSecurityPolicyDirectivesContainNoncePlaceholderThenAutowireFails() {
+		assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(
+				() -> this.spring.configLocations(this.xml("ContentSecurityPolicyWithNonceBasedDirectives")).autowire())
+			.withMessageContaining("Nonce-based content-security-policy is not supported in XML configuration");
+	}
+
+	@Test
 	public void requestWhenContentSecurityPolicyConfiguredWithReportOnlyThenIncludesReportOnlyHeader()
 			throws Exception {
 		Map<String, String> includedHeaders = new HashMap<>(defaultHeaders);

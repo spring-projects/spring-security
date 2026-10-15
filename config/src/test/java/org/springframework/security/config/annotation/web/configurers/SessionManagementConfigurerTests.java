@@ -86,6 +86,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.withSettings;
 import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.config.test.SessionRequestPostProcessors.requestedSession;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -174,7 +175,7 @@ public class SessionManagementConfigurerTests {
 		givenSession.setAttribute("name", "value");
 		// @formatter:off
 		MockHttpServletRequestBuilder request = get("/auth")
-				.session(givenSession)
+				.with(requestedSession(givenSession))
 				.with(httpBasic("user", "password"));
 		MockHttpSession resultingSession = (MockHttpSession) this.mvc.perform(request)
 				.andExpect(status().isNotFound())

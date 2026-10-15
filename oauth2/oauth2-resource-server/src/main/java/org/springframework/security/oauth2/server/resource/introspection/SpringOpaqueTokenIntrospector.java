@@ -124,6 +124,7 @@ public class SpringOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	private HttpHeaders requestHeaders() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		return headers;
 	}
 

@@ -46,7 +46,24 @@ public class CompositeHeaderWriter implements HeaderWriter {
 
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		this.headerWriters.forEach((headerWriter) -> headerWriter.writeHeaders(request, response));
+		RuntimeException failure = null;
+		for (HeaderWriter headerWriter : this.headerWriters) {
+			// Don't fail fast so that other protection headers could still be written
+			try {
+				headerWriter.writeHeaders(request, response);
+			}
+			catch (RuntimeException ex) {
+				if (failure == null) {
+					failure = ex;
+				}
+				else if (ex != failure) {
+					failure.addSuppressed(ex);
+				}
+			}
+		}
+		if (failure != null) {
+			throw failure;
+		}
 	}
 
 }

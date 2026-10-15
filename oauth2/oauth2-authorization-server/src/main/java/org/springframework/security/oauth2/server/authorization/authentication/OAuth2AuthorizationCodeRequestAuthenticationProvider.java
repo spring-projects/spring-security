@@ -212,7 +212,9 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 			OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_PROMPT_VALIDATOR
 				.accept(authenticationContext);
 
-			authorizationCodeRequestAuthentication.setValidated(true);
+			// Set as validated
+			authorizationCodeRequestAuthentication = OAuth2AuthorizationCodeRequestAuthenticationToken
+				.validated(authorizationCodeRequestAuthentication);
 
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace("Validated authorization code request parameters");
@@ -406,13 +408,6 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 			Predicate<OAuth2AuthorizationCodeRequestAuthenticationContext> authorizationConsentRequired) {
 		Assert.notNull(authorizationConsentRequired, "authorizationConsentRequired cannot be null");
 		this.authorizationConsentRequired = authorizationConsentRequired;
-	}
-
-	Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> getAuthenticationValidatorComposite() {
-		return OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_AUTHORIZATION_GRANT_TYPE_VALIDATOR
-			.andThen(this.authenticationValidator)
-			.andThen(OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_CODE_CHALLENGE_VALIDATOR)
-			.andThen(OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_PROMPT_VALIDATOR);
 	}
 
 	private static boolean isAuthorizationConsentRequired(

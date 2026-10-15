@@ -2,8 +2,7 @@ name: Release Announcements - Stage
 
 on:
   push:
-    tags:
-      - '[0-9]+.[0-9]+.[0-9]+'
+    tags: '**'
   workflow_dispatch:
     inputs:
       version:
@@ -12,13 +11,15 @@ on:
         type: string
 
 permissions:
-  contents: read
+  actions: write
+  contents: write
+  issues: read
+  pull-requests: read
 
 jobs:
   stage-release-announcements:
     name: Stage Release Announcements
-    if: ${{ !github.event.repository.fork }}
-    uses: spring-io/spring-security-release-tools/.github/workflows/release-announcements-stage.yml@3f6cc7ffc137ca160061749d5f34dc30d5f36986 # v1.0.17
+    uses: spring-io/spring-security-release-tools/.github/workflows/release-announcements-stage.yml@6e2a7a58e3f51d516154a43184af5e02de5e1996 # 1.0.x
     with:
       version: ${{ inputs.version || github.ref_name }}
     secrets: inherit
