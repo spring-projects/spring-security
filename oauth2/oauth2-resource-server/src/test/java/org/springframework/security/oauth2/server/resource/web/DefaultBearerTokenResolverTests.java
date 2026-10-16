@@ -327,5 +327,11 @@ public class DefaultBearerTokenResolverTests {
 				assertThat(error.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
 			});
 	}
+@Test
+void resolveWhenHeaderHasMultipleSpacesBeforeTokenThenTokenIsResolved() {
+	MockHttpServletRequest request = new MockHttpServletRequest();
+	request.addHeader("Authorization", "Bearer  " + TEST_TOKEN);
 
+	assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
+}
 }
