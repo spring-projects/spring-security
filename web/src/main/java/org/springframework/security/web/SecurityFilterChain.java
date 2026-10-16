@@ -20,6 +20,7 @@ import java.util.List;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Defines a filter chain which is capable of being matched against an
@@ -35,5 +36,26 @@ public interface SecurityFilterChain {
 	boolean matches(HttpServletRequest request);
 
 	List<Filter> getFilters();
+
+	/**
+	 * Returns a human-readable name identifying this chain, intended for
+	 * diagnostics such as log messages. May be {@code null} when no
+	 * meaningful name is available.
+	 * <p>
+	 * The returned value is intended for diagnostics only; it is not
+	 * stable across implementations and MUST NOT be used as a key for
+	 * authorization, routing, or any other functional decision.
+	 * <p>
+	 * Implementations should return quickly and should not throw exceptions.
+	 * Implementations that wrap or delegate to another {@code SecurityFilterChain}
+	 * are responsible for forwarding {@code getName()} appropriately when chain
+	 * identity matters to consumers.
+	 *
+	 * @return the chain name, or {@code null} if unavailable
+	 * @since 7.1
+	 */
+	default @Nullable String getName() {
+		return null;
+	}
 
 }
