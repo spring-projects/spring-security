@@ -95,7 +95,7 @@ public class MessageDigestPasswordEncoderTests extends AbstractPasswordEncoderVa
 	public void testBasicFunctionality() {
 		setEncoder(new MessageDigestPasswordEncoder("SHA-1"));
 		String raw = "abc123";
-		assertThat(getEncoder().matches(raw, "{THIS_IS_A_SALT}b2f50ffcbd3407fe9415c062d55f54731f340d32"));
+		assertThat(getEncoder().matches(raw, "{THIS_IS_A_SALT}b2f50ffcbd3407fe9415c062d55f54731f340d32")).isTrue();
 	}
 
 	@Test
@@ -103,15 +103,15 @@ public class MessageDigestPasswordEncoderTests extends AbstractPasswordEncoderVa
 		MessageDigestPasswordEncoder pe = new MessageDigestPasswordEncoder("SHA-1");
 		pe.setEncodeHashAsBase64(true);
 		String raw = "abc123";
-		assertThat(getEncoder().matches(raw, "{THIS_IS_A_SALT}b2f50ffcbd3407fe9415c062d55f54731f340d32"));
+		assertThat(pe.matches(raw, "{THIS_IS_A_SALT}svUP/L00B/6UFcBi1V9Ucx80DTI=")).isTrue();
 	}
 
 	@Test
 	public void test256() {
-		MessageDigestPasswordEncoder pe = new MessageDigestPasswordEncoder("SHA-1");
+		MessageDigestPasswordEncoder pe = new MessageDigestPasswordEncoder("SHA-256");
 		String raw = "abc123";
-		assertThat(getEncoder().matches(raw,
-				"{THIS_IS_A_SALT}4b79b7de23eb23b78cc5ede227d532b8a51f89b2ec166f808af76b0dbedc47d7"));
+		assertThat(pe.matches(raw, "{THIS_IS_A_SALT}4b79b7de23eb23b78cc5ede227d532b8a51f89b2ec166f808af76b0dbedc47d7"))
+			.isTrue();
 	}
 
 	@Test

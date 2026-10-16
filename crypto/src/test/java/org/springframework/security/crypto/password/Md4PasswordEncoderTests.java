@@ -67,7 +67,7 @@ public class Md4PasswordEncoderTests extends AbstractPasswordEncoderValidationTe
 
 	@Test
 	public void javadocWhenHasSaltThenMatches() {
-		assertThat(getEncoder().matches("password", "{thisissalt}6cc7924dad12ade79dfb99e424f25260"));
+		assertThat(getEncoder().matches("password", "{thisissalt}6cc7924dad12ade79dfb99e424f25260")).isTrue();
 	}
 
 }

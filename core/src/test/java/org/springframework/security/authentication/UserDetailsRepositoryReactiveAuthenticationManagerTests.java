@@ -244,7 +244,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 				"password");
 		StepVerifier.create(this.manager.authenticate(token))
 			.expectErrorSatisfies((ex) -> assertThat(ex).isInstanceOf(CompromisedPasswordException.class)
-				.withFailMessage("The provided password is compromised, please change your password"))
+				.hasMessage("The provided password is compromised, please change your password"))
 			.verify();
 	}
 

@@ -46,12 +46,12 @@ public class WebAuthenticationDetailsMixinTests extends AbstractMixinTests {
 	@Test
 	public void buildWebAuthenticationDetailsUsingDifferentConstructors() throws IOException {
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setRemoteAddr("localhost");
+		request.setRemoteAddr("/localhost");
 		request.setSession(new MockHttpSession(null, "1"));
 		WebAuthenticationDetails details = new WebAuthenticationDetails(request);
 		WebAuthenticationDetails authenticationDetails = this.mapper.readValue(AUTHENTICATION_DETAILS_JSON,
 				WebAuthenticationDetails.class);
-		assertThat(details.equals(authenticationDetails));
+		assertThat(details).isEqualTo(authenticationDetails);
 	}
 
 	@Test

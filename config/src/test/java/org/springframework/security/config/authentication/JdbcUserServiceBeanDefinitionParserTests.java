@@ -151,8 +151,8 @@ public class JdbcUserServiceBeanDefinitionParserTests {
 		DaoAuthenticationProvider provider = (DaoAuthenticationProvider) mgr.getProviders().get(0);
 		assertThat(this.appContext.getBean("userCache")).isSameAs(provider.getUserCache());
 		provider.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("rod", "koala"));
-		assertThat(provider.getUserCache().getUserFromCache("rod")).isNotNull()
-			.withFailMessage("Cache should contain user after authentication");
+		assertThat(provider.getUserCache().getUserFromCache("rod")).as("Cache should contain user after authentication")
+			.isNotNull();
 	}
 
 	@Test
