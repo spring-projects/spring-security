@@ -19,16 +19,21 @@ package org.springframework.security.config.web.server;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler;
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
@@ -123,6 +128,102 @@ public class ExceptionHandlingSpecTests {
 	}
 
 	@Test
+	public void requestWhenDefaultAuthenticationEntryPointForMatchesThenPreferredEntryPointUsed() {
+		// @formatter:off
+		SecurityWebFilterChain securityWebFilter = this.http
+				.authorizeExchange((authorize) -> authorize
+						.anyExchange().authenticated()
+				)
+				.httpBasic(withDefaults())
+				.exceptionHandling((exceptionHandling) -> exceptionHandling
+						.defaultAuthenticationEntryPointFor(httpStatusServerEntryPoint(HttpStatus.I_AM_A_TEAPOT),
+								ServerWebExchangeMatchers.pathMatchers("/api/**"))
+				)
+				.build();
+		WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(securityWebFilter)
+				.build();
+		client.get()
+				.uri("/api/test")
+				.exchange()
+				.expectStatus().isEqualTo(HttpStatus.I_AM_A_TEAPOT);
+		client.get()
+				.uri("/test")
+				.exchange()
+				.expectStatus().isUnauthorized()
+				.expectHeader().valueMatches("WWW-Authenticate", "Basic.*");
+		// @formatter:on
+	}
+
+	@Test
+	public void requestWhenDefaultAuthenticationEntryPointForAndFormLoginThenPreferredEntryPointTakesPrecedence() {
+		// @formatter:off
+		SecurityWebFilterChain securityWebFilter = this.http
+				.authorizeExchange((authorize) -> authorize
+						.anyExchange().authenticated()
+				)
+				.formLogin(withDefaults())
+				.exceptionHandling((exceptionHandling) -> exceptionHandling
+						.defaultAuthenticationEntryPointFor(httpStatusServerEntryPoint(HttpStatus.I_AM_A_TEAPOT),
+								ServerWebExchangeMatchers.pathMatchers("/api/**"))
+				)
+				.build();
+		WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(securityWebFilter)
+				.build();
+		client.get()
+				.uri("/api/test")
+				.accept(MediaType.TEXT_HTML)
+				.exchange()
+				.expectStatus().isEqualTo(HttpStatus.I_AM_A_TEAPOT);
+		client.get()
+				.uri("/test")
+				.accept(MediaType.TEXT_HTML)
+				.exchange()
+				.expectStatus().isFound()
+				.expectHeader().location("/login");
+		// @formatter:on
+	}
+
+	@Test
+	public void requestWhenAuthenticationEntryPointAndDefaultAuthenticationEntryPointForThenAuthenticationEntryPointUsed() {
+		// @formatter:off
+		SecurityWebFilterChain securityWebFilter = this.http
+				.authorizeExchange((authorize) -> authorize
+						.anyExchange().authenticated()
+				)
+				.exceptionHandling((exceptionHandling) -> exceptionHandling
+						.authenticationEntryPoint(redirectServerAuthenticationEntryPoint("/auth"))
+						.defaultAuthenticationEntryPointFor(httpStatusServerEntryPoint(HttpStatus.I_AM_A_TEAPOT),
+								ServerWebExchangeMatchers.pathMatchers("/api/**"))
+				)
+				.build();
+		WebTestClient client = WebTestClientBuilder
+				.bindToWebFilters(securityWebFilter)
+				.build();
+		client.get()
+				.uri("/api/test")
+				.exchange()
+				.expectStatus().isFound()
+				.expectHeader().location("/auth");
+		// @formatter:on
+	}
+
+	@Test
+	public void defaultAuthenticationEntryPointForWhenEntryPointNullThenIllegalArgumentException() {
+		ServerWebExchangeMatcher matcher = ServerWebExchangeMatchers.pathMatchers("/api/**");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.http.exceptionHandling(
+				(exceptionHandling) -> exceptionHandling.defaultAuthenticationEntryPointFor(null, matcher)));
+	}
+
+	@Test
+	public void defaultAuthenticationEntryPointForWhenPreferredMatcherNullThenIllegalArgumentException() {
+		ServerAuthenticationEntryPoint entryPoint = httpStatusServerEntryPoint(HttpStatus.I_AM_A_TEAPOT);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.http.exceptionHandling(
+				(exceptionHandling) -> exceptionHandling.defaultAuthenticationEntryPointFor(entryPoint, null)));
+	}
+
+	@Test
 	public void defaultAccessDeniedHandler() {
 		// @formatter:off
 		SecurityWebFilterChain securityWebFilter = this.http
@@ -211,6 +312,10 @@ public class ExceptionHandlingSpecTests {
 
 	private ServerAuthenticationEntryPoint redirectServerAuthenticationEntryPoint(String location) {
 		return new RedirectServerAuthenticationEntryPoint(location);
+	}
+
+	private ServerAuthenticationEntryPoint httpStatusServerEntryPoint(HttpStatus httpStatus) {
+		return new HttpStatusServerEntryPoint(httpStatus);
 	}
 
 	private ServerAccessDeniedHandler httpStatusServerAccessDeniedHandler(HttpStatus httpStatus) {
