@@ -574,6 +574,12 @@ authorization-code-grant.attlist &=
 authorization-code-grant.attlist &=
 	## Reference to the OAuth2AccessTokenResponseClient
 	attribute access-token-response-client-ref {xsd:token}?
+authorization-code-grant.attlist &=
+	## Reference to the AuthenticationSuccessHandler invoked after the Authorization Response has been processed
+	attribute authentication-success-handler-ref {xsd:token}?
+authorization-code-grant.attlist &=
+	## Reference to the AuthenticationFailureHandler invoked when the Authorization Response is rejected
+	attribute authentication-failure-handler-ref {xsd:token}?
 
 client-registrations =
 	## Container element for client(s) registered with an OAuth 2.0 or OpenID Connect 1.0 Provider.

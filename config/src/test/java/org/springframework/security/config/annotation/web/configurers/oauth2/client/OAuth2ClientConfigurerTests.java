@@ -55,12 +55,17 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepo
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.ForwardAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -80,6 +85,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -255,6 +261,67 @@ public class OAuth2ClientConfigurerTests {
 		verify(requestCache).getRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
+	// gh-11069
+	@Test
+	public void configureWhenAuthenticationSuccessHandlerSetThenSuccessHandlerUsed() throws Exception {
+		this.spring.register(OAuth2ClientConfigWithHandlers.class).autowire();
+		MockHttpServletRequest request = setUpAuthorizationRequest();
+		MockHttpSession session = (MockHttpSession) request.getSession();
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user1", "password");
+		// @formatter:off
+		MockHttpServletRequestBuilder clientRequest = get("/client-1")
+				.param(OAuth2ParameterNames.CODE, "code")
+				.param(OAuth2ParameterNames.STATE, "state")
+				.with(authentication(authentication))
+				.session(session);
+		this.mockMvc.perform(clientRequest)
+				.andExpect(status().isOk())
+				.andExpect(forwardedUrl("/authorized"));
+		// @formatter:on
+		OAuth2AuthorizedClient authorizedClient = authorizedClientRepository
+			.loadAuthorizedClient(this.registration1.getRegistrationId(), authentication, request);
+		assertThat(authorizedClient).isNotNull();
+	}
+
+	// gh-11069
+	@Test
+	public void configureWhenAuthenticationFailureHandlerSetThenFailureHandlerUsed() throws Exception {
+		this.spring.register(OAuth2ClientConfigWithHandlers.class).autowire();
+		given(accessTokenResponseClient.getTokenResponse(any(OAuth2AuthorizationCodeGrantRequest.class)))
+			.willThrow(new OAuth2AuthorizationException(new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT)));
+		MockHttpSession session = (MockHttpSession) setUpAuthorizationRequest().getSession();
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user1", "password");
+		// @formatter:off
+		MockHttpServletRequestBuilder clientRequest = get("/client-1")
+				.param(OAuth2ParameterNames.CODE, "code")
+				.param(OAuth2ParameterNames.STATE, "state")
+				.with(authentication(authentication))
+				.session(session);
+		this.mockMvc.perform(clientRequest)
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/authorization-failed"));
+		// @formatter:on
+	}
+
+	private MockHttpServletRequest setUpAuthorizationRequest() {
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, this.registration1.getRegistrationId());
+		// @formatter:off
+		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+				.authorizationUri(this.registration1.getProviderDetails().getAuthorizationUri())
+				.clientId(this.registration1.getClientId())
+				.redirectUri("http://localhost/client-1")
+				.state("state")
+				.attributes(attributes)
+				.build();
+		// @formatter:on
+		AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = new HttpSessionOAuth2AuthorizationRequestRepository();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		authorizationRequestRepository.saveAuthorizationRequest(authorizationRequest, request, response);
+		return request;
+	}
+
 	// gh-5521
 	@Test
 	public void configureWhenCustomAuthorizationRequestResolverSetThenAuthorizationRequestIncludesCustomParameters()
@@ -403,6 +470,38 @@ public class OAuth2ClientConfigurerTests {
 						.anyRequest().authenticated()
 				)
 				.oauth2Client(withDefaults());
+			return http.build();
+			// @formatter:on
+		}
+
+		@Bean
+		ClientRegistrationRepository clientRegistrationRepository() {
+			return clientRegistrationRepository;
+		}
+
+		@Bean
+		OAuth2AuthorizedClientRepository authorizedClientRepository() {
+			return authorizedClientRepository;
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Configuration
+	@EnableWebMvc
+	static class OAuth2ClientConfigWithHandlers {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().authenticated())
+				.oauth2Client((client) -> client
+					.authorizationCodeGrant((code) -> code
+						.accessTokenResponseClient(accessTokenResponseClient)
+						.authenticationSuccessHandler(new ForwardAuthenticationSuccessHandler("/authorized"))
+						.authenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler("/authorization-failed"))));
 			return http.build();
 			// @formatter:on
 		}
