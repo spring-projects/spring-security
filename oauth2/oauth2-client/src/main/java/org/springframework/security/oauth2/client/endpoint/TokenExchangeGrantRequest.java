@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -48,6 +49,8 @@ import org.springframework.util.StringUtils;
 public class TokenExchangeGrantRequest extends AbstractOAuth2AuthorizationGrantRequest {
 
 	private static final String ACCESS_TOKEN_TYPE_VALUE = "urn:ietf:params:oauth:token-type:access_token";
+
+	private static final String ID_TOKEN_TYPE_VALUE = "urn:ietf:params:oauth:token-type:id_token";
 
 	private static final String JWT_TOKEN_TYPE_VALUE = "urn:ietf:params:oauth:token-type:jwt";
 
@@ -113,6 +116,9 @@ public class TokenExchangeGrantRequest extends AbstractOAuth2AuthorizationGrantR
 	}
 
 	private static String tokenType(OAuth2Token token) {
+		if (token instanceof OidcIdToken) {
+			return ID_TOKEN_TYPE_VALUE;
+		}
 		return (token instanceof Jwt) ? JWT_TOKEN_TYPE_VALUE : ACCESS_TOKEN_TYPE_VALUE;
 	}
 
