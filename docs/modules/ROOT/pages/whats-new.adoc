@@ -12,5 +12,6 @@
 == OAuth 2.0
 
 * https://github.com/spring-projects/spring-security/pull/18895[gh-18895] - Add `authenticationSuccessHandler` to the Reactive Resource Server DSL
+* https://github.com/spring-projects/spring-security/issues/9583[gh-9583] - Add support for signed and encrypted UserInfo responses (`application/jwt`) through `DefaultOAuth2UserService#setJwtResponseConverter` and `OidcUserInfoJwtDecoderFactory`; see xref:servlet/oauth2/login/advanced.adoc#userinfo-jwt[Signed and Encrypted UserInfo Responses]
 * https://github.com/spring-projects/spring-security/issues/19850[gh-19850] - `RestClientOpaqueTokenIntrospector` and `SpringOpaqueTokenIntrospector` now set `Content-Type` to `application/x-www-form-urlencoded`; added `RestClientOpaqueTokenIntrospector#setRequestBodyCustomizer` to override it if needed
 
