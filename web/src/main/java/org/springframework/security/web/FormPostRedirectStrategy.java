@@ -29,6 +29,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.keygen.Base64StringKeyGenerator;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
@@ -82,18 +84,40 @@ public final class FormPostRedirectStrategy implements RedirectStrategy {
 	public void sendRedirect(final HttpServletRequest request, final HttpServletResponse response, final String url)
 			throws IOException {
 		final UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(url);
+		MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
+		for (Entry<String, List<String>> entry : uriComponentsBuilder.build().getQueryParams().entrySet()) {
+			String name = UriUtils.decode(entry.getKey(), StandardCharsets.UTF_8);
+			for (String raw : entry.getValue()) {
+				if (raw != null) {
+					formParameters.add(name, UriUtils.decode(raw, StandardCharsets.UTF_8));
+				}
+			}
+		}
+		sendRedirect(request, response, uriComponentsBuilder.replaceQuery(null).build().toUriString(), formParameters);
+	}
+
+	/**
+	 * Redirect using an auto-submitting POST form with explicit form parameters. Query
+	 * parameters in {@code url} remain in the form action.
+	 * @param request the request
+	 * @param response the response
+	 * @param url the form action URL
+	 * @param formParameters the form fields to submit
+	 * @throws IOException if writing the response fails
+	 * @since 7.2
+	 */
+	public void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url,
+			MultiValueMap<String, String> formParameters) throws IOException {
 
 		final StringBuilder hiddenInputsHtmlBuilder = new StringBuilder();
-		for (final Entry<String, List<String>> entry : uriComponentsBuilder.build().getQueryParams().entrySet()) {
-			final String name = UriUtils.decode(entry.getKey(), StandardCharsets.UTF_8);
-			for (final String raw : entry.getValue()) {
-				if (raw == null) {
+		for (Entry<String, List<String>> entry : formParameters.entrySet()) {
+			for (String value : entry.getValue()) {
+				if (value == null) {
 					continue;
 				}
-				final String value = UriUtils.decode(raw, StandardCharsets.UTF_8);
 				// @formatter:off
 				final String hiddenInput = HIDDEN_INPUT_TEMPLATE
-					.replace("{{name}}", HtmlUtils.htmlEscape(name))
+					.replace("{{name}}", HtmlUtils.htmlEscape(entry.getKey()))
 					.replace("{{value}}", HtmlUtils.htmlEscape(value));
 				// @formatter:on
 				hiddenInputsHtmlBuilder.append(hiddenInput.trim());
@@ -106,8 +130,7 @@ public final class FormPostRedirectStrategy implements RedirectStrategy {
 
 		// @formatter:off
 		final String html = REDIRECT_PAGE_TEMPLATE
-			// Clear the query string as we don't want that to be part of the form action URL
-			.replace("{{action}}", HtmlUtils.htmlEscape(uriComponentsBuilder.replaceQuery(null).build().toUriString()))
+			.replace("{{action}}", HtmlUtils.htmlEscape(url))
 			.replace("{{params}}", hiddenInputsHtmlBuilder.toString())
 			.replace("{{nonce}}", HtmlUtils.htmlEscape(nonce));
 		// @formatter:on
