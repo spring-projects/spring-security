@@ -60,6 +60,40 @@ public class ServerBearerTokenAuthenticationConverterTests {
 		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
 	}
 
+	// gh-19500
+	@Test
+	public void resolveWhenValidHeaderWithOneSpaceIsPresentThenTokenIsResolved() {
+		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + TEST_TOKEN);
+		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
+	}
+
+	// gh-19500
+	@Test
+	public void resolveWhenValidHeaderWithTwoSpacesIsPresentThenTokenIsResolved() {
+		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer  " + TEST_TOKEN);
+		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
+	}
+
+	// gh-19500
+	@Test
+	public void resolveWhenValidHeaderWithThreeSpacesIsPresentThenTokenIsResolved() {
+		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer   " + TEST_TOKEN);
+		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
+	}
+
+	// gh-19500
+	@Test
+	public void resolveWhenHeaderWithZeroSpacesIsPresentThenTokenIsNotResolved() {
+		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer" + TEST_TOKEN);
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> convertToToken(request))
+				.withMessageContaining("Bearer token is malformed");
+	}
+
 	// gh-8502
 	@Test
 	public void resolveWhenHeaderEndsWithPaddingIndicatorThenTokenIsResolved() {
