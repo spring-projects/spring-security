@@ -16,14 +16,18 @@
 
 package org.springframework.security.oauth2.client.aot.hint;
 
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
+import org.springframework.aot.hint.TypeReference;
 import org.springframework.aot.hint.predicate.RuntimeHintsPredicates;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.util.ClassUtils;
@@ -53,6 +57,83 @@ class OAuth2ClientRuntimeHintsTests {
 	private static Stream<String> getOAuth2ClientSchemaFiles() {
 		return Stream.of("org/springframework/security/oauth2/client/oauth2-client-schema.sql",
 				"org/springframework/security/oauth2/client/oauth2-client-schema-postgres.sql");
+	}
+
+	@ParameterizedTest
+	@MethodSource("getJacksonModuleTypes")
+	void jacksonModulesHaveHints(TypeReference moduleType) {
+		assertThat(RuntimeHintsPredicates.reflection()
+			.onType(moduleType)
+			.withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
+	}
+
+	private static Stream<TypeReference> getJacksonModuleTypes() {
+		return Stream.of(
+				TypeReference.of("org.springframework.security.oauth2.client.jackson2.OAuth2ClientJackson2Module"),
+				TypeReference.of("org.springframework.security.oauth2.client.jackson.OAuth2ClientJacksonModule"));
+	}
+
+	@Test
+	void jacksonHintsUseProvidedClassLoader() {
+		assertJacksonModuleVisibility(hideClasses("tools.jackson.databind.json.JsonMapper"), true, false);
+		assertJacksonModuleVisibility(
+				hideClasses("com.fasterxml.jackson.databind.ObjectMapper", "com.fasterxml.jackson.core.JsonGenerator"),
+				false, true);
+		assertJacksonModuleVisibility(hideClasses("com.fasterxml.jackson.databind.ObjectMapper",
+				"com.fasterxml.jackson.core.JsonGenerator", "tools.jackson.databind.json.JsonMapper"), false, false);
+	}
+
+	private void assertJacksonModuleVisibility(ClassLoader classLoader, boolean jackson2, boolean jackson3) {
+		RuntimeHints hints = new RuntimeHints();
+		new OAuth2ClientRuntimeHints().registerHints(hints, classLoader);
+		assertThat(hints.reflection()
+			.getTypeHint(TypeReference
+				.of("org.springframework.security.oauth2.client.jackson2.OAuth2ClientJackson2Module")) != null)
+			.isEqualTo(jackson2);
+		assertThat(hints.reflection()
+			.getTypeHint(TypeReference
+				.of("org.springframework.security.oauth2.client.jackson.OAuth2ClientJacksonModule")) != null)
+			.isEqualTo(jackson3);
+	}
+
+	private static ClassLoader hideClasses(String... classNames) {
+		Set<String> hiddenClasses = Set.of(classNames);
+		return new ClassLoader(ClassUtils.getDefaultClassLoader()) {
+			@Override
+			protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+				if (hiddenClasses.contains(name)) {
+					throw new ClassNotFoundException(name);
+				}
+				return super.loadClass(name, resolve);
+			}
+		};
+	}
+
+	@Test
+	void authorizationRequestHasBindingHints() {
+		assertThat(RuntimeHintsPredicates.reflection()
+			.onType(TypeReference.of("org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest"))
+			.withMemberCategories(MemberCategory.ACCESS_DECLARED_FIELDS, MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
+					MemberCategory.INVOKE_DECLARED_METHODS))
+			.accepts(this.hints);
+	}
+
+	@ParameterizedTest
+	@MethodSource("getJacksonDeserializerTypes")
+	void jacksonDeserializersHaveHints(TypeReference deserializerType) {
+		assertThat(RuntimeHintsPredicates.reflection()
+			.onType(deserializerType)
+			.withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
+	}
+
+	private static Stream<TypeReference> getJacksonDeserializerTypes() {
+		return Stream.of(
+				TypeReference.of("org.springframework.security.oauth2.client.jackson2.ClientRegistrationDeserializer"),
+				TypeReference
+					.of("org.springframework.security.oauth2.client.jackson2.OAuth2AuthorizationRequestDeserializer"),
+				TypeReference.of("org.springframework.security.oauth2.client.jackson.ClientRegistrationDeserializer"),
+				TypeReference
+					.of("org.springframework.security.oauth2.client.jackson.OAuth2AuthorizationRequestDeserializer"));
 	}
 
 }
