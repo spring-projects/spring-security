@@ -31,6 +31,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
+import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 import org.springframework.security.web.webauthn.api.ImmutableCredentialRecord;
 import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
@@ -115,6 +116,20 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 	}
 
 	@Test
+	void doFilterWhenCspNonceAttrPresent() throws Exception {
+		PublicKeyCredentialUserEntity userEntity = ImmutablePublicKeyCredentialUserEntity.builder()
+			.name("user")
+			.id(TestBytes.get())
+			.displayName("User")
+			.build();
+		given(this.userEntities.findByUsername(any())).willReturn(userEntity);
+		given(this.userCredentials.findByUserId(userEntity.getId())).willReturn(Collections.emptyList());
+		ContentSecurityPolicyNonce cspNonce = () -> "TEST/CONTENT+SECURITY+POLICY/NONCE";
+		String body = bodyAsString(matchingRequest().requestAttr(ContentSecurityPolicyNonce.class.getName(), cspNonce));
+		assertThat(body).contains("<script type=\"text/javascript\" nonce=\"TEST/CONTENT+SECURITY+POLICY/NONCE\">");
+	}
+
+	@Test
 	void doFilterWhenNullPublicKeyCredentialUserEntityThenNoResults() throws Exception {
 		String body = bodyAsString(matchingRequest());
 		assertThat(body).contains("No Passkeys");
@@ -180,7 +195,10 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 											return Array.from(document.getElementsByClassName("delete-form"))
 										},
 									}
-									document.addEventListener("DOMContentLoaded",() => setupRegistration({"X-CSRF-TOKEN" : "CSRF_TOKEN"}, "", ui));
+									document.addEventListener("DOMContentLoaded", () => {
+										setupRegistration({"X-CSRF-TOKEN" : "CSRF_TOKEN"}, "", ui)
+										document.getElementById("register-form").addEventListener("submit", (e) => e.preventDefault())
+									})
 								//-->
 								</script>
 							</head>
@@ -190,7 +208,7 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 									<noscript>
 										<div class="alert alert-danger" role="alert">JavaScript is required to register a passkey</div>
 									</noscript>
-									<form class="default-form" method="post" action="#" onclick="return false">
+									<form id="register-form" class="default-form" method="post" action="#">
 										<div id="success" class="alert alert-success" role="alert" hidden>Success!</div>
 										<div id="error" class="alert alert-danger" role="alert" hidden></div>
 										<p>
@@ -261,8 +279,9 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 		given(this.userCredentials.findByUserId(userEntity.getId())).willReturn(Arrays.asList(credential));
 		String body = bodyAsString(matchingRequest());
 		assertThat(body).contains("<script type=\"text/javascript\" src=\"/login/webauthn.js\"></script>");
-		assertThat(body).contains(
-				"document.addEventListener(\"DOMContentLoaded\",() => setupRegistration({\"X-CSRF-TOKEN\" : \"CSRF_TOKEN\"}, \"\",");
+		assertThat(body).containsIgnoringWhitespaces("""
+				document.addEventListener("DOMContentLoaded", () => {
+					setupRegistration({"X-CSRF-TOKEN" : "CSRF_TOKEN"}, "",""");
 	}
 
 	@Test
