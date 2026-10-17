@@ -16,6 +16,14 @@
 
 package org.springframework.security.oauth2.client.aot.hint;
 
+import java.net.URI;
+import java.net.URL;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 
 import org.springframework.aot.hint.MemberCategory;
@@ -28,6 +36,7 @@ import org.springframework.util.ClassUtils;
  * {@link RuntimeHintsRegistrar} for OAuth2 Client.
  *
  * @author Marcus Da Coregio
+ * @author Josh Long
  * @since 6.0
  */
 class OAuth2ClientRuntimeHints implements RuntimeHintsRegistrar {
@@ -46,6 +55,7 @@ class OAuth2ClientRuntimeHints implements RuntimeHintsRegistrar {
 		if (r2dbcPresent) {
 			registerR2dbcHints(hints);
 		}
+		registerSerializationHints(hints, classLoader);
 	}
 
 	private void registerOAuth2ClientSchemaFilesHints(RuntimeHints hints) {
@@ -65,12 +75,63 @@ class OAuth2ClientRuntimeHints implements RuntimeHintsRegistrar {
 
 		// Register OAuth2 client types that may be serialized in R2DBC scenarios
 		hints.reflection()
-			.registerTypes(java.util.List.of(
+			.registerTypes(List.of(
 					TypeReference.of("org.springframework.security.oauth2.client.OAuth2AuthorizedClient"),
 					TypeReference
 						.of("org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken")),
 					(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS,
 							MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.ACCESS_DECLARED_FIELDS));
+	}
+
+	private void registerSerializationHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
+		// 1. JDK internal serialization proxies
+		List<String> internalProxies = List.of(
+				"java.time.Ser",
+				"java.util.Collections$UnmodifiableMap",
+				"java.util.Collections$UnmodifiableSet",
+				"java.util.Collections$UnmodifiableList");
+		for (String proxyName : internalProxies) {
+			hints.reflection()
+				.registerType(TypeReference.of(proxyName), (builder) -> builder.withJavaSerialization(true));
+		}
+
+		// 2. Standard JDK serializable classes used in OAuth2 states/attributes
+		List<Class<?>> jdkTypes = List.of(
+				URL.class, URI.class, Instant.class,
+				LinkedHashSet.class, HashSet.class, LinkedHashMap.class);
+		for (Class<?> type : jdkTypes) {
+			hints.reflection()
+				.registerType(type, (builder) -> builder.withJavaSerialization(true));
+		}
+
+		// 3. OAuth2 Client, Core & Jose domain types stored in session
+		List<String> oauth2Types = List.of(
+				"org.springframework.security.oauth2.core.AuthorizationGrantType",
+				"org.springframework.security.oauth2.core.OAuth2AuthorizationResponseType",
+				"org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest",
+				"org.springframework.security.oauth2.core.AbstractOAuth2Token",
+				"org.springframework.security.oauth2.core.OAuth2AccessToken",
+				"org.springframework.security.oauth2.core.OAuth2RefreshToken",
+				"org.springframework.security.oauth2.core.OAuth2DeviceCode",
+				"org.springframework.security.oauth2.core.OAuth2UserCode",
+				"org.springframework.security.oauth2.core.user.DefaultOAuth2User",
+				"org.springframework.security.oauth2.core.user.OAuth2UserAuthority",
+				"org.springframework.security.oauth2.core.oidc.OidcIdToken",
+				"org.springframework.security.oauth2.core.oidc.OidcLogoutToken",
+				"org.springframework.security.oauth2.core.oidc.OidcUserInfo",
+				"org.springframework.security.oauth2.core.oidc.AddressStandardClaim",
+				"org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser",
+				"org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority",
+				"org.springframework.security.oauth2.client.OAuth2AuthorizedClient",
+				"org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken",
+				"org.springframework.security.oauth2.jwt.Jwt");
+
+		for (String typeName : oauth2Types) {
+			if (ClassUtils.isPresent(typeName, classLoader)) {
+				hints.reflection()
+					.registerType(TypeReference.of(typeName), (builder) -> builder.withJavaSerialization(true));
+			}
+		}
 	}
 
 }
