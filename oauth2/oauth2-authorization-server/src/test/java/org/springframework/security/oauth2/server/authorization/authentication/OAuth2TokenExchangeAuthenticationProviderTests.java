@@ -463,6 +463,36 @@ public class OAuth2TokenExchangeAuthenticationProviderTests {
 	}
 
 	@Test
+	public void authenticateWhenMayActIssClaimIsStringAndActorIssClaimIsUrlThenReturnAccessTokenForDelegation() {
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient()
+			.authorizationGrantType(AuthorizationGrantType.TOKEN_EXCHANGE)
+			.build();
+		OAuth2TokenExchangeAuthenticationToken authentication = createDelegationRequest(registeredClient);
+		Map<String, String> authorizedActorClaims = Map.of(OAuth2TokenClaimNames.ISS, "https://issuer.example.com",
+				OAuth2TokenClaimNames.SUB, "actor");
+		// @formatter:off
+		OAuth2Authorization subjectAuthorization = TestOAuth2Authorizations.authorization(registeredClient)
+				.token(createAccessToken(SUBJECT_TOKEN), withClaims(Map.of("may_act", authorizedActorClaims)))
+				.build();
+		Map<String, Object> actorTokenClaims = JwtClaimsSet.builder()
+				.issuer("https://issuer.example.com")
+				.subject("actor")
+				.build()
+				.getClaims();
+		// @formatter:on
+		OAuth2Authorization actorAuthorization = TestOAuth2Authorizations.authorization(registeredClient)
+			.token(createAccessToken(ACTOR_TOKEN), withClaims(actorTokenClaims))
+			.build();
+		given(this.authorizationService.findByToken(anyString(), any(OAuth2TokenType.class)))
+			.willReturn(subjectAuthorization, actorAuthorization);
+		OAuth2AccessToken accessToken = createAccessToken("token-value");
+		given(this.tokenGenerator.generate(any(OAuth2TokenContext.class))).willReturn(accessToken);
+		OAuth2AccessTokenAuthenticationToken authenticationResult = (OAuth2AccessTokenAuthenticationToken) this.authenticationProvider
+			.authenticate(authentication);
+		assertThat(authenticationResult.getAccessToken()).isEqualTo(accessToken);
+	}
+
+	@Test
 	public void authenticateWhenInvalidScopeInRequestThenThrowOAuth2AuthenticationException() {
 		RegisteredClient registeredClient = TestRegisteredClients.registeredClient()
 			.authorizationGrantType(AuthorizationGrantType.TOKEN_EXCHANGE)
