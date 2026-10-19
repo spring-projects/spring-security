@@ -1,10 +1,10 @@
 [versions]
 com-squareup-okhttp3 = "3.14.9"
-io-micrometer = "1.18.0-M2"
 io-rsocket = "1.1.5"
 io-spring-javaformat = "0.0.48"
 io-spring-nohttp = "0.0.11"
 jakarta-websocket = "2.2.0"
+micrometer = "1.18.0-M2"
 org-apache-maven-resolver = "1.9.27"
 org-aspectj = "1.9.25.1"
 org-bouncycastle = "1.86"
@@ -14,7 +14,10 @@ org-jetbrains-kotlin = "2.4.21"
 org-jetbrains-kotlinx = "1.11.0"
 org-mockito = "5.24.0"
 org-opensaml5 = "5.2.3"
-org-springframework = "7.1.0-M2"
+reactor = "2026.0.0-M2"
+spring-data-bom = "2026.1.0-M2"
+spring-framework = "7.1.0-M2"
+spring-ldap = "4.2.0-M1"
 com-password4j = "1.8.4"
 
 [libraries]
@@ -30,10 +33,9 @@ com-unboundid-unboundid-ldapsdk = "com.unboundid:unboundid-ldapsdk:7.0.5"
 com-jayway-jsonpath-json-path = "com.jayway.jsonpath:json-path:2.10.0"
 commons-collections = "commons-collections:commons-collections:3.2.2"
 io-micrometer-context-propagation = "io.micrometer:context-propagation:1.2.1"
-io-micrometer-micrometer-bom = { module = "io.micrometer:micrometer-bom", version.ref = "io-micrometer" }
-io-micrometer-micrometer-observation = { module = "io.micrometer:micrometer-observation", version.ref = "io-micrometer" }
+io-micrometer-micrometer-bom = { module = "io.micrometer:micrometer-bom", version.ref = "micrometer" }
 io-mockk = "io.mockk:mockk:1.14.11"
-io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2026.0.0-M2"
+io-projectreactor-reactor-bom = { module = "io.projectreactor:reactor-bom", version.ref = "reactor" }
 io-rsocket-rsocket-bom = { module = "io.rsocket:rsocket-bom", version.ref = "io-rsocket" }
 io-spring-javaformat-spring-javaformat-checkstyle = { module = "io.spring.javaformat:spring-javaformat-checkstyle", version.ref = "io-spring-javaformat" }
 io-spring-javaformat-spring-javaformat-gradle-plugin = { module = "io.spring.javaformat:spring-javaformat-gradle-plugin", version.ref = "io-spring-javaformat" }
@@ -86,9 +88,9 @@ org-seleniumhq-selenium-selenium-support = "org.seleniumhq.selenium:selenium-sup
 org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 org-slf4j-log4j-over-slf4j = "org.slf4j:log4j-over-slf4j:1.7.36"
 org-slf4j-slf4j-api = "org.slf4j:slf4j-api:2.0.20"
-org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2026.1.0-M2"
-org-springframework-ldap-spring-ldap-core = "org.springframework.ldap:spring-ldap-core:4.2.0-M1"
-org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "org-springframework" }
+org-springframework-data-spring-data-bom = { module = "org.springframework.data:spring-data-bom", version.ref = "spring-data-bom" }
+org-springframework-ldap-spring-ldap-core = { module = "org.springframework.ldap:spring-ldap-core", version.ref = "spring-ldap" }
+org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "spring-framework" }
 org-synchronoss-cloud-nio-multipart-parser = "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
 tools-jackson-jackson-bom = "tools.jackson:jackson-bom:3.2.3"
 
