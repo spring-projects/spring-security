@@ -185,6 +185,22 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 	}
 
 	@Test
+	public void doFilterWhenPostDestinationHasQueryThenPreservesQueryInAction() throws Exception {
+		Saml2PostAuthenticationRequest request = postAuthenticationRequest()
+			.authenticationRequestUri(IDP_SSO_URL + "?binding=post&tenant=a%26b")
+			.relayState("relayState")
+			.build();
+		given(this.authenticationRequestResolver.resolve(any())).willReturn(request);
+		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
+		assertThat(this.response.getContentAsString())
+			.contains("action=\"" + IDP_SSO_URL + "?binding=post&amp;tenant=a%26b\"")
+			.contains("name=\"SAMLRequest\"")
+			.contains("name=\"RelayState\"")
+			.doesNotContain("name=\"binding\"")
+			.doesNotContain("name=\"tenant\"");
+	}
+
+	@Test
 	public void doFilterWhenRelyingPartyRegistrationNotFoundThenUnauthorized() throws Exception {
 		Saml2WebSsoAuthenticationRequestFilter filter = new Saml2WebSsoAuthenticationRequestFilter(
 				this.authenticationRequestResolver);
