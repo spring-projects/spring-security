@@ -312,6 +312,24 @@ public class OidcLogoutConfigurerTests {
 					.param("logout_token", logoutToken)));
 	}
 
+	@Test
+	void oidcBackChannelLogoutWhenDefaultsThenRemotelyInvalidatesSessions() throws Exception {
+		this.spring.register(WebServerConfig.class, OidcProviderConfig.class, WithOidcBackChannelDslConfig.class)
+				.autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		MockHttpSession session = login();
+		String logoutToken = this.mvc.perform(get("/token/logout").session(session))
+				.andExpect(status().isOk())
+				.andReturn()
+				.getResponse()
+				.getContentAsString();
+		this.mvc.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+						.param("logout_token", logoutToken))
+				.andExpect(status().isOk());
+		this.mvc.perform(get("/token/logout").session(session))
+				.andExpect(status().isUnauthorized());
+	}
+
 	private MockHttpSession login() throws Exception {
 		MockMvcDispatcher dispatcher = (MockMvcDispatcher) this.web.getDispatcher();
 		this.mvc.perform(get("/token/logout")).andExpect(status().isUnauthorized());
@@ -735,6 +753,23 @@ public class OidcLogoutConfigurerTests {
 		@PreDestroy
 		void shutdown() throws IOException {
 			this.server.shutdown();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	@Import(RegistrationConfig.class)
+	static class WithOidcBackChannelDslConfig {
+
+		@Bean
+		@Order(1)
+		SecurityFilterChain filters(HttpSecurity http) throws Exception {
+			http
+					.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+					.oauth2Login(Customizer.withDefaults())
+					.oidcBackChannelLogout(Customizer.withDefaults());
+			return http.build();
 		}
 
 	}
