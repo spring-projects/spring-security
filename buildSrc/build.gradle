@@ -95,7 +95,6 @@ dependencies {
 	implementation libs.org.hidetake.gradle.ssh.plugin
 	implementation libs.org.sonarsource.scanner.gradle.sonarqube.gradle.plugin
 	implementation libs.com.squareup.okhttp3.okhttp
-	implementation libs.io.spring.security.release.plugin
 	implementation libs.io.spring.security.project.plugin
 	implementation(libs.io.spring.security.maven.plugin) {
 		// Build info is created by spring-io/artifactory-deploy-action; its jfrog dependencies bring in an old commons-compress
