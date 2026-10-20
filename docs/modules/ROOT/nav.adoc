@@ -21,6 +21,7 @@
 *** xref:features/exploits/headers.adoc[HTTP Headers]
 *** xref:features/exploits/http.adoc[HTTP Requests]
 ** xref:features/integrations/index.adoc[Integrations]
+*** xref:features/integrations/outside-servlet.adoc[Outside of a Servlet Request]
 *** REST Client
 **** xref:features/integrations/rest/http-service-client.adoc[HTTP Service Clients]
 *** xref:features/integrations/cryptography.adoc[Cryptography]
