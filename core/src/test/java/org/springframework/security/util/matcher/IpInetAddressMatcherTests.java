@@ -112,6 +112,21 @@ class IpInetAddressMatcherTests {
 	}
 
 	@Test
+	void matchesWhenIpv6CidrAndIpv4AddressThenReturnsFalse() throws Exception {
+		// The mask spans more full bytes (8) than the IPv4 address has (4). Without a
+		// family/length check, walking the byte arrays runs past the shorter one and
+		// throws ArrayIndexOutOfBoundsException instead of returning false.
+		IpInetAddressMatcher matcher = new IpInetAddressMatcher("2001:db8::/64");
+		assertThat(matcher.matches(InetAddress.getByName("32.1.13.184"))).isFalse();
+	}
+
+	@Test
+	void matchesWhenIpv4CidrAndIpv6AddressThenReturnsFalse() throws Exception {
+		IpInetAddressMatcher matcher = new IpInetAddressMatcher("192.168.1.0/24");
+		assertThat(matcher.matches(InetAddress.getByName("2001:db8::"))).isFalse();
+	}
+
+	@Test
 	void matchesWhenStringIpv4MatchThenReturnsTrue() {
 		IpInetAddressMatcher matcher = new IpInetAddressMatcher("192.168.1.1");
 		assertThat(matcher.matches("192.168.1.1")).isTrue();
