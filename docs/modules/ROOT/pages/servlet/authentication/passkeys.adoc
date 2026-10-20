@@ -399,3 +399,22 @@ HTTP/1.1 200 OK
 HTTP/1.1 401 OK
 
 ----
+
+[[passkeys-delete]]
+== Delete a Credential
+
+A credential can be deleted by making a request to `DELETE /webauthn/register/{id}` where the `id` path variable is the base64url encoded unique id of the credential.
+
+[NOTE]
+====
+Spring Security uses an AuthorizationManager to authorize credential deletion. When using javadoc:org.springframework.security.config.annotation.web.configurers.WebAuthnConfigurer[] this defaults to javadoc:org.springframework.security.web.webauthn.management.CredentialRecordOwnerAuthorizationManager[]. It checks if a user is currently authenticted and if the authenticted user is the owner of the requested credential.
+====
+
+.Example Deletion Request
+[source,http]
+----
+DELETE /webauthn/register/dYF7EGnRFFIXkpXi9XU2wg
+X-CSRF-TOKEN: 4bfd1575-3ad1-4d21-96c7-4ef2d9f86721
+----
+
+The request above will delete the credential with the id `dYF7EGnRFFIXkpXi9XU2wg`.
