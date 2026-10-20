@@ -520,7 +520,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			CsrfTokenRequestHandler handler = WebTestUtils.getCsrfTokenRequestHandler(request);
 			Assert.isTrue(handler != null, "No CsrfTokenRequestHandler found");
 			if (!(repository instanceof TestCsrfTokenRepository)) {
-				repository = new TestCsrfTokenRepository(new HttpSessionCsrfTokenRepository());
+				repository = new TestCsrfTokenRepository(repository == null ? new HttpSessionCsrfTokenRepository(): repository);
 				WebTestUtils.setCsrfTokenRepository(request, repository);
 			}
 			TestCsrfTokenRepository.enable(request);
