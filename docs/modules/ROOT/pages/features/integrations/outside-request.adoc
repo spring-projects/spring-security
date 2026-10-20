@@ -1,5 +1,5 @@
-[[outside-servlet]]
-= Spring Security Outside of a Servlet Request
+[[outside-request]]
+= Spring Security Outside of a Request
 
 Much of the reference documentation assumes that Spring Security is protecting an HTTP request handled by a Servlet or Reactive application.
 However, a significant amount of code runs without any request at all, such as:
@@ -13,7 +13,7 @@ However, a significant amount of code runs without any request at all, such as:
 This page describes the pieces that are useful in those contexts.
 If you do have an HTTP request, start instead from the xref:servlet/index.adoc[Servlet] or xref:reactive/index.adoc[Reactive] sections.
 
-[[outside-servlet-securitycontext]]
+[[outside-request-securitycontext]]
 == The `SecurityContextHolder` and Threads
 
 The central abstraction is the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[`SecurityContextHolder`], which stores the current `SecurityContext`.
@@ -57,7 +57,7 @@ try {
 ----
 ======
 
-[[outside-servlet-concurrency]]
+[[outside-request-concurrency]]
 == Propagating the Context to Other Threads
 
 Because the context is thread-bound, work submitted to another thread (for example, a `ThreadPoolTaskExecutor`) does not see the caller's `SecurityContext`.
@@ -89,7 +89,7 @@ executor.execute(task)
 
 See xref:features/integrations/concurrency.adoc[Concurrency Support] for the full set of wrappers.
 
-[[outside-servlet-method-security]]
+[[outside-request-method-security]]
 == Method Security
 
 xref:servlet/authorization/method-security.adoc[Method security] does not require an HTTP request.
@@ -101,6 +101,7 @@ Java::
 +
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableMethodSecurity
 public class MethodSecurityConfig {
 }
@@ -119,6 +120,7 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableMethodSecurity
 class MethodSecurityConfig
 
@@ -136,11 +138,12 @@ class MessageService {
 This is often the most convenient way to secure non-web code: the security decision travels with the method, so a scheduled job or message listener is protected without any request-scoped machinery.
 When you invoke such a method from a background thread, remember to propagate the context as described in the previous section if the `Authentication` is not already available on that thread.
 
-[[outside-servlet-testing]]
+[[outside-request-testing]]
 == Testing Without a Web Request
 
 You can test secured services without starting `MockMvc` or an HTTP server.
-Spring Security integrates with Spring Test through `@WithMockUser` and `@WithSecurityContext`, which set up a `SecurityContext` for the duration of a test:
+Spring Security integrates with Spring Test through `@WithMockUser` and `@WithSecurityContext`, which set up a `SecurityContext` for the duration of a test.
+These annotations work with any Spring Test context, so you can use a lightweight slice instead of booting the whole application:
 
 [tabs]
 ======
@@ -148,7 +151,8 @@ Java::
 +
 [source,java,role="primary"]
 ----
-@SpringBootTest
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = MethodSecurityConfig.class)
 class MessageServiceTests {
 
 	@Autowired
@@ -166,7 +170,8 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-@SpringBootTest
+@ExtendWith(SpringExtension::class)
+@ContextConfiguration(classes = [MethodSecurityConfig::class])
 class MessageServiceTests {
 
     @Autowired
@@ -183,8 +188,8 @@ class MessageServiceTests {
 
 See xref:servlet/test/method.adoc#test-method[Testing Method Security] for `@WithMockUser`, `@WithUserDetails`, and using xref:servlet/test/method.adoc#test-method-withsecuritycontext[`@WithSecurityContext`] with a custom `Authentication`.
 
-[[outside-servlet-reactive]]
+[[outside-request-reactive]]
 == Reactive Environments
 
-If you are on a reactive stack, `SecurityContextHolder` is not the idiomatic mechanism; Spring Security instead carries the context through Reactor's `Context`.
+If you are on a reactive stack, `SecurityContextHolder` is not the idiomatic mechanism; Spring Security instead carries the context through Reactor's `Context` via xref:reactive/authorization/method.adoc[`ReactiveSecurityContextHolder`].
 Refer to xref:reactive/index.adoc[Reactive Applications] for details.
