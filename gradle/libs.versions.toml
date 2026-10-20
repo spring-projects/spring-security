@@ -110,5 +110,3 @@ webauthn4j-core = 'com.webauthn4j:webauthn4j-core:0.31.6.RELEASE'
 com-password4j-password4j = { module = "com.password4j:password4j", version.ref = "com-password4j" }
 
 [plugins]
-
-org-gradle-wrapper-upgrade = "org.gradle.wrapper-upgrade:0.12"
