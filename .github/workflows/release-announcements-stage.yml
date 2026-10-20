@@ -19,7 +19,8 @@ permissions:
 jobs:
   stage-release-announcements:
     name: Stage Release Announcements
-    uses: spring-io/spring-security-release-tools/.github/workflows/release-announcements-stage.yml@6e2a7a58e3f51d516154a43184af5e02de5e1996 # 1.0.x
+    if: ${{ !github.event.repository.fork }}
+    uses: spring-io/spring-security-release-tools/.github/workflows/release-announcements-stage.yml@6803d775925cdca5990e1e68b5a1c1fe38fa3947 # v1.0.20
     with:
       version: ${{ inputs.version || github.ref_name }}
     secrets: inherit
