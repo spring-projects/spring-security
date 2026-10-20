@@ -97,6 +97,13 @@ class KerberosRestTemplateTests extends KerberosSecurityTestcase {
 			.isThrownBy(() -> this.restTemplate.getForObject(this.baseUrl + "/notfound", String.class));
 	}
 
+	@Test
+	void deleteWithNoContentSucceeds() {
+		// gh-19935: RestTemplate.doExecute() legitimately returns null for delete();
+		// a successful 204 must not surface as RestClientException.
+		this.restTemplate.delete(this.baseUrl + "/delete");
+	}
+
 	private void setUpClient() {
 		Map<String, Object> loginOptions = new HashMap<>();
 		loginOptions.put("refreshKrb5Config", "true");
@@ -134,6 +141,16 @@ class KerberosRestTemplateTests extends KerberosSecurityTestcase {
 					}
 					else if (header.startsWith("Negotiate ")) {
 						return getRequest(request, helloWorldBytes, textContentType.toString());
+					}
+				}
+				if (request.getPath().equals("/delete")) {
+					String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+					if (header == null) {
+						return new MockResponse().setResponseCode(401)
+							.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Negotiate");
+					}
+					else if (header.startsWith("Negotiate ")) {
+						return new MockResponse().setResponseCode(204);
 					}
 				}
 				return new MockResponse().setResponseCode(404);
