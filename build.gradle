@@ -16,10 +16,6 @@ buildscript {
 	}
 }
 
-plugins {
-	alias(libs.plugins.org.gradle.wrapper.upgrade)
-}
-
 apply plugin: 'io.spring.nohttp'
 apply plugin: 'locks'
 apply plugin: 'io.spring.convention.root'
@@ -84,13 +80,4 @@ tasks.register('cloneRepository', IncludeRepoTask) {
 	ref = project.getProperties().get("ref")
 	var defaultDirectory = project.file("build/tmp/clone")
 	outputDirectory = project.hasProperty("cloneOutputDirectory") ? project.file("$cloneOutputDirectory") : defaultDirectory
-}
-
-wrapperUpgrade {
-	gradle {
-		'spring-security' {
-			repo = 'spring-projects/spring-security'
-			baseBranch = '6.3.x' // runs only on 6.3.x and the update is merged forward to main
-		}
-	}
 }
