@@ -23,11 +23,14 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.ldap.core.LdapClient;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
+import org.springframework.ldap.query.LdapQuery;
+import org.springframework.ldap.query.LdapQueryBuilder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.util.Assert;
 
 /**
@@ -35,6 +38,7 @@ import org.springframework.util.Assert;
  *
  * @author Robert Sanders
  * @author Luke Taylor
+ * @author Andrey Litvitski
  * @see SearchControls
  */
 public class FilterBasedLdapUserSearch implements LdapUserSearch {
@@ -94,18 +98,22 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 	@Override
 	public DirContextOperations searchForUser(String username) {
 		logger.trace(LogMessage.of(() -> "Searching for user '" + username + "', with " + this));
-		SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(this.contextSource);
-		template.setSearchControls(this.searchControls);
+		LdapClient ldapClient = LdapClient.builder()
+			.contextSource(this.contextSource)
+			.defaultSearchControls(() -> this.searchControls)
+			.build();
+		LdapQuery query = LdapQueryBuilder.query().base(this.searchBase).filter(this.searchFilter, username);
 		try {
-			DirContextOperations operations = template.searchForSingleEntry(this.searchBase, this.searchFilter,
-					new String[] { username });
+			DirContextOperations operations = ldapClient.search()
+				.query(query)
+				.toObject((ContextMapper<DirContextOperations>) (ctx) -> (DirContextOperations) ctx);
+			if (operations == null) {
+				throw UsernameNotFoundException.fromUsername(username);
+			}
 			logger.debug(LogMessage.of(() -> "Found user '" + username + "', with " + this));
 			return operations;
 		}
 		catch (IncorrectResultSizeDataAccessException ex) {
-			if (ex.getActualSize() == 0) {
-				throw UsernameNotFoundException.fromUsername(username);
-			}
 			// Search should never return multiple results if properly configured
 			throw ex;
 		}
