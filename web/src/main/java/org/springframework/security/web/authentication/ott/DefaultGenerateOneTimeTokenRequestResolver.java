@@ -17,6 +17,8 @@
 package org.springframework.security.web.authentication.ott;
 
 import java.time.Duration;
+import java.util.UUID;
+import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.jspecify.annotations.Nullable;
@@ -38,13 +40,15 @@ public final class DefaultGenerateOneTimeTokenRequestResolver implements Generat
 
 	private Duration expiresIn = DEFAULT_EXPIRES_IN;
 
+	private Supplier<String> tokenValueFactory = () -> UUID.randomUUID().toString();
+
 	@Override
 	public @Nullable GenerateOneTimeTokenRequest resolve(HttpServletRequest request) {
 		String username = request.getParameter("username");
 		if (!StringUtils.hasText(username)) {
 			return null;
 		}
-		return new GenerateOneTimeTokenRequest(username, this.expiresIn);
+		return new GenerateOneTimeTokenRequest(username, this.expiresIn, this.tokenValueFactory.get());
 	}
 
 	/**
@@ -54,6 +58,16 @@ public final class DefaultGenerateOneTimeTokenRequestResolver implements Generat
 	public void setExpiresIn(Duration expiresIn) {
 		Assert.notNull(expiresIn, "expiresIn cannot be null");
 		this.expiresIn = expiresIn;
+	}
+
+	/**
+	 * Sets factory for token value generation
+	 * @param tokenValueFactory factory for token value generation
+	 * @since 6.5
+	 */
+	public void setTokenValueFactory(Supplier<String> tokenValueFactory) {
+		Assert.notNull(tokenValueFactory, "tokenValueFactory cannot be null");
+		this.tokenValueFactory = tokenValueFactory;
 	}
 
 }
