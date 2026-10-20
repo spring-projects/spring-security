@@ -531,7 +531,8 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 			return this.filterSection;
 		}
 
-		@Nullable String getFilterName() {
+		@Nullable
+		String getFilterName() {
 			return this.filterName;
 		}
 

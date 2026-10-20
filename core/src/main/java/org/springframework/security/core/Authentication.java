@@ -75,7 +75,8 @@ public interface Authentication extends Principal, Serializable {
 	 * are expected to populate the credentials.
 	 * @return the credentials that prove the identity of the <code>Principal</code>
 	 */
-	@Nullable Object getCredentials();
+	@Nullable
+	Object getCredentials();
 
 	/**
 	 * Stores additional details about the authentication request. These might be an IP
@@ -83,7 +84,8 @@ public interface Authentication extends Principal, Serializable {
 	 * @return additional details about the authentication request, or <code>null</code>
 	 * if not used
 	 */
-	@Nullable Object getDetails();
+	@Nullable
+	Object getDetails();
 
 	/**
 	 * The identity of the principal being authenticated. In the case of an authentication
@@ -97,7 +99,8 @@ public interface Authentication extends Principal, Serializable {
 	 * @return the <code>Principal</code> being authenticated or the authenticated
 	 * principal after authentication.
 	 */
-	@Nullable Object getPrincipal();
+	@Nullable
+	Object getPrincipal();
 
 	/**
 	 * Used to indicate to {@code AbstractSecurityInterceptor} whether it should present

@@ -431,7 +431,8 @@ public class JdbcOAuth2AuthorizationService implements OAuth2AuthorizationServic
 
 	private static ColumnMetadata getColumnMetadata(JdbcOperations jdbcOperations, String columnName,
 			int defaultDataType) {
-		@Nullable Integer dataType = jdbcOperations.execute(new ConnectionCallback<@Nullable Integer>() {
+		@Nullable
+		Integer dataType = jdbcOperations.execute(new ConnectionCallback<@Nullable Integer>() {
 			@Override
 			public @Nullable Integer doInConnection(Connection conn) throws SQLException {
 				DatabaseMetaData databaseMetaData = conn.getMetaData();

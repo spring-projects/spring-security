@@ -63,6 +63,7 @@ public interface OAuth2AuthorizedClientManager {
 	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if authorization is not
 	 * supported for the specified client
 	 */
-	@Nullable OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest);
+	@Nullable
+	OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest);
 
 }

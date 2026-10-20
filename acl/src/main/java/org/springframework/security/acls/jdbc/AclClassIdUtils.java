@@ -68,7 +68,8 @@ class AclClassIdUtils {
 	 * @return The identifier in the appropriate target Java type. Typically Long or UUID.
 	 * @throws SQLException
 	 */
-	@Nullable Serializable identifierFrom(Serializable identifier, ResultSet resultSet) throws SQLException {
+	@Nullable
+	Serializable identifierFrom(Serializable identifier, ResultSet resultSet) throws SQLException {
 		Class<? extends Serializable> classIdType = classIdTypeFrom(resultSet);
 		if (isString(identifier) && classIdType != null && canConvertFromStringTo(classIdType)) {
 			return convertFromStringTo((String) identifier, classIdType);

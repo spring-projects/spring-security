@@ -97,7 +97,8 @@ final class ExpressionTemplateSecurityAnnotationScanner<A extends Annotation>
 	}
 
 	@Override
-	@Nullable MergedAnnotation<A> merge(AnnotatedElement element, @Nullable Class<?> targetClass) {
+	@Nullable
+	MergedAnnotation<A> merge(AnnotatedElement element, @Nullable Class<?> targetClass) {
 		if (element instanceof Parameter parameter) {
 			MergedAnnotation<A> annotation = this.unique.merge(parameter, targetClass);
 			if (annotation == null) {

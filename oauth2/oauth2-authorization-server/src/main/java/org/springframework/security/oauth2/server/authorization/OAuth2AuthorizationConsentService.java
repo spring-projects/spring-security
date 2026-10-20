@@ -51,6 +51,7 @@ public interface OAuth2AuthorizationConsentService {
 	 * @param principalName the name of the {@link Principal}
 	 * @return the {@link OAuth2AuthorizationConsent} if found, otherwise {@code null}
 	 */
-	@Nullable OAuth2AuthorizationConsent findById(String registeredClientId, String principalName);
+	@Nullable
+	OAuth2AuthorizationConsent findById(String registeredClientId, String principalName);
 
 }

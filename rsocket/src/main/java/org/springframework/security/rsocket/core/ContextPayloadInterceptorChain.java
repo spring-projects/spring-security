@@ -82,7 +82,8 @@ class ContextPayloadInterceptorChain implements PayloadInterceptorChain {
 				: Mono.deferContextual(Mono::just).cast(Context.class).doOnNext((c) -> this.context = c).then());
 	}
 
-	@Nullable Context getContext() {
+	@Nullable
+	Context getContext() {
 		if (this.next == null) {
 			return this.context;
 		}

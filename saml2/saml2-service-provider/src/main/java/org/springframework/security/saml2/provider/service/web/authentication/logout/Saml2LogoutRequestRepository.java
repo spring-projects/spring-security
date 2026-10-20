@@ -45,7 +45,8 @@ public interface Saml2LogoutRequestRepository {
 	 * @param request the {@code HttpServletRequest}
 	 * @return the {@link Saml2LogoutRequest} or {@code null} if not available
 	 */
-	@Nullable Saml2LogoutRequest loadLogoutRequest(HttpServletRequest request);
+	@Nullable
+	Saml2LogoutRequest loadLogoutRequest(HttpServletRequest request);
 
 	/**
 	 * Persists the {@link Saml2LogoutRequest} associating it to the provided
@@ -66,6 +67,7 @@ public interface Saml2LogoutRequestRepository {
 	 * @param response the {@code HttpServletResponse}
 	 * @return the {@link Saml2LogoutRequest} or {@code null} if not available
 	 */
-	@Nullable Saml2LogoutRequest removeLogoutRequest(HttpServletRequest request, HttpServletResponse response);
+	@Nullable
+	Saml2LogoutRequest removeLogoutRequest(HttpServletRequest request, HttpServletResponse response);
 
 }

@@ -37,6 +37,7 @@ public interface RelyingPartyRegistrationResolver {
 	 * when {@code null}, may attempt to resolve from the request
 	 * @return the resolved {@link RelyingPartyRegistration}
 	 */
-	@Nullable RelyingPartyRegistration resolve(HttpServletRequest request, @Nullable String relyingPartyRegistrationId);
+	@Nullable
+	RelyingPartyRegistration resolve(HttpServletRequest request, @Nullable String relyingPartyRegistrationId);
 
 }

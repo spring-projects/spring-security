@@ -41,7 +41,8 @@ public class CsrfTokenRequestAttributeHandler implements CsrfTokenRequestHandler
 
 	private static final Log logger = LogFactory.getLog(CsrfTokenRequestAttributeHandler.class);
 
-	@Nullable private String csrfRequestAttributeName = "_csrf";
+	@Nullable
+	private String csrfRequestAttributeName = "_csrf";
 
 	/**
 	 * The {@link CsrfToken} is available as a request attribute named
