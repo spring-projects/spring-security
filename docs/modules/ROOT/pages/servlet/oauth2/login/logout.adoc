@@ -319,6 +319,43 @@ open fun oidcLogoutHandler(val sessionRegistry: OidcSessionRegistry): OidcBackCh
 ----
 ======
 
+
+=== Customizing the Rest Operations
+
+By default, a default `RestTemplate` is used to call the internal logout endpoint. You can set your own
+if you e.g. need certain headers to be sent to your internal logout endpoint.
+
+You can configure the `RestOperations` in the DSL like so:
+
+[tabs]
+======
+Java::
++
+[source=java,role="primary"]
+----
+@Bean
+OidcBackChannelLogoutHandler oidcLogoutHandler(OidcSessionRegistry sessionRegistry) {
+    OidcBackChannelLogoutHandler logoutHandler = new OidcBackChannelLogoutHandler(sessionRegistry);
+    RestTemplate customRestTemplate = new RestTemplate();
+    logoutHandler.setRestOperations(customRestTemplate);
+    return logoutHandler;
+}
+----
+
+Kotlin::
++
+[source=kotlin,role="secondary"]
+----
+@Bean
+open fun oidcLogoutHandler(val sessionRegistry: OidcSessionRegistry): OidcBackChannelLogoutHandler {
+    val logoutHandler = OidcBackChannelLogoutHandler(sessionRegistry)
+    val restTemplate = RestTemplate()
+    logoutHandler.setRestOperations(restTemplate)
+    return logoutHandler
+}
+----
+======
+
 [[oidc-backchannel-logout-session-registry]]
 === Customizing the OIDC Provider Session Registry
 
