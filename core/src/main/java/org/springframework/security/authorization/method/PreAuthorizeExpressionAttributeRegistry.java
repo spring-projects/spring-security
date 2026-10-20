@@ -17,8 +17,6 @@
 package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.function.Function;
 
 import org.jspecify.annotations.Nullable;
 
@@ -28,7 +26,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
 import org.springframework.security.core.annotation.SecurityAnnotationScanner;
 import org.springframework.security.core.annotation.SecurityAnnotationScanners;
-import org.springframework.util.Assert;
 
 /**
  * For internal use only, as this contract is likely to change.
@@ -39,20 +36,11 @@ import org.springframework.util.Assert;
  */
 final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
 
-	private final MethodAuthorizationDeniedHandler defaultHandler = new ThrowingMethodAuthorizationDeniedHandler();
-
-	private final SecurityAnnotationScanner<HandleAuthorizationDenied> handleAuthorizationDeniedScanner = SecurityAnnotationScanners
-		.requireUnique(HandleAuthorizationDenied.class);
-
-	private Function<Class<? extends MethodAuthorizationDeniedHandler>, MethodAuthorizationDeniedHandler> handlerResolver;
+	private final MethodAuthorizationDeniedHandlerResolver handlerResolver = new MethodAuthorizationDeniedHandlerResolver(
+			PreAuthorizeAuthorizationManager.class);
 
 	private SecurityAnnotationScanner<PreAuthorize> preAuthorizeScanner = SecurityAnnotationScanners
 		.requireUnique(PreAuthorize.class);
-
-	PreAuthorizeExpressionAttributeRegistry() {
-		this.handlerResolver = (clazz) -> new ReflectiveMethodAuthorizationDeniedHandler(clazz,
-				PreAuthorizeAuthorizationManager.class);
-	}
 
 	@Override
 	@Nullable ExpressionAttribute resolveAttribute(Method method, @Nullable Class<?> targetClass) {
@@ -61,17 +49,9 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 			return null;
 		}
 		Expression expression = getExpressionHandler().getExpressionParser().parseExpression(preAuthorize.value());
-		MethodAuthorizationDeniedHandler handler = resolveHandler(method, targetClass);
+		MethodAuthorizationDeniedHandler handler = this.handlerResolver.resolve(method,
+				targetClass(method, targetClass));
 		return new PreAuthorizeExpressionAttribute(expression, handler);
-	}
-
-	private MethodAuthorizationDeniedHandler resolveHandler(Method method, @Nullable Class<?> targetClass) {
-		Class<?> targetClassToUse = targetClass(method, targetClass);
-		HandleAuthorizationDenied deniedHandler = this.handleAuthorizationDeniedScanner.scan(method, targetClassToUse);
-		if (deniedHandler != null) {
-			return this.handlerResolver.apply(deniedHandler.handlerClass());
-		}
-		return this.defaultHandler;
 	}
 
 	private @Nullable PreAuthorize findPreAuthorizeAnnotation(Method method, @Nullable Class<?> targetClass) {
@@ -85,28 +65,11 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 	 * @param context the {@link ApplicationContext} to use
 	 */
 	void setApplicationContext(ApplicationContext context) {
-		Assert.notNull(context, "context cannot be null");
-		this.handlerResolver = (clazz) -> resolveHandler(context, clazz);
+		this.handlerResolver.setContext(context);
 	}
 
 	void setTemplateDefaults(AnnotationTemplateExpressionDefaults defaults) {
 		this.preAuthorizeScanner = SecurityAnnotationScanners.requireUnique(PreAuthorize.class, defaults);
-	}
-
-	private MethodAuthorizationDeniedHandler resolveHandler(ApplicationContext context,
-			Class<? extends MethodAuthorizationDeniedHandler> handlerClass) {
-		if (handlerClass == this.defaultHandler.getClass()) {
-			return this.defaultHandler;
-		}
-		String[] beanNames = context.getBeanNamesForType(handlerClass);
-		if (beanNames.length == 0) {
-			throw new IllegalStateException("Could not find a bean of type " + handlerClass.getName());
-		}
-		if (beanNames.length > 1) {
-			throw new IllegalStateException("Expected to find a single bean of type " + handlerClass.getName()
-					+ " but found " + Arrays.toString(beanNames));
-		}
-		return context.getBean(beanNames[0], handlerClass);
 	}
 
 }
