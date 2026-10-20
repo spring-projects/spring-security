@@ -6,7 +6,6 @@ import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.plugins.PluginManager;
 
-import io.spring.gradle.convention.ArtifactoryPlugin;
 import io.spring.gradle.plugin.maven.SpringDeploymentRepositoryPublishPlugin;
 import io.spring.gradle.plugin.maven.SpringMavenPublishPlugin;
 
@@ -21,7 +20,5 @@ public class SpringMavenPlugin implements Plugin<Project> {
 			extension.withJavadocJar();
 			extension.withSourcesJar();
 		});
-		pluginManager.apply(PublishArtifactsPlugin.class);
-		pluginManager.apply(ArtifactoryPlugin.class);
 	}
 }
