@@ -44,7 +44,8 @@ public interface Saml2LogoutResponseResolver {
 	 * @param authentication the current user
 	 * @return a signed and serialized SAML 2.0 Logout Response
 	 */
-	@Nullable Saml2LogoutResponse resolve(HttpServletRequest request, @Nullable Authentication authentication);
+	@Nullable
+	Saml2LogoutResponse resolve(HttpServletRequest request, @Nullable Authentication authentication);
 
 	/**
 	 * Prepare to create, sign, and serialize a SAML 2.0 Error Logout Response.

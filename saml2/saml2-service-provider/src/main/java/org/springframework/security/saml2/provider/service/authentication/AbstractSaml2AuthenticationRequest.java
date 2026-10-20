@@ -134,15 +134,20 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 	 */
 	public static class Builder<T extends Builder<T>> {
 
-		@Nullable String authenticationRequestUri;
+		@Nullable
+		String authenticationRequestUri;
 
-		@Nullable String samlRequest;
+		@Nullable
+		String samlRequest;
 
-		@Nullable String relayState;
+		@Nullable
+		String relayState;
 
-		@Nullable String relyingPartyRegistrationId;
+		@Nullable
+		String relyingPartyRegistrationId;
 
-		@Nullable String id;
+		@Nullable
+		String id;
 
 		/**
 		 * Creates a new Builder.

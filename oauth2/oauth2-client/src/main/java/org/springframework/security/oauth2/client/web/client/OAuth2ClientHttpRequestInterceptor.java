@@ -370,7 +370,8 @@ public final class OAuth2ClientHttpRequestInterceptor implements ClientHttpReque
 		 * @return the {@code clientRegistrationId} to be used for resolving an
 		 * {@link OAuth2AuthorizedClient}.
 		 */
-		@Nullable String resolve(HttpRequest request);
+		@Nullable
+		String resolve(HttpRequest request);
 
 	}
 
@@ -389,7 +390,8 @@ public final class OAuth2ClientHttpRequestInterceptor implements ClientHttpReque
 		 * @return the {@link Authentication principal} to be used for resolving an
 		 * {@link OAuth2AuthorizedClient}.
 		 */
-		@Nullable Authentication resolve(HttpRequest request);
+		@Nullable
+		Authentication resolve(HttpRequest request);
 
 	}
 

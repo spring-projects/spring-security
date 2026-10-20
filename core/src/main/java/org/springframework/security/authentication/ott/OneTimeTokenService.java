@@ -40,6 +40,7 @@ public interface OneTimeTokenService {
 	 * value to be consumed
 	 * @return the consumed {@link OneTimeToken} or {@code null} if the token is invalid
 	 */
-	@Nullable OneTimeToken consume(OneTimeTokenAuthenticationToken authenticationToken);
+	@Nullable
+	OneTimeToken consume(OneTimeTokenAuthenticationToken authenticationToken);
 
 }

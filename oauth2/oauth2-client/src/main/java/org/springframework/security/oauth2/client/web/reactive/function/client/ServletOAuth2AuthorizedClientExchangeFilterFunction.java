@@ -618,7 +618,8 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 		 * @return the {@link Authentication principal} to be used for resolving an
 		 * {@link OAuth2AuthorizedClient}
 		 */
-		@Nullable Authentication resolve(ClientRequest request);
+		@Nullable
+		Authentication resolve(ClientRequest request);
 
 	}
 

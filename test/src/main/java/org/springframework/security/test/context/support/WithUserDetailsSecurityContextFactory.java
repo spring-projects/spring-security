@@ -91,7 +91,8 @@ final class WithUserDetailsSecurityContextFactory implements WithSecurityContext
 				: this.beans.getBean(UserDetailsService.class);
 	}
 
-	@Nullable UserDetailsService findAndAdaptReactiveUserDetailsService(String beanName) {
+	@Nullable
+	UserDetailsService findAndAdaptReactiveUserDetailsService(String beanName) {
 		try {
 			ReactiveUserDetailsService reactiveUserDetailsService = StringUtils.hasLength(beanName)
 					? this.beans.getBean(beanName, ReactiveUserDetailsService.class)

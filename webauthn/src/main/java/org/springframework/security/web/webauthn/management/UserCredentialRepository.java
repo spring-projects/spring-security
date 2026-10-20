@@ -49,7 +49,8 @@ public interface UserCredentialRepository {
 	 * @param credentialId {@link CredentialRecord#getCredentialId()}
 	 * @return the {@link CredentialRecord} or null if not found.
 	 */
-	@Nullable CredentialRecord findByCredentialId(Bytes credentialId);
+	@Nullable
+	CredentialRecord findByCredentialId(Bytes credentialId);
 
 	/**
 	 * Finds all {@link CredentialRecord} instances for a specific user.

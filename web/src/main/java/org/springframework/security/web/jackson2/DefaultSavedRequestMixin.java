@@ -55,6 +55,7 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 abstract class DefaultSavedRequestMixin {
 
 	@JsonInclude(Include.NON_NULL)
-	@Nullable String matchingRequestParameterName;
+	@Nullable
+	String matchingRequestParameterName;
 
 }

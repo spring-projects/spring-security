@@ -48,6 +48,7 @@ public interface GrantedAuthority extends Serializable {
 	 * granted authority cannot be expressed as a <code>String</code> with sufficient
 	 * precision).
 	 */
-	@Nullable String getAuthority();
+	@Nullable
+	String getAuthority();
 
 }

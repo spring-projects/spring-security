@@ -108,7 +108,8 @@ public class CookieRequestCache implements RequestCache {
 
 	@Override
 	public @Nullable HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
-		@Nullable SavedRequest saved = this.getRequest(request, response);
+		@Nullable
+		SavedRequest saved = this.getRequest(request, response);
 		if (!this.matchesSavedRequest(request, saved)) {
 			this.logger.debug("saved request doesn't match");
 			return null;
