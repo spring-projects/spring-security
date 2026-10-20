@@ -26,7 +26,6 @@ apply plugin: 'io.spring.convention.root'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.springframework.security.versions.verify-dependencies-versions'
 apply plugin: 'org.springframework.security.check-expected-branch-version'
-apply plugin: 'io.spring.security.release'
 
 group = 'org.springframework.security'
 description = 'Spring Security'
@@ -38,14 +37,6 @@ ext.milestoneBuild = !(snapshotBuild || releaseBuild)
 repositories {
 	mavenCentral()
 	maven { url = "https://repo.spring.io/milestone" }
-}
-
-springRelease {
-	weekOfMonth = 3
-	dayOfWeek = 1
-	referenceDocUrl = "https://docs.spring.io/spring-security/reference/{version}/index.html"
-	apiDocUrl = "https://docs.spring.io/spring-security/reference/{version}/api/java/index.html"
-	replaceSnapshotVersionInReferenceDocUrl = true
 }
 
 allprojects {
