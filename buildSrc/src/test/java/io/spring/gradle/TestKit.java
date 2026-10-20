@@ -38,6 +38,9 @@ public class TestKit {
 
 	public GradleRunner withProjectDir(File projectDir) throws IOException {
 		FileUtils.copyDirectory(projectDir, buildDir);
+		// Gradle registers gradle/libs.versions.toml as the "libs" catalog, which the convention plugins require
+		File catalog = new File("../gradle/libs.versions.toml");
+		FileUtils.copyFile(catalog, new File(buildDir, "gradle/libs.versions.toml"));
 		return GradleRunner.create()
 			.withProjectDir(buildDir)
 			.withPluginClasspath();
