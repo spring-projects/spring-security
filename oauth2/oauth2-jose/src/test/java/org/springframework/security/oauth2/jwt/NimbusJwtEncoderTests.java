@@ -138,6 +138,31 @@ public class NimbusJwtEncoderTests {
 	}
 
 	@Test
+	public void encodeWhenRsaJwkSourceContainsPublicAndPrivateKeysThenSelectPrivateKey() {
+		RSAKey rsaJwk = TestJwks.rsa().algorithm(JWSAlgorithm.RS256).build();
+		this.jwkList.add(rsaJwk.toPublicJWK());
+		this.jwkList.add(rsaJwk);
+
+		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
+		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
+
+		this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet));
+	}
+
+	@Test
+	public void encodeWhenEcJwkSourceContainsPublicAndPrivateKeysThenSelectPrivateKey() {
+		ECKey ecJwk = TestJwks.jwk((ECPublicKey) TestKeys.DEFAULT_EC_KEY_PAIR.getPublic(),
+				(ECPrivateKey) TestKeys.DEFAULT_EC_KEY_PAIR.getPrivate()).algorithm(JWSAlgorithm.ES256).build();
+		this.jwkList.add(ecJwk.toPublicJWK());
+		this.jwkList.add(ecJwk);
+
+		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.ES256).build();
+		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
+
+		this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet));
+	}
+
+	@Test
 	public void encodeWhenJwkSelectEmptyThenThrowJwtEncodingException() {
 		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
 		JwtClaimsSet jwtClaimsSet = TestJwtClaimsSets.jwtClaimsSet().build();
