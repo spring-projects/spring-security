@@ -1,51 +1,34 @@
-name: PR Build
+name: Pull Request - Build
 
 on: pull_request
 
 permissions:
   contents: read
 
+env:
+  JAVA_VERSION: '17'
+
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
-    if: ${{ github.repository == 'spring-projects/spring-security' }}
+    runs-on: ${{ vars.UBUNTU_RUNS_ON }}
+    if: github.event.pull_request.head.repo.fork == false && github.actor != 'dependabot[bot]'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Set up gradle
-        uses: spring-io/spring-gradle-build-action@c8668747d7c264864c8c7f7026d0d277d14a78dc # v2.0.6
+      - id: environment
+        name: Compute Build Environment
+        uses: spring-io/spring-security-actions/compute-build-environment@8f2e7bb51b5bd78abeeab91e4dbea1520fa68265 # 0.0.5
+      - uses: spring-io/spring-security-actions/pr-build@8f2e7bb51b5bd78abeeab91e4dbea1520fa68265 # 0.0.5
+        env:
+          ORG_GRADLE_PROJECT_releaseChannel: ${{ steps.environment.outputs.release-channel }}
+          ORG_GRADLE_PROJECT_artifactoryUsername: ${{ secrets[steps.environment.outputs.dependencies-username] }}
+          ORG_GRADLE_PROJECT_artifactoryPassword: ${{ secrets[steps.environment.outputs.dependencies-password] }}
         with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Build with Gradle
-        run: ./gradlew clean build -PskipCheckExpectedBranchVersion --continue --scan
-  generate-docs:
-    name: Generate Docs
-    runs-on: ubuntu-latest
-    if: ${{ github.repository == 'spring-projects/spring-security' }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Set up gradle
-        uses: spring-io/spring-gradle-build-action@c8668747d7c264864c8c7f7026d0d277d14a78dc # v2.0.6
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Run Antora
-        run: ./gradlew -PbuildSrc.skipTests=true :spring-security-docs:antora
-      - name: Upload Docs
-        id: upload
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: docs
-          path: docs/build/site
-          overwrite: true
-  send-notification:
-    name: Send Notification
-    needs: [ build, generate-docs ]
-    if: ${{ failure() && github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'spring-projects/spring-security' }}
+          java-version: ${{ env.JAVA_VERSION }}
+  build-check:
+    name: Build
+    needs: build
+    if: failure() || cancelled()
     runs-on: ubuntu-latest
     steps:
-      - name: Send Notification
-        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@6803d775925cdca5990e1e68b5a1c1fe38fa3947 # v1.0.20
-        with:
-          webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}
+      - run: exit 1
