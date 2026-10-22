@@ -6,7 +6,6 @@ on:
       version:
         description: The version to publish
         required: true
-        type: string
 
 permissions:
   actions: write
@@ -14,17 +13,9 @@ permissions:
   issues: write
 
 jobs:
-  deploy-schema:
-    name: Deploy Schema
-    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@6803d775925cdca5990e1e68b5a1c1fe38fa3947 # v1.0.20
-    with:
-      should-deploy-schema: true
-    secrets: inherit
   publish-release-announcements:
     name: Publish Release Announcements
-    needs: [ deploy-schema ]
-    if: ${{ !github.event.repository.fork }}
-    uses: spring-io/spring-security-release-tools/.github/workflows/release-announcements-publish.yml@6803d775925cdca5990e1e68b5a1c1fe38fa3947 # v1.0.20
+    uses: spring-io/spring-security-release-tools/.github/workflows/release-announcements-publish.yml@c6656e0cee9fd2930ad238f6e1cafb0b8792e515 # v1.1.0
     with:
       version: ${{ inputs.version }}
     secrets: inherit
