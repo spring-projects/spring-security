@@ -2,55 +2,78 @@ name: CI
 
 on:
   push:
-    branches-ignore:
-      - "dependabot/**"
+    branches:
+      - "main"
+      - "*.x"
+      - "release/**"
+      - "*-internal"
   schedule:
     - cron: '0 10 * * *' # Once per day at 10am UTC
   workflow_dispatch: # Manual trigger
-
-env:
-  DEVELOCITY_ACCESS_KEY: ${{ secrets.DEVELOCITY_ACCESS_KEY }}
 
 permissions:
   contents: read
 
 jobs:
+  setup:
+    name: Compute Inputs
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.environment.outputs.version }}
+      snapshot: ${{ steps.environment.outputs.snapshot }}
+      release-channel: ${{ steps.environment.outputs.release-channel }}
+      dependencies-username: ${{ steps.environment.outputs.dependencies-username }}
+      dependencies-password: ${{ steps.environment.outputs.dependencies-password }}
+      publishing-username: ${{ steps.environment.outputs.publishing-username }}
+      publishing-password: ${{ steps.environment.outputs.publishing-password }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: environment
+        name: Compute Build Environment
+        uses: spring-io/spring-security-actions/compute-build-environment@8f2e7bb51b5bd78abeeab91e4dbea1520fa68265 # 0.0.5
+  test:
+    name: Test
+    needs: setup
+    uses: spring-io/spring-security-release-tools/.github/workflows/ci-test.yml@c6656e0cee9fd2930ad238f6e1cafb0b8792e515 # v1.1.0
+    with:
+      java-version: '17'
+      runner: ${{ vars.UBUNTU_RUNS_ON }}
+    secrets:
+      artifactory-username: ${{ secrets[needs.setup.outputs.dependencies-username] }}
+      artifactory-password: ${{ secrets[needs.setup.outputs.dependencies-password] }}
   build:
     name: Build
-    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@6803d775925cdca5990e1e68b5a1c1fe38fa3947 # v1.0.20
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, windows-latest ]
-        jdk: [ 25 ]
+    needs: setup
+    if: needs.setup.outputs.snapshot == 'true'
+    uses: spring-io/spring-security-release-tools/.github/workflows/ci-build.yml@c6656e0cee9fd2930ad238f6e1cafb0b8792e515 # v1.1.0
     with:
-      runs-on: ${{ matrix.os }}
-      java-version: ${{ matrix.jdk }}
-      distribution: temurin
-    secrets: inherit
+      java-version: '17'
+      runner: ${{ vars.UBUNTU_RUNS_ON }}
+      release-channel: ${{ needs.setup.outputs.release-channel }}
+    secrets:
+      artifactory-username: ${{ secrets[needs.setup.outputs.dependencies-username] }}
+      artifactory-password: ${{ secrets[needs.setup.outputs.dependencies-password] }}
+      signing-key: ${{ secrets.GPG_PRIVATE_KEY }}
+      signing-password: ${{ secrets.GPG_PASSPHRASE }}
   deploy-artifacts:
     name: Deploy Artifacts
-    needs: [ build ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@6803d775925cdca5990e1e68b5a1c1fe38fa3947 # v1.0.20
+    needs: [ setup, build ]
+    uses: spring-io/spring-security-release-tools/.github/workflows/ci-deploy-artifacts.yml@c6656e0cee9fd2930ad238f6e1cafb0b8792e515 # v1.1.0
     with:
-      should-deploy-artifacts: ${{ needs.build.outputs.should-deploy-artifacts }}
-      default-publish-milestones-central: true
-      java-version: 25
-    secrets: inherit
+      runner: ${{ vars.UBUNTU_RUNS_ON }}
+      version: ${{ needs.setup.outputs.version }}
+    secrets:
+      artifactory-username: ${{ secrets[needs.setup.outputs.publishing-username] }}
+      artifactory-password: ${{ secrets[needs.setup.outputs.publishing-password] }}
   deploy-schema:
     name: Deploy Schema
-    needs: [ build ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-schema.yml@6803d775925cdca5990e1e68b5a1c1fe38fa3947 # v1.0.20
+    needs: [ setup, deploy-artifacts ]
+    if: needs.setup.outputs.release-channel == 'oss'
+    uses: spring-io/spring-security-release-tools/.github/workflows/ci-deploy-schema.yml@c6656e0cee9fd2930ad238f6e1cafb0b8792e515 # v1.1.0
     with:
-      should-deploy-schema: ${{ needs.build.outputs.should-deploy-artifacts }}
-      java-version: 25
-    secrets: inherit
-  send-notification:
-    name: Send Notification
-    needs: [ deploy-artifacts, deploy-schema ]
-    if: ${{ !success() }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send Notification
-        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@6803d775925cdca5990e1e68b5a1c1fe38fa3947 # v1.0.20
-        with:
-          webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}
+      java-version: '17'
+      runner: ${{ vars.UBUNTU_RUNS_ON }}
+    secrets:
+      docs-ssh-key: ${{ secrets.DOCS_SSH_KEY }}
+      docs-username: ${{ secrets.DOCS_USERNAME }}
+      docs-host: ${{ secrets.DOCS_HOST }}
