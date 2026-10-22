@@ -32,6 +32,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.security.oauth2.jwt.DPoPProofContext;
+import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeAuthenticationProvider;
@@ -272,6 +274,17 @@ public final class OAuth2TokenEndpointConfigurer extends AbstractOAuth2Configure
 		OAuth2TokenExchangeAuthenticationProvider tokenExchangeAuthenticationProvider = new OAuth2TokenExchangeAuthenticationProvider(
 				authorizationService, tokenGenerator);
 		authenticationProviders.add(tokenExchangeAuthenticationProvider);
+
+		@SuppressWarnings("unchecked")
+		JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory = httpSecurity
+			.getSharedObject(JwtDecoderFactory.class);
+		if (dPoPProofVerifierFactory != null) {
+			authorizationCodeAuthenticationProvider.setDPoPProofVerifierFactory(dPoPProofVerifierFactory);
+			refreshTokenAuthenticationProvider.setDPoPProofVerifierFactory(dPoPProofVerifierFactory);
+			clientCredentialsAuthenticationProvider.setDPoPProofVerifierFactory(dPoPProofVerifierFactory);
+			deviceCodeAuthenticationProvider.setDPoPProofVerifierFactory(dPoPProofVerifierFactory);
+			tokenExchangeAuthenticationProvider.setDPoPProofVerifierFactory(dPoPProofVerifierFactory);
+		}
 
 		return authenticationProviders;
 	}

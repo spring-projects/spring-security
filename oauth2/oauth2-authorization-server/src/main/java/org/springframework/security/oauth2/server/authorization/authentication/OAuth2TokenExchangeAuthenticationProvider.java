@@ -40,7 +40,11 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.jwt.DPoPProofContext;
+import org.springframework.security.oauth2.jwt.DPoPProofJwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
@@ -86,6 +90,8 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 
 	private final OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator;
 
+	private JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory;
+
 	/**
 	 * Constructs an {@code OAuth2TokenExchangeAuthenticationProvider} using the provided
 	 * parameters.
@@ -98,6 +104,7 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 		Assert.notNull(tokenGenerator, "tokenGenerator cannot be null");
 		this.authorizationService = authorizationService;
 		this.tokenGenerator = tokenGenerator;
+		this.dPoPProofVerifierFactory = new DPoPProofJwtDecoderFactory();
 	}
 
 	@Override
@@ -213,7 +220,7 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 		}
 
 		// Verify the DPoP Proof (if available)
-		Jwt dPoPProof = DPoPProofVerifier.verifyIfAvailable(tokenExchangeAuthentication);
+		Jwt dPoPProof = DPoPProofVerifier.verifyIfAvailable(tokenExchangeAuthentication, this.dPoPProofVerifierFactory);
 
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace("Validated token request parameters");
@@ -340,6 +347,19 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return OAuth2TokenExchangeAuthenticationToken.class.isAssignableFrom(authentication);
+	}
+
+	/**
+	 * Sets the {@link JwtDecoderFactory} that provides a {@link JwtDecoder} for the
+	 * specified {@link DPoPProofContext} and is used for authenticating a DPoP Proof
+	 * {@link Jwt}. The default factory is {@link DPoPProofJwtDecoderFactory}.
+	 * @param dPoPProofVerifierFactory the {@link JwtDecoderFactory} that provides a
+	 * {@link JwtDecoder} for the specified {@link DPoPProofContext}
+	 * @since 7.2
+	 */
+	public void setDPoPProofVerifierFactory(JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory) {
+		Assert.notNull(dPoPProofVerifierFactory, "dPoPProofVerifierFactory cannot be null");
+		this.dPoPProofVerifierFactory = dPoPProofVerifierFactory;
 	}
 
 }

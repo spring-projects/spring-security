@@ -40,13 +40,11 @@ import org.springframework.util.StringUtils;
  */
 final class DPoPProofVerifier {
 
-	private static final JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory = new DPoPProofJwtDecoderFactory();
-
 	private DPoPProofVerifier() {
 	}
 
-	static @Nullable Jwt verifyIfAvailable(
-			OAuth2AuthorizationGrantAuthenticationToken authorizationGrantAuthentication) {
+	static @Nullable Jwt verifyIfAvailable(OAuth2AuthorizationGrantAuthenticationToken authorizationGrantAuthentication,
+			JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory) {
 		String dPoPProof = (String) authorizationGrantAuthentication.getAdditionalParameters().get("dpop_proof");
 		if (!StringUtils.hasText(dPoPProof)) {
 			return null;
