@@ -39,7 +39,7 @@ jobs:
     name: Publish Release Announcements
     needs: [ deploy-schema ]
     if: ${{ !failure() && !cancelled() }}
-    uses: spring-io/spring-security-release-tools/.github/workflows/release-announcements-publish.yml@c6656e0cee9fd2930ad238f6e1cafb0b8792e515 # v1.1.0
+    uses: spring-io/spring-security-release-tools/.github/workflows/release-announcements-publish.yml@1537d446f51d995e33ae0215c1ef5b7d1767d986 # v1.1.0
     with:
       version: ${{ inputs.version }}
     secrets: inherit
