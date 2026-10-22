@@ -19,6 +19,7 @@ buildscript {
 apply plugin: 'io.spring.nohttp'
 apply plugin: 'locks'
 apply plugin: 'io.spring.convention.root'
+apply plugin: 'io.spring.security.release'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.springframework.security.versions.verify-dependencies-versions'
 apply plugin: 'org.springframework.security.check-expected-branch-version'
