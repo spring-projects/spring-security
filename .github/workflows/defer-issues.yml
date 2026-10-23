@@ -32,7 +32,7 @@ jobs:
       with:
         version: ${{ steps.todays-release.outputs.release-version }}
     - name: Schedule Next Milestone
-      uses: spring-io/spring-release-actions/schedule-milestone@6795980b9d960a13d420e114d50f1c8abe730769 # 0.0.7
+      uses: spring-io/spring-release-actions/schedule-milestone@3f7412aeec60ad13127b2a536a1b19a2803a5b81 # 0.0.8
       with:
         version: ${{ steps.next-version.outputs.version }}
         version-date: ${{ steps.next-version.outputs.version-date }}
