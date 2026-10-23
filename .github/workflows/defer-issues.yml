@@ -18,7 +18,7 @@ jobs:
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
     - name: Compute Version
       id: compute-version
-      uses: spring-io/spring-release-actions/compute-version@6795980b9d960a13d420e114d50f1c8abe730769 # 0.0.7
+      uses: spring-io/spring-release-actions/compute-version@3f7412aeec60ad13127b2a536a1b19a2803a5b81 # 0.0.8
     - name: Get Today's Release Version
       id: todays-release
       uses: spring-io/spring-release-actions/get-todays-release-version@6795980b9d960a13d420e114d50f1c8abe730769 # 0.0.7
