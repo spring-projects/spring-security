@@ -118,18 +118,17 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 		// @formatter:on
 		PostInvocationAttribute attr = findPostInvocationAttribute(attributes);
 		if (Mono.class.isAssignableFrom(returnType)) {
-			return toInvoke.flatMap((auth) -> PrePostAdviceReactiveMethodInterceptor.<Mono<?>>proceed(invocation)
+			return toInvoke.flatMap((auth) -> proceedAsMono(invocation)
 				.map((r) -> (attr != null) ? this.postAdvice.after(auth, invocation, attr, r) : r));
 		}
 		if (Flux.class.isAssignableFrom(returnType)) {
-			return toInvoke.flatMapMany((auth) -> PrePostAdviceReactiveMethodInterceptor.<Flux<?>>proceed(invocation)
+			return toInvoke.flatMapMany((auth) -> proceedAsFlux(invocation)
 				.map((r) -> (attr != null) ? this.postAdvice.after(auth, invocation, attr, r) : r));
 		}
 		if (hasFlowReturnType) {
 			if (isSuspendingFunction) {
-				return toInvoke
-					.flatMapMany((auth) -> Flux.from(PrePostAdviceReactiveMethodInterceptor.proceed(invocation))
-						.map((r) -> (attr != null) ? this.postAdvice.after(auth, invocation, attr, r) : r));
+				return toInvoke.flatMapMany((auth) -> proceedAsFlux(invocation)
+					.map((r) -> (attr != null) ? this.postAdvice.after(auth, invocation, attr, r) : r));
 			}
 			else {
 				ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(returnType);
@@ -141,18 +140,32 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 				return KotlinDelegate.asFlow(response);
 			}
 		}
-		return toInvoke.flatMap((auth) -> Mono.from(PrePostAdviceReactiveMethodInterceptor.proceed(invocation))
+		return toInvoke.flatMap((auth) -> proceedAsMono(invocation)
 			.map((r) -> (attr != null) ? this.postAdvice.after(auth, invocation, attr, r) : r));
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T extends Publisher<?>> @Nullable T proceed(final MethodInvocation invocation) {
-		try {
-			return (T) invocation.proceed();
+	private static Mono<Object> proceedAsMono(MethodInvocation invocation) {
+		Object result = flowProceed(invocation);
+		if (result instanceof Mono<?> mono) {
+			return (Mono<Object>) mono;
 		}
-		catch (Throwable throwable) {
-			throw Exceptions.propagate(throwable);
+		if (result instanceof Publisher<?> publisher) {
+			return Mono.from(publisher);
 		}
+		return Mono.justOrEmpty(result);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static Flux<Object> proceedAsFlux(MethodInvocation invocation) {
+		Object result = flowProceed(invocation);
+		if (result instanceof Flux<?> flux) {
+			return (Flux<Object>) flux;
+		}
+		if (result instanceof Publisher<?> publisher) {
+			return Flux.from(publisher);
+		}
+		return (result != null) ? Flux.just(result) : Flux.empty();
 	}
 
 	private static @Nullable Object flowProceed(final MethodInvocation invocation) {

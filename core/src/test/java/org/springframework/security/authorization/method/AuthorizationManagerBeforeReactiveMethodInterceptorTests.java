@@ -225,6 +225,44 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 			.isThrownBy(() -> ((Mono<?>) advice.invoke(mockMethodInvocation)).block());
 	}
 
+	// gh-19400
+	@Test
+	public void invokeSuspendingWhenProceedReturnsPlainValueThenWrapsAsMono() throws Throwable {
+		MethodInvocation mockMethodInvocation = spy(new MockMethodInvocation(new Sample(),
+				Sample.class.getDeclaredMethod("suspending", kotlin.coroutines.Continuation.class)));
+		// Simulates @Cacheable cache hit returning a plain value instead of a Mono
+		given(mockMethodInvocation.proceed()).willReturn("cached");
+		ReactiveAuthorizationManager<MethodInvocation> mockReactiveAuthorizationManager = mock(
+				ReactiveAuthorizationManager.class);
+		given(mockReactiveAuthorizationManager.authorize(any(), eq(mockMethodInvocation)))
+			.willReturn(Mono.just(new AuthorizationDecision(true)));
+		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
+				Pointcut.TRUE, mockReactiveAuthorizationManager);
+		Object result = interceptor.invoke(mockMethodInvocation);
+		assertThat(result).asInstanceOf(InstanceOfAssertFactories.type(Mono.class))
+			.extracting(Mono::block)
+			.isEqualTo("cached");
+		verify(mockReactiveAuthorizationManager).authorize(any(), eq(mockMethodInvocation));
+	}
+
+	// gh-19400
+	@Test
+	public void invokeSuspendingWhenProceedReturnsMonoThenUsesMono() throws Throwable {
+		MethodInvocation mockMethodInvocation = spy(new MockMethodInvocation(new Sample(),
+				Sample.class.getDeclaredMethod("suspending", kotlin.coroutines.Continuation.class)));
+		given(mockMethodInvocation.proceed()).willReturn(Mono.just("from-mono"));
+		ReactiveAuthorizationManager<MethodInvocation> mockReactiveAuthorizationManager = mock(
+				ReactiveAuthorizationManager.class);
+		given(mockReactiveAuthorizationManager.authorize(any(), eq(mockMethodInvocation)))
+			.willReturn(Mono.just(new AuthorizationDecision(true)));
+		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
+				Pointcut.TRUE, mockReactiveAuthorizationManager);
+		Object result = interceptor.invoke(mockMethodInvocation);
+		assertThat(result).asInstanceOf(InstanceOfAssertFactories.type(Mono.class))
+			.extracting(Mono::block)
+			.isEqualTo("from-mono");
+	}
+
 	interface HandlingReactiveAuthorizationManager
 			extends ReactiveAuthorizationManager<MethodInvocation>, MethodAuthorizationDeniedHandler {
 
@@ -238,6 +276,14 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 
 		Flux<String> flux() {
 			return Flux.just("john", "bob");
+		}
+
+		/**
+		 * JVM shape of a Kotlin {@code suspend} function (last parameter is
+		 * {@link kotlin.coroutines.Continuation}).
+		 */
+		Object suspending(kotlin.coroutines.Continuation<? super String> continuation) {
+			return null;
 		}
 
 	}
