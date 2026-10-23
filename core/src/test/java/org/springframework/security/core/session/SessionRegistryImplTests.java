@@ -192,6 +192,29 @@ public class SessionRegistryImplTests {
 		assertThat(this.sessionRegistry.getSessionInformation(newSessionId)).isNull();
 	}
 
+	@Test
+	public void sessionIdChangedEventWhenOldSessionRegisteredThenMigratesSessionWithoutHttpSessionEventPublisher() {
+		Object principal = "Some principal object";
+		final String oldSessionId = "old-session-id";
+		final String newSessionId = "new-session-id";
+		this.sessionRegistry.registerNewSession(oldSessionId, principal);
+		this.sessionRegistry.onApplicationEvent(new SessionIdChangedEvent("") {
+			@Override
+			public String getOldSessionId() {
+				return oldSessionId;
+			}
+
+			@Override
+			public String getNewSessionId() {
+				return newSessionId;
+			}
+		});
+		assertThat(this.sessionRegistry.getSessionInformation(oldSessionId)).isNull();
+		assertThat(this.sessionRegistry.getSessionInformation(newSessionId)).isNotNull();
+		assertThat(this.sessionRegistry.getSessionInformation(newSessionId).getPrincipal()).isEqualTo(principal);
+		assertThat(this.sessionRegistry.getAllSessions(principal, false)).hasSize(1);
+	}
+
 	private boolean contains(String sessionId, Object principal) {
 		List<SessionInformation> info = this.sessionRegistry.getAllSessions(principal, false);
 		for (SessionInformation sessionInformation : info) {
