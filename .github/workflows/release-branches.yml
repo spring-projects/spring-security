@@ -32,7 +32,7 @@ concurrency:
 jobs:
   release-branches:
     name: Build the branches
-    uses: spring-io/spring-security-actions/.github/workflows/release-branches.yml@2a3eb91b5fb2ad8c5fe3af780292cc7fd4459d99 # 0.0.6
+    uses: spring-io/spring-security-actions/.github/workflows/release-branches.yml@69ea2de3f27e04a86f030751f79433d4f4fcc349 # 0.0.6
     with:
       release-train-repository: ${{ vars.RELEASE_TRAIN_REPOSITORY }}
     secrets:
