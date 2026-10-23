@@ -285,9 +285,23 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	/**
-	 * Adds a {@link CorsFilter} to be used. If a bean by the name of corsFilter is
-	 * provided, that {@link CorsFilter} is used. Else if corsConfigurationSource is
-	 * defined, then that {@link CorsConfiguration} is used. You can enable CORS using:
+	 * Configures Cross-Origin Resource Sharing (CORS).
+	 *
+	 * <p>A {@link CorsFilter} is added to the security filter chain in either of
+	 * the following cases:
+	 * <ul>
+	 * <li>a single {@link org.springframework.web.cors.UrlBasedCorsConfigurationSource}
+	 * bean is present in the application context, in which case it is added
+	 * automatically without invoking this method;
+	 * <li>this method is invoked explicitly. When invoked, a bean named
+	 * {@code corsFilter} is used if available; otherwise a bean named
+	 * {@code corsConfigurationSource} is used.
+	 * </ul>
+	 *
+	 * <p>Invoke this method when you need to customize the {@link CorsConfigurer},
+	 * for example to use a {@link CorsFilter} or a
+	 * {@link org.springframework.web.cors.CorsConfigurationSource} bean with a
+	 * different name:
 	 *
 	 * <pre>
 	 * &#064;Configuration
