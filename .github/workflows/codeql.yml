@@ -10,6 +10,7 @@ on:
 permissions: read-all
 jobs:
   codeql-analysis-call:
+    if: github.event.repository.visibility == 'public'
     permissions:
       actions: read
       contents: read
