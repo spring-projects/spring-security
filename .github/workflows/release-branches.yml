@@ -5,11 +5,10 @@ name: release-branches
 # branch, or for an active disclosure the hotfix. What it builds, and the secret and the
 # variable that it needs, are in the guide of the reusable workflow that does it:
 #
-#   https://github.com/rwinch/spring-security-actions/blob/release-train-actions/docs/release-branches.md
+#   https://github.com/spring-io/spring-security-actions/blob/0.0.6/docs/release-branches.md
 #
-# The reusable workflow and its actions are in the repository spring-security-actions. It is
-# called at the branch release-train-actions of the clone of rwinch, where it is developed:
-# change it to a commit of spring-io/spring-security-actions when that is merged.
+# The reusable workflow and its actions are in the repository spring-io/spring-security-actions,
+# and are called at the commit of a tag.
 #
 # The disclosure branches only exist in the commercial repository, so this never runs in
 # this one. The commercial repository needs the secret RELEASE_AUTOMATION_TOKEN, and may set
@@ -33,7 +32,7 @@ concurrency:
 jobs:
   release-branches:
     name: Build the branches
-    uses: rwinch/spring-security-actions/.github/workflows/release-branches.yml@release-train-actions
+    uses: spring-io/spring-security-actions/.github/workflows/release-branches.yml@2a3eb91b5fb2ad8c5fe3af780292cc7fd4459d99 # 0.0.6
     with:
       release-train-repository: ${{ vars.RELEASE_TRAIN_REPOSITORY }}
     secrets:
