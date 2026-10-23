@@ -63,6 +63,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * Tests for {@link OAuth2DeviceAuthorizationConsentAuthenticationProvider}.
  *
  * @author Steve Riesenberg
+ * @author Andrey Litvitski
  */
 public class OAuth2DeviceAuthorizationConsentAuthenticationProviderTests {
 
@@ -274,9 +275,12 @@ public class OAuth2DeviceAuthorizationConsentAuthenticationProviderTests {
 	@Test
 	public void authenticateWhenAuthoritiesIsEmptyThenThrowOAuth2AuthenticationException() {
 		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
-		RegisteredClient registeredClient2 = TestRegisteredClients.registeredClient().scopes(Set::clear).build();
-		OAuth2Authorization authorization = createAuthorization(registeredClient2);
-		Authentication authentication = createAuthentication(registeredClient2);
+		OAuth2Authorization authorization = createAuthorization(registeredClient);
+		TestingAuthenticationToken principal = new TestingAuthenticationToken("principal", null,
+				Collections.emptyList());
+		Authentication authentication = new OAuth2DeviceAuthorizationConsentAuthenticationToken(AUTHORIZATION_URI,
+				registeredClient.getClientId(), principal, USER_CODE, STATE, Collections.emptySet(),
+				Collections.emptyMap());
 		given(this.authorizationService.findByToken(anyString(), any(OAuth2TokenType.class))).willReturn(authorization);
 		given(this.registeredClientRepository.findByClientId(anyString())).willReturn(registeredClient);
 		// @formatter:off
