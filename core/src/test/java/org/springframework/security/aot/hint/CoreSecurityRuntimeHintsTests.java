@@ -16,6 +16,7 @@
 
 package org.springframework.security.aot.hint;
 
+import java.time.Instant;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -49,6 +50,7 @@ import org.springframework.security.authentication.event.AuthenticationFailurePr
 import org.springframework.security.authentication.event.AuthenticationFailureProxyUntrustedEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureServiceExceptionEvent;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.ClassUtils;
@@ -149,6 +151,38 @@ class CoreSecurityRuntimeHintsTests {
 		assertThat(RuntimeHintsPredicates.reflection()
 			.onType(SecurityContextImpl.class)
 			.withMemberCategories(MemberCategory.INVOKE_PUBLIC_METHODS)).accepts(this.hints);
+	}
+
+	@Test
+	void factorGrantedAuthorityHasReflectionHints() {
+		assertThat(RuntimeHintsPredicates.reflection().onType(FactorGrantedAuthority.class)).accepts(this.hints);
+	}
+
+	@Test
+	void factorGrantedAuthorityHasJavaSerializationHints() {
+		assertThat(RuntimeHintsPredicates.reflection().onJavaSerialization(FactorGrantedAuthority.class, true))
+			.accepts(this.hints);
+	}
+
+	@Test
+	void instantHasReflectionHints() {
+		assertThat(RuntimeHintsPredicates.reflection().onType(Instant.class)).accepts(this.hints);
+	}
+
+	@Test
+	void instantHasJavaSerializationHints() {
+		assertThat(RuntimeHintsPredicates.reflection().onJavaSerialization(Instant.class, true)).accepts(this.hints);
+	}
+
+	@Test
+	void javaTimeSerHasReflectionHints() {
+		assertThat(RuntimeHintsPredicates.reflection().onType(TypeReference.of("java.time.Ser"))).accepts(this.hints);
+	}
+
+	@Test
+	void javaTimeSerHasJavaSerializationHints() {
+		assertThat(RuntimeHintsPredicates.reflection().onJavaSerialization(TypeReference.of("java.time.Ser"), true))
+			.accepts(this.hints);
 	}
 
 }
