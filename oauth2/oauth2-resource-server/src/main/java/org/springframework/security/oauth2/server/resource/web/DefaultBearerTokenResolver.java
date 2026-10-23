@@ -24,6 +24,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
@@ -112,8 +113,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 	}
 
 	private @Nullable String resolveAccessTokenFromBody(HttpServletRequest request) {
-		if (!this.allowFormEncodedBodyParameter
-				|| !MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(request.getContentType())
+		if (!this.allowFormEncodedBodyParameter || !isFormEncoded(request.getContentType())
 				|| HttpMethod.GET.name().equals(request.getMethod())) {
 			return null;
 		}
@@ -124,6 +124,18 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 		}
 
 		return resolveToken(request.getParameterValues(ACCESS_TOKEN_PARAMETER_NAME));
+	}
+
+	private static boolean isFormEncoded(@Nullable String contentType) {
+		if (!StringUtils.hasText(contentType)) {
+			return false;
+		}
+		try {
+			return MediaType.parseMediaType(contentType).equalsTypeAndSubtype(MediaType.APPLICATION_FORM_URLENCODED);
+		}
+		catch (InvalidMediaTypeException ex) {
+			return false;
+		}
 	}
 
 	/**
