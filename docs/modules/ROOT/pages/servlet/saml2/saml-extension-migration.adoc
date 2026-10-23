@@ -44,7 +44,7 @@ Both Spring Security and Spring Security SAML Extensions have examples for how t
 
 | Login & Logout | https://github.com/spring-projects/spring-security-samples/tree/main/servlet/spring-boot/java/saml2/login[Sample] |
 https://github.com/jzheaux/spring-security-saml-migrate/tree/main/login-logout[Sample]
-| Login using SAML Extension URLs | https://github.com/spring-projects/spring-security-samples/tree/main/servlet/spring-boot/java/saml2/custom-urls[Sample] | -
+| Login using SAML Extension URLs | https://github.com/spring-projects/spring-security-samples/tree/main/servlet/spring-boot/java/saml2/saml-extension-urls[Sample] | -
 | Metadata support | https://github.com/spring-projects/spring-security-samples/tree/main/servlet/spring-boot/java/saml2/refreshable-metadata[Sample] | -
 |===
 
