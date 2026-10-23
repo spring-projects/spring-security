@@ -34,7 +34,7 @@ import org.springframework.security.crypto.codec.Hex;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.reactive.function.client.WebClientException;
 
 /**
  * Checks if the provided password was leaked by relying on
@@ -43,6 +43,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
  * the source password being searched for.
  *
  * @author Marcus da Coregio
+ * @author Andrey Litvitski
  * @since 6.3
  */
 public class HaveIBeenPwnedRestApiReactivePasswordChecker implements ReactiveCompromisedPasswordChecker {
@@ -77,7 +78,7 @@ public class HaveIBeenPwnedRestApiReactivePasswordChecker implements ReactiveCom
 			return Flux.empty();
 		})
 			.doOnError((ex) -> this.logger.error("Request for leaked passwords failed", ex))
-			.onErrorResume(WebClientResponseException.class, (ex) -> Flux.empty());
+			.onErrorResume(WebClientException.class, (ex) -> Flux.empty());
 	}
 
 	/**
