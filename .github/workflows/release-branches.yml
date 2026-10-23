@@ -1,0 +1,40 @@
+name: release-branches
+
+# Every push to a disclosure branch builds the branches of its release, again from the
+# pushed commit every time (nobody commits to them): release/<version> and a snapshot
+# branch, or for an active disclosure the hotfix. What it builds, and the secret and the
+# variable that it needs, are in the guide of the reusable workflow that does it:
+#
+#   https://github.com/rwinch/spring-security-actions/blob/release-train-actions/docs/release-branches.md
+#
+# The reusable workflow and its actions are in the repository spring-security-actions. It is
+# called at the branch release-train-actions of the clone of rwinch, where it is developed:
+# change it to a commit of spring-io/spring-security-actions when that is merged.
+#
+# The disclosure branches only exist in the commercial repository, so this never runs in
+# this one. The commercial repository needs the secret RELEASE_AUTOMATION_TOKEN, and may set
+# the variable RELEASE_TRAIN_REPOSITORY (spring-io/release-train if it is not set).
+
+on:
+  push:
+    branches:
+      - "disclosure/frozen/**"
+      - "disclosure/active/**"
+
+permissions:
+  contents: read
+
+# One run at a time for a branch, and the newest wins: a run only pushes at the very end,
+# once, and what it creates on the way (the issues) is found again by the next run.
+concurrency:
+  group: release-branches-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-branches:
+    name: Build the branches
+    uses: rwinch/spring-security-actions/.github/workflows/release-branches.yml@release-train-actions
+    with:
+      release-train-repository: ${{ vars.RELEASE_TRAIN_REPOSITORY }}
+    secrets:
+      RELEASE_AUTOMATION_TOKEN: ${{ secrets.RELEASE_AUTOMATION_TOKEN }}
