@@ -16,7 +16,6 @@
 
 package org.springframework.security.test.web.reactive.server;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -115,7 +114,7 @@ public class SecurityMockServerConfigurersJwtTests extends AbstractMockServerCon
 		this.client
 			.mutateWith(SecurityMockServerConfigurers.mockJwt()
 				.jwt((jwt) -> jwt.claim("scope", "ignored authorities"))
-				.authorities((jwt) -> Arrays.asList(this.authority1)))
+				.authorities((jwt) -> List.of(this.authority1)))
 			.get()
 			.exchange()
 			.expectStatus()
