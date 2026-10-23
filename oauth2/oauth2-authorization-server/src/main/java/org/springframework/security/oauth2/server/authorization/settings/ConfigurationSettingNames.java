@@ -78,6 +78,13 @@ public final class ConfigurationSettingNames {
 		public static final String X509_CERTIFICATE_SUBJECT_DN = CLIENT_SETTINGS_NAMESPACE
 			.concat("x509-certificate-subject-dn");
 
+		/**
+		 * Set the {@code URL} for the external Identity Provider's JSON Web Key Set used
+		 * to validate ID tokens during token exchange.
+		 * @since 7.0
+		 */
+		public static final String ID_TOKEN_JWK_SET_URL = CLIENT_SETTINGS_NAMESPACE.concat("id-token-jwk-set-url");
+
 		private Client() {
 		}
 
