@@ -98,7 +98,7 @@ public abstract class WebTestUtils {
 		}
 		SecurityContextHolderFilter holderFilter = findFilter(request, SecurityContextHolderFilter.class);
 		if (holderFilter != null) {
-			ReflectionTestUtils.setField(holderFilter, "securityContextRepository", securityContextRepository);
+			holderFilter.setSecurityContextRepository(securityContextRepository);
 		}
 	}
 
