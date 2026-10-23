@@ -1,0 +1,195 @@
+[[outside-request]]
+= Spring Security Outside of a Request
+
+Much of the reference documentation assumes that Spring Security is protecting an HTTP request handled by a Servlet or Reactive application.
+However, a significant amount of code runs without any request at all, such as:
+
+* scheduled jobs (`@Scheduled`, Quartz)
+* command-line runners (`CommandLineRunner`, `ApplicationRunner`)
+* message listeners (JMS, Kafka, RabbitMQ, Spring Integration)
+* background threads and `Executor` tasks
+* plain unit tests that exercise secured services directly
+
+This page describes the pieces that are useful in those contexts.
+If you do have an HTTP request, start instead from the xref:servlet/index.adoc[Servlet] or xref:reactive/index.adoc[Reactive] sections.
+
+[[outside-request-securitycontext]]
+== The `SecurityContextHolder` and Threads
+
+The central abstraction is the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[`SecurityContextHolder`], which stores the current `SecurityContext`.
+By default it uses a `ThreadLocal`, so it works the same way with or without an HTTP request: whatever `Thread` you are running on, `SecurityContextHolder.getContext()` returns the `SecurityContext` associated with that thread.
+
+This has two consequences that matter outside of a web request:
+
+1. You can populate the context yourself before invoking secured code.
+2. When you hand work to another thread, the context is lost unless you propagate it explicitly.
+
+You can set and clear the context manually:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+SecurityContext context = SecurityContextHolder.createEmptyContext();
+context.setAuthentication(authentication);
+SecurityContextHolder.setContext(context);
+try {
+	// invoke secured code
+} finally {
+	SecurityContextHolder.clearContext();
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val context = SecurityContextHolder.createEmptyContext()
+context.authentication = authentication
+SecurityContextHolder.setContext(context)
+try {
+    // invoke secured code
+} finally {
+    SecurityContextHolder.clearContext()
+}
+----
+======
+
+[[outside-request-concurrency]]
+== Propagating the Context to Other Threads
+
+Because the context is thread-bound, work submitted to another thread (for example, a `ThreadPoolTaskExecutor`) does not see the caller's `SecurityContext`.
+Spring Security provides delegating wrappers so that you do not have to manage this by hand.
+For example, `DelegatingSecurityContextRunnable` and `DelegatingSecurityContextExecutor` capture the current context and restore it around the delegate:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+Runnable task = new DelegatingSecurityContextRunnable(originalRunnable);
+Executor executor = new DelegatingSecurityContextExecutor(delegateExecutor);
+
+executor.execute(task);
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+val task = DelegatingSecurityContextRunnable(originalRunnable)
+val executor: Executor = DelegatingSecurityContextExecutor(delegateExecutor)
+
+executor.execute(task)
+----
+======
+
+See xref:features/integrations/concurrency.adoc[Concurrency Support] for the full set of wrappers.
+
+[[outside-request-method-security]]
+== Method Security
+
+xref:servlet/authorization/method-security.adoc[Method security] does not require an HTTP request.
+Once it is enabled, annotations such as `@PreAuthorize`, `@PostAuthorize` and `@PreFilter` are evaluated against the `Authentication` found in the `SecurityContextHolder`, regardless of what triggered the invocation:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+@EnableMethodSecurity
+public class MethodSecurityConfig {
+}
+
+@Service
+public class MessageService {
+
+	@PreAuthorize("hasRole('ADMIN')")
+	public void process(String message) {
+		// ...
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableMethodSecurity
+class MethodSecurityConfig
+
+@Service
+class MessageService {
+
+    @PreAuthorize("hasRole('ADMIN')")
+    fun process(message: String) {
+        // ...
+    }
+}
+----
+======
+
+This is often the most convenient way to secure non-web code: the security decision travels with the method, so a scheduled job or message listener is protected without any request-scoped machinery.
+When you invoke such a method from a background thread, remember to propagate the context as described in the previous section if the `Authentication` is not already available on that thread.
+
+[[outside-request-testing]]
+== Testing Without a Web Request
+
+You can test secured services without starting `MockMvc` or an HTTP server.
+Spring Security integrates with Spring Test through `@WithMockUser` and `@WithSecurityContext`, which set up a `SecurityContext` for the duration of a test.
+These annotations work with any Spring Test context, so you can use a lightweight slice instead of booting the whole application:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = MethodSecurityConfig.class)
+class MessageServiceTests {
+
+	@Autowired
+	MessageService messageService;
+
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	void adminCanProcess() {
+		messageService.process("hello");
+	}
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@ExtendWith(SpringExtension::class)
+@ContextConfiguration(classes = [MethodSecurityConfig::class])
+class MessageServiceTests {
+
+    @Autowired
+    lateinit var messageService: MessageService
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
+    fun adminCanProcess() {
+        messageService.process("hello")
+    }
+}
+----
+======
+
+See xref:servlet/test/method.adoc#test-method[Testing Method Security] for `@WithMockUser`, `@WithUserDetails`, and using xref:servlet/test/method.adoc#test-method-withsecuritycontext[`@WithSecurityContext`] with a custom `Authentication`.
+
+[[outside-request-reactive]]
+== Reactive Environments
+
+If you are on a reactive stack, `SecurityContextHolder` is not the idiomatic mechanism; Spring Security instead carries the context through Reactor's `Context` via xref:reactive/authorization/method.adoc[`ReactiveSecurityContextHolder`].
+Refer to xref:reactive/index.adoc[Reactive Applications] for details.
