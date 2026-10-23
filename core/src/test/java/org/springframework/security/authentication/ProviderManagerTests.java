@@ -328,6 +328,28 @@ public class ProviderManagerTests {
 		verifyNoMoreInteractions(publisher); // Child should not publish (duplicate event)
 	}
 
+	// gh-19434
+	@Test
+	void providerNotFoundFromParentPublishesOnlyChildException() {
+		ProviderManager parentMgr = new ProviderManager(List.of(createProviderWhichDoesNotSupport()));
+		BadCredentialsException childEx = new BadCredentialsException("Bad Credentials in child");
+		ProviderManager childMgr = new ProviderManager(List.of(createProviderWhichThrows(childEx)), parentMgr);
+		AuthenticationEventPublisher publisher = mock(AuthenticationEventPublisher.class);
+		parentMgr.setAuthenticationEventPublisher(publisher);
+		childMgr.setAuthenticationEventPublisher(publisher);
+		Authentication authReq = mock(Authentication.class);
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> childMgr.authenticate(authReq))
+			.isSameAs(childEx);
+		verify(publisher).publishAuthenticationFailure(childEx, authReq);
+		verifyNoMoreInteractions(publisher);
+	}
+
+	private AuthenticationProvider createProviderWhichDoesNotSupport() {
+		AuthenticationProvider provider = mock(AuthenticationProvider.class);
+		given(provider.supports(any(Class.class))).willReturn(false);
+		return provider;
+	}
+
 	private AuthenticationProvider createProviderWhichThrows(final AuthenticationException ex) {
 		AuthenticationProvider provider = mock(AuthenticationProvider.class);
 		given(provider.supports(any(Class.class))).willReturn(true);
