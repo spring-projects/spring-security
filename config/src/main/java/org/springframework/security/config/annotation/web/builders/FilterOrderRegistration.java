@@ -43,6 +43,7 @@ import org.springframework.security.web.authentication.www.DigestAuthenticationF
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
+import org.springframework.security.web.csrf.CrossOriginProtectionFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
@@ -84,7 +85,11 @@ final class FilterOrderRegistration {
 		put(SecurityContextPersistenceFilter.class, order.next());
 		put(HeaderWriterFilter.class, order.next());
 		put(CorsFilter.class, order.next());
-		put(CsrfFilter.class, order.next());
+		int csrfOrder = order.next();
+		put(CsrfFilter.class, csrfOrder);
+		// takes CsrfFilter's place, so filters added before or after CsrfFilter keep
+		// their order
+		put(CrossOriginProtectionFilter.class, csrfOrder);
 		put(LogoutFilter.class, order.next());
 		this.filterToOrder.put(
 				"org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter",

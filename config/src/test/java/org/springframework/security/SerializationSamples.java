@@ -248,6 +248,7 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.security.web.authentication.session.SessionFixationProtectionEvent;
 import org.springframework.security.web.authentication.switchuser.AuthenticationSwitchUserEvent;
 import org.springframework.security.web.authentication.www.NonceExpiredException;
+import org.springframework.security.web.csrf.CrossOriginRequestException;
 import org.springframework.security.web.csrf.CsrfException;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.csrf.InvalidCsrfTokenException;
@@ -863,6 +864,9 @@ final class SerializationSamples {
 		generatorByClassName.put(NonceExpiredException.class,
 				(r) -> new NonceExpiredException("message", new IOException("fail")));
 		generatorByClassName.put(CsrfException.class, (r) -> new CsrfException("message"));
+		generatorByClassName.put(CrossOriginRequestException.class, (r) -> new CrossOriginRequestException("message"));
+		generatorByClassName.put(org.springframework.security.web.server.csrf.CrossOriginRequestException.class,
+				(r) -> new org.springframework.security.web.server.csrf.CrossOriginRequestException("message"));
 		generatorByClassName.put(org.springframework.security.web.server.csrf.CsrfException.class,
 				(r) -> new org.springframework.security.web.server.csrf.CsrfException("message"));
 		generatorByClassName.put(InvalidCsrfTokenException.class,
