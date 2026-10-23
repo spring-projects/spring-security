@@ -37,6 +37,7 @@ import static org.mockito.Mockito.verify;
  *
  * @author Ben Alex
  * @author Eddú Meléndez
+ * @author Josh Long
  */
 public class JdbcDaoImplTests {
 
@@ -108,6 +109,21 @@ public class JdbcDaoImplTests {
 		JdbcDaoImpl dao = makePopulatedJdbcDao();
 		assertThat(dao.loadUserByUsername("rod").getPassword()).isEqualTo("koala");
 		assertThat(dao.loadUserByUsername("ScOTt").getPassword()).isEqualTo("wombat");
+	}
+
+	@Test
+	public void loadUserByUsernameWhenCustomUsernameNormalizerThenAppliedBeforeQuery() {
+		JdbcDaoImpl dao = new JdbcDaoImpl((username) -> username.substring(0, 3));
+		dao.setDataSource(PopulatedDatabase.getDataSource());
+		dao.afterPropertiesSet();
+		UserDetails user = dao.loadUserByUsername("rodney");
+		assertThat(user.getUsername()).isEqualTo("rod");
+		assertThat(user.getPassword()).isEqualTo("koala");
+	}
+
+	@Test
+	public void constructorWhenNullUsernameNormalizerThenThrowsException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new JdbcDaoImpl(null));
 	}
 
 	@Test
