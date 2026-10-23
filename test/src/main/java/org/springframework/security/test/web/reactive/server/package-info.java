@@ -15,7 +15,7 @@
  */
 
 /**
- * Spring Security upport for testing Spring WebFlux server endpoints via WebTestClient.
+ * Spring Security support for testing Spring WebFlux server endpoints via WebTestClient.
  */
 @NullMarked
 package org.springframework.security.test.web.reactive.server;
