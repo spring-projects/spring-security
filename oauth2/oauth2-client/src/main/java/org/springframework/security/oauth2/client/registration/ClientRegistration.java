@@ -47,6 +47,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Joe Grandja
  * @author Michael Sosa
+ * @author Evgeniy Cheban
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2">Section 2
  * Client Registration</a>
@@ -386,6 +387,8 @@ public final class ClientRegistration implements Serializable {
 
 		private @Nullable String issuerUri;
 
+		private @Nullable String trustedIssuer;
+
 		private Map<String, Object> configurationMetadata = Collections.emptyMap();
 
 		private @Nullable String clientName;
@@ -598,6 +601,18 @@ public final class ClientRegistration implements Serializable {
 		}
 
 		/**
+		 * Allows overriding of default issuer validation that requires the requested
+		 * issuer to match the issuer received in the metadata configuration.
+		 * @param trustedIssuer the issuer to use
+		 * @return the {@link Builder}
+		 * @since 7.2
+		 */
+		public Builder trustedIssuer(@Nullable String trustedIssuer) {
+			this.trustedIssuer = trustedIssuer;
+			return this;
+		}
+
+		/**
 		 * Sets the metadata describing the provider's configuration.
 		 * @param configurationMetadata the metadata describing the provider's
 		 * configuration
@@ -645,6 +660,7 @@ public final class ClientRegistration implements Serializable {
 			}
 			this.validateAuthorizationGrantTypes();
 			this.validateScopes();
+			this.validateIssuer();
 			return this.create();
 		}
 
@@ -740,6 +756,15 @@ public final class ClientRegistration implements Serializable {
 
 		private static boolean withinTheRangeOf(int c, int min, int max) {
 			return c >= min && c <= max;
+		}
+
+		private void validateIssuer() {
+			if (this.issuerUri == null || this.trustedIssuer == null) {
+				return;
+			}
+			Assert.state(this.issuerUri.equals(this.trustedIssuer),
+					() -> "The Issuer \"%s\" provided in the configuration metadata did not match the requested issuer \"%s\""
+						.formatted(this.trustedIssuer, this.issuerUri));
 		}
 
 	}
