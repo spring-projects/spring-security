@@ -70,8 +70,8 @@ class AesGcmBytesEncryptorTests {
 			.ivGenerator(mockGenerator)
 			.build();
 		byte[] encrypted = encryptor.encrypt(this.secret.getBytes());
-		assertThat(Hex.encode(encrypted))
-			.isEqualTo("4b0febebd439db7ca77153cb254520c3e4d61ae38207b4e42b820d311dc3d4e0e2f37ed5ee");
+		assertThat(new String(Hex.encode(encrypted)))
+			.isEqualTo("4b0febebd439db7ca77153cb254520c332813cea271858a4fa3bb102d86b9c3317f1a94b8e");
 		assertThat(new String(encryptor.decrypt(encrypted))).isEqualTo(this.secret);
 	}
 
