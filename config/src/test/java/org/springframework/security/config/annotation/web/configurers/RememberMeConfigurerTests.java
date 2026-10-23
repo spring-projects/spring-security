@@ -49,6 +49,8 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
@@ -73,6 +75,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -212,6 +215,32 @@ public class RememberMeConfigurerTests {
 				.andExpect(redirectedUrl("/login?logout"))
 				.andExpect(cookie().maxAge("remember-me", 0));
 		// @formatter:on
+	}
+
+	// gh-10241
+	@Test
+	public void logoutWhenSessionIsInvalidThenRememberMeTokenIsInvalidated() throws Exception {
+		this.spring.register(PersistentRememberMeConfig.class).autowire();
+
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password")
+				.param("remember-me", "true");
+
+		MvcResult loginMvcResult = this.mvc.perform(loginRequest).andReturn();
+		Cookie rememberMeCookie = loginMvcResult.getResponse().getCookie("remember-me");
+
+		MockHttpServletRequestBuilder logoutRequest = post("/logout")
+				.with(csrf())
+				.cookie(rememberMeCookie);
+
+		this.mvc.perform(logoutRequest)
+				.andExpect(redirectedUrl("/login?logout"))
+				.andExpect(cookie().maxAge("remember-me", 0));
+
+		this.mvc.perform(get("/").cookie(rememberMeCookie))
+				.andExpect(unauthenticated());
 	}
 
 	@Test
@@ -491,6 +520,37 @@ public class RememberMeConfigurerTests {
 				.rememberMe(withDefaults());
 			return http.build();
 			// @formatter:on
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class PersistentRememberMeConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http, PersistentTokenRepository tokenRepository) throws Exception {
+			// @formatter:off
+			http
+					.authorizeHttpRequests((requests) -> requests
+							.anyRequest().hasRole("USER")
+					)
+					.formLogin(withDefaults())
+					.rememberMe((rememberMe) -> rememberMe
+							.tokenRepository(tokenRepository)
+					);
+			return http.build();
+			// @formatter:on
+		}
+
+		@Bean
+		PersistentTokenRepository persistentTokenRepository() {
+			return new InMemoryTokenRepositoryImpl();
 		}
 
 		@Bean
