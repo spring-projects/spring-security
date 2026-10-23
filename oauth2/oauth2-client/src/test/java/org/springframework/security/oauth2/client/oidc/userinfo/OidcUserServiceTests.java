@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
+import java.security.PrivateKey;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,6 +25,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import com.nimbusds.jose.EncryptionMethod;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWEAlgorithm;
+import com.nimbusds.jose.JWEHeader;
+import com.nimbusds.jose.JWEObject;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.Payload;
+import com.nimbusds.jose.crypto.RSAEncrypter;
+import com.nimbusds.jose.crypto.RSASSASigner;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -60,6 +76,9 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
+import org.springframework.security.oauth2.jose.TestJwks;
+import org.springframework.security.oauth2.jose.TestKeys;
+import org.springframework.security.oauth2.jwt.JwtException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -526,6 +545,122 @@ public class OidcUserServiceTests {
 		assertThat(userAuthority.getAuthority()).isEqualTo("OIDC_USER");
 		assertThat(userAuthority.getAttributes()).isEqualTo(user.getAttributes());
 		assertThat(userAuthority.getUserNameAttributeName()).isEqualTo("user-name");
+	}
+
+	// gh-9583
+	@Test
+	public void loadUserWhenSignedUserInfoResponseThenReturnUserWithVerifiedClaims() throws Exception {
+		serveUserInfo(signedUserInfo("subject1", TestKeys.DEFAULT_PRIVATE_KEY));
+		this.userService.setOauth2UserService(signedUserInfoService(null));
+		OidcUser user = this.userService
+			.loadUser(new OidcUserRequest(signedUserInfoRegistration(), this.accessToken, this.idToken));
+		assertThat(user.getSubject()).isEqualTo("subject1");
+		assertThat(user.getUserInfo().getEmail()).isEqualTo("user1@example.com");
+		assertThat(user.getUserInfo().getFullName()).isEqualTo("User One");
+		assertThat(this.server.takeRequest(1, TimeUnit.SECONDS)).isNotNull();
+	}
+
+	// gh-9583
+	@Test
+	public void loadUserWhenSignedAndEncryptedUserInfoResponseThenReturnUserWithVerifiedClaims() throws Exception {
+		RSAKey encryptionKey = TestJwks.generateRsa().keyID("encryption-key").build();
+		JWEHeader header = new JWEHeader.Builder(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A256GCM).contentType("JWT")
+			.build();
+		JWEObject jwe = new JWEObject(header,
+				new Payload(SignedJWT.parse(signedUserInfo("subject1", TestKeys.DEFAULT_PRIVATE_KEY))));
+		jwe.encrypt(new RSAEncrypter(encryptionKey.toRSAPublicKey()));
+		serveUserInfo(jwe.serialize());
+		this.userService.setOauth2UserService(signedUserInfoService(encryptionKey));
+		OidcUser user = this.userService
+			.loadUser(new OidcUserRequest(signedUserInfoRegistration(), this.accessToken, this.idToken));
+		assertThat(user.getSubject()).isEqualTo("subject1");
+		assertThat(user.getUserInfo().getEmail()).isEqualTo("user1@example.com");
+	}
+
+	// gh-9583
+	@Test
+	public void loadUserWhenSignedUserInfoResponseHasDifferentSubjectThenThrowOAuth2AuthenticationException()
+			throws Exception {
+		serveUserInfo(signedUserInfo("another-subject", TestKeys.DEFAULT_PRIVATE_KEY));
+		this.userService.setOauth2UserService(signedUserInfoService(null));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.userService
+				.loadUser(new OidcUserRequest(signedUserInfoRegistration(), this.accessToken, this.idToken)))
+			.withMessageContaining("invalid_user_info_response");
+	}
+
+	// gh-9583
+	@Test
+	public void loadUserWhenEncryptedUserInfoResponseHasDifferentSubjectThenThrowOAuth2AuthenticationException()
+			throws Exception {
+		RSAKey encryptionKey = TestJwks.generateRsa().keyID("encryption-key").build();
+		JWEHeader header = new JWEHeader.Builder(JWEAlgorithm.RSA_OAEP_256, EncryptionMethod.A256GCM).contentType("JWT")
+			.build();
+		JWEObject jwe = new JWEObject(header,
+				new Payload(SignedJWT.parse(signedUserInfo("another-subject", TestKeys.DEFAULT_PRIVATE_KEY))));
+		jwe.encrypt(new RSAEncrypter(encryptionKey.toRSAPublicKey()));
+		serveUserInfo(jwe.serialize());
+		this.userService.setOauth2UserService(signedUserInfoService(encryptionKey));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.userService
+				.loadUser(new OidcUserRequest(signedUserInfoRegistration(), this.accessToken, this.idToken)))
+			.withMessageContaining("invalid_user_info_response");
+	}
+
+	// gh-9583
+	@Test
+	public void loadUserWhenSignedUserInfoResponseHasInvalidSignatureThenThrowOAuth2AuthenticationException()
+			throws Exception {
+		RSAKey attackerKey = TestJwks.generateRsa().build();
+		serveUserInfo(signedUserInfo("subject1", attackerKey.toRSAPrivateKey()));
+		this.userService.setOauth2UserService(signedUserInfoService(null));
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.userService
+				.loadUser(new OidcUserRequest(signedUserInfoRegistration(), this.accessToken, this.idToken)))
+			.withMessageContaining("[invalid_user_info_response]")
+			.withCauseInstanceOf(JwtException.class);
+	}
+
+	private ClientRegistration signedUserInfoRegistration() {
+		return this.clientRegistrationBuilder.userInfoUri(this.server.url("/user").toString())
+			.jwkSetUri(this.server.url("/jwks").toString())
+			.build();
+	}
+
+	private DefaultOAuth2UserService signedUserInfoService(RSAKey decryptionKey) {
+		OidcUserInfoJwtDecoderFactory decoderFactory = new OidcUserInfoJwtDecoderFactory();
+		if (decryptionKey != null) {
+			decoderFactory.setJweDecryptionKeyResolver((clientRegistration) -> decryptionKey);
+		}
+		DefaultOAuth2UserService oauth2UserService = new DefaultOAuth2UserService();
+		oauth2UserService.setJwtResponseConverter((userRequest) -> (
+				jwt) -> decoderFactory.createDecoder(userRequest.getClientRegistration()).decode(jwt).getClaims());
+		return oauth2UserService;
+	}
+
+	private void serveUserInfo(String userInfoJwt) {
+		String jwkSet = new JWKSet(TestJwks.DEFAULT_RSA_JWK.toPublicJWK()).toString();
+		this.server.setDispatcher(new Dispatcher() {
+			@Override
+			public MockResponse dispatch(RecordedRequest request) {
+				if ("/jwks".equals(request.getPath())) {
+					return jsonResponse(jwkSet);
+				}
+				return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, "application/jwt").setBody(userInfoJwt);
+			}
+		});
+	}
+
+	private String signedUserInfo(String subject, PrivateKey signingKey) throws JOSEException {
+		JWTClaimsSet claims = new JWTClaimsSet.Builder().issuer("https://example.com")
+			.audience("client-id")
+			.subject(subject)
+			.claim("name", "User One")
+			.claim("email", "user1@example.com")
+			.build();
+		SignedJWT jwt = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).build(), claims);
+		jwt.sign(new RSASSASigner(signingKey));
+		return jwt.serialize();
 	}
 
 	private MockResponse jsonResponse(String json) {

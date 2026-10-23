@@ -16,8 +16,10 @@
 
 package org.springframework.security.oauth2.client.userinfo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -43,6 +45,7 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
@@ -419,6 +422,156 @@ public class DefaultOAuth2UserServiceTests {
 	public void setAttributesConverterWhenNullThenException() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(() -> this.userService.setAttributesConverter(null));
+	}
+
+	@Test
+	public void setJwtResponseConverterWhenNullThenException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.userService.setJwtResponseConverter(null));
+	}
+
+	// gh-9583
+	@Test
+	public void loadUserWhenJwtResponseConverterSetAndJwtResponseThenConverterMapsTokenToAttributes() {
+		this.server.enqueue(jwtResponse("header.payload.signature"));
+		ClientRegistration clientRegistration = jwtUserInfoRegistration();
+		OAuth2UserRequest userRequest = new OAuth2UserRequest(clientRegistration, this.accessToken);
+		List<String> tokens = new ArrayList<>();
+		List<OAuth2UserRequest> requests = new ArrayList<>();
+		this.userService.setJwtResponseConverter((request) -> {
+			requests.add(request);
+			return (token) -> {
+				tokens.add(token);
+				return Map.of("user-name", "user1", "email", "user1@example.com");
+			};
+		});
+		OAuth2User user = this.userService.loadUser(userRequest);
+		assertThat(tokens).containsExactly("header.payload.signature");
+		assertThat(requests).containsExactly(userRequest);
+		assertThat(user.getName()).isEqualTo("user1");
+		assertThat(user.getAttributes()).containsEntry("email", "user1@example.com");
+		assertThat(user.getAuthorities()).hasSize(1);
+	}
+
+	// gh-9583
+	@Test
+	public void loadUserWhenJwtResponseWithCharsetParameterThenConverterInvoked() {
+		this.server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, "application/jwt;charset=UTF-8")
+			.setBody("header.payload.signature"));
+		this.userService.setJwtResponseConverter((request) -> (token) -> Map.of("user-name", token));
+		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(jwtUserInfoRegistration(), this.accessToken));
+		assertThat(user.getName()).isEqualTo("header.payload.signature");
+	}
+
+	// gh-9583
+	@Test
+	public void loadUserWhenJwtResponseConverterSetThenAcceptHeaderIncludesJwt() throws Exception {
+		this.server.enqueue(jwtResponse("header.payload.signature"));
+		this.userService.setJwtResponseConverter((request) -> (token) -> Map.of("user-name", "user1"));
+		this.userService.loadUser(new OAuth2UserRequest(jwtUserInfoRegistration(), this.accessToken));
+		assertThat(this.server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.ACCEPT))
+			.isEqualTo("application/json, application/jwt");
+	}
+
+	// gh-9583
+	@Test
+	public void loadUserWhenJwtResponseConverterSetAndRequestAlreadyAcceptsJwtThenAcceptHeaderNotDuplicated()
+			throws Exception {
+		this.server.enqueue(jwtResponse("header.payload.signature"));
+		this.userService.setRequestEntityConverter((request) -> RequestEntity
+			.get(request.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUri())
+			.accept(MediaType.parseMediaType("application/jwt"))
+			.build());
+		this.userService.setJwtResponseConverter((request) -> (token) -> Map.of("user-name", "user1"));
+		this.userService.loadUser(new OAuth2UserRequest(jwtUserInfoRegistration(), this.accessToken));
+		assertThat(this.server.takeRequest(1, TimeUnit.SECONDS).getHeader(HttpHeaders.ACCEPT))
+			.isEqualTo("application/jwt");
+	}
+
+	// gh-9583
+	@Test
+	public void loadUserWhenJwtResponseConverterSetAndJsonResponseThenConverterNotInvoked() {
+		this.server.enqueue(jsonResponse("{\"user-name\": \"user1\"}"));
+		this.userService.setJwtResponseConverter((request) -> (token) -> {
+			throw new IllegalStateException("the JWT converter must not be used for application/json");
+		});
+		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(jwtUserInfoRegistration(), this.accessToken));
+		assertThat(user.getName()).isEqualTo("user1");
+	}
+
+	// gh-9583
+	@Test
+	public void loadUserWhenJwtResponseAndNoJwtResponseConverterThenThrowOAuth2AuthenticationException() {
+		this.server.enqueue(jwtResponse("header.payload.signature"));
+		ClientRegistration clientRegistration = jwtUserInfoRegistration();
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+			.withMessageContaining("[invalid_user_info_response]")
+			.withMessageContaining("response contains invalid content type 'application/jwt'");
+	}
+
+	// gh-9583
+	@Test
+	public void loadUserWhenJwtResponseConverterSetAndOtherContentTypeThenThrowOAuth2AuthenticationException() {
+		this.server.enqueue(new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE)
+			.setBody("header.payload.signature"));
+		this.userService.setJwtResponseConverter((request) -> (token) -> Map.of("user-name", "user1"));
+		ClientRegistration clientRegistration = jwtUserInfoRegistration();
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+			.withMessageContaining("response contains invalid content type 'text/plain'");
+	}
+
+	// gh-9583
+	@Test
+	public void loadUserWhenJwtResponseConverterThrowsThenThrowOAuth2AuthenticationExceptionWithCause() {
+		this.server.enqueue(jwtResponse("header.payload.signature"));
+		IllegalStateException cause = new IllegalStateException("bad signature");
+		this.userService.setJwtResponseConverter((request) -> (token) -> {
+			throw cause;
+		});
+		ClientRegistration clientRegistration = jwtUserInfoRegistration();
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+			.withMessageContaining("[invalid_user_info_response]")
+			.withMessageContaining("bad signature")
+			.withCause(cause);
+	}
+
+	// gh-9583
+	@Test
+	public void loadUserWhenJwtResponseConverterThrowsOAuth2AuthenticationExceptionThenPropagatedUnchanged() {
+		this.server.enqueue(jwtResponse("header.payload.signature"));
+		OAuth2AuthenticationException failure = new OAuth2AuthenticationException(
+				new OAuth2Error("missing_signature_verifier"));
+		this.userService.setJwtResponseConverter((request) -> (token) -> {
+			throw failure;
+		});
+		ClientRegistration clientRegistration = jwtUserInfoRegistration();
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+			.isSameAs(failure);
+	}
+
+	// gh-9583
+	@Test
+	public void loadUserWhenJwtResponseConverterReturnsNullThenThrowOAuth2AuthenticationException() {
+		this.server.enqueue(jwtResponse("header.payload.signature"));
+		this.userService.setJwtResponseConverter((request) -> (token) -> null);
+		ClientRegistration clientRegistration = jwtUserInfoRegistration();
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+			.isThrownBy(() -> this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken)))
+			.withMessageContaining("[invalid_user_info_response]");
+	}
+
+	private ClientRegistration jwtUserInfoRegistration() {
+		return this.clientRegistrationBuilder.userInfoUri(this.server.url("/user").toString())
+			.userInfoAuthenticationMethod(AuthenticationMethod.HEADER)
+			.userNameAttributeName("user-name")
+			.build();
+	}
+
+	private MockResponse jwtResponse(String jwt) {
+		return new MockResponse().setHeader(HttpHeaders.CONTENT_TYPE, "application/jwt").setBody(jwt);
 	}
 
 	@SuppressWarnings("removal")
