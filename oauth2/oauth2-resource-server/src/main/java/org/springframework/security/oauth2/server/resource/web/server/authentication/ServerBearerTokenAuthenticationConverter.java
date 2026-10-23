@@ -44,6 +44,7 @@ import org.springframework.web.server.ServerWebExchange;
  * Token</a>s from the {@link ServerWebExchange}.
  *
  * @author Rob Winch
+ * @author Andrey Litvitski
  * @since 5.1
  * @see <a href="https://tools.ietf.org/html/rfc6750#section-2" target="_blank">RFC 6750
  * Section 2: Authenticated Requests</a>
@@ -52,7 +53,7 @@ public class ServerBearerTokenAuthenticationConverter implements ServerAuthentic
 
 	private static final String ACCESS_TOKEN_PARAMETER_NAME = "access_token";
 
-	private static final Pattern authorizationPattern = Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+=*)$",
+	private static final Pattern authorizationPattern = Pattern.compile("^Bearer +(?<token>[a-zA-Z0-9-._~+/]+=*)$",
 			Pattern.CASE_INSENSITIVE);
 
 	private boolean allowFormEncodedBodyParameter = false;

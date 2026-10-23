@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Winch
+ * @author Andrey Litvitski
  * @since 5.1
  */
 public class ServerBearerTokenAuthenticationConverterTests {
@@ -56,6 +57,16 @@ public class ServerBearerTokenAuthenticationConverterTests {
 		// @formatter:off
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/")
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + TEST_TOKEN);
+		// @formatter:on
+		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
+	}
+
+	// gh-19500
+	@Test
+	public void resolveWhenHeaderHasMultipleSpacesBeforeTokenThenTokenIsResolved() {
+		// @formatter:off
+		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/")
+				.header(HttpHeaders.AUTHORIZATION, "Bearer  " + TEST_TOKEN);
 		// @formatter:on
 		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
 	}
