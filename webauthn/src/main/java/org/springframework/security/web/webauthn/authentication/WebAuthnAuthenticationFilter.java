@@ -38,20 +38,15 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.http.converter.SmartHttpMessageConverter;
 import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
-import org.springframework.http.server.ServletServerHttpRequest;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.authentication.HttpMessageConverterAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.webauthn.api.AuthenticatorAssertionResponse;
-import org.springframework.security.web.webauthn.api.PublicKeyCredential;
-import org.springframework.security.web.webauthn.api.PublicKeyCredentialRequestOptions;
 import org.springframework.security.web.webauthn.jackson.WebauthnJacksonModule;
-import org.springframework.security.web.webauthn.management.RelyingPartyAuthenticationRequest;
 import org.springframework.util.Assert;
 
 import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
@@ -78,6 +73,7 @@ import static org.springframework.security.web.servlet.util.matcher.PathPatternR
  * </pre>
  *
  * @author Rob Winch
+ * @author Andrey Litvitski
  * @since 6.4
  */
 public class WebAuthnAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
@@ -86,6 +82,11 @@ public class WebAuthnAuthenticationFilter extends AbstractAuthenticationProcessi
 			JsonMapper.builder().addModule(new WebauthnJacksonModule()).build());
 
 	private PublicKeyCredentialRequestOptionsRepository requestOptionsRepository = new HttpSessionPublicKeyCredentialRequestOptionsRepository();
+
+	private final WebAuthnAuthenticationConverter webAuthnAuthenticationConverter = new WebAuthnAuthenticationConverter(
+			this.converter, this.requestOptionsRepository);
+
+	private AuthenticationConverter authenticationConverter = this.webAuthnAuthenticationConverter;
 
 	public WebAuthnAuthenticationFilter() {
 		super(pathPattern(HttpMethod.POST, "/login/webauthn"));
@@ -96,29 +97,14 @@ public class WebAuthnAuthenticationFilter extends AbstractAuthenticationProcessi
 	}
 
 	@Override
-	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+	public @Nullable Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException, IOException, ServletException {
-		ServletServerHttpRequest httpRequest = new ServletServerHttpRequest(request);
-		ResolvableType resolvableType = ResolvableType.forClassWithGenerics(PublicKeyCredential.class,
-				AuthenticatorAssertionResponse.class);
-		PublicKeyCredential<AuthenticatorAssertionResponse> publicKeyCredential = null;
-		try {
-			publicKeyCredential = (PublicKeyCredential<AuthenticatorAssertionResponse>) this.converter
-				.read(resolvableType, httpRequest, null);
-		}
-		catch (Exception ex) {
-			throw new BadCredentialsException("Unable to authenticate the PublicKeyCredential", ex);
-		}
-		PublicKeyCredentialRequestOptions requestOptions = this.requestOptionsRepository.load(request);
-		if (requestOptions == null) {
-			throw new BadCredentialsException(
-					"Unable to authenticate the PublicKeyCredential. No PublicKeyCredentialRequestOptions found.");
+		Authentication authentication = this.authenticationConverter.convert(request);
+		if (authentication == null) {
+			return null;
 		}
 		this.requestOptionsRepository.save(request, response, null);
-		RelyingPartyAuthenticationRequest authenticationRequest = new RelyingPartyAuthenticationRequest(requestOptions,
-				publicKeyCredential);
-		WebAuthnAuthenticationRequestToken token = new WebAuthnAuthenticationRequestToken(authenticationRequest);
-		return getAuthenticationManager().authenticate(token);
+		return getAuthenticationManager().authenticate(authentication);
 	}
 
 	/**
@@ -132,6 +118,7 @@ public class WebAuthnAuthenticationFilter extends AbstractAuthenticationProcessi
 	public void setConverter(GenericHttpMessageConverter<Object> converter) {
 		Assert.notNull(converter, "converter cannot be null");
 		this.converter = new GenericHttpMessageConverterAdapter<>(converter);
+		this.webAuthnAuthenticationConverter.setConverter(this.converter);
 	}
 
 	/**
@@ -144,6 +131,21 @@ public class WebAuthnAuthenticationFilter extends AbstractAuthenticationProcessi
 	public void setConverter(SmartHttpMessageConverter<Object> converter) {
 		Assert.notNull(converter, "converter cannot be null");
 		this.converter = converter;
+		this.webAuthnAuthenticationConverter.setConverter(converter);
+	}
+
+	/**
+	 * Sets the {@link AuthenticationConverter} to use for converting the
+	 * {@link HttpServletRequest} into an {@link Authentication}.
+	 * @param authenticationConverter the {@link AuthenticationConverter} to use. Cannot
+	 * be null.
+	 * @since 7.1
+	 */
+	@Override
+	public void setAuthenticationConverter(AuthenticationConverter authenticationConverter) {
+		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+		this.authenticationConverter = authenticationConverter;
+		super.setAuthenticationConverter(authenticationConverter);
 	}
 
 	/**
@@ -155,6 +157,7 @@ public class WebAuthnAuthenticationFilter extends AbstractAuthenticationProcessi
 	public void setRequestOptionsRepository(PublicKeyCredentialRequestOptionsRepository requestOptionsRepository) {
 		Assert.notNull(requestOptionsRepository, "requestOptionsRepository cannot be null");
 		this.requestOptionsRepository = requestOptionsRepository;
+		this.webAuthnAuthenticationConverter.setRequestOptionsRepository(requestOptionsRepository);
 	}
 
 	/**
