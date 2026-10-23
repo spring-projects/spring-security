@@ -35,6 +35,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.test.web.CodecTestUtils;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,6 +65,13 @@ public class AbstractRememberMeServicesTests {
 	public void nonBase64CookieShouldBeDetected() {
 		assertThatExceptionOfType(InvalidCookieException.class)
 			.isThrownBy(() -> new MockRememberMeServices(this.uds).decodeCookie("nonBase64CookieValue%"));
+	}
+
+	@Test
+	public void nonUrlEncodedCookieTokenShouldBeDetected() {
+		String cookie = CodecTestUtils.encodeBase64("joe:%zz:token");
+		assertThatExceptionOfType(InvalidCookieException.class)
+			.isThrownBy(() -> new MockRememberMeServices(this.uds).decodeCookie(cookie));
 	}
 
 	@Test
@@ -144,6 +152,18 @@ public class AbstractRememberMeServicesTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		request.setCookies(new Cookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY, "ZZZ"));
+		Authentication result = services.autoLogin(request, response);
+		assertThat(result).isNull();
+		assertCookieCancelled(response);
+	}
+
+	@Test
+	public void autoLoginShouldFailIfCookieTokenIsNotUrlEncoded() {
+		MockRememberMeServices services = new MockRememberMeServices(this.uds);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		request.setCookies(new Cookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
+				CodecTestUtils.encodeBase64("joe:%zz:token")));
 		Authentication result = services.autoLogin(request, response);
 		assertThat(result).isNull();
 		assertCookieCancelled(response);
