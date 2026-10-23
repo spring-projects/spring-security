@@ -115,7 +115,7 @@ public class CsrfWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		if (Boolean.TRUE.equals(exchange.getAttribute(SHOULD_NOT_FILTER))) {
+		if (isSkipped(exchange)) {
 			return chain.filter(exchange).then(Mono.empty());
 		}
 		return this.requireCsrfProtectionMatcher.matches(exchange)
@@ -127,8 +127,17 @@ public class CsrfWebFilter implements WebFilter {
 			.onErrorResume(CsrfException.class, (ex) -> this.accessDeniedHandler.handle(exchange, ex));
 	}
 
+	/**
+	 * Marks the exchange so that neither this filter nor
+	 * {@link CrossOriginProtectionWebFilter} protects it against CSRF.
+	 * @param exchange the exchange not to protect
+	 */
 	public static void skipExchange(ServerWebExchange exchange) {
 		exchange.getAttributes().put(SHOULD_NOT_FILTER, Boolean.TRUE);
+	}
+
+	static boolean isSkipped(ServerWebExchange exchange) {
+		return Boolean.TRUE.equals(exchange.getAttribute(SHOULD_NOT_FILTER));
 	}
 
 	private Mono<Void> validateToken(ServerWebExchange exchange) {

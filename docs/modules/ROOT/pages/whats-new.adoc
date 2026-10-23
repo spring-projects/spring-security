@@ -7,6 +7,7 @@
 
 == Web
 
+* https://github.com/spring-projects/spring-security/issues/18361[gh-18361] - Add xref:servlet/exploits/csrf.adoc#csrf-cross-origin-protection[CSRF protection without a token], which rejects a request the browser reports as coming from another origin through the `Sec-Fetch-Site` or `Origin` header (xref:reactive/exploits/csrf.adoc#webflux-csrf-configure-cross-origin-protection[WebFlux])
 * Since Spring Framework's `HttpMethod#valueOf` now normalizes casing, `StrictServerWebExchangeFirewall` no longer detects a non-canonical-case HTTP method (for example, `get` instead of `GET`) as a distinct value; such requests are processed as the canonical method instead of being rejected. Applications with a customized `ServerExchangeRejectedHandler` should be aware it is no longer invoked for this case.
 
 == OAuth 2.0
