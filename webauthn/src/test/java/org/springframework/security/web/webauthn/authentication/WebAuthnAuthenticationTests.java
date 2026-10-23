@@ -16,11 +16,14 @@
 
 package org.springframework.security.web.webauthn.authentication;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
@@ -54,6 +57,43 @@ class WebAuthnAuthenticationTests {
 		WebAuthnAuthentication authentication = new WebAuthnAuthentication(userEntity, authorities);
 		authentication.setAuthenticated(false);
 		assertThat(authentication.isAuthenticated()).isFalse();
+	}
+
+	@Test
+	void getNameReturnsUserEntityName() {
+		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity().build();
+		WebAuthnAuthentication authentication = new WebAuthnAuthentication(userEntity,
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		assertThat(authentication.getName()).isEqualTo(userEntity.getName());
+	}
+
+	// gh-19202
+	@Test
+	void principalImplementsAuthenticatedPrincipal() {
+		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity().build();
+		assertThat(userEntity).isInstanceOf(AuthenticatedPrincipal.class);
+		assertThat(((AuthenticatedPrincipal) userEntity).getName()).isEqualTo(userEntity.getName());
+	}
+
+	// gh-19202
+	// Simulates the name-extraction logic used internally by SpringSessionBackedSessionRegistry.
+	// Before the fix, AbstractAuthenticationToken falls through to toString() because
+	// PublicKeyCredentialUserEntity did not implement AuthenticatedPrincipal.
+	@Test
+	void principalNameResolvableViaAbstractAuthenticationToken() {
+		PublicKeyCredentialUserEntity userEntity = TestPublicKeyCredentialUserEntities.userEntity().build();
+		AbstractAuthenticationToken wrapper = new AbstractAuthenticationToken(Collections.emptyList()) {
+			@Override
+			public Object getPrincipal() {
+				return userEntity;
+			}
+
+			@Override
+			public Object getCredentials() {
+				return null;
+			}
+		};
+		assertThat(wrapper.getName()).isEqualTo(userEntity.getName());
 	}
 
 	@Test
