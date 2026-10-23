@@ -23,12 +23,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -48,6 +51,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.config.annotation.SecurityContextChangedListenerArgumentMatchers.setAuthentication;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -55,6 +59,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * @author Rob Winch
  * @author Josh Cummings
+ * @author Ngoc Nhan
  */
 @ExtendWith(SpringTestContextExtension.class)
 public class AnonymousConfigurerTests {
@@ -114,6 +119,15 @@ public class AnonymousConfigurerTests {
 			.getBean(AuthenticationDetailsSource.class);
 		this.mockMvc.perform(get("/"));
 		verify(source).buildDetails(any(HttpServletRequest.class));
+	}
+
+	@Test
+	public void anonymousWithCustomAuthorityDefaults() throws Exception {
+		this.spring.register(AnonymousGrantedAuthorityDefaultsConfig.class, PrincipalController.class).autowire();
+		this.mockMvc.perform(get("/anonymous").with(anonymous())).andExpect(status().isForbidden());
+		this.mockMvc.perform(get("/anonymous").with(anonymous().authorities("my_roles_ANONYMOUS")))
+			.andExpect(status().isOk())
+			.andExpect(content().string("anonymous"));
 	}
 
 	@Configuration
@@ -259,6 +273,31 @@ public class AnonymousConfigurerTests {
 		@GetMapping("/")
 		String principal(@AuthenticationPrincipal String principal) {
 			return principal;
+		}
+
+		@GetMapping("/anonymous")
+		@PreAuthorize("hasRole('ANONYMOUS')")
+		String getAnonymous(@AuthenticationPrincipal String principal) {
+			return principal;
+		}
+
+	}
+
+	@EnableWebMvc
+	@EnableWebSecurity
+	@EnableMethodSecurity
+	@Configuration
+	static class AnonymousGrantedAuthorityDefaultsConfig {
+
+		@Bean
+		GrantedAuthorityDefaults grantedAuthorityDefaults() {
+			return new GrantedAuthorityDefaults("my_roles_");
+		}
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			http.authorizeHttpRequests((authorize) -> authorize.anyRequest().anonymous());
+			return http.build();
 		}
 
 	}
