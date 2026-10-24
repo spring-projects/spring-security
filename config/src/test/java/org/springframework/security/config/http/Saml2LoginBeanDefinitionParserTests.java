@@ -25,6 +25,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.opensaml.core.Version;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.saml.saml2.core.Assertion;
@@ -344,6 +345,20 @@ public class Saml2LoginBeanDefinitionParserTests {
 		// @formatter:on
 		this.mvc.perform(request).andExpect(redirectedUrl("/"));
 		verify(this.authenticationConverter).convert(any(HttpServletRequest.class));
+	}
+
+	// gh-19628
+	@Test
+	public void useOpenSaml5WhenImplementationVersionUnavailableThenDoesNotThrow() {
+		// simulates OpenSAML being loaded from the Java module path, where
+		// Package#getImplementationVersion() returns null
+		assertThat(Saml2LoginBeanDefinitionParserUtils.useOpenSaml5(getClass())).isTrue();
+	}
+
+	@Test
+	public void useOpenSaml5WhenOpenSamlVersionClassThenMatchesRuntimeVersion() {
+		assertThat(Saml2LoginBeanDefinitionParserUtils.useOpenSaml5(Version.class))
+			.isEqualTo(Version.getVersion().startsWith("5"));
 	}
 
 	private RelyingPartyRegistration relyingPartyRegistrationWithVerifyingCredential() {

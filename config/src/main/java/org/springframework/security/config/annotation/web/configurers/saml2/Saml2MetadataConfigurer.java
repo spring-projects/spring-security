@@ -76,7 +76,7 @@ import org.springframework.util.Assert;
 public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<Saml2LogoutConfigurer<H>, H> {
 
-	private static final boolean USE_OPENSAML_5 = Version.getVersion().startsWith("5");
+	private static final boolean USE_OPENSAML_5 = useOpenSaml5(Version.class);
 
 	private final ApplicationContext context;
 
@@ -174,6 +174,21 @@ public class Saml2MetadataConfigurer<H extends HttpSecurityBuilder<H>>
 			return null;
 		}
 		return this.context.getBeanProvider(clazz).getIfAvailable();
+	}
+
+	/**
+	 * {@link Version#getVersion()} relies on {@link Package#getImplementationVersion()},
+	 * which is {@code null} when OpenSAML is loaded as a named module from the Java
+	 * module path. In that case, fall back to the module's descriptor version. When
+	 * neither is available, assume OpenSAML 5 since it is the only version supported.
+	 */
+	static boolean useOpenSaml5(Class<?> versionClass) {
+		String version = versionClass.getPackage().getImplementationVersion();
+		if (version == null) {
+			Module module = versionClass.getModule();
+			version = module.isNamed() ? module.getDescriptor().rawVersion().orElse(null) : null;
+		}
+		return version == null || version.startsWith("5");
 	}
 
 }
