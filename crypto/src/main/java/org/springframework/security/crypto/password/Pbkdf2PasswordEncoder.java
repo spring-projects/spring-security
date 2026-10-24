@@ -20,11 +20,11 @@ import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.HexFormat;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
@@ -204,7 +204,7 @@ public class Pbkdf2PasswordEncoder extends AbstractValidatingPasswordEncoder {
 		if (this.encodeHashAsBase64) {
 			return Base64.getEncoder().encodeToString(bytes);
 		}
-		return String.valueOf(Hex.encode(bytes));
+		return String.valueOf(HexFormat.of().formatHex(bytes));
 	}
 
 	@Override
@@ -218,7 +218,7 @@ public class Pbkdf2PasswordEncoder extends AbstractValidatingPasswordEncoder {
 		if (this.encodeHashAsBase64) {
 			return Base64.getDecoder().decode(encodedBytes);
 		}
-		return Hex.decode(encodedBytes);
+		return HexFormat.of().parseHex(encodedBytes);
 	}
 
 	private byte[] encodedNonNullPassword(CharSequence rawPassword, byte[] salt) {

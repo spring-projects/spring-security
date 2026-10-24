@@ -17,8 +17,8 @@
 package org.springframework.security.crypto.password;
 
 import java.security.MessageDigest;
+import java.util.HexFormat;
 
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
@@ -94,7 +94,7 @@ public final class StandardPasswordEncoder extends AbstractValidatingPasswordEnc
 
 	private String encodedNonNullPassword(CharSequence rawPassword, byte[] salt) {
 		byte[] digest = digest(rawPassword, salt);
-		return new String(Hex.encode(digest));
+		return HexFormat.of().formatHex(digest);
 	}
 
 	private byte[] digest(CharSequence rawPassword, byte[] salt) {
@@ -103,7 +103,7 @@ public final class StandardPasswordEncoder extends AbstractValidatingPasswordEnc
 	}
 
 	private byte[] decode(CharSequence encodedPassword) {
-		return Hex.decode(encodedPassword);
+		return HexFormat.of().parseHex(encodedPassword);
 	}
 
 }

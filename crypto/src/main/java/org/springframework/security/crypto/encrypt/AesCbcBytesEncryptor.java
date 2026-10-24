@@ -16,6 +16,7 @@
 
 package org.springframework.security.crypto.encrypt;
 
+import java.util.HexFormat;
 import java.util.Objects;
 
 import javax.crypto.Cipher;
@@ -24,7 +25,6 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.util.EncodingUtils;
@@ -119,7 +119,7 @@ public final class AesCbcBytesEncryptor implements BytesEncryptor {
 
 	private static SecretKey deriveKey(String password, CharSequence salt) {
 		return CipherUtils.newSecretKey("PBKDF2WithHmacSHA256",
-				new PBEKeySpec(password.toCharArray(), Hex.decode(salt), DEFAULT_PBKDF2_ITERATIONS, 256));
+				new PBEKeySpec(password.toCharArray(), HexFormat.of().parseHex(salt), DEFAULT_PBKDF2_ITERATIONS, 256));
 	}
 
 	/**

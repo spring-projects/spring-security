@@ -20,12 +20,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -181,7 +181,7 @@ final class DigestAuthUtils {
 	static String md5Hex(String data) {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("MD5");
-			return new String(Hex.encode(digest.digest(data.getBytes())));
+			return HexFormat.of().formatHex(digest.digest(data.getBytes()));
 		}
 		catch (NoSuchAlgorithmException ex) {
 			throw new IllegalStateException("No MD5 algorithm available!");
