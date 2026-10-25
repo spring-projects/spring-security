@@ -87,6 +87,7 @@ import org.springframework.web.client.RestTemplate;
  * @author Mykyta Bezverkhyi
  * @author Daeho Kwon
  * @author Andrey Litvitski
+ * @author Ngoc Nhan
  * @since 5.2
  */
 public final class NimbusJwtDecoder implements JwtDecoder {
@@ -306,6 +307,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
 
+		private @Nullable Consumer<JWKSourceBuilder<SecurityContext>> jwkSourceBuilderCustomizer;
+
 		private OAuth2TokenValidator<Jwt> validator = JwtValidators.createDefault();
 
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri) {
@@ -448,6 +451,31 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			return this;
 		}
 
+		/**
+		 * Use the given {@link Consumer} to customize the {@link JWKSourceBuilder} before
+		 * passing it to the {@link NimbusJwtDecoder} build process.
+		 *
+		 * <p>
+		 * By default, the {@link JWKSourceBuilder} is configured as follows:
+		 *
+		 * <pre>
+		 * jwkSourceBuilder
+		 *     .refreshAheadCache(false)
+		 *     .rateLimited(false)
+		 *     .cache(this.cache instanceof NoOpCache);
+		 * </pre>
+		 * @param jwkSourceBuilderCustomizer the callback used to customize the
+		 * {@link JWKSourceBuilder}
+		 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configuration
+		 * @since 7.1
+		 */
+		public JwkSetUriJwtDecoderBuilder jwkSourceBuilderCustomizer(
+				Consumer<JWKSourceBuilder<SecurityContext>> jwkSourceBuilderCustomizer) {
+			Assert.notNull(jwkSourceBuilderCustomizer, "jwkSourceBuilderCustomizer cannot be null");
+			this.jwkSourceBuilderCustomizer = jwkSourceBuilderCustomizer;
+			return this;
+		}
+
 		JwkSetUriJwtDecoderBuilder validator(OAuth2TokenValidator<Jwt> validator) {
 			Assert.notNull(validator, "validator cannot be null");
 			this.validator = validator;
@@ -468,11 +496,15 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		JWKSource<SecurityContext> jwkSource() {
 			String jwkSetUri = this.jwkSetUri.apply(this.restOperations);
-			return JWKSourceBuilder.create(new SpringJWKSource<>(this.restOperations, this.cache, jwkSetUri))
+			JWKSourceBuilder<SecurityContext> jwkSourceBuilder = JWKSourceBuilder
+				.create(new SpringJWKSource<>(this.restOperations, this.cache, jwkSetUri))
 				.refreshAheadCache(false)
 				.rateLimited(false)
-				.cache(this.cache instanceof NoOpCache)
-				.build();
+				.cache(this.cache instanceof NoOpCache);
+			if (this.jwkSourceBuilderCustomizer != null) {
+				this.jwkSourceBuilderCustomizer.accept(jwkSourceBuilder);
+			}
+			return jwkSourceBuilder.build();
 		}
 
 		JWTProcessor<SecurityContext> processor() {
