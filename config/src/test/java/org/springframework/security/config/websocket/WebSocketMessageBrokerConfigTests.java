@@ -450,9 +450,8 @@ public class WebSocketMessageBrokerConfigTests {
 		CsrfToken handshakeToken = (CsrfToken) this.testHandshakeHandler.attributes.get(csrfAttributeName);
 		String handshakeValue = (String) this.testHandshakeHandler.attributes.get(customAttributeName);
 		String sessionValue = (String) result.getRequest().getSession().getAttribute(customAttributeName);
-		assertThatCsrfToken(handshakeToken).isEqualTo(this.token).withFailMessage("CsrfToken is populated");
-		assertThat(handshakeValue).isEqualTo(sessionValue)
-			.withFailMessage("Explicitly listed session variables are not overridden");
+		assertThatCsrfToken(handshakeToken).as("CsrfToken is populated").isEqualTo(this.token);
+		assertThat(handshakeValue).as("Explicitly listed session variables are not overridden").isEqualTo(sessionValue);
 	}
 
 	@Test
@@ -470,9 +469,8 @@ public class WebSocketMessageBrokerConfigTests {
 		CsrfToken handshakeToken = (CsrfToken) this.testHandshakeHandler.attributes.get(csrfAttributeName);
 		String handshakeValue = (String) this.testHandshakeHandler.attributes.get(customAttributeName);
 		String sessionValue = (String) result.getRequest().getSession().getAttribute(customAttributeName);
-		assertThatCsrfToken(handshakeToken).isEqualTo(this.token).withFailMessage("CsrfToken is populated");
-		assertThat(handshakeValue).isEqualTo(sessionValue)
-			.withFailMessage("Explicitly listed session variables are not overridden");
+		assertThatCsrfToken(handshakeToken).as("CsrfToken is populated").isEqualTo(this.token);
+		assertThat(handshakeValue).as("Explicitly listed session variables are not overridden").isEqualTo(sessionValue);
 	}
 
 	@Test
