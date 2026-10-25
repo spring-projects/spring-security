@@ -39,7 +39,7 @@ import org.springframework.util.Assert;
  * @since 7.0
  * @see AuthorityAuthorizationManager
  */
-public final class AllAuthoritiesAuthorizationManager<T> implements AuthorizationManager<T> {
+public final class AllAuthoritiesAuthorizationManager<T extends @Nullable Object> implements AuthorizationManager<T> {
 
 	private static final String ROLE_PREFIX = "ROLE_";
 
@@ -101,7 +101,7 @@ public final class AllAuthoritiesAuthorizationManager<T> implements Authorizatio
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
 	 */
-	public static <T> AllAuthoritiesAuthorizationManager<T> hasAllRoles(String... roles) {
+	public static <T extends @Nullable Object> AllAuthoritiesAuthorizationManager<T> hasAllRoles(String... roles) {
 		return hasAllPrefixedAuthorities(ROLE_PREFIX, roles);
 	}
 
@@ -113,8 +113,8 @@ public final class AllAuthoritiesAuthorizationManager<T> implements Authorizatio
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
 	 */
-	public static <T> AllAuthoritiesAuthorizationManager<T> hasAllPrefixedAuthorities(String prefix,
-			String... authorities) {
+	public static <T extends @Nullable Object> AllAuthoritiesAuthorizationManager<T> hasAllPrefixedAuthorities(
+			String prefix, String... authorities) {
 		Assert.notNull(prefix, "rolePrefix cannot be null");
 		Assert.notEmpty(authorities, "roles cannot be empty");
 		Assert.noNullElements(authorities, "roles cannot contain null values");
@@ -128,7 +128,8 @@ public final class AllAuthoritiesAuthorizationManager<T> implements Authorizatio
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
 	 */
-	public static <T> AllAuthoritiesAuthorizationManager<T> hasAllAuthorities(String... authorities) {
+	public static <T extends @Nullable Object> AllAuthoritiesAuthorizationManager<T> hasAllAuthorities(
+			String... authorities) {
 		Assert.notEmpty(authorities, "authorities cannot be empty");
 		Assert.noNullElements(authorities, "authorities cannot contain null values");
 		return new AllAuthoritiesAuthorizationManager<>(authorities);
@@ -141,7 +142,8 @@ public final class AllAuthoritiesAuthorizationManager<T> implements Authorizatio
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
 	 */
-	public static <T> AllAuthoritiesAuthorizationManager<T> hasAllAuthorities(List<String> authorities) {
+	public static <T extends @Nullable Object> AllAuthoritiesAuthorizationManager<T> hasAllAuthorities(
+			List<String> authorities) {
 		Assert.notEmpty(authorities, "authorities cannot be empty");
 		Assert.noNullElements(authorities, "authorities cannot contain null values");
 		return new AllAuthoritiesAuthorizationManager<>(authorities.toArray(new String[0]));
