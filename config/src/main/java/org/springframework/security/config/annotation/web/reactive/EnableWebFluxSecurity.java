@@ -59,11 +59,9 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
  *     &#064;Bean
  *     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
  *          http
- *               .authorizeExchange()
- *                    .anyExchange().authenticated()
- *                         .and()
- *                    .httpBasic().and()
- *                    .formLogin();
+ *               .authorizeExchange((authorize) -&gt; authorize.anyExchange().authenticated())
+ *               .httpBasic(Customizer.withDefaults())
+ *               .formLogin(Customizer.withDefaults());
  *          return http.build();
  *     }
  *
