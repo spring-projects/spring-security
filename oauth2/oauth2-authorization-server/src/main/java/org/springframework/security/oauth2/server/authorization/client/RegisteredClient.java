@@ -42,6 +42,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Joe Grandja
  * @author Anoop Garlapati
+ * @author Andrey Litvitski
  * @since 7.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2">Section 2
  * Client Registration</a>
@@ -331,7 +332,7 @@ public class RegisteredClient implements Serializable {
 		 * @param id the identifier for the registration
 		 * @return the {@link Builder}
 		 */
-		public Builder id(String id) {
+		public Builder id(@Nullable String id) {
 			this.id = id;
 			return this;
 		}
@@ -341,7 +342,7 @@ public class RegisteredClient implements Serializable {
 		 * @param clientId the client identifier
 		 * @return the {@link Builder}
 		 */
-		public Builder clientId(String clientId) {
+		public Builder clientId(@Nullable String clientId) {
 			this.clientId = clientId;
 			return this;
 		}
@@ -351,7 +352,7 @@ public class RegisteredClient implements Serializable {
 		 * @param clientIdIssuedAt the time at which the client identifier was issued
 		 * @return the {@link Builder}
 		 */
-		public Builder clientIdIssuedAt(Instant clientIdIssuedAt) {
+		public Builder clientIdIssuedAt(@Nullable Instant clientIdIssuedAt) {
 			this.clientIdIssuedAt = clientIdIssuedAt;
 			return this;
 		}
@@ -361,7 +362,7 @@ public class RegisteredClient implements Serializable {
 		 * @param clientSecret the client secret
 		 * @return the {@link Builder}
 		 */
-		public Builder clientSecret(String clientSecret) {
+		public Builder clientSecret(@Nullable String clientSecret) {
 			this.clientSecret = clientSecret;
 			return this;
 		}
@@ -373,7 +374,7 @@ public class RegisteredClient implements Serializable {
 		 * {@code null} if it does not expire
 		 * @return the {@link Builder}
 		 */
-		public Builder clientSecretExpiresAt(Instant clientSecretExpiresAt) {
+		public Builder clientSecretExpiresAt(@Nullable Instant clientSecretExpiresAt) {
 			this.clientSecretExpiresAt = clientSecretExpiresAt;
 			return this;
 		}
@@ -383,7 +384,7 @@ public class RegisteredClient implements Serializable {
 		 * @param clientName the client name
 		 * @return the {@link Builder}
 		 */
-		public Builder clientName(String clientName) {
+		public Builder clientName(@Nullable String clientName) {
 			this.clientName = clientName;
 			return this;
 		}
@@ -507,7 +508,7 @@ public class RegisteredClient implements Serializable {
 		 * @param clientSettings the client configuration settings
 		 * @return the {@link Builder}
 		 */
-		public Builder clientSettings(ClientSettings clientSettings) {
+		public Builder clientSettings(@Nullable ClientSettings clientSettings) {
 			this.clientSettings = clientSettings;
 			return this;
 		}
@@ -517,7 +518,7 @@ public class RegisteredClient implements Serializable {
 		 * @param tokenSettings the token configuration settings
 		 * @return the {@link Builder}
 		 */
-		public Builder tokenSettings(TokenSettings tokenSettings) {
+		public Builder tokenSettings(@Nullable TokenSettings tokenSettings) {
 			this.tokenSettings = tokenSettings;
 			return this;
 		}
