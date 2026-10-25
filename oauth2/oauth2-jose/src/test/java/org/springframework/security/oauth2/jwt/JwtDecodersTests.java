@@ -34,6 +34,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,6 +47,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  *
  * @author Josh Cummings
  * @author Rafiullah Hamedy
+ * @author Evgeniy Cheban
  */
 public class JwtDecodersTests {
 
@@ -114,6 +116,18 @@ public class JwtDecodersTests {
 	}
 
 	@Test
+	public void issuerUsingCustomRestOperationsWhenResponseIsTypicalThenReturnedDecoderValidatesIssuer() {
+		prepareConfigurationResponse();
+		RestTemplate rest = new RestTemplate();
+		JwtDecoder decoder = JwtDecoders.fromOidcIssuerLocation(this.issuer, rest);
+		// @formatter:off
+		assertThatExceptionOfType(JwtValidationException.class)
+				.isThrownBy(() -> decoder.decode(ISSUER_MISMATCH))
+				.withMessageContaining("The iss claim is not valid");
+		// @formatter:on
+	}
+
+	@Test
 	public void issuerWhenOidcFallbackResponseIsTypicalThenReturnedDecoderValidatesIssuer() {
 		prepareConfigurationResponseOidc();
 		JwtDecoder decoder = JwtDecoders.fromIssuerLocation(this.issuer);
@@ -128,6 +142,18 @@ public class JwtDecodersTests {
 	public void issuerWhenOAuth2ResponseIsTypicalThenReturnedDecoderValidatesIssuer() {
 		prepareConfigurationResponseOAuth2();
 		JwtDecoder decoder = JwtDecoders.fromIssuerLocation(this.issuer);
+		// @formatter:off
+		assertThatExceptionOfType(JwtValidationException.class)
+				.isThrownBy(() -> decoder.decode(ISSUER_MISMATCH))
+				.withMessageContaining("The iss claim is not valid");
+		// @formatter:on
+	}
+
+	@Test
+	public void issuerUsingCustomRestOperationsWhenOAuth2ResponseIsTypicalThenReturnedDecoderValidatesIssuer() {
+		prepareConfigurationResponseOAuth2();
+		RestTemplate rest = new RestTemplate();
+		JwtDecoder decoder = JwtDecoders.fromIssuerLocation(this.issuer, rest);
 		// @formatter:off
 		assertThatExceptionOfType(JwtValidationException.class)
 				.isThrownBy(() -> decoder.decode(ISSUER_MISMATCH))
