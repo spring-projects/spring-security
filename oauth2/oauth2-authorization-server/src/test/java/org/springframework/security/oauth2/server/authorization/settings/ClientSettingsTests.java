@@ -73,6 +73,20 @@ public class ClientSettingsTests {
 	}
 
 	@Test
+	public void idTokenJwkSetUrlWhenProvidedThenSet() {
+		ClientSettings clientSettings = ClientSettings.builder()
+			.idTokenJwkSetUrl("https://gitlab.com/oauth/discovery/keys")
+			.build();
+		assertThat(clientSettings.getIdTokenJwkSetUrl()).isEqualTo("https://gitlab.com/oauth/discovery/keys");
+	}
+
+	@Test
+	public void idTokenJwkSetUrlWhenNotSetThenNull() {
+		ClientSettings clientSettings = ClientSettings.builder().build();
+		assertThat(clientSettings.getIdTokenJwkSetUrl()).isNull();
+	}
+
+	@Test
 	public void settingWhenCustomThenSet() {
 		ClientSettings clientSettings = ClientSettings.builder()
 			.setting("name1", "value1")
