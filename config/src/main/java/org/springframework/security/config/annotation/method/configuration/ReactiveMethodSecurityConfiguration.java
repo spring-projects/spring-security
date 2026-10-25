@@ -55,10 +55,11 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static MethodSecurityMetadataSourceAdvisor methodSecurityInterceptor(AbstractMethodSecurityMetadataSource source,
+	static MethodSecurityMetadataSourceAdvisor methodSecurityMetadataSourceAdvisor(
+			@org.springframework.beans.factory.annotation.Qualifier("methodMetadataSource") AbstractMethodSecurityMetadataSource methodMetadataSource,
 			ReactiveMethodSecurityConfiguration configuration) {
 		MethodSecurityMetadataSourceAdvisor advisor = new MethodSecurityMetadataSourceAdvisor(
-				"securityMethodInterceptor", source, "methodMetadataSource");
+				"securityMethodInterceptor", methodMetadataSource, "methodMetadataSource");
 		advisor.setOrder(configuration.advisorOrder);
 		return advisor;
 	}
@@ -75,12 +76,13 @@ class ReactiveMethodSecurityConfiguration implements ImportAware {
 	}
 
 	@Bean
-	static PrePostAdviceReactiveMethodInterceptor securityMethodInterceptor(AbstractMethodSecurityMetadataSource source,
+	static PrePostAdviceReactiveMethodInterceptor securityMethodInterceptor(
+			@org.springframework.beans.factory.annotation.Qualifier("methodMetadataSource") AbstractMethodSecurityMetadataSource methodMetadataSource,
 			MethodSecurityExpressionHandler handler) {
 		ExpressionBasedPostInvocationAdvice postAdvice = new ExpressionBasedPostInvocationAdvice(handler);
 		ExpressionBasedPreInvocationAdvice preAdvice = new ExpressionBasedPreInvocationAdvice();
 		preAdvice.setExpressionHandler(handler);
-		return new PrePostAdviceReactiveMethodInterceptor(source, preAdvice, postAdvice);
+		return new PrePostAdviceReactiveMethodInterceptor(methodMetadataSource, preAdvice, postAdvice);
 	}
 
 	@Bean
