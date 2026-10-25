@@ -56,6 +56,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * @param <F> refers to the {@link AbstractAuthenticationProcessingFilter} that is being
  * built
  * @author Rob Winch
+ * @author Andrey Litvitski
  * @since 3.2
  * @see FormLoginConfigurer
  */
@@ -300,6 +301,15 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		}
 		this.authFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		F filter = postProcess(this.authFilter);
+		addAuthenticationFilter(http, filter);
+	}
+
+	/**
+	 * Adds the authentication filter
+	 * @param http the {@link HttpSecurityBuilder}
+	 * @param filter the authentication filter
+	 */
+	protected void addAuthenticationFilter(B http, F filter) {
 		http.addFilter(filter);
 	}
 
