@@ -1,24 +1,24 @@
 name: release-branches
 
-# Every push to a disclosure branch builds the branches of its release, again from the
+# Every push to an embargoed branch builds the branches of its release, again from the
 # pushed commit every time (nobody commits to them): release/<version> and a snapshot
-# branch, or for an active disclosure the hotfix. What it builds, and the secret and the
-# variable that it needs, are in the guide of the reusable workflow that does it:
+# branch, or for an active embargoed branch the hotfix. What it builds, and the secret and
+# the variable that it needs, are in the guide of the reusable workflow that does it:
 #
-#   https://github.com/spring-io/spring-security-actions/blob/0.0.6/docs/release-branches.md
+#   https://github.com/spring-io/spring-security-actions/blob/0.0.9/docs/release-branches.md
 #
 # The reusable workflow and its actions are in the repository spring-io/spring-security-actions,
 # and are called at the commit of a tag.
 #
-# The disclosure branches only exist in the commercial repository, so this never runs in
+# The embargoed branches only exist in the commercial repository, so this never runs in
 # this one. The commercial repository needs the secret RELEASE_AUTOMATION_TOKEN, and may set
 # the variable RELEASE_TRAIN_REPOSITORY (spring-io/release-train if it is not set).
 
 on:
   push:
     branches:
-      - "disclosure/frozen/**"
-      - "disclosure/active/**"
+      - "embargoed/frozen/**"
+      - "embargoed/active/**"
 
 permissions:
   contents: read
@@ -32,7 +32,7 @@ concurrency:
 jobs:
   release-branches:
     name: Build the branches
-    uses: spring-io/spring-security-actions/.github/workflows/release-branches.yml@69ea2de3f27e04a86f030751f79433d4f4fcc349 # 0.0.6
+    uses: spring-io/spring-security-actions/.github/workflows/release-branches.yml@f7eb724f5fbf957902119e177c8aa13bd36881a2 # 0.0.9
     with:
       release-train-repository: ${{ vars.RELEASE_TRAIN_REPOSITORY }}
     secrets:
