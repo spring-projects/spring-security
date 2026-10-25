@@ -59,7 +59,7 @@ public class ELRequestMatcher implements RequestMatcher {
 	}
 
 	/**
-	 * Subclasses can override this methode if they want to use a different EL root
+	 * Subclasses can override this method if they want to use a different EL root
 	 * context.
 	 * @return EL root context which is used to evaluate the expression
 	 */
