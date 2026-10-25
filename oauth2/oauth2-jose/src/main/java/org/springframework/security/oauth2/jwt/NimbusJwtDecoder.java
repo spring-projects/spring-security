@@ -306,6 +306,9 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
 
+		private Consumer<JWKSourceBuilder<SecurityContext>> jwkSourceBuilderCustomizer = (builder) -> {
+		};
+
 		private OAuth2TokenValidator<Jwt> validator = JwtValidators.createDefault();
 
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri) {
@@ -434,6 +437,21 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		/**
+		 * Use the given {@link Consumer} to customize the {@link JWKSourceBuilder} before
+		 * building the JWK source.
+		 * @param jwkSourceBuilderCustomizer the callback used to customize the JWK source
+		 * builder
+		 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
+		 * @since 7.2
+		 */
+		public JwkSetUriJwtDecoderBuilder jwkSourceBuilderCustomizer(
+				Consumer<JWKSourceBuilder<SecurityContext>> jwkSourceBuilderCustomizer) {
+			Assert.notNull(jwkSourceBuilderCustomizer, "jwkSourceBuilderCustomizer cannot be null");
+			this.jwkSourceBuilderCustomizer = jwkSourceBuilderCustomizer;
+			return this;
+		}
+
+		/**
 		 * Use the given {@link Consumer} to customize the {@link JWTProcessor
 		 * ConfigurableJWTProcessor} before passing it to the build
 		 * {@link NimbusJwtDecoder}.
@@ -468,11 +486,13 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		JWKSource<SecurityContext> jwkSource() {
 			String jwkSetUri = this.jwkSetUri.apply(this.restOperations);
-			return JWKSourceBuilder.create(new SpringJWKSource<>(this.restOperations, this.cache, jwkSetUri))
+			JWKSourceBuilder<SecurityContext> builder = JWKSourceBuilder
+				.create(new SpringJWKSource<>(this.restOperations, this.cache, jwkSetUri))
 				.refreshAheadCache(false)
 				.rateLimited(false)
-				.cache(this.cache instanceof NoOpCache)
-				.build();
+				.cache(this.cache instanceof NoOpCache);
+			this.jwkSourceBuilderCustomizer.accept(builder);
+			return builder.build();
 		}
 
 		JWTProcessor<SecurityContext> processor() {
