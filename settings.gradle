@@ -5,7 +5,7 @@ pluginManagement {
 }
 
 plugins {
-	id 'io.spring.security.settings' version '1.0.21'
+	id 'io.spring.security.settings' version '1.0.22'
 }
 
 dependencyResolutionManagement {
