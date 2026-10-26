@@ -84,7 +84,8 @@ public interface Acl extends Serializable {
 	 * @return the owner (may be <tt>null</tt> if the implementation does not use
 	 * ownership concepts)
 	 */
-	@Nullable Sid getOwner();
+	@Nullable
+	Sid getOwner();
 
 	/**
 	 * A domain object may have a parent for the purpose of ACL inheritance. If there is a
@@ -105,7 +106,8 @@ public interface Acl extends Serializable {
 	 * @return the parent <tt>Acl</tt> (may be <tt>null</tt> if this <tt>Acl</tt> does not
 	 * have a parent)
 	 */
-	@Nullable Acl getParentAcl();
+	@Nullable
+	Acl getParentAcl();
 
 	/**
 	 * Indicates whether the ACL entries from the {@link #getParentAcl()} should flow down

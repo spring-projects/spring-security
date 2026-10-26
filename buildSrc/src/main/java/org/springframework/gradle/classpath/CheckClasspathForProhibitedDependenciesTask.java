@@ -35,11 +35,11 @@ import java.util.stream.Collectors;
  *
  * @author Andy Wilkinson
  */
-public class CheckClasspathForProhibitedDependencies extends DefaultTask {
+public class CheckClasspathForProhibitedDependenciesTask extends DefaultTask {
 
 	private Configuration classpath;
 
-	public CheckClasspathForProhibitedDependencies() {
+	public CheckClasspathForProhibitedDependenciesTask() {
 		getOutputs().upToDateWhen((task) -> true);
 	}
 

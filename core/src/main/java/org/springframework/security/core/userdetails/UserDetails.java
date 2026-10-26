@@ -55,7 +55,8 @@ public interface UserDetails extends Serializable {
 	 * specified a password (e.g. the user Passkeys instead).
 	 * @return the password
 	 */
-	@Nullable String getPassword();
+	@Nullable
+	String getPassword();
 
 	/**
 	 * Returns the username used to authenticate the user. Cannot return

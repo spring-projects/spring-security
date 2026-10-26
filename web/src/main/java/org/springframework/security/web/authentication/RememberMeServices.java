@@ -70,7 +70,8 @@ public interface RememberMeServices {
 	 * @return a valid authentication object, or <code>null</code> if the request should
 	 * not be authenticated
 	 */
-	@Nullable Authentication autoLogin(HttpServletRequest request, HttpServletResponse response);
+	@Nullable
+	Authentication autoLogin(HttpServletRequest request, HttpServletResponse response);
 
 	/**
 	 * Called whenever an interactive authentication attempt was made, but the credentials

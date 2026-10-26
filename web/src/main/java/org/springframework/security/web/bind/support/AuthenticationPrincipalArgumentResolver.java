@@ -103,7 +103,8 @@ public final class AuthenticationPrincipalArgumentResolver implements HandlerMet
 		}
 		Object principal = authentication.getPrincipal();
 		if (principal != null && !parameter.getParameterType().isAssignableFrom(principal.getClass())) {
-			@Nullable AuthenticationPrincipal authPrincipal = findMethodAnnotation(AuthenticationPrincipal.class, parameter);
+			@Nullable
+			AuthenticationPrincipal authPrincipal = findMethodAnnotation(AuthenticationPrincipal.class, parameter);
 			if (authPrincipal != null && authPrincipal.errorOnInvalidType()) {
 				throw new ClassCastException(principal + " is not assignable to " + parameter.getParameterType());
 			}

@@ -38,7 +38,8 @@ final class PostFilterExpressionAttributeRegistry extends AbstractExpressionAttr
 	private SecurityAnnotationScanner<PostFilter> scanner = SecurityAnnotationScanners.requireUnique(PostFilter.class);
 
 	@Override
-	@Nullable ExpressionAttribute resolveAttribute(Method method, @Nullable Class<?> targetClass) {
+	@Nullable
+	ExpressionAttribute resolveAttribute(Method method, @Nullable Class<?> targetClass) {
 		PostFilter postFilter = findPostFilterAnnotation(method, targetClass);
 		if (postFilter == null) {
 			return null;

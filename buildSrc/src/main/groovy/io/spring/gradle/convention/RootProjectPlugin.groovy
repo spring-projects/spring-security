@@ -34,7 +34,6 @@ class RootProjectPlugin implements Plugin<Project> {
 		pluginManager.apply(NoHttpPlugin)
 		pluginManager.apply(SpringNexusPublishPlugin)
 		pluginManager.apply(CheckProhibitedDependenciesLifecyclePlugin)
-		pluginManager.apply(ArtifactoryPlugin)
 		pluginManager.apply("org.sonarqube")
 
 		project.repositories.mavenCentral()

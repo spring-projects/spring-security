@@ -55,7 +55,8 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 	}
 
 	@Override
-	@Nullable ExpressionAttribute resolveAttribute(Method method, @Nullable Class<?> targetClass) {
+	@Nullable
+	ExpressionAttribute resolveAttribute(Method method, @Nullable Class<?> targetClass) {
 		PostAuthorize postAuthorize = findPostAuthorizeAnnotation(method, targetClass);
 		if (postAuthorize == null) {
 			return null;

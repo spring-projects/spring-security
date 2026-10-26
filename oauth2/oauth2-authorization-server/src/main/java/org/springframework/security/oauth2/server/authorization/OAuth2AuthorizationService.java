@@ -47,7 +47,8 @@ public interface OAuth2AuthorizationService {
 	 * @param id the authorization identifier
 	 * @return the {@link OAuth2Authorization} if found, otherwise {@code null}
 	 */
-	@Nullable OAuth2Authorization findById(String id);
+	@Nullable
+	OAuth2Authorization findById(String id);
 
 	/**
 	 * Returns the {@link OAuth2Authorization} containing the provided {@code token}, or
@@ -56,6 +57,7 @@ public interface OAuth2AuthorizationService {
 	 * @param tokenType the {@link OAuth2TokenType token type}
 	 * @return the {@link OAuth2Authorization} if found, otherwise {@code null}
 	 */
-	@Nullable OAuth2Authorization findByToken(String token, @Nullable OAuth2TokenType tokenType);
+	@Nullable
+	OAuth2Authorization findByToken(String token, @Nullable OAuth2TokenType tokenType);
 
 }

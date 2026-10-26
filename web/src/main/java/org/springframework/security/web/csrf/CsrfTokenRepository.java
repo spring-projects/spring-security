@@ -55,7 +55,8 @@ public interface CsrfTokenRepository {
 	 * @param request the {@link HttpServletRequest} to use
 	 * @return the {@link CsrfToken} or null if none exists
 	 */
-	@Nullable CsrfToken loadToken(HttpServletRequest request);
+	@Nullable
+	CsrfToken loadToken(HttpServletRequest request);
 
 	/**
 	 * Defers loading the {@link CsrfToken} using the {@link HttpServletRequest} and

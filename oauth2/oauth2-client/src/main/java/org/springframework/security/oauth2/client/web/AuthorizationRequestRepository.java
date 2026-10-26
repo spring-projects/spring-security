@@ -46,7 +46,8 @@ public interface AuthorizationRequestRepository<T extends OAuth2AuthorizationReq
 	 * @param request the {@code HttpServletRequest}
 	 * @return the {@link OAuth2AuthorizationRequest} or {@code null} if not available
 	 */
-	@Nullable T loadAuthorizationRequest(HttpServletRequest request);
+	@Nullable
+	T loadAuthorizationRequest(HttpServletRequest request);
 
 	/**
 	 * Persists the {@link OAuth2AuthorizationRequest} associating it to the provided
@@ -66,6 +67,7 @@ public interface AuthorizationRequestRepository<T extends OAuth2AuthorizationReq
 	 * @return the {@link OAuth2AuthorizationRequest} or {@code null} if not available
 	 * @since 5.1
 	 */
-	@Nullable T removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response);
+	@Nullable
+	T removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response);
 
 }

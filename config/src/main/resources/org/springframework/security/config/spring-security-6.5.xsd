@@ -3,7 +3,7 @@
            xmlns:security="http://www.springframework.org/schema/security"
            elementFormDefault="qualified"
            targetNamespace="http://www.springframework.org/schema/security">
-  <xs:attributeGroup name="hash">
+   <xs:attributeGroup name="hash">
       <xs:attribute name="hash" use="required">
          <xs:annotation>
             <xs:documentation>Defines the hashing algorithm used on user passwords. Bcrypt is recommended.
@@ -15,16 +15,16 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="base64">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="base64">
       <xs:attribute name="base64" use="required" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Whether a string should be base64 encoded
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="request-matcher">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="request-matcher">
       <xs:attribute name="request-matcher" use="required">
          <xs:annotation>
             <xs:documentation>Defines the strategy use for matching incoming requests. Currently the options are 'mvc'
@@ -41,80 +41,80 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="port">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="port">
       <xs:attribute name="port" use="required" type="xs:nonNegativeInteger">
          <xs:annotation>
             <xs:documentation>Specifies an IP port number. Used to configure an embedded LDAP server, for example.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="url">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="url">
       <xs:attribute name="url" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>Specifies a URL.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="id">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="id">
       <xs:attribute name="id" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="name">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="name">
       <xs:attribute name="name" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="ref">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="ref">
       <xs:attribute name="ref" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>Defines a reference to a Spring bean Id.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="cache-ref">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="cache-ref">
       <xs:attribute name="cache-ref" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>Defines a reference to a cache for use with a UserDetailsService.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="user-service-ref">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="user-service-ref">
       <xs:attribute name="user-service-ref" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>A reference to a user-service (or UserDetailsService bean) Id
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="authentication-manager-ref">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="authentication-manager-ref">
       <xs:attribute name="authentication-manager-ref" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>A reference to an AuthenticationManager bean
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="data-source-ref">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="data-source-ref">
       <xs:attribute name="data-source-ref" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>A reference to a DataSource bean
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="debug">
+   </xs:attributeGroup>
+   <xs:element name="debug">
       <xs:annotation>
          <xs:documentation>Enables Spring Security debugging infrastructure. This will provide human-readable
                 (multi-line) debugging information to monitor requests coming into the security filters.
@@ -124,8 +124,7 @@
       </xs:annotation>
       <xs:complexType/>
    </xs:element>
-  
-  <xs:attributeGroup name="password-encoder.attlist">
+   <xs:attributeGroup name="password-encoder.attlist">
       <xs:attribute name="ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Defines a reference to a Spring bean Id.
@@ -143,8 +142,8 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="role-prefix">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="role-prefix">
       <xs:attribute name="role-prefix" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>A non-empty string prefix that will be added to role strings loaded from persistent
@@ -153,8 +152,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="use-expressions">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="use-expressions">
       <xs:attribute name="use-expressions" use="required" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Enables the use of expressions in the 'access' attributes in &lt;intercept-url&gt; elements
@@ -164,8 +163,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="ldap-server">
+   </xs:attributeGroup>
+   <xs:element name="ldap-server">
       <xs:annotation>
          <xs:documentation>Defines an LDAP server location or starts an embedded server. The url indicates the
                 location of a remote server. If no url is given, an embedded server will be started,
@@ -177,7 +176,7 @@
          <xs:attributeGroup ref="security:ldap-server.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="ldap-server.attlist">
+   <xs:attributeGroup name="ldap-server.attlist">
       <xs:attribute name="id" type="xs:token">
          <xs:annotation>
             <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.
@@ -235,8 +234,8 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="ldap-server-ref-attribute">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="ldap-server-ref-attribute">
       <xs:attribute name="server-ref" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>The optional server to use. If omitted, and a default LDAP server is registered (using
@@ -244,8 +243,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="group-search-filter-attribute">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="group-search-filter-attribute">
       <xs:attribute name="group-search-filter" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>Group search filter. Defaults to (uniqueMember={0}). The substituted parameter is the DN
@@ -253,16 +252,16 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="group-search-base-attribute">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="group-search-base-attribute">
       <xs:attribute name="group-search-base" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>Search base for group membership searches. Defaults to "" (searching from the root).
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="user-search-filter-attribute">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="user-search-filter-attribute">
       <xs:attribute name="user-search-filter" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>The LDAP filter used to search for users (optional). For example "(uid={0})". The
@@ -270,16 +269,16 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="user-search-base-attribute">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="user-search-base-attribute">
       <xs:attribute name="user-search-base" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>Search base for user searches. Defaults to "". Only used with a 'user-search-filter'.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="group-role-attribute-attribute">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="group-role-attribute-attribute">
       <xs:attribute name="group-role-attribute" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>The LDAP attribute name which contains the role name which will be used within Spring
@@ -287,8 +286,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="user-details-class-attribute">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="user-details-class-attribute">
       <xs:attribute name="user-details-class" use="required">
          <xs:annotation>
             <xs:documentation>Allows the objectClass of the user entry to be specified. If set, the framework will
@@ -303,8 +302,8 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="user-context-mapper-attribute">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="user-context-mapper-attribute">
       <xs:attribute name="user-context-mapper-ref" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>Allows explicit customization of the loaded user object by specifying a
@@ -313,8 +312,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="ldap-user-service" substitutionGroup="security:any-user-service">
+   </xs:attributeGroup>
+   <xs:element name="ldap-user-service" substitutionGroup="security:any-user-service">
       <xs:annotation>
          <xs:documentation>This element configures a LdapUserDetailsService which is a combination of a
                 FilterBasedLdapUserSearch and a DefaultLdapAuthoritiesPopulator.
@@ -324,7 +323,7 @@
          <xs:attributeGroup ref="security:ldap-us.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="ldap-us.attlist">
+   <xs:attributeGroup name="ldap-us.attlist">
       <xs:attribute name="id" type="xs:token">
          <xs:annotation>
             <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.
@@ -407,9 +406,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  
-  <xs:attributeGroup name="ldap-ap.attlist">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="ldap-ap.attlist">
       <xs:attribute name="server-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>The optional server to use. If omitted, and a default LDAP server is registered (using
@@ -487,9 +485,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  
-  <xs:attributeGroup name="password-compare.attlist">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="password-compare.attlist">
       <xs:attribute name="password-attribute" type="xs:token">
          <xs:annotation>
             <xs:documentation>The attribute in the directory which contains the user password. Defaults to
@@ -508,8 +505,8 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="intercept-methods">
+   </xs:attributeGroup>
+   <xs:element name="intercept-methods">
       <xs:annotation>
          <xs:documentation>Can be used inside a bean definition to add a security interceptor to the bean and set up
                 access configuration attributes for the bean's methods
@@ -532,7 +529,7 @@
          <xs:attributeGroup ref="security:intercept-methods.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="intercept-methods.attlist">
+   <xs:attributeGroup name="intercept-methods.attlist">
       <xs:attribute name="access-decision-manager-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Optional AccessDecisionManager bean ID to be used by the created method security
@@ -553,9 +550,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  
-  <xs:attributeGroup name="protect.attlist">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="protect.attlist">
       <xs:attribute name="method" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>A method name
@@ -568,8 +564,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="method-security-metadata-source">
+   </xs:attributeGroup>
+   <xs:element name="method-security-metadata-source">
       <xs:annotation>
          <xs:documentation>Creates a MethodSecurityMetadataSource instance
                 </xs:documentation>
@@ -591,7 +587,7 @@
          <xs:attributeGroup ref="security:msmds.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="msmds.attlist">
+   <xs:attributeGroup name="msmds.attlist">
       <xs:attribute name="id" type="xs:token">
          <xs:annotation>
             <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.
@@ -607,8 +603,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="method-security">
+   </xs:attributeGroup>
+   <xs:element name="method-security">
       <xs:annotation>
          <xs:documentation>Provides method security for all beans registered in the Spring application context.
                 Specifically, beans will be scanned for matches with Spring Security annotations. Where
@@ -647,7 +643,7 @@
          <xs:attributeGroup ref="security:method-security.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="method-security.attlist">
+   <xs:attributeGroup name="method-security.attlist">
       <xs:attribute name="pre-post-enabled" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Specifies whether the use of Spring Security's pre and post invocation annotations
@@ -701,8 +697,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="global-method-security">
+   </xs:attributeGroup>
+   <xs:element name="global-method-security">
       <xs:annotation>
          <xs:documentation>Provides method security for all beans registered in the Spring application context.
                 Specifically, beans will be scanned for matches with the ordered list of
@@ -784,7 +780,9 @@
                   <xs:attributeGroup ref="security:protect-pointcut.attlist"/>
                </xs:complexType>
             </xs:element>
-            <xs:element minOccurs="0" maxOccurs="unbounded" name="after-invocation-provider">
+            <xs:element minOccurs="0"
+                        maxOccurs="unbounded"
+                        name="after-invocation-provider">
                <xs:annotation>
                   <xs:documentation>Allows addition of extra AfterInvocationProvider beans which should be called by the
                 MethodSecurityInterceptor created by global-method-security.
@@ -798,7 +796,7 @@
          <xs:attributeGroup ref="security:global-method-security.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="global-method-security.attlist">
+   <xs:attributeGroup name="global-method-security.attlist">
       <xs:attribute name="pre-post-annotations">
          <xs:annotation>
             <xs:documentation>Specifies whether the use of Spring Security's pre and post invocation annotations
@@ -891,15 +889,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  
-  
-  
-  
-  
-  
-  
-  <xs:attributeGroup name="protect-pointcut.attlist">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="protect-pointcut.attlist">
       <xs:attribute name="expression" use="required" type="xs:string">
          <xs:annotation>
             <xs:documentation>An AspectJ expression, including the 'execution' keyword. For example, 'execution(int
@@ -914,8 +905,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="websocket-message-broker">
+   </xs:attributeGroup>
+   <xs:element name="websocket-message-broker">
       <xs:annotation>
          <xs:documentation>Allows securing a Message Broker. There are two modes. If no id is specified: ensures that
                 any SimpAnnotationMethodMessageHandler has the AuthenticationPrincipalArgumentResolver
@@ -944,7 +935,7 @@
          <xs:attributeGroup ref="security:websocket-message-broker.attrlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="websocket-message-broker.attrlist">
+   <xs:attributeGroup name="websocket-message-broker.attrlist">
       <xs:attribute name="id" type="xs:token">
          <xs:annotation>
             <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context. If specified,
@@ -984,8 +975,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="intercept-message">
+   </xs:attributeGroup>
+   <xs:element name="intercept-message">
       <xs:annotation>
          <xs:documentation>Creates an authorization rule for a websocket message.
                 </xs:documentation>
@@ -994,7 +985,7 @@
          <xs:attributeGroup ref="security:intercept-message.attrlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="intercept-message.attrlist">
+   <xs:attributeGroup name="intercept-message.attrlist">
       <xs:attribute name="pattern" type="xs:token">
          <xs:annotation>
             <xs:documentation>The destination ant pattern which will be mapped to the access attribute. For example, /**
@@ -1032,8 +1023,8 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="http-firewall">
+   </xs:attributeGroup>
+   <xs:element name="http-firewall">
       <xs:annotation>
          <xs:documentation>Allows a custom instance of HttpFirewall to be injected into the FilterChainProxy created
                 by the namespace.
@@ -1043,7 +1034,7 @@
          <xs:attributeGroup ref="security:ref"/>
       </xs:complexType>
    </xs:element>
-  <xs:element name="http">
+   <xs:element name="http">
       <xs:annotation>
          <xs:documentation>Container element for HTTP security configuration. Multiple elements can now be defined,
                 each with a specific pattern to which the enclosed security configuration applies. A
@@ -1215,7 +1206,7 @@
          <xs:attributeGroup ref="security:http.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="http.attlist">
+   <xs:attributeGroup name="http.attlist">
       <xs:attribute name="pattern" type="xs:token">
          <xs:annotation>
             <xs:documentation>The request URL pattern which will be mapped to the filter chain created by this &lt;http&gt;
@@ -1408,9 +1399,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  
-  <xs:attributeGroup name="access-denied-handler.attlist">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="access-denied-handler.attlist">
       <xs:attribute name="ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Defines a reference to a Spring bean Id.
@@ -1424,8 +1414,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="access-denied-handler-page">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="access-denied-handler-page">
       <xs:attribute name="error-page" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>The access denied page that an authenticated user will be redirected to if they request a
@@ -1433,9 +1423,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  
-  <xs:attributeGroup name="intercept-url.attlist">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="intercept-url.attlist">
       <xs:attribute name="pattern" type="xs:token">
          <xs:annotation>
             <xs:documentation>The request URL pattern which will be mapped to the FilterChain.
@@ -1490,9 +1479,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  
-  <xs:attributeGroup name="logout.attlist">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="logout.attlist">
       <xs:attribute name="logout-url" type="xs:token">
          <xs:annotation>
             <xs:documentation>Specifies the URL that will cause a logout. Spring Security will initialize a filter that
@@ -1528,8 +1516,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="request-cache">
+   </xs:attributeGroup>
+   <xs:element name="request-cache">
       <xs:annotation>
          <xs:documentation>Allow the RequestCache used for saving requests during the login process to be set
                 </xs:documentation>
@@ -1538,8 +1526,7 @@
          <xs:attributeGroup ref="security:ref"/>
       </xs:complexType>
    </xs:element>
-  
-  <xs:attributeGroup name="form-login.attlist">
+   <xs:attributeGroup name="form-login.attlist">
       <xs:attribute name="login-processing-url" type="xs:token">
          <xs:annotation>
             <xs:documentation>The URL that the login form is posted to. If unspecified, it defaults to /login.
@@ -1625,8 +1612,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="oauth2-login">
+   </xs:attributeGroup>
+   <xs:element name="oauth2-login">
       <xs:annotation>
          <xs:documentation>Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0 Provider.
                 </xs:documentation>
@@ -1635,7 +1622,7 @@
          <xs:attributeGroup ref="security:oauth2-login.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="oauth2-login.attlist">
+   <xs:attributeGroup name="oauth2-login.attlist">
       <xs:attribute name="client-registration-repository-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Reference to the ClientRegistrationRepository
@@ -1726,8 +1713,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="oauth2-client">
+   </xs:attributeGroup>
+   <xs:element name="oauth2-client">
       <xs:annotation>
          <xs:documentation>Configures OAuth 2.0 Client support.
                 </xs:documentation>
@@ -1739,7 +1726,7 @@
          <xs:attributeGroup ref="security:oauth2-client.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="oauth2-client.attlist">
+   <xs:attributeGroup name="oauth2-client.attlist">
       <xs:attribute name="client-registration-repository-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Reference to the ClientRegistrationRepository
@@ -1758,8 +1745,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="authorization-code-grant">
+   </xs:attributeGroup>
+   <xs:element name="authorization-code-grant">
       <xs:annotation>
          <xs:documentation>Configures OAuth 2.0 Authorization Code Grant.
                 </xs:documentation>
@@ -1768,7 +1755,7 @@
          <xs:attributeGroup ref="security:authorization-code-grant.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="authorization-code-grant.attlist">
+   <xs:attributeGroup name="authorization-code-grant.attlist">
       <xs:attribute name="authorization-request-repository-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Reference to the AuthorizationRequestRepository
@@ -1793,8 +1780,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="client-registrations">
+   </xs:attributeGroup>
+   <xs:element name="client-registrations">
       <xs:annotation>
          <xs:documentation>Container element for client(s) registered with an OAuth 2.0 or OpenID Connect 1.0
                 Provider.
@@ -1807,7 +1794,7 @@
          </xs:sequence>
       </xs:complexType>
    </xs:element>
-  <xs:element name="client-registration">
+   <xs:element name="client-registration">
       <xs:annotation>
          <xs:documentation>Represents a client registered with an OAuth 2.0 or OpenID Connect 1.0 Provider.
                 </xs:documentation>
@@ -1816,7 +1803,7 @@
          <xs:attributeGroup ref="security:client-registration.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="client-registration.attlist">
+   <xs:attributeGroup name="client-registration.attlist">
       <xs:attribute name="registration-id" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>The ID that uniquely identifies the client registration.
@@ -1894,8 +1881,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="provider">
+   </xs:attributeGroup>
+   <xs:element name="provider">
       <xs:annotation>
          <xs:documentation>The configuration information for an OAuth 2.0 or OpenID Connect 1.0 Provider.
                 </xs:documentation>
@@ -1904,7 +1891,7 @@
          <xs:attributeGroup ref="security:provider.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="provider.attlist">
+   <xs:attributeGroup name="provider.attlist">
       <xs:attribute name="provider-id" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>The ID that uniquely identifies the provider.
@@ -1966,8 +1953,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="oauth2-resource-server">
+   </xs:attributeGroup>
+   <xs:element name="oauth2-resource-server">
       <xs:annotation>
          <xs:documentation>Configures authentication support as an OAuth 2.0 Resource Server.
                 </xs:documentation>
@@ -1980,7 +1967,7 @@
          <xs:attributeGroup ref="security:oauth2-resource-server.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="oauth2-resource-server.attlist">
+   <xs:attributeGroup name="oauth2-resource-server.attlist">
       <xs:attribute name="authentication-manager-resolver-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Reference to an AuthenticationManagerResolver
@@ -1999,8 +1986,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="jwt">
+   </xs:attributeGroup>
+   <xs:element name="jwt">
       <xs:annotation>
          <xs:documentation>Configures JWT authentication
                 </xs:documentation>
@@ -2009,7 +1996,7 @@
          <xs:attributeGroup ref="security:jwt.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="jwt.attlist">
+   <xs:attributeGroup name="jwt.attlist">
       <xs:attribute name="jwk-set-uri" type="xs:token">
          <xs:annotation>
             <xs:documentation>The URI to use to collect the JWK Set for verifying JWTs
@@ -2028,8 +2015,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="opaque-token">
+   </xs:attributeGroup>
+   <xs:element name="opaque-token">
       <xs:annotation>
          <xs:documentation>Configuration Opaque Token authentication
                 </xs:documentation>
@@ -2038,7 +2025,7 @@
          <xs:attributeGroup ref="security:opaque-token.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="opaque-token.attlist">
+   <xs:attributeGroup name="opaque-token.attlist">
       <xs:attribute name="introspection-uri" type="xs:token">
          <xs:annotation>
             <xs:documentation>The URI to use to introspect opaque token attributes
@@ -2070,9 +2057,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  
-  <xs:attributeGroup name="saml2-login.attlist">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="saml2-login.attlist">
       <xs:attribute name="relying-party-registration-repository-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Reference to the RelyingPartyRegistrationRepository
@@ -2127,9 +2113,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  
-  <xs:attributeGroup name="saml2-logout.attlist">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="saml2-logout.attlist">
       <xs:attribute name="logout-url" type="xs:token">
          <xs:annotation>
             <xs:documentation>The URL by which the relying or asserting party can trigger logout
@@ -2184,8 +2169,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="relying-party-registrations">
+   </xs:attributeGroup>
+   <xs:element name="relying-party-registrations">
       <xs:annotation>
          <xs:documentation>Container element for relying party(ies) registered with a SAML 2.0 identity provider
                 </xs:documentation>
@@ -2198,28 +2183,32 @@
          <xs:attributeGroup ref="security:relying-party-registrations.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="relying-party-registrations.attlist">
+   <xs:attributeGroup name="relying-party-registrations.attlist">
       <xs:attribute name="id" type="xs:token">
          <xs:annotation>
             <xs:documentation>The identifier by which to refer to the repository in other beans
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="relying-party-registration">
+   </xs:attributeGroup>
+   <xs:element name="relying-party-registration">
       <xs:annotation>
          <xs:documentation>Represents a relying party registered with a SAML 2.0 identity provider
                 </xs:documentation>
       </xs:annotation>
       <xs:complexType>
          <xs:sequence>
-            <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:signing-credential"/>
-            <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:decryption-credential"/>
+            <xs:element minOccurs="0"
+                        maxOccurs="unbounded"
+                        ref="security:signing-credential"/>
+            <xs:element minOccurs="0"
+                        maxOccurs="unbounded"
+                        ref="security:decryption-credential"/>
          </xs:sequence>
          <xs:attributeGroup ref="security:relying-party-registration.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="relying-party-registration.attlist">
+   <xs:attributeGroup name="relying-party-registration.attlist">
       <xs:attribute name="registration-id" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>The ID that uniquely identifies the relying party registration.
@@ -2280,8 +2269,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="signing-credential">
+   </xs:attributeGroup>
+   <xs:element name="signing-credential">
       <xs:annotation>
          <xs:documentation>The relying party's signing credential
                 </xs:documentation>
@@ -2290,7 +2279,7 @@
          <xs:attributeGroup ref="security:signing-credential.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="signing-credential.attlist">
+   <xs:attributeGroup name="signing-credential.attlist">
       <xs:attribute name="private-key-location" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>The private key location
@@ -2303,8 +2292,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="decryption-credential">
+   </xs:attributeGroup>
+   <xs:element name="decryption-credential">
       <xs:annotation>
          <xs:documentation>The relying party's decryption credential
                 </xs:documentation>
@@ -2313,7 +2302,7 @@
          <xs:attributeGroup ref="security:decryption-credential.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="decryption-credential.attlist">
+   <xs:attributeGroup name="decryption-credential.attlist">
       <xs:attribute name="private-key-location" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>The private key location
@@ -2326,21 +2315,25 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="asserting-party">
+   </xs:attributeGroup>
+   <xs:element name="asserting-party">
       <xs:annotation>
          <xs:documentation>The configuration metadata of the Asserting party
                 </xs:documentation>
       </xs:annotation>
       <xs:complexType>
          <xs:sequence>
-            <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:verification-credential"/>
-            <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:encryption-credential"/>
+            <xs:element minOccurs="0"
+                        maxOccurs="unbounded"
+                        ref="security:verification-credential"/>
+            <xs:element minOccurs="0"
+                        maxOccurs="unbounded"
+                        ref="security:encryption-credential"/>
          </xs:sequence>
          <xs:attributeGroup ref="security:asserting-party.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="asserting-party.attlist">
+   <xs:attributeGroup name="asserting-party.attlist">
       <xs:attribute name="asserting-party-id" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>A unique identifier of the asserting party.
@@ -2360,7 +2353,9 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="single-sign-on-service-location" use="required" type="xs:token">
+      <xs:attribute name="single-sign-on-service-location"
+                    use="required"
+                    type="xs:token">
          <xs:annotation>
             <xs:documentation>The &lt;a
                 href="https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.5%20Endpoint"&gt;SingleSignOnService&lt;/a&gt;
@@ -2407,8 +2402,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="verification-credential">
+   </xs:attributeGroup>
+   <xs:element name="verification-credential">
       <xs:annotation>
          <xs:documentation>The relying party's verification credential
                 </xs:documentation>
@@ -2417,7 +2412,7 @@
          <xs:attributeGroup ref="security:verification-credential.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="verification-credential.attlist">
+   <xs:attributeGroup name="verification-credential.attlist">
       <xs:attribute name="private-key-location" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>The private key location
@@ -2430,8 +2425,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="encryption-credential">
+   </xs:attributeGroup>
+   <xs:element name="encryption-credential">
       <xs:annotation>
          <xs:documentation>The asserting party's encryption credential
                 </xs:documentation>
@@ -2440,7 +2435,7 @@
          <xs:attributeGroup ref="security:encryption-credential.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="encryption-credential.attlist">
+   <xs:attributeGroup name="encryption-credential.attlist">
       <xs:attribute name="private-key-location" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>The private key location
@@ -2453,8 +2448,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="filter-chain-map">
+   </xs:attributeGroup>
+   <xs:element name="filter-chain-map">
       <xs:annotation>
          <xs:documentation>Used to explicitly configure a FilterChainProxy instance with a FilterChainMap
                 </xs:documentation>
@@ -2466,7 +2461,7 @@
          <xs:attributeGroup ref="security:filter-chain-map.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="filter-chain-map.attlist">
+   <xs:attributeGroup name="filter-chain-map.attlist">
       <xs:attribute name="request-matcher">
          <xs:annotation>
             <xs:documentation>Defines the strategy use for matching incoming requests. Currently the options are 'mvc'
@@ -2483,8 +2478,8 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="filter-chain">
+   </xs:attributeGroup>
+   <xs:element name="filter-chain">
       <xs:annotation>
          <xs:documentation>Used within to define a specific URL pattern and the list of filters which apply to the
                 URLs matching that pattern. When multiple filter-chain elements are assembled in a list in
@@ -2496,7 +2491,7 @@
          <xs:attributeGroup ref="security:filter-chain.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="filter-chain.attlist">
+   <xs:attributeGroup name="filter-chain.attlist">
       <xs:attribute name="pattern" type="xs:token">
          <xs:annotation>
             <xs:documentation>The request URL pattern which will be mapped to the FilterChain.
@@ -2516,24 +2511,24 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="pattern">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="pattern">
       <xs:attribute name="pattern" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>The request URL pattern which will be mapped to the FilterChain.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="request-matcher-ref">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="request-matcher-ref">
       <xs:attribute name="request-matcher-ref" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>Allows a RequestMatcher instance to be used, as an alternative to pattern-matching.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="filter-security-metadata-source">
+   </xs:attributeGroup>
+   <xs:element name="filter-security-metadata-source">
       <xs:annotation>
          <xs:documentation>Used to explicitly configure a FilterSecurityMetadataSource bean for use with a
                 FilterSecurityInterceptor. Usually only needed if you are configuring a FilterChainProxy
@@ -2557,7 +2552,7 @@
          <xs:attributeGroup ref="security:fsmds.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="fsmds.attlist">
+   <xs:attributeGroup name="fsmds.attlist">
       <xs:attribute name="use-expressions" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Enables the use of expressions in the 'access' attributes in &lt;intercept-url&gt; elements
@@ -2589,9 +2584,8 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-  </xs:attributeGroup>
-  
-  <xs:attributeGroup name="http-basic.attlist">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="http-basic.attlist">
       <xs:attribute name="entry-point-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Sets the AuthenticationEntryPoint which is used by the BasicAuthenticationFilter.
@@ -2605,8 +2599,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="password-management">
+   </xs:attributeGroup>
+   <xs:element name="password-management">
       <xs:annotation>
          <xs:documentation>Adds support for the password management.
                 </xs:documentation>
@@ -2615,16 +2609,15 @@
          <xs:attributeGroup ref="security:password-management.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="password-management.attlist">
+   <xs:attributeGroup name="password-management.attlist">
       <xs:attribute name="change-password-page" type="xs:string">
          <xs:annotation>
             <xs:documentation>The change password page. Defaults to "/change-password".
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  
-  <xs:attributeGroup name="session-management.attlist">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="session-management.attlist">
       <xs:attribute name="authentication-strategy-explicit-invocation" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Specifies that SessionAuthenticationStrategy must be explicitly invoked. Default false
@@ -2685,9 +2678,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  
-  <xs:attributeGroup name="concurrency-control.attlist">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="concurrency-control.attlist">
       <xs:attribute name="max-sessions" type="xs:token">
          <xs:annotation>
             <xs:documentation>The maximum number of sessions a single authenticated user can have open at the same time.
@@ -2739,9 +2731,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  
-  <xs:attributeGroup name="remember-me.attlist">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="remember-me.attlist">
       <xs:attribute name="key" type="xs:token">
          <xs:annotation>
             <xs:documentation>The "key" used to identify cookies from a specific token-based remember-me application.
@@ -2812,8 +2803,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="token-repository-ref">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="token-repository-ref">
       <xs:attribute name="token-repository-ref" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>Reference to a PersistentTokenRepository bean for use with the persistent token
@@ -2821,8 +2812,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="remember-me-services-ref">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="remember-me-services-ref">
       <xs:attribute name="services-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Allows a custom implementation of RememberMeServices to be used. Note that this
@@ -2834,12 +2825,11 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="remember-me-data-source-ref">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="remember-me-data-source-ref">
       <xs:attributeGroup ref="security:data-source-ref"/>
-  </xs:attributeGroup>
-  
-  <xs:attributeGroup name="anonymous.attlist">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="anonymous.attlist">
       <xs:attribute name="key" type="xs:token">
          <xs:annotation>
             <xs:documentation>The key shared between the provider and filter. This generally does not need to be set. If
@@ -2870,27 +2860,24 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  
-  
-  <xs:attributeGroup name="http-port">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="http-port">
       <xs:attribute name="http" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>The http port to use.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="https-port">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="https-port">
       <xs:attribute name="https" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>The https port to use.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  
-  <xs:attributeGroup name="x509.attlist">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="x509.attlist">
       <xs:attribute name="subject-principal-regex" type="xs:token">
          <xs:annotation>
             <xs:documentation>The regular expression used to obtain the username from the certificate's subject.
@@ -2911,8 +2898,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="jee">
+   </xs:attributeGroup>
+   <xs:element name="jee">
       <xs:annotation>
          <xs:documentation>Adds a J2eePreAuthenticatedProcessingFilter to the filter chain to provide integration
                 with container authentication.
@@ -2922,7 +2909,7 @@
          <xs:attributeGroup ref="security:jee.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="jee.attlist">
+   <xs:attributeGroup name="jee.attlist">
       <xs:attribute name="mappable-roles" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>A comma-separate list of roles to look for in the incoming HttpServletRequest.
@@ -2935,8 +2922,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="authentication-manager">
+   </xs:attributeGroup>
+   <xs:element name="authentication-manager">
       <xs:annotation>
          <xs:documentation>Registers the AuthenticationManager instance and allows its list of
                 AuthenticationProviders to be defined. Also allows you to define an alias to allow you to
@@ -3004,7 +2991,7 @@
          <xs:attributeGroup ref="security:authman.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="authman.attlist">
+   <xs:attributeGroup name="authman.attlist">
       <xs:attribute name="id" type="xs:token">
          <xs:annotation>
             <xs:documentation>A bean identifier, used for referring to the bean elsewhere in the context.
@@ -3031,9 +3018,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  
-  <xs:attributeGroup name="ap.attlist">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="ap.attlist">
       <xs:attribute name="ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Defines a reference to a Spring bean Id.
@@ -3046,8 +3032,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="user-service" substitutionGroup="security:any-user-service">
+   </xs:attributeGroup>
+   <xs:element name="user-service" substitutionGroup="security:any-user-service">
       <xs:annotation>
          <xs:documentation>Creates an in-memory UserDetailsService from a properties file or a list of "user" child
                 elements. Usernames are converted to lower-case internally to allow for case-insensitive
@@ -3075,7 +3061,7 @@
          <xs:attributeGroup ref="security:properties-file"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="properties-file">
+   <xs:attributeGroup name="properties-file">
       <xs:attribute name="properties" type="xs:token">
          <xs:annotation>
             <xs:documentation>The location of a Properties file where each line is in the format of
@@ -3083,9 +3069,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  
-  <xs:attributeGroup name="user.attlist">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="user.attlist">
       <xs:attribute name="name" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>The username assigned to the user.
@@ -3122,8 +3107,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="jdbc-user-service" substitutionGroup="security:any-user-service">
+   </xs:attributeGroup>
+   <xs:element name="jdbc-user-service" substitutionGroup="security:any-user-service">
       <xs:annotation>
          <xs:documentation>Causes creation of a JDBC-based UserDetailsService.
                 </xs:documentation>
@@ -3138,7 +3123,7 @@
          <xs:attributeGroup ref="security:jdbc-user-service.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="jdbc-user-service.attlist">
+   <xs:attributeGroup name="jdbc-user-service.attlist">
       <xs:attribute name="data-source-ref" use="required" type="xs:token">
          <xs:annotation>
             <xs:documentation>The bean ID of the DataSource which provides the required tables.
@@ -3181,8 +3166,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="csrf">
+   </xs:attributeGroup>
+   <xs:element name="csrf">
       <xs:annotation>
          <xs:documentation>Element for configuration of the CsrfFilter for protection against CSRF. It also updates
                 the default RequestCache to only replay "GET" requests.
@@ -3192,7 +3177,7 @@
          <xs:attributeGroup ref="security:csrf-options.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="csrf-options.attlist">
+   <xs:attributeGroup name="csrf-options.attlist">
       <xs:attribute name="disabled" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Specifies if csrf protection should be disabled. Default false (i.e. CSRF protection is
@@ -3220,8 +3205,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="headers">
+   </xs:attributeGroup>
+   <xs:element name="headers">
       <xs:annotation>
          <xs:documentation>Element for configuration of the HeaderWritersFilter. Enables easy setting for the
                 X-Frame-Options, X-XSS-Protection and X-Content-Type-Options headers.
@@ -3247,7 +3232,7 @@
          <xs:attributeGroup ref="security:headers-options.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="headers-options.attlist">
+   <xs:attributeGroup name="headers-options.attlist">
       <xs:attribute name="defaults-disabled" type="xs:token">
          <xs:annotation>
             <xs:documentation>Specifies if the default headers should be disabled. Default false.
@@ -3260,8 +3245,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="hsts">
+   </xs:attributeGroup>
+   <xs:element name="hsts">
       <xs:annotation>
          <xs:documentation>Adds support for HTTP Strict Transport Security (HSTS)
                 </xs:documentation>
@@ -3270,7 +3255,7 @@
          <xs:attributeGroup ref="security:hsts-options.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="hsts-options.attlist">
+   <xs:attributeGroup name="hsts-options.attlist">
       <xs:attribute name="disabled" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Specifies if HTTP Strict Transport Security (HSTS) should be disabled. Default false.
@@ -3303,8 +3288,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="cors">
+   </xs:attributeGroup>
+   <xs:element name="cors">
       <xs:annotation>
          <xs:documentation>Element for configuration of CorsFilter. If no CorsFilter or CorsConfigurationSource is
                 specified a HandlerMappingIntrospector is used as the CorsConfigurationSource
@@ -3314,7 +3299,7 @@
          <xs:attributeGroup ref="security:cors-options.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="cors-options.attlist">
+   <xs:attributeGroup name="cors-options.attlist">
       <xs:attribute name="ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Defines a reference to a Spring bean Id.
@@ -3328,8 +3313,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="hpkp">
+   </xs:attributeGroup>
+   <xs:element name="hpkp">
       <xs:annotation>
          <xs:documentation>Adds support for HTTP Public Key Pinning (HPKP).
                 </xs:documentation>
@@ -3342,12 +3327,12 @@
          </xs:complexContent>
       </xs:complexType>
    </xs:element>
-  <xs:complexType name="hpkp.pins">
+   <xs:complexType name="hpkp.pins">
       <xs:sequence>
          <xs:element ref="security:pins"/>
       </xs:sequence>
-  </xs:complexType>
-  <xs:element name="pins">
+   </xs:complexType>
+   <xs:element name="pins">
       <xs:annotation>
          <xs:documentation>The list with pins
                 </xs:documentation>
@@ -3358,7 +3343,7 @@
          </xs:sequence>
       </xs:complexType>
    </xs:element>
-  <xs:element name="pin">
+   <xs:element name="pin">
       <xs:annotation>
          <xs:documentation>A pin is specified using the base64-encoded SPKI fingerprint as value and the
                 cryptographic hash algorithm as attribute
@@ -3373,7 +3358,7 @@
          </xs:attribute>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="hpkp.attlist">
+   <xs:attributeGroup name="hpkp.attlist">
       <xs:attribute name="disabled" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Specifies if HTTP Public Key Pinning (HPKP) should be disabled. Default false.
@@ -3404,8 +3389,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="content-security-policy">
+   </xs:attributeGroup>
+   <xs:element name="content-security-policy">
       <xs:annotation>
          <xs:documentation>Adds support for Content Security Policy (CSP)
                 </xs:documentation>
@@ -3414,7 +3399,7 @@
          <xs:attributeGroup ref="security:csp-options.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="csp-options.attlist">
+   <xs:attributeGroup name="csp-options.attlist">
       <xs:attribute name="policy-directives" type="xs:token">
          <xs:annotation>
             <xs:documentation>The security policy directive(s) for the Content-Security-Policy header or if report-only
@@ -3429,8 +3414,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="referrer-policy">
+   </xs:attributeGroup>
+   <xs:element name="referrer-policy">
       <xs:annotation>
          <xs:documentation>Adds support for Referrer Policy
                 </xs:documentation>
@@ -3439,7 +3424,7 @@
          <xs:attributeGroup ref="security:referrer-options.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="referrer-options.attlist">
+   <xs:attributeGroup name="referrer-options.attlist">
       <xs:attribute name="policy">
          <xs:annotation>
             <xs:documentation>The policies for the Referrer-Policy header.
@@ -3458,8 +3443,8 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="feature-policy">
+   </xs:attributeGroup>
+   <xs:element name="feature-policy">
       <xs:annotation>
          <xs:documentation>Adds support for Feature Policy
                 </xs:documentation>
@@ -3468,15 +3453,15 @@
          <xs:attributeGroup ref="security:feature-options.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="feature-options.attlist">
+   <xs:attributeGroup name="feature-options.attlist">
       <xs:attribute name="policy-directives" type="xs:token">
          <xs:annotation>
             <xs:documentation>The security policy directive(s) for the Feature-Policy header.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="permissions-policy">
+   </xs:attributeGroup>
+   <xs:element name="permissions-policy">
       <xs:annotation>
          <xs:documentation>Adds support for Permissions Policy
                 </xs:documentation>
@@ -3485,15 +3470,15 @@
          <xs:attributeGroup ref="security:permissions-options.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="permissions-options.attlist">
+   <xs:attributeGroup name="permissions-options.attlist">
       <xs:attribute name="policy" type="xs:token">
          <xs:annotation>
             <xs:documentation>The policies for the Permissions-Policy header.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="cache-control">
+   </xs:attributeGroup>
+   <xs:element name="cache-control">
       <xs:annotation>
          <xs:documentation>Adds Cache-Control no-cache, no-store, must-revalidate, Pragma no-cache, and Expires 0 for
                 every request
@@ -3503,15 +3488,15 @@
          <xs:attributeGroup ref="security:cache-control.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="cache-control.attlist">
+   <xs:attributeGroup name="cache-control.attlist">
       <xs:attribute name="disabled" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Specifies if Cache Control should be disabled. Default false.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="frame-options">
+   </xs:attributeGroup>
+   <xs:element name="frame-options">
       <xs:annotation>
          <xs:documentation>Enable basic clickjacking support for newer browsers (IE8+), will set the X-Frame-Options
                 header.
@@ -3521,7 +3506,7 @@
          <xs:attributeGroup ref="security:frame-options.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="frame-options.attlist">
+   <xs:attributeGroup name="frame-options.attlist">
       <xs:attribute name="disabled" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>If disabled, the X-Frame-Options header will not be included. Default false.
@@ -3576,8 +3561,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="xss-protection">
+   </xs:attributeGroup>
+   <xs:element name="xss-protection">
       <xs:annotation>
          <xs:documentation>Enable basic XSS browser protection, supported by newer browsers (IE8+), will set the
                 X-XSS-Protection header.
@@ -3587,7 +3572,7 @@
          <xs:attributeGroup ref="security:xss-protection.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="xss-protection.attlist">
+   <xs:attributeGroup name="xss-protection.attlist">
       <xs:attribute name="disabled" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>disable the X-XSS-Protection header. Default is 'false' meaning it is enabled.
@@ -3607,8 +3592,8 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="content-type-options">
+   </xs:attributeGroup>
+   <xs:element name="content-type-options">
       <xs:annotation>
          <xs:documentation>Add a X-Content-Type-Options header to the resopnse. Value is always 'nosniff'.
                 </xs:documentation>
@@ -3617,15 +3602,15 @@
          <xs:attributeGroup ref="security:content-type-options.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="content-type-options.attlist">
+   <xs:attributeGroup name="content-type-options.attlist">
       <xs:attribute name="disabled" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>If disabled, the X-Content-Type-Options header will not be included. Default false.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="cross-origin-opener-policy">
+   </xs:attributeGroup>
+   <xs:element name="cross-origin-opener-policy">
       <xs:annotation>
          <xs:documentation>Adds support for Cross-Origin-Opener-Policy header
                 </xs:documentation>
@@ -3634,7 +3619,7 @@
          <xs:attributeGroup ref="security:cross-origin-opener-policy-options.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="cross-origin-opener-policy-options.attlist">
+   <xs:attributeGroup name="cross-origin-opener-policy-options.attlist">
       <xs:attribute name="policy">
          <xs:annotation>
             <xs:documentation>The policies for the Cross-Origin-Opener-Policy header.
@@ -3648,8 +3633,8 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="cross-origin-embedder-policy">
+   </xs:attributeGroup>
+   <xs:element name="cross-origin-embedder-policy">
       <xs:annotation>
          <xs:documentation>Adds support for Cross-Origin-Embedder-Policy header
                 </xs:documentation>
@@ -3658,7 +3643,7 @@
          <xs:attributeGroup ref="security:cross-origin-embedder-policy-options.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="cross-origin-embedder-policy-options.attlist">
+   <xs:attributeGroup name="cross-origin-embedder-policy-options.attlist">
       <xs:attribute name="policy">
          <xs:annotation>
             <xs:documentation>The policies for the Cross-Origin-Embedder-Policy header.
@@ -3671,8 +3656,8 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="cross-origin-resource-policy">
+   </xs:attributeGroup>
+   <xs:element name="cross-origin-resource-policy">
       <xs:annotation>
          <xs:documentation>Adds support for Cross-Origin-Resource-Policy header
                 </xs:documentation>
@@ -3681,7 +3666,7 @@
          <xs:attributeGroup ref="security:cross-origin-resource-policy-options.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="cross-origin-resource-policy-options.attlist">
+   <xs:attributeGroup name="cross-origin-resource-policy-options.attlist">
       <xs:attribute name="policy">
          <xs:annotation>
             <xs:documentation>The policies for the Cross-Origin-Resource-Policy header.
@@ -3695,8 +3680,8 @@
             </xs:restriction>
          </xs:simpleType>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="header">
+   </xs:attributeGroup>
+   <xs:element name="header">
       <xs:annotation>
          <xs:documentation>Add additional headers to the response.
                 </xs:documentation>
@@ -3705,7 +3690,7 @@
          <xs:attributeGroup ref="security:header.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="header.attlist">
+   <xs:attributeGroup name="header.attlist">
       <xs:attribute name="name" type="xs:token">
          <xs:annotation>
             <xs:documentation>The name of the header to add.
@@ -3724,9 +3709,9 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="any-user-service" abstract="true"/>
-  <xs:element name="custom-filter">
+   </xs:attributeGroup>
+   <xs:element name="any-user-service" abstract="true"/>
+   <xs:element name="custom-filter">
       <xs:annotation>
          <xs:documentation>Used to indicate that a filter bean declaration should be incorporated into the security
                 filter chain.
@@ -3736,7 +3721,7 @@
          <xs:attributeGroup ref="security:custom-filter.attlist"/>
       </xs:complexType>
    </xs:element>
-  <xs:attributeGroup name="custom-filter.attlist">
+   <xs:attributeGroup name="custom-filter.attlist">
       <xs:attributeGroup ref="security:ref"/>
       <xs:attribute name="after" type="security:named-security-filter">
          <xs:annotation>
@@ -3760,8 +3745,8 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="after">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="after">
       <xs:attribute name="after" use="required" type="security:named-security-filter">
          <xs:annotation>
             <xs:documentation>The filter immediately after which the custom-filter should be placed in the chain. This
@@ -3771,25 +3756,27 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="before">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="before">
       <xs:attribute name="before" use="required" type="security:named-security-filter">
          <xs:annotation>
             <xs:documentation>The filter immediately before which the custom-filter should be placed in the chain
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="position">
-      <xs:attribute name="position" use="required" type="security:named-security-filter">
+   </xs:attributeGroup>
+   <xs:attributeGroup name="position">
+      <xs:attribute name="position"
+                    use="required"
+                    type="security:named-security-filter">
          <xs:annotation>
             <xs:documentation>The explicit position at which the custom-filter should be placed in the chain. Use if you
                 are replacing a standard filter.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-  </xs:attributeGroup>
-  <xs:simpleType name="named-security-filter">
+   </xs:attributeGroup>
+   <xs:simpleType name="named-security-filter">
       <xs:restriction base="xs:token">
          <xs:enumeration value="FIRST"/>
          <xs:enumeration value="DISABLE_ENCODE_URL_FILTER"/>
@@ -3833,5 +3820,5 @@
          <xs:enumeration value="SWITCH_USER_FILTER"/>
          <xs:enumeration value="LAST"/>
       </xs:restriction>
-  </xs:simpleType>
+   </xs:simpleType>
 </xs:schema>
