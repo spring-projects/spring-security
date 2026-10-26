@@ -4,6 +4,8 @@ on:
     branches-ignore:
       - "gh-pages"
       - "dependabot/**"
+      - "release/**"
+      - "embargoed/**"
     tags: '**'
   repository_dispatch:
     types: request-build-reference # legacy
