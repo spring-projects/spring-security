@@ -5,7 +5,7 @@ name: release-branches
 # branch, or for an active embargoed branch the hotfix. What it builds, and the secret and
 # the variable that it needs, are in the guide of the reusable workflow that does it:
 #
-#   https://github.com/spring-io/spring-security-actions/blob/0.0.9/docs/release-branches.md
+#   https://github.com/spring-io/spring-security-actions/blob/0.0.10/docs/release-branches.md
 #
 # The reusable workflow and its actions are in the repository spring-io/spring-security-actions,
 # and are called at the commit of a tag.
@@ -32,8 +32,9 @@ concurrency:
 jobs:
   release-branches:
     name: Build the branches
-    uses: spring-io/spring-security-actions/.github/workflows/release-branches.yml@f7eb724f5fbf957902119e177c8aa13bd36881a2 # 0.0.9
+    uses: spring-io/spring-security-actions/.github/workflows/release-branches.yml@56ff9759b1f971a902cbd5a13378e58c22471e83 # 0.0.10
     with:
+      runs-on: ${{ vars.UBUNTU_RUNS_ON }}
       release-train-repository: ${{ vars.RELEASE_TRAIN_REPOSITORY }}
     secrets:
       RELEASE_AUTOMATION_TOKEN: ${{ secrets.RELEASE_AUTOMATION_TOKEN }}
