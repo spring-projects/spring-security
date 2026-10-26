@@ -131,7 +131,8 @@ public class ChannelProcessingFilter extends GenericFilterBean {
 		if (attributes != null) {
 			this.logger.debug(LogMessage.format("Request: %s; ConfigAttributes: %s", filterInvocation, attributes));
 			this.channelDecisionManager.decide(filterInvocation, attributes);
-			@Nullable HttpServletResponse channelResponse = filterInvocation.getResponse();
+			@Nullable
+			HttpServletResponse channelResponse = filterInvocation.getResponse();
 			Assert.notNull(channelResponse, "HttpServletResponse is required");
 			if (channelResponse.isCommitted()) {
 				return;

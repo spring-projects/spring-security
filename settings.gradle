@@ -5,7 +5,7 @@ pluginManagement {
 }
 
 plugins {
-	id "io.spring.develocity.conventions" version "0.0.27"
+	id 'io.spring.security.settings' version '1.0.21'
 }
 
 dependencyResolutionManagement {

@@ -54,8 +54,8 @@ public class CheckClasspathForProhibitedDependenciesPlugin implements Plugin<Pro
 
 	private void createProhibitedDependenciesCheck(Configuration classpath, Project project) {
 		String taskName = "check" + StringUtils.capitalize(classpath.getName() + "ForProhibitedDependencies");
-		TaskProvider<CheckClasspathForProhibitedDependencies> checkClasspathTask = project.getTasks().register(taskName,
-				CheckClasspathForProhibitedDependencies.class, checkClasspath -> {
+		TaskProvider<CheckClasspathForProhibitedDependenciesTask> checkClasspathTask = project.getTasks().register(taskName,
+				CheckClasspathForProhibitedDependenciesTask.class, checkClasspath -> {
 					checkClasspath.setGroup(LifecycleBasePlugin.CHECK_TASK_NAME);
 					checkClasspath.setDescription("Checks " + classpath.getName() + " for prohibited dependencies");
 					checkClasspath.setClasspath(classpath);

@@ -40,7 +40,6 @@ dependencies {
 		api libs.commons.collections
 		api libs.io.mockk
 		api libs.io.micrometer.context.propagation
-		api libs.io.micrometer.micrometer.observation
 		api libs.jakarta.annotation.jakarta.annotation.api
 		api libs.jakarta.inject.jakarta.inject.api
 		api libs.jakarta.servlet.jsp.jstl.jakarta.servlet.jsp.jstl.api

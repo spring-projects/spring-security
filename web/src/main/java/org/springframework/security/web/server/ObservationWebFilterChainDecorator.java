@@ -110,9 +110,11 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 
 		private final WebHandler handler;
 
-		@Nullable private final ObservationWebFilter currentFilter;
+		@Nullable
+		private final ObservationWebFilter currentFilter;
 
-		@Nullable private final ObservationWebFilterChain chain;
+		@Nullable
+		private final ObservationWebFilterChain chain;
 
 		/**
 		 * Public constructor with the list of filters and the target handler to use.
@@ -597,7 +599,8 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 			return this.filterSection;
 		}
 
-		@Nullable String getFilterName() {
+		@Nullable
+		String getFilterName() {
 			return this.filterName;
 		}
 

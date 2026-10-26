@@ -36,7 +36,8 @@ public interface PasswordEncoder {
 	 * @return A non-null encoded password, unless the rawPassword was null in which case
 	 * the result must be null.
 	 */
-	@Nullable String encode(@Nullable CharSequence rawPassword);
+	@Nullable
+	String encode(@Nullable CharSequence rawPassword);
 
 	/**
 	 * Verify the encoded password obtained from storage matches the submitted raw
