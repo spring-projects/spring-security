@@ -311,7 +311,8 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 		 * @param target the object to proxy
 		 * @return the visited (and possibly proxied) object
 		 */
-		@Nullable Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object target);
+		@Nullable
+		Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object target);
 
 		/**
 		 * The default {@link TargetVisitor}, which will proxy {@link Class} instances as

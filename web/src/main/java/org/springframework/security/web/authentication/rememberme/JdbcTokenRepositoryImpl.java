@@ -129,7 +129,8 @@ public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements Persisten
 	}
 
 	private JdbcTemplate getTemplate() {
-		@Nullable JdbcTemplate result = super.getJdbcTemplate();
+		@Nullable
+		JdbcTemplate result = super.getJdbcTemplate();
 		if (result == null) {
 			throw new IllegalStateException("JdbcTemplate was removed");
 		}

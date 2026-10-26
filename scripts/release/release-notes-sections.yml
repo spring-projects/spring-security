@@ -1,5 +1,4 @@
 changelog:
-  repository: spring-projects/spring-security
   sections:
     - title: ":rewind: Breaking Changes"
       labels: ["type: breaks-passivity"]

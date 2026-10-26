@@ -35,7 +35,8 @@ public interface PersistentTokenRepository {
 
 	void updateToken(String series, String tokenValue, Date lastUsed);
 
-	@Nullable PersistentRememberMeToken getTokenForSeries(String seriesId);
+	@Nullable
+	PersistentRememberMeToken getTokenForSeries(String seriesId);
 
 	void removeUserTokens(String username);
 

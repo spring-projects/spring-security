@@ -39,6 +39,7 @@ public interface ClientRegistrationRepository {
 	 * @param registrationId the registration identifier
 	 * @return the {@link ClientRegistration} if found, otherwise {@code null}
 	 */
-	@Nullable ClientRegistration findByRegistrationId(String registrationId);
+	@Nullable
+	ClientRegistration findByRegistrationId(String registrationId);
 
 }

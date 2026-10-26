@@ -41,6 +41,7 @@ public interface Saml2LogoutRequestValidatorParametersResolver {
 	 * @param authentication the current user, if any; may be null
 	 * @return a SAML 2.0 Logout Request, if any; may be null
 	 */
-	@Nullable Saml2LogoutRequestValidatorParameters resolve(HttpServletRequest request, @Nullable Authentication authentication);
+	@Nullable
+	Saml2LogoutRequestValidatorParameters resolve(HttpServletRequest request, @Nullable Authentication authentication);
 
 }

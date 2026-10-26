@@ -54,6 +54,7 @@ public interface AuthorizationManager<T extends @Nullable Object> {
 	 * @return an {@link AuthorizationResult}
 	 * @since 6.4
 	 */
-	@Nullable AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication, T object);
+	@Nullable
+	AuthorizationResult authorize(Supplier<? extends @Nullable Authentication> authentication, T object);
 
 }

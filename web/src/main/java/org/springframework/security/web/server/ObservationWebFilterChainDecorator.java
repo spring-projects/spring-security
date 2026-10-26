@@ -597,7 +597,8 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 			return this.filterSection;
 		}
 
-		@Nullable String getFilterName() {
+		@Nullable
+		String getFilterName() {
 			return this.filterName;
 		}
 

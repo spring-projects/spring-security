@@ -85,14 +85,17 @@ public final class AuthorizeReturnObjectDataHintsRegistrar implements SecurityHi
 			if (!RepositoryFactoryBeanSupport.class.isAssignableFrom(type.toClass())) {
 				continue;
 			}
-			@Nullable Class<?>[] generics = type.resolveGenerics();
-			@Nullable Class<?> entity = generics[1];
+			@Nullable
+			Class<?>[] generics = type.resolveGenerics();
+			@Nullable
+			Class<?> entity = generics[1];
 			AuthorizeReturnObject authorize = beanFactory.findAnnotationOnBean(name, AuthorizeReturnObject.class);
 			if (authorize != null) {
 				toProxy.add(entity);
 				continue;
 			}
-			@Nullable Class<?> repository = generics[0];
+			@Nullable
+			Class<?> repository = generics[0];
 			Assert.state(repository != null, "Repository resolved from " + type + " cannot be null");
 			for (Method method : repository.getDeclaredMethods()) {
 				AuthorizeReturnObject returnObject = this.scanner.scan(method, repository);

@@ -71,7 +71,8 @@ public interface StatelessTicketCache {
 	 * </p>
 	 * @return the fully populated authentication token
 	 */
-	@Nullable CasAuthenticationToken getByTicketId(String serviceTicket);
+	@Nullable
+	CasAuthenticationToken getByTicketId(String serviceTicket);
 
 	/**
 	 * Adds the specified <code>CasAuthenticationToken</code> to the cache.

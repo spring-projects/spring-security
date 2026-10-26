@@ -33,9 +33,11 @@ public interface AclCache {
 
 	void evictFromCache(ObjectIdentity objectIdentity);
 
-	@Nullable MutableAcl getFromCache(ObjectIdentity objectIdentity);
+	@Nullable
+	MutableAcl getFromCache(ObjectIdentity objectIdentity);
 
-	@Nullable MutableAcl getFromCache(Serializable pk);
+	@Nullable
+	MutableAcl getFromCache(Serializable pk);
 
 	void putInCache(MutableAcl acl);
 

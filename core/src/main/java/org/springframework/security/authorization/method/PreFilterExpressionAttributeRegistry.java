@@ -39,7 +39,8 @@ final class PreFilterExpressionAttributeRegistry
 	private SecurityAnnotationScanner<PreFilter> scanner = SecurityAnnotationScanners.requireUnique(PreFilter.class);
 
 	@Override
-	@Nullable PreFilterExpressionAttribute resolveAttribute(Method method, @Nullable Class<?> targetClass) {
+	@Nullable
+	PreFilterExpressionAttribute resolveAttribute(Method method, @Nullable Class<?> targetClass) {
 		PreFilter preFilter = findPreFilterAnnotation(method, targetClass);
 		if (preFilter == null) {
 			return null;

@@ -39,7 +39,8 @@ public interface PasswordEncoder {
 	 * the result must be null.
 	 */
 	@Contract("!null -> !null; null -> null")
-	@Nullable String encode(@Nullable CharSequence rawPassword);
+	@Nullable
+	String encode(@Nullable CharSequence rawPassword);
 
 	/**
 	 * Verify the encoded password obtained from storage matches the submitted raw

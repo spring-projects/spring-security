@@ -62,7 +62,8 @@ public interface SecurityAnnotationScanner<A extends Annotation> {
 	 * @param targetClass the target class for the method
 	 * @return the synthesized annotation or {@code null} if not found
 	 */
-	@Nullable A scan(Method method, Class<?> targetClass);
+	@Nullable
+	A scan(Method method, Class<?> targetClass);
 
 	/**
 	 * Scan for an annotation of type {@code A}, starting from the given method parameter.
@@ -77,6 +78,7 @@ public interface SecurityAnnotationScanner<A extends Annotation> {
 	 * @param parameter the parameter to search
 	 * @return the synthesized annotation or {@code null} if not found
 	 */
-	@Nullable A scan(Parameter parameter);
+	@Nullable
+	A scan(Parameter parameter);
 
 }
