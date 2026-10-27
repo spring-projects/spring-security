@@ -277,9 +277,9 @@ This is a minimal configuration for getting started quickly. To understand what 
 
 <1> A Spring Security filter chain for the xref:servlet/oauth2/authorization-server/protocol-endpoints.adoc[Protocol Endpoints].
 <2> A Spring Security filter chain for xref:servlet/authentication/index.adoc#servlet-authentication[authentication].
-<3> An instance of {security-api-url}/org/springframework/security/core/userdetails/UserDetailsService.html[`UserDetailsService`] for retrieving users to authenticate.
+<3> An instance of javadoc:org.springframework.security.core.userdetails.UserDetailsService[] for retrieving users to authenticate.
 <4> An instance of xref:servlet/oauth2/authorization-server/core-model-components.adoc#oauth2AuthorizationServer-registered-client-repository[`RegisteredClientRepository`] for managing clients.
 <5> An instance of `com.nimbusds.jose.jwk.source.JWKSource` for signing access tokens.
 <6> An instance of `java.security.KeyPair` with keys generated on startup used to create the `JWKSource` above.
-<7> An instance of {security-api-url}/org/springframework/security/oauth2/jwt/JwtDecoder.html[`JwtDecoder`] for decoding signed access tokens.
+<7> An instance of javadoc:org.springframework.security.oauth2.jwt.JwtDecoder[] for decoding signed access tokens.
 <8> An instance of xref:servlet/oauth2/authorization-server/configuration-model.adoc#oauth2AuthorizationServer-configuring-authorization-server-settings[`AuthorizationServerSettings`] to configure Spring Security Authorization Server.

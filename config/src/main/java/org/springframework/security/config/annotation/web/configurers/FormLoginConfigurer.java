@@ -74,7 +74,7 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 		AbstractAuthenticationFilterConfigurer<H, FormLoginConfigurer<H>, UsernamePasswordAuthenticationFilter> {
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @see HttpSecurity#formLogin(Customizer)
 	 */
 	public FormLoginConfigurer() {
@@ -209,7 +209,7 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 	}
 
 	/**
-	 * Forward Authentication Failure Handler
+	 * Forward Authentication Failure Handler.
 	 * @param forwardUrl the target URL in case of failure
 	 * @return the {@link FormLoginConfigurer} for additional customization
 	 */
@@ -219,7 +219,7 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 	}
 
 	/**
-	 * Forward Authentication Success Handler
+	 * Forward Authentication Success Handler.
 	 * @param forwardUrl the target URL in case of success
 	 * @return the {@link FormLoginConfigurer} for additional customization
 	 */

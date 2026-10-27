@@ -47,7 +47,7 @@ public class FactorAuthorizationDecision implements AuthorizationResult {
 	}
 
 	/**
-	 * The specified {@link RequiredFactorError}s
+	 * The specified {@link RequiredFactorError}s.
 	 * @return the errors. Cannot be null or contain null values.
 	 */
 	public List<RequiredFactorError> getFactorErrors() {

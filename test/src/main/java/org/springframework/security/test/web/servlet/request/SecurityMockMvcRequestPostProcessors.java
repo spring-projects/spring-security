@@ -476,7 +476,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	}
 
 	/**
-	 * Populates the X509Certificate instances onto the request
+	 * Populates the X509Certificate instances onto the request.
 	 */
 	private static final class X509RequestPostProcessor implements RequestPostProcessor {
 
@@ -630,7 +630,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		private String cnonce = "c822c727a648aba7";
 
 		/**
-		 * Configures the username to use
+		 * Configures the username to use.
 		 * @param username the username to use
 		 * @return the DigestRequestPostProcessor for further customization
 		 */
@@ -641,7 +641,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Configures the password to use
+		 * Configures the password to use.
 		 * @param password the password to use
 		 * @return the DigestRequestPostProcessor for further customization
 		 */
@@ -652,7 +652,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Configures the realm to use
+		 * Configures the realm to use.
 		 * @param realm the realm to use
 		 * @return the DigestRequestPostProcessor for further customization
 		 */
@@ -731,7 +731,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 	/**
 	 * Support class for {@link RequestPostProcessor}'s that establish a Spring Security
-	 * context
+	 * context.
 	 */
 	private abstract static class SecurityContextRequestPostProcessorSupport {
 
@@ -748,7 +748,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Saves the {@link SecurityContext} using the {@link SecurityContextRepository}
+		 * Saves the {@link SecurityContext} using the {@link SecurityContextRepository}.
 		 * @param securityContext the {@link SecurityContext} to save
 		 * @param request the {@link HttpServletRequest} to use
 		 */
@@ -769,7 +769,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		/**
 		 * Used to wrap the SecurityContextRepository to provide support for testing in
-		 * stateless mode
+		 * stateless mode.
 		 */
 		static final class TestSecurityContextRepository implements SecurityContextRepository {
 
@@ -866,7 +866,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 	/**
 	 * Sets the specified {@link Authentication} on an empty {@link SecurityContext} and
-	 * associates it to the {@link MockHttpServletRequest}
+	 * associates it to the {@link MockHttpServletRequest}.
 	 *
 	 * @author Rob Winch
 	 * @since 4.0
@@ -943,7 +943,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		private boolean accountNonLocked = true;
 
 		/**
-		 * Creates a new instance with the given username
+		 * Creates a new instance with the given username.
 		 * @param username the username to use
 		 */
 		private UserRequestPostProcessor(String username) {
@@ -1010,7 +1010,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Creates a new {@link User}
+		 * Creates a new {@link User}.
 		 * @return the {@link User} for the principal
 		 */
 		private User createUser() {
@@ -1052,6 +1052,9 @@ public final class SecurityMockMvcRequestPostProcessors {
 	}
 
 	/**
+	 * A {@link RequestPostProcessor} for establishing a JWT-authenticated user for use in
+	 * tests.
+	 *
 	 * @author Jérôme Wacongne &lt;ch4mp&#64;c4-soft.com&gt;
 	 * @author Josh Cummings
 	 * @since 5.2
@@ -1091,7 +1094,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Use the given {@link Jwt}
+		 * Use the given {@link Jwt}.
 		 * @param jwt The {@link Jwt} to use
 		 * @return the {@link JwtRequestPostProcessor} for additional customization
 		 */
@@ -1101,7 +1104,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Use the provided authorities in the token
+		 * Use the provided authorities in the token.
 		 * @param authorities the authorities to use
 		 * @return the {@link JwtRequestPostProcessor} for further configuration
 		 */
@@ -1112,7 +1115,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Use the provided authorities in the token
+		 * Use the provided authorities in the token.
 		 * @param authorities the authorities to use
 		 * @return the {@link JwtRequestPostProcessor} for further configuration
 		 */
@@ -1124,7 +1127,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		/**
 		 * Provides the configured {@link Jwt} so that custom authorities can be derived
-		 * from it
+		 * from it.
 		 * @param authoritiesConverter the conversion strategy from {@link Jwt} to a
 		 * {@link Collection} of {@link GrantedAuthority}s
 		 * @return the {@link JwtRequestPostProcessor} for further configuration
@@ -1146,6 +1149,9 @@ public final class SecurityMockMvcRequestPostProcessors {
 	}
 
 	/**
+	 * A {@link RequestPostProcessor} for establishing an opaque-token-authenticated user
+	 * for use in tests.
+	 *
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
@@ -1161,7 +1167,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Mutate the attributes using the given {@link Consumer}
+		 * Mutate the attributes using the given {@link Consumer}.
 		 * @param attributesConsumer The {@link Consumer} for mutating the {@code Map} of
 		 * attributes
 		 * @return the {@link OpaqueTokenRequestPostProcessor} for further configuration
@@ -1178,7 +1184,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Use the provided authorities in the resulting principal
+		 * Use the provided authorities in the resulting principal.
 		 * @param authorities the authorities to use
 		 * @return the {@link OpaqueTokenRequestPostProcessor} for further configuration
 		 */
@@ -1190,7 +1196,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Use the provided authorities in the resulting principal
+		 * Use the provided authorities in the resulting principal.
 		 * @param authorities the authorities to use
 		 * @return the {@link OpaqueTokenRequestPostProcessor} for further configuration
 		 */
@@ -1202,7 +1208,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Use the provided principal
+		 * Use the provided principal.
 		 * @param principal the principal to use
 		 * @return the {@link OpaqueTokenRequestPostProcessor} for further configuration
 		 */
@@ -1275,6 +1281,9 @@ public final class SecurityMockMvcRequestPostProcessors {
 	}
 
 	/**
+	 * A {@link RequestPostProcessor} for establishing an OAuth 2.0 login-authenticated
+	 * user for use in tests.
+	 *
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
@@ -1298,7 +1307,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Use the provided authorities in the {@link Authentication}
+		 * Use the provided authorities in the {@link Authentication}.
 		 * @param authorities the authorities to use
 		 * @return the {@link OAuth2LoginRequestPostProcessor} for further configuration
 		 */
@@ -1310,7 +1319,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Use the provided authorities in the {@link Authentication}
+		 * Use the provided authorities in the {@link Authentication}.
 		 * @param authorities the authorities to use
 		 * @return the {@link OAuth2LoginRequestPostProcessor} for further configuration
 		 */
@@ -1322,7 +1331,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Mutate the attributes using the given {@link Consumer}
+		 * Mutate the attributes using the given {@link Consumer}.
 		 * @param attributesConsumer The {@link Consumer} for mutating the {@code Map} of
 		 * attributes
 		 * @return the {@link OAuth2LoginRequestPostProcessor} for further configuration
@@ -1404,6 +1413,9 @@ public final class SecurityMockMvcRequestPostProcessors {
 	}
 
 	/**
+	 * A {@link RequestPostProcessor} for establishing an OIDC-authenticated user for use
+	 * in tests.
+	 *
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
@@ -1428,7 +1440,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Use the provided authorities in the {@link Authentication}
+		 * Use the provided authorities in the {@link Authentication}.
 		 * @param authorities the authorities to use
 		 * @return the {@link OidcLoginRequestPostProcessor} for further configuration
 		 */
@@ -1440,7 +1452,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Use the provided authorities in the {@link Authentication}
+		 * Use the provided authorities in the {@link Authentication}.
 		 * @param authorities the authorities to use
 		 * @return the {@link OidcLoginRequestPostProcessor} for further configuration
 		 */
@@ -1452,7 +1464,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Use the provided {@link OidcIdToken} when constructing the authenticated user
+		 * Use the provided {@link OidcIdToken} when constructing the authenticated user.
 		 * @param idTokenBuilderConsumer a {@link Consumer} of a
 		 * {@link OidcIdToken.Builder}
 		 * @return the {@link OidcLoginRequestPostProcessor} for further configuration
@@ -1467,7 +1479,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Use the provided {@link OidcUserInfo} when constructing the authenticated user
+		 * Use the provided {@link OidcUserInfo} when constructing the authenticated user.
 		 * @param userInfoBuilderConsumer a {@link Consumer} of a
 		 * {@link OidcUserInfo.Builder}
 		 * @return the {@link OidcLoginRequestPostProcessor} for further configuration
@@ -1550,6 +1562,9 @@ public final class SecurityMockMvcRequestPostProcessors {
 	}
 
 	/**
+	 * A {@link RequestPostProcessor} for establishing an {@link OAuth2AuthorizedClient}
+	 * for use in tests.
+	 *
 	 * @author Josh Cummings
 	 * @since 5.3
 	 */
@@ -1574,7 +1589,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Use this {@link ClientRegistration}
+		 * Use this {@link ClientRegistration}.
 		 * @param clientRegistration
 		 * @return the {@link OAuth2ClientRequestPostProcessor} for further configuration
 		 */
@@ -1584,7 +1599,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Use this {@link Consumer} to configure a {@link ClientRegistration}
+		 * Use this {@link Consumer} to configure a {@link ClientRegistration}.
 		 * @param clientRegistrationConfigurer the {@link ClientRegistration} configurer
 		 * @return the {@link OAuth2ClientRequestPostProcessor} for further configuration
 		 */
@@ -1597,7 +1612,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Use this as the resource owner's principal name
+		 * Use this as the resource owner's principal name.
 		 * @param principalName the resource owner's principal name
 		 * @return the {@link OAuth2ClientRequestPostProcessor} for further configuration
 		 */
@@ -1608,7 +1623,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Use this {@link OAuth2AccessToken}
+		 * Use this {@link OAuth2AccessToken}.
 		 * @param accessToken the {@link OAuth2AccessToken} to use
 		 * @return the {@link OAuth2ClientRequestPostProcessor} for further configuration
 		 */
@@ -1653,7 +1668,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		/**
 		 * Used to wrap the {@link OAuth2AuthorizedClientRepository} to provide support
-		 * for testing when the request is wrapped
+		 * for testing when the request is wrapped.
 		 */
 		private static final class TestOAuth2AuthorizedClientManager implements OAuth2AuthorizedClientManager {
 
@@ -1690,7 +1705,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		/**
 		 * Used to wrap the {@link OAuth2AuthorizedClientRepository} to provide support
-		 * for testing when the request is wrapped
+		 * for testing when the request is wrapped.
 		 */
 		static final class TestOAuth2AuthorizedClientRepository implements OAuth2AuthorizedClientRepository {
 

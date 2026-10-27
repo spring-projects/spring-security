@@ -64,6 +64,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.config.test.SessionRequestPostProcessors.requestedSession;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -87,8 +88,10 @@ public class NamespaceSessionManagementTests {
 			.autowire();
 		MockHttpSession session = new MockHttpSession();
 		String sessionId = session.getId();
-		MockHttpServletRequestBuilder request = get("/auth").session(session).with(httpBasic("user", "password"));
 		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/auth")
+				.with(requestedSession(session))
+				.with(httpBasic("user", "password"));
 		MvcResult result = this.mvc.perform(request)
 				.andExpect(session())
 				.andReturn();
@@ -132,8 +135,10 @@ public class NamespaceSessionManagementTests {
 		this.spring.register(CustomSessionManagementConfig.class, BasicController.class, UserDetailsServiceConfig.class)
 			.autowire();
 		MockHttpServletRequest mock = spy(MockHttpServletRequest.class);
-		mock.setSession(new MockHttpSession());
+		MockHttpSession session = new MockHttpSession();
+		mock.setSession(session);
 		given(mock.changeSessionId()).willThrow(SessionAuthenticationException.class);
+		mock.setRequestedSessionId(session.getId());
 		mock.setMethod("GET");
 		// @formatter:off
 		MockHttpServletRequestBuilder authRequest = get("/auth")
@@ -207,7 +212,7 @@ public class NamespaceSessionManagementTests {
 		givenSession.setAttribute("name", "value");
 		// @formatter:off
 		MockHttpSession resultingSession = (MockHttpSession) this.mvc.perform(get("/auth")
-				.session(givenSession)
+				.with(requestedSession(givenSession))
 				.with(httpBasic("user", "password")))
 				.andExpect(status().isOk())
 				.andReturn()
@@ -222,9 +227,10 @@ public class NamespaceSessionManagementTests {
 	@Test
 	public void authenticateWhenUsingSessionFixationProtectionThenUsesNonNullEventPublisher() throws Exception {
 		this.spring.register(SFPPostProcessedConfig.class, UserDetailsServiceConfig.class).autowire();
+		MockHttpSession givenSession = new MockHttpSession();
 		// @formatter:off
 		MockHttpServletRequestBuilder request = get("/auth")
-				.session(new MockHttpSession())
+				.with(requestedSession(givenSession))
 				.with(httpBasic("user", "password"));
 		// @formatter:on
 		this.mvc.perform(request).andExpect(status().isNotFound());
@@ -237,8 +243,10 @@ public class NamespaceSessionManagementTests {
 		MockHttpSession givenSession = new MockHttpSession();
 		String givenSessionId = givenSession.getId();
 		givenSession.setAttribute("name", "value");
-		MockHttpServletRequestBuilder request = get("/auth").session(givenSession).with(httpBasic("user", "password"));
 		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/auth")
+				.with(requestedSession(givenSession))
+				.with(httpBasic("user", "password"));
 		MockHttpSession resultingSession = (MockHttpSession) this.mvc.perform(request)
 				.andExpect(status().isNotFound())
 				.andReturn()

@@ -31,12 +31,15 @@ public interface MethodSecurityExpressionOperations extends SecurityExpressionOp
 
 	void setFilterObject(Object filterObject);
 
-	@Nullable Object getFilterObject();
+	@Nullable
+	Object getFilterObject();
 
 	void setReturnObject(@Nullable Object returnObject);
 
-	@Nullable Object getReturnObject();
+	@Nullable
+	Object getReturnObject();
 
-	@Nullable Object getThis();
+	@Nullable
+	Object getThis();
 
 }

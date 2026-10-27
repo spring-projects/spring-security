@@ -26,7 +26,7 @@ import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEnti
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthentication;
 
 /**
- * Jackson mixin for {@link WebAuthnAuthentication}
+ * Jackson mixin for {@link WebAuthnAuthentication}.
  *
  * @author Toshiaki Maki
  * @since 7.0.4

@@ -93,7 +93,7 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 	}
 
 	/**
-	 * Builds the target URL according to the logic defined in the main class Javadoc
+	 * Builds the target URL according to the logic defined in the main class Javadoc.
 	 * @since 5.2
 	 */
 	protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,

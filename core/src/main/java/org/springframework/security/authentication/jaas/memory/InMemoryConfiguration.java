@@ -86,7 +86,7 @@ public class InMemoryConfiguration extends Configuration {
 	}
 
 	/**
-	 * Does nothing, but required for JDK5
+	 * Does nothing, but required for JDK5.
 	 */
 	@Override
 	public void refresh() {

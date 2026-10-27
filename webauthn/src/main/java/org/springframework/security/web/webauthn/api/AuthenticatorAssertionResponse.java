@@ -122,7 +122,7 @@ public final class AuthenticatorAssertionResponse extends AuthenticatorResponse 
 	}
 
 	/**
-	 * Creates a new {@link AuthenticatorAssertionResponseBuilder}
+	 * Creates a new {@link AuthenticatorAssertionResponseBuilder}.
 	 * @return the {@link AuthenticatorAssertionResponseBuilder}
 	 */
 	public static AuthenticatorAssertionResponseBuilder builder() {
@@ -151,7 +151,7 @@ public final class AuthenticatorAssertionResponse extends AuthenticatorResponse 
 		}
 
 		/**
-		 * Set the {@link #getAuthenticatorData()} property
+		 * Set the {@link #getAuthenticatorData()} property.
 		 * @param authenticatorData the authenticator data.
 		 * @return the {@link AuthenticatorAssertionResponseBuilder}
 		 */
@@ -161,7 +161,7 @@ public final class AuthenticatorAssertionResponse extends AuthenticatorResponse 
 		}
 
 		/**
-		 * Set the {@link #getSignature()} property
+		 * Set the {@link #getSignature()} property.
 		 * @param signature the signature
 		 * @return the {@link AuthenticatorAssertionResponseBuilder}
 		 */
@@ -171,7 +171,7 @@ public final class AuthenticatorAssertionResponse extends AuthenticatorResponse 
 		}
 
 		/**
-		 * Set the {@link #getUserHandle()} property
+		 * Set the {@link #getUserHandle()} property.
 		 * @param userHandle the user handle
 		 * @return the {@link AuthenticatorAssertionResponseBuilder}
 		 */
@@ -181,7 +181,7 @@ public final class AuthenticatorAssertionResponse extends AuthenticatorResponse 
 		}
 
 		/**
-		 * Set the {@link #attestationObject} property
+		 * Set the {@link #attestationObject} property.
 		 * @param attestationObject the attestation object
 		 * @return the {@link AuthenticatorAssertionResponseBuilder}
 		 */
@@ -191,7 +191,7 @@ public final class AuthenticatorAssertionResponse extends AuthenticatorResponse 
 		}
 
 		/**
-		 * Set the {@link #getClientDataJSON()} property
+		 * Set the {@link #getClientDataJSON()} property.
 		 * @param clientDataJSON the client data JSON
 		 * @return the {@link AuthenticatorAssertionResponseBuilder}
 		 */
@@ -201,7 +201,7 @@ public final class AuthenticatorAssertionResponse extends AuthenticatorResponse 
 		}
 
 		/**
-		 * Builds the {@link AuthenticatorAssertionResponse}
+		 * Builds the {@link AuthenticatorAssertionResponse}.
 		 * @return the {@link AuthenticatorAssertionResponse}
 		 */
 		public AuthenticatorAssertionResponse build() {

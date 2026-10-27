@@ -27,7 +27,7 @@ import org.springframework.core.MethodClassKey;
 import org.springframework.security.authorization.AuthorizationManager;
 
 /**
- * For internal use only, as this contract is likely to change
+ * For internal use only, as this contract is likely to change.
  *
  * @author Evgeniy Cheban
  */

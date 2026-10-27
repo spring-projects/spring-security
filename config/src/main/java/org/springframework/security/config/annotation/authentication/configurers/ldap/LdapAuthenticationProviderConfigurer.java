@@ -17,6 +17,7 @@
 package org.springframework.security.config.annotation.authentication.configurers.ldap;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
@@ -135,7 +136,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 
 	/**
 	 * Gets the {@link LdapAuthoritiesPopulator} and defaults to
-	 * {@link DefaultLdapAuthoritiesPopulator}
+	 * {@link DefaultLdapAuthoritiesPopulator}.
 	 * @return the {@link LdapAuthoritiesPopulator}
 	 */
 	private LdapAuthoritiesPopulator getLdapAuthoritiesPopulator() {
@@ -184,7 +185,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	}
 
 	/**
-	 * Creates the {@link LdapAuthenticator} to use
+	 * Creates the {@link LdapAuthenticator} to use.
 	 * @param contextSource the {@link BaseLdapPathContextSource} to use
 	 * @return the {@link LdapAuthenticator} to use
 	 */
@@ -202,7 +203,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	}
 
 	/**
-	 * Creates {@link PasswordComparisonAuthenticator}
+	 * Creates {@link PasswordComparisonAuthenticator}.
 	 * @param contextSource the {@link BaseLdapPathContextSource} to use
 	 * @return
 	 */
@@ -217,7 +218,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	}
 
 	/**
-	 * Creates a {@link BindAuthenticator}
+	 * Creates a {@link BindAuthenticator}.
 	 * @param contextSource the {@link BaseLdapPathContextSource} to use
 	 * @return the {@link BindAuthenticator} to use
 	 */
@@ -394,6 +395,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	}
 
 	/**
+	 * Enables password-based comparison for authentication.
 	 * @return the {@link PasswordCompareConfigurer} for further customizations
 	 */
 	public PasswordCompareConfigurer passwordCompare() {
@@ -402,7 +404,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	}
 
 	/**
-	 * Sets up Password based comparison
+	 * Sets up Password based comparison.
 	 *
 	 * @author Rob Winch
 	 */
@@ -433,7 +435,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 
 		/**
 		 * Allows obtaining a reference to the
-		 * {@link LdapAuthenticationProviderConfigurer} for further customizations
+		 * {@link LdapAuthenticationProviderConfigurer} for further customizations.
 		 * @return attribute in the directory which contains the user password
 		 */
 		public LdapAuthenticationProviderConfigurer<B> and() {
@@ -546,7 +548,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 
 		/**
 		 * Gets the {@link LdapAuthenticationProviderConfigurer} for further
-		 * customizations
+		 * customizations.
 		 * @return the {@link LdapAuthenticationProviderConfigurer} for further
 		 * customizations
 		 */
@@ -590,7 +592,7 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		}
 
 		private int getDefaultPort() {
-			try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT)) {
+			try (ServerSocket serverSocket = new ServerSocket(DEFAULT_PORT, 50, InetAddress.getLoopbackAddress())) {
 				return serverSocket.getLocalPort();
 			}
 			catch (IOException ex) {

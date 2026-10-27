@@ -55,7 +55,8 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 	}
 
 	@Override
-	@Nullable ExpressionAttribute resolveAttribute(Method method, @Nullable Class<?> targetClass) {
+	@Nullable
+	ExpressionAttribute resolveAttribute(Method method, @Nullable Class<?> targetClass) {
 		PostAuthorize postAuthorize = findPostAuthorizeAnnotation(method, targetClass);
 		if (postAuthorize == null) {
 			return null;
@@ -81,7 +82,7 @@ final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionA
 
 	/**
 	 * Uses the provided {@link ApplicationContext} to resolve the
-	 * {@link MethodAuthorizationDeniedHandler} from {@link PostAuthorize}
+	 * {@link MethodAuthorizationDeniedHandler} from {@link PostAuthorize}.
 	 * @param context the {@link ApplicationContext} to use
 	 */
 	void setApplicationContext(ApplicationContext context) {

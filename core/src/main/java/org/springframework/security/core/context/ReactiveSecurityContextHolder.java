@@ -37,7 +37,7 @@ public final class ReactiveSecurityContextHolder {
 	}
 
 	/**
-	 * Gets the {@code Mono<SecurityContext>} from Reactor {@link Context}
+	 * Gets the {@code Mono<SecurityContext>} from Reactor {@link Context}.
 	 * @return the {@code Mono<SecurityContext>}
 	 */
 	public static Mono<SecurityContext> getContext() {
@@ -58,7 +58,7 @@ public final class ReactiveSecurityContextHolder {
 	}
 
 	/**
-	 * Clears the {@code Mono<SecurityContext>} from Reactor {@link Context}
+	 * Clears the {@code Mono<SecurityContext>} from Reactor {@link Context}.
 	 * @return Return a {@code Mono<Void>} which only replays complete and error signals
 	 * from clearing the context.
 	 */
@@ -68,7 +68,7 @@ public final class ReactiveSecurityContextHolder {
 
 	/**
 	 * Creates a Reactor {@link Context} that contains the {@code Mono<SecurityContext>}
-	 * that can be merged into another {@link Context}
+	 * that can be merged into another {@link Context}.
 	 * @param securityContext the {@code Mono<SecurityContext>} to set in the returned
 	 * Reactor {@link Context}
 	 * @return a Reactor {@link Context} that contains the {@code Mono<SecurityContext>}
@@ -78,7 +78,7 @@ public final class ReactiveSecurityContextHolder {
 	}
 
 	/**
-	 * A shortcut for {@link #withSecurityContext(Mono)}
+	 * A shortcut for {@link #withSecurityContext(Mono)}.
 	 * @param authentication the {@link Authentication} to be used
 	 * @return a Reactor {@link Context} that contains the {@code Mono<SecurityContext>}
 	 */

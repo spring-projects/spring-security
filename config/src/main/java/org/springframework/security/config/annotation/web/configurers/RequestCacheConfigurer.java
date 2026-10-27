@@ -32,6 +32,7 @@ import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.accept.ContentNegotiationStrategy;
@@ -140,7 +141,7 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 
 	@SuppressWarnings("unchecked")
 	private RequestMatcher createDefaultSavedRequestMatcher(H http) {
-		RequestMatcher notFavIcon = new NegatedRequestMatcher(getFaviconRequestMatcher());
+		RequestMatcher notIgnoredBackgroundRequest = new NegatedRequestMatcher(getIgnoredBackgroundRequestMatcher());
 		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
 				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
 		RequestMatcher notWebSocket = new NegatedRequestMatcher(
@@ -152,7 +153,7 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 			RequestMatcher getRequests = getRequestMatcherBuilder().matcher(HttpMethod.GET, "/**");
 			matchers.add(0, getRequests);
 		}
-		matchers.add(notFavIcon);
+		matchers.add(notIgnoredBackgroundRequest);
 		matchers.add(notMatchingMediaType(http, MediaType.APPLICATION_JSON));
 		matchers.add(notXRequestedWith);
 		matchers.add(notMatchingMediaType(http, MediaType.MULTIPART_FORM_DATA));
@@ -171,8 +172,33 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 		return new NegatedRequestMatcher(mediaRequest);
 	}
 
-	private RequestMatcher getFaviconRequestMatcher() {
-		return getRequestMatcherBuilder().matcher("/favicon.*");
+	/**
+	 * Path patterns for requests that browsers request automatically in the background
+	 * (e.g. to display an icon), and that should therefore never be saved as the URL to
+	 * redirect to after authentication succeeds.
+	 */
+	private static final String[] IGNORED_BACKGROUND_REQUEST_PATTERNS = { "/favicon.*",
+			// Safari/WebKit request apple-touch-icon.png,
+			// apple-touch-icon-precomposed.png,
+			// and sized variants (e.g. apple-touch-icon-152x152.png) even without a
+			// matching <link> tag in the page
+			"/apple-touch-icon*.png",
+			// Chromium browsers fetch the web app manifest in the background to
+			// evaluate PWA installability
+			"/manifest.json", "/manifest.webmanifest",
+			// Legacy IE11/Edge fetch browserconfig.xml in the background to
+			// configure pinned-site tiles
+			"/browserconfig.xml",
+			// Chrome DevTools itself (not the page, not the user) requests this to
+			// discover an Automatic Workspace Folder mapping for local source editing
+			"/.well-known/appspecific/com.chrome.devtools.json" };
+
+	private RequestMatcher getIgnoredBackgroundRequestMatcher() {
+		List<RequestMatcher> matchers = new ArrayList<>();
+		for (String pattern : IGNORED_BACKGROUND_REQUEST_PATTERNS) {
+			matchers.add(getRequestMatcherBuilder().matcher(pattern));
+		}
+		return new OrRequestMatcher(matchers);
 	}
 
 }

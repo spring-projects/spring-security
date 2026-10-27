@@ -22,6 +22,9 @@ import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.security.authorization.AuthorizationManager;
 
 /**
+ * A factory for creating {@link PreInvocationAttribute}s and
+ * {@link PostInvocationAttribute}s.
+ *
  * @author Luke Taylor
  * @since 3.0
  * @see org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor

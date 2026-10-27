@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Internal encoding utilities used by the crypto module.
+ */
 @NullMarked
 package org.springframework.security.crypto.util;
 

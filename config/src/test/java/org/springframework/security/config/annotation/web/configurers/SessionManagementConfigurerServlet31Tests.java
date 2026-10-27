@@ -75,6 +75,7 @@ public class SessionManagementConfigurerServlet31Tests {
 		MockHttpServletRequest request = post("/login").param("username", "user").param("password", "password").build();
 		String id = request.getSession().getId();
 		request.getSession();
+		request.setRequestedSessionId(id);
 		HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
 		CsrfTokenRequestHandler handler = new XorCsrfTokenRequestAttributeHandler();
 		DeferredCsrfToken deferredCsrfToken = repository.loadDeferredToken(request, this.response);

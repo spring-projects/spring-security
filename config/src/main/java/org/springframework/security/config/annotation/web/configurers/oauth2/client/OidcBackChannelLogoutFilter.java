@@ -40,7 +40,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * A filter for the Client-side OIDC Back-Channel Logout endpoint
+ * A filter for the Client-side OIDC Back-Channel Logout endpoint.
  *
  * @author Josh Cummings
  * @since 6.2
@@ -61,7 +61,7 @@ class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 	private final LogoutHandler logoutHandler;
 
 	/**
-	 * Construct an {@link OidcBackChannelLogoutFilter}
+	 * Construct an {@link OidcBackChannelLogoutFilter}.
 	 * @param authenticationConverter the {@link AuthenticationConverter} for deriving
 	 * Logout Token authentication
 	 * @param authenticationManager the {@link AuthenticationManager} for authenticating

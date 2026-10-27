@@ -74,7 +74,7 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
 	}
 
 	/**
-	 * Get the credentials
+	 * Get the credentials.
 	 */
 	@Override
 	public @Nullable Object getCredentials() {
@@ -82,7 +82,7 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
 	}
 
 	/**
-	 * Get the principal
+	 * Get the principal.
 	 */
 	@Override
 	public Object getPrincipal() {
@@ -95,7 +95,7 @@ public class PreAuthenticatedAuthenticationToken extends AbstractAuthenticationT
 	}
 
 	/**
-	 * A builder of {@link PreAuthenticatedAuthenticationToken} instances
+	 * A builder of {@link PreAuthenticatedAuthenticationToken} instances.
 	 *
 	 * @since 7.0
 	 */

@@ -944,5 +944,52 @@ For MAC-based algorithms (such as `HS256`, `HS384`, or `HS512`), the `client-sec
 If more than one `ClientRegistration` is configured for OpenID Connect 1.0 Authentication, the JWS algorithm resolver may evaluate the provided `ClientRegistration` to determine which algorithm to return.
 ====
 
+[[oauth2login-advanced-idtoken-decoder-factory]]
+== Providing a Custom JwtDecoderFactory
+
+`OidcIdTokenDecoderFactory` is deliberately narrow: it exists to make it easy to support multiple `ClientRegistration` instances, each potentially needing a different `JwtDecoder`, and its configuration surface is limited to what most applications need for that purpose, such as the JWS algorithm resolver shown above.
+
+If your application needs deeper control over how the ID Token's `JwtDecoder` is constructed -- for example, providing your own `RestOperations` -- you can instead provide your own `JwtDecoderFactory<ClientRegistration>` `@Bean`.
+Because OAuth2 Login does not use a resource server `JwtDecoder` bean for this purpose, this is the supported way to reach the same level of control that `NimbusJwtDecoder`'s builder already offers, without introducing additional configuration properties on `OidcIdTokenDecoderFactory` itself.
+
+For a single `ClientRegistration`, this can be as simple as:
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+JwtDecoderFactory<ClientRegistration> idTokenDecoderFactory(RestOperations rest) {
+	return (clientRegistration) -> {
+		String issuerUri = clientRegistration.getProviderDetails().getIssuerUri();
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withIssuerLocation(issuerUri).restOperations(rest).build();
+		decoder.setJwtValidator(JwtValidators.createDefaultWithValidators(new OidcIdTokenValidator(clientRegistration)));
+		decoder.setClaimTypeConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverter());
+		return decoder;
+	};
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun idTokenDecoderFactory(rest: RestOperations): JwtDecoderFactory<ClientRegistration> {
+    return JwtDecoderFactory { clientRegistration ->
+        val issuerUri = clientRegistration.providerDetails.issuerUri
+        val decoder = NimbusJwtDecoder.withIssuerLocation(issuerUri).restOperations(rest).build()
+        decoder.setJwtValidator(JwtValidators.createDefaultWithValidators(OidcIdTokenValidator(clientRegistration)))
+        decoder.setClaimTypeConverter(OidcIdTokenDecoderFactory.createDefaultClaimTypeConverter())
+        decoder
+    }
+}
+----
+======
+
+If you have multiple `ClientRegistration` instances and want to avoid rebuilding a `JwtDecoder` on every request, cache the decoder per registration, for example by annotating the factory method with `@Cacheable` or by keying a `Map` on `ClientRegistration#getRegistrationId()`.
+
 [[oauth2login-advanced-oidc-logout]]
 Then, you can proceed to configure xref:servlet/oauth2/login/logout.adoc[logout]

@@ -59,14 +59,14 @@ public final class PathPatternMessageMatcher implements MessageMatcher<Object> {
 	/**
 	 * Initialize this builder with the {@link PathPatternParser#defaultInstance} that is
 	 * configured with the
-	 * {@link org.springframework.http.server.PathContainer.Options#HTTP_PATH} separator
+	 * {@link org.springframework.http.server.PathContainer.Options#HTTP_PATH} separator.
 	 */
 	public static Builder withDefaults() {
 		return new Builder(PathPatternParser.defaultInstance);
 	}
 
 	/**
-	 * Initialize this builder with the provided {@link PathPatternParser}
+	 * Initialize this builder with the provided {@link PathPatternParser}.
 	 */
 	public static Builder withPathPatternParser(PathPatternParser parser) {
 		return new Builder(parser);
@@ -87,7 +87,7 @@ public final class PathPatternMessageMatcher implements MessageMatcher<Object> {
 	/**
 	 * Extract the path variables from the {@link Message} destination if the path is a
 	 * match, otherwise the {@link MatchResult#getVariables()} returns a
-	 * {@link Collections#emptyMap()}
+	 * {@link Collections#emptyMap()}.
 	 * @param message the message whose path variables to extract.
 	 * @return a {@code MatchResult} of the path variables and values.
 	 */

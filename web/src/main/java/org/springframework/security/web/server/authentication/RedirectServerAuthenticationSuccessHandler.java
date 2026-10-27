@@ -45,13 +45,13 @@ public class RedirectServerAuthenticationSuccessHandler implements ServerAuthent
 	private ServerRequestCache requestCache = new WebSessionServerRequestCache();
 
 	/**
-	 * Creates a new instance with location of "/"
+	 * Creates a new instance with location of "/".
 	 */
 	public RedirectServerAuthenticationSuccessHandler() {
 	}
 
 	/**
-	 * Creates a new instance with the specified location
+	 * Creates a new instance with the specified location.
 	 * @param location the location to redirect if the no request is cached in
 	 * {@link #setRequestCache(ServerRequestCache)}
 	 */
@@ -78,7 +78,7 @@ public class RedirectServerAuthenticationSuccessHandler implements ServerAuthent
 	}
 
 	/**
-	 * Where the user is redirected to upon authentication success
+	 * Where the user is redirected to upon authentication success.
 	 * @param location the location to redirect to. The default is "/"
 	 */
 	public void setLocation(URI location) {

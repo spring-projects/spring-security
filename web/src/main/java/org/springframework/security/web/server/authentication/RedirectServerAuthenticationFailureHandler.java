@@ -39,7 +39,7 @@ public class RedirectServerAuthenticationFailureHandler implements ServerAuthent
 	private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
 	/**
-	 * Creates an instance
+	 * Creates an instance.
 	 * @param location the location to redirect to (i.e. "/login?failed")
 	 */
 	public RedirectServerAuthenticationFailureHandler(String location) {

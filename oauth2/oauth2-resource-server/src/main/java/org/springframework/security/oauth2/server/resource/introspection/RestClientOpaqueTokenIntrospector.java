@@ -72,6 +72,9 @@ public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntro
 
 	private Converter<OAuth2TokenIntrospectionClaimAccessor, ? extends OAuth2AuthenticatedPrincipal> authenticationConverter = this::defaultAuthenticationConverter;
 
+	private Consumer<RestClient.RequestBodySpec> requestBodyCustomizer = (b) -> {
+	};
+
 	/**
 	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters
 	 * The given {@link RestClient} should perform its own client authentication against
@@ -105,7 +108,9 @@ public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntro
 			RestClient.RequestBodySpec spec = this.restClient.post()
 				.uri(this.introspectionUri)
 				.headers((h) -> h.setAccept(List.of(MediaType.APPLICATION_JSON)))
+				.contentType(MediaType.APPLICATION_FORM_URLENCODED)
 				.body(requestBody(token));
+			this.requestBodyCustomizer.accept(spec);
 			return spec.retrieve().toEntity(STRING_OBJECT_MAP);
 		}
 		catch (Exception ex) {
@@ -199,6 +204,25 @@ public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntro
 	}
 
 	/**
+	 * Sets the {@link Consumer} used to customize the introspection request after the
+	 * defaults have been applied. By default, the request is sent as
+	 * {@code application/x-www-form-urlencoded}, as required by
+	 * <a href="https://datatracker.ietf.org/doc/html/rfc7662#section-2.1">RFC 7662</a>.
+	 * <p>
+	 * Use if you need a different {@code Content-Type} or additional request settings.
+	 * The customizer is applied after the request is prepared and before it is sent, so
+	 * request material set by the customizer takes precedence over the default and over
+	 * any set on the {@link RestClient}.
+	 * </p>
+	 * @param requestBodyCustomizer the {@link Consumer} to apply to the request
+	 * @since 7.2
+	 */
+	public void setRequestBodyCustomizer(Consumer<RestClient.RequestBodySpec> requestBodyCustomizer) {
+		Assert.notNull(requestBodyCustomizer, "requestBodyCustomizer cannot be null");
+		this.requestBodyCustomizer = requestBodyCustomizer;
+	}
+
+	/**
 	 * If {@link RestClientOpaqueTokenIntrospector#authenticationConverter} is not
 	 * explicitly set, this default converter will be used. transforms an
 	 * {@link OAuth2TokenIntrospectionClaimAccessor} into an
@@ -227,7 +251,7 @@ public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntro
 
 	/**
 	 * Creates a {@code RestClientOpaqueTokenIntrospector.Builder} with the given
-	 * introspection endpoint uri
+	 * introspection endpoint uri.
 	 * @param introspectionUri The introspection endpoint uri
 	 * @return the {@link RestClientOpaqueTokenIntrospector.Builder}
 	 */
@@ -320,7 +344,7 @@ public final class RestClientOpaqueTokenIntrospector implements OpaqueTokenIntro
 		}
 
 		/**
-		 * Creates a {@code RestClientOpaqueTokenIntrospector}
+		 * Creates a {@code RestClientOpaqueTokenIntrospector}.
 		 * @return the {@link RestClientOpaqueTokenIntrospector}
 		 */
 		public RestClientOpaqueTokenIntrospector build() {

@@ -32,7 +32,7 @@ import org.springframework.security.web.server.WebFilterExchange;
 public interface ServerLogoutSuccessHandler {
 
 	/**
-	 * Invoked after log out was successful
+	 * Invoked after log out was successful.
 	 * @param exchange the exchange
 	 * @param authentication the {@link Authentication}
 	 * @return a completion notification (success or error)

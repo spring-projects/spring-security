@@ -24,6 +24,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
+ * A {@link MutableUserDetails} implementation that delegates to another
+ * {@link UserDetails}.
+ *
  * @author Luke Taylor
  * @since 3.1
  */

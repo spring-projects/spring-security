@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -89,13 +88,12 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	}
 
 	@Override
-	@SuppressWarnings("NullAway") // FIXME: Dataflow analysis limitation
 	public EvaluationContext createEvaluationContext(Supplier<? extends @Nullable Authentication> authentication,
 			MethodInvocation mi) {
 		MethodSecurityExpressionOperations root = createSecurityExpressionRoot(authentication, mi);
 		MethodSecurityEvaluationContext ctx = new MethodSecurityEvaluationContext(root, mi,
 				getParameterNameDiscoverer());
-		Optional.ofNullable(getBeanResolver()).ifPresent(ctx::setBeanResolver);
+		ctx.setBeanResolver(getBeanResolver());
 		return ctx;
 	}
 
@@ -249,6 +247,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	}
 
 	/**
+	 * Returns the current {@link AuthenticationTrustResolver}.
 	 * @return The current {@link AuthenticationTrustResolver}
 	 * @deprecated Use
 	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
@@ -268,6 +267,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	}
 
 	/**
+	 * Returns the current {@link ParameterNameDiscoverer}.
 	 * @return The current {@link ParameterNameDiscoverer}
 	 */
 	protected ParameterNameDiscoverer getParameterNameDiscoverer() {
@@ -315,6 +315,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	}
 
 	/**
+	 * Returns the default role prefix.
 	 * @return The default role prefix
 	 * @deprecated Use
 	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead

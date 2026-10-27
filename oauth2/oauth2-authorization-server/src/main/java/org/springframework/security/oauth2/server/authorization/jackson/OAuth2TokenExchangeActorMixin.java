@@ -19,9 +19,11 @@ package org.springframework.security.oauth2.server.authorization.jackson;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2TokenExchangeActor;
 
@@ -32,9 +34,9 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
  * @since 7.0
  * @see OAuth2TokenExchangeActor
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
-		isGetterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.NONE)
+@JsonTypeInfo(use = Id.CLASS)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
+		isGetterVisibility = Visibility.NONE, creatorVisibility = Visibility.NONE)
 abstract class OAuth2TokenExchangeActorMixin {
 
 	@JsonCreator

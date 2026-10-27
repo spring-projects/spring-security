@@ -47,6 +47,10 @@ public class CorsBeanDefinitionParser {
 		if (StringUtils.hasText(filterRef)) {
 			return new RuntimeBeanReference(filterRef);
 		}
+		String configurationSourceRef = element.getAttribute(ATT_SOURCE);
+		if (!StringUtils.hasText(configurationSourceRef)) {
+			return new RootBeanDefinition(CorsFilterFactoryBean.class);
+		}
 		BeanMetadataElement configurationSource = getSource(element, parserContext);
 		if (configurationSource == null) {
 			throw new BeanCreationException("Could not create CorsFilter");

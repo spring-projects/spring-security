@@ -20,6 +20,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpHeaders;
@@ -127,8 +128,13 @@ class StrictServerWebExchangeFirewallTests {
 		assertThatExceptionOfType(ServerExchangeRejectedException.class).isThrownBy(() -> getFirewalledExchange());
 	}
 
+	// FIXME: since Spring Framework's HttpMethod#valueOf now normalizes casing,
+	// HttpMethod.valueOf("get") is HttpMethod.GET, so the request is no longer
+	// distinguishable as non-canonical case by the time it reaches the firewall.
+	// The request is still processed as an ordinary GET (not "served" as lowercase),
+	// but a customized ServerExchangeRejectedHandler will no longer be invoked for it.
 	@Test
-	// HTTP methods are case sensitive
+	@Disabled("HTTP method case is normalized by Spring Framework before reaching the firewall")
 	void getFirewalledExchangeWhenLowercaseGetThenThrowsServerExchangeRejectedException() {
 		this.request = MockServerHttpRequest.method(HttpMethod.valueOf("get"), "/");
 		assertThatExceptionOfType(ServerExchangeRejectedException.class).isThrownBy(() -> getFirewalledExchange());

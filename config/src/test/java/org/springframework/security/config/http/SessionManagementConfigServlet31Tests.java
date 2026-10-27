@@ -79,6 +79,7 @@ public class SessionManagementConfigServlet31Tests {
 		request.getSession();
 		request.getSession().setAttribute("attribute1", "value1");
 		String id = request.getSession().getId();
+		request.setRequestedSessionId(id);
 		// @formatter:off
 		loadContext("<http>\n"
 				+ "        <intercept-url pattern=\"/**\" access=\"authenticated\"/>\n"
@@ -101,6 +102,7 @@ public class SessionManagementConfigServlet31Tests {
 			.build();
 		request.getSession();
 		String id = request.getSession().getId();
+		request.setRequestedSessionId(id);
 		// @formatter:off
 		loadContext("<http>\n"
 				+ "        <intercept-url pattern=\"/**\" access=\"authenticated\"/>\n"

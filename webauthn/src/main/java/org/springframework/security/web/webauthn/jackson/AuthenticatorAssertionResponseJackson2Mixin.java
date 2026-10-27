@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.springframework.security.web.webauthn.api.AuthenticatorAssertionResponse;
 
 /**
- * Jackson mixin for {@link AuthenticatorAssertionResponse}
+ * Jackson mixin for {@link AuthenticatorAssertionResponse}.
  *
  * @author Rob Winch
  * @since 6.4

@@ -50,6 +50,7 @@ public interface OAuth2TokenGenerator<T extends OAuth2Token> {
 	 * @return an {@link OAuth2Token} or {@code null} if the
 	 * {@link OAuth2TokenContext#getTokenType()} is not supported
 	 */
-	@Nullable T generate(OAuth2TokenContext context);
+	@Nullable
+	T generate(OAuth2TokenContext context);
 
 }

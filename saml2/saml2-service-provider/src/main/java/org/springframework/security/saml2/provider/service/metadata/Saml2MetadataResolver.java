@@ -29,7 +29,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 public interface Saml2MetadataResolver {
 
 	/**
-	 * Resolve the given relying party's metadata
+	 * Resolve the given relying party's metadata.
 	 * @param relyingPartyRegistration the relying party
 	 * @return the relying party's metadata
 	 */

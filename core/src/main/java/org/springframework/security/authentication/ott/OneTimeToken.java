@@ -28,16 +28,19 @@ import java.time.Instant;
 public interface OneTimeToken extends Serializable {
 
 	/**
+	 * Returns the one-time token value.
 	 * @return the one-time token value, never {@code null}
 	 */
 	String getTokenValue();
 
 	/**
+	 * Returns the username associated with this token.
 	 * @return the username associated with this token, never {@code null}
 	 */
 	String getUsername();
 
 	/**
+	 * Returns the expiration time of the token.
 	 * @return the expiration time of the token
 	 */
 	Instant getExpiresAt();

@@ -30,7 +30,7 @@ import org.springframework.security.core.Authentication;
 public interface ReactiveAuthenticationManager {
 
 	/**
-	 * Attempts to authenticate the provided {@link Authentication}
+	 * Attempts to authenticate the provided {@link Authentication}.
 	 * @param authentication the {@link Authentication} to test
 	 * @return if authentication is successful an {@link Authentication} is returned. If
 	 * authentication cannot be determined, an empty Mono is returned. If authentication

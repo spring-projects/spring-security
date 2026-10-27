@@ -52,25 +52,25 @@ public final class OidcClientMetadataClaimNames extends OAuth2ClientMetadataClai
 	 * that must be used for signing the {@link Jwt JWT} used to authenticate the Client
 	 * at the Token Endpoint for the {@link ClientAuthenticationMethod#PRIVATE_KEY_JWT
 	 * private_key_jwt} and {@link ClientAuthenticationMethod#CLIENT_SECRET_JWT
-	 * client_secret_jwt} authentication methods
+	 * client_secret_jwt} authentication methods.
 	 */
 	public static final String TOKEN_ENDPOINT_AUTH_SIGNING_ALG = "token_endpoint_auth_signing_alg";
 
 	/**
 	 * {@code id_token_signed_response_alg} - the {@link JwsAlgorithm JWS} algorithm
-	 * required for signing the {@link OidcIdToken ID Token} issued to the Client
+	 * required for signing the {@link OidcIdToken ID Token} issued to the Client.
 	 */
 	public static final String ID_TOKEN_SIGNED_RESPONSE_ALG = "id_token_signed_response_alg";
 
 	/**
 	 * {@code registration_access_token} - the Registration Access Token that can be used
-	 * at the Client Configuration Endpoint
+	 * at the Client Configuration Endpoint.
 	 */
 	public static final String REGISTRATION_ACCESS_TOKEN = "registration_access_token";
 
 	/**
 	 * {@code registration_client_uri} - the {@code URL} of the Client Configuration
-	 * Endpoint where the Registration Access Token can be used
+	 * Endpoint where the Registration Access Token can be used.
 	 */
 	public static final String REGISTRATION_CLIENT_URI = "registration_client_uri";
 

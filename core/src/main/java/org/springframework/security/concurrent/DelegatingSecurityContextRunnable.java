@@ -47,7 +47,7 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 		.getContextHolderStrategy();
 
 	/**
-	 * The {@link SecurityContext} that the delegate {@link Runnable} will be ran as.
+	 * The {@link SecurityContext} that the delegate {@link Runnable} will be run as.
 	 */
 	private SecurityContext delegateSecurityContext;
 

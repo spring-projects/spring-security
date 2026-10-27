@@ -34,7 +34,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 /**
  * Iterates an {@link Authentication} request through a list of
@@ -103,7 +102,8 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	private boolean eraseCredentialsAfterAuthentication = true;
 
 	/**
-	 * Construct a {@link ProviderManager} using the given {@link AuthenticationProvider}s
+	 * Construct a {@link ProviderManager} using the given
+	 * {@link AuthenticationProvider}s.
 	 * @param providers the {@link AuthenticationProvider}s to use
 	 */
 	public ProviderManager(AuthenticationProvider... providers) {
@@ -111,7 +111,8 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	}
 
 	/**
-	 * Construct a {@link ProviderManager} using the given {@link AuthenticationProvider}s
+	 * Construct a {@link ProviderManager} using the given
+	 * {@link AuthenticationProvider}s.
 	 * @param providers the {@link AuthenticationProvider}s to use
 	 */
 	public ProviderManager(List<AuthenticationProvider> providers) {
@@ -119,7 +120,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	}
 
 	/**
-	 * Construct a {@link ProviderManager} using the provided parameters
+	 * Construct a {@link ProviderManager} using the provided parameters.
 	 * @param providers the {@link AuthenticationProvider}s to use
 	 * @param parent a parent {@link AuthenticationManager} to fall back to
 	 */
@@ -138,8 +139,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 	private void checkState() {
 		Assert.isTrue(this.parent != null || !this.providers.isEmpty(),
 				"A parent AuthenticationManager or a list of AuthenticationProviders is required");
-		Assert.isTrue(!CollectionUtils.contains(this.providers.iterator(), null),
-				"providers list cannot contain null values");
+		Assert.noNullElements(this.providers, "providers list cannot contain null values");
 	}
 
 	/**

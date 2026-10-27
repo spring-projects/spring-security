@@ -29,7 +29,7 @@ import java.util.function.Supplier;
 public interface DeferredCsrfToken extends Supplier<CsrfToken> {
 
 	/**
-	 * Gets the {@link CsrfToken}
+	 * Gets the {@link CsrfToken}.
 	 * @return a non-null {@link CsrfToken}
 	 */
 	CsrfToken get();

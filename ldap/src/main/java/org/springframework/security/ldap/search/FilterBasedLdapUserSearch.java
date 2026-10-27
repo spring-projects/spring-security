@@ -85,7 +85,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 	}
 
 	/**
-	 * Return the LdapUserDetails containing the user's information
+	 * Return the LdapUserDetails containing the user's information.
 	 * @param username the username to search for.
 	 * @return An LdapUserDetails object containing the details of the located user's
 	 * directory entry

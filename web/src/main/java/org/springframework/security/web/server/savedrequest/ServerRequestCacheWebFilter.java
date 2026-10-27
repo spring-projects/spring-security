@@ -24,7 +24,7 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
 /**
- * A {@link WebFilter} that replays any matching request in {@link ServerRequestCache}
+ * A {@link WebFilter} that replays any matching request in {@link ServerRequestCache}.
  *
  * @author Rob Winch
  * @since 5.0

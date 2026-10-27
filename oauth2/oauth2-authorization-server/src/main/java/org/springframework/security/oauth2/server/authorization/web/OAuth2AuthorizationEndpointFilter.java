@@ -17,14 +17,12 @@
 package org.springframework.security.oauth2.server.authorization.web;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,6 +49,7 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationException;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationToken;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationValidator;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationConsentAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationConsentAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -73,7 +72,6 @@ import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -191,7 +189,7 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 
 		try {
 			// Get the pre-validated authorization code request (if available),
-			// which was set by OAuth2AuthorizationCodeRequestValidatingFilter
+			// which was set by OAuth2AuthorizationCodeRequestPreValidationFilter
 			Authentication authentication = (Authentication) request
 				.getAttribute(OAuth2AuthorizationCodeRequestAuthenticationToken.class.getName());
 			if (authentication == null) {
@@ -415,35 +413,54 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 		this.redirectStrategy.sendRedirect(request, response, redirectUri);
 	}
 
-	Filter createAuthorizationCodeRequestValidatingFilter(RegisteredClientRepository registeredClientRepository,
-			Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authenticationValidator) {
-		return new OAuth2AuthorizationCodeRequestValidatingFilter(registeredClientRepository, authenticationValidator);
-	}
-
 	/**
-	 * A {@code Filter} that is applied before {@code OAuth2AuthorizationEndpointFilter}
+	 * A {@code Filter} that is applied before {@link OAuth2AuthorizationEndpointFilter}
 	 * and handles the pre-validation of an OAuth 2.0 Authorization Code Request.
+	 *
+	 * @author Joe Grandja
+	 * @since 7.2
+	 * @see OAuth2AuthorizationCodeRequestAuthenticationValidator
+	 * @see <a target="_blank" href=
+	 * "https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.1">Section 4.1.1
+	 * Authorization Request</a>
 	 */
-	private final class OAuth2AuthorizationCodeRequestValidatingFilter extends OncePerRequestFilter {
+	public final class OAuth2AuthorizationCodeRequestPreValidationFilter extends OncePerRequestFilter {
 
 		private final RegisteredClientRepository registeredClientRepository;
 
-		private final Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authenticationValidator;
+		private Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authenticationValidator = new OAuth2AuthorizationCodeRequestAuthenticationValidator();
 
-		private final Field setValidatedField;
-
-		private OAuth2AuthorizationCodeRequestValidatingFilter(RegisteredClientRepository registeredClientRepository,
-				Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authenticationValidator) {
+		/**
+		 * Constructs an {@code OAuth2AuthorizationCodeRequestPreValidationFilter} using
+		 * the provided parameters.
+		 * @param registeredClientRepository the repository of registered clients
+		 */
+		public OAuth2AuthorizationCodeRequestPreValidationFilter(
+				RegisteredClientRepository registeredClientRepository) {
 			Assert.notNull(registeredClientRepository, "registeredClientRepository cannot be null");
-			Assert.notNull(authenticationValidator, "authenticationValidator cannot be null");
 			this.registeredClientRepository = registeredClientRepository;
+		}
+
+		/**
+		 * Sets the {@code Consumer} providing access to the
+		 * {@link OAuth2AuthorizationCodeRequestAuthenticationContext} and is responsible
+		 * for validating specific OAuth 2.0 Authorization Request parameters associated
+		 * in the {@link OAuth2AuthorizationCodeRequestAuthenticationToken}. The default
+		 * authentication validator is
+		 * {@link OAuth2AuthorizationCodeRequestAuthenticationValidator}.
+		 *
+		 * <p>
+		 * <b>NOTE:</b> The authentication validator MUST throw
+		 * {@link OAuth2AuthorizationCodeRequestAuthenticationException} if validation
+		 * fails.
+		 * @param authenticationValidator the {@code Consumer} providing access to the
+		 * {@link OAuth2AuthorizationCodeRequestAuthenticationContext} and is responsible
+		 * for validating specific OAuth 2.0 Authorization Request parameters
+		 */
+		public void setAuthenticationValidator(
+				Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authenticationValidator) {
+			Assert.notNull(authenticationValidator, "authenticationValidator cannot be null");
 			this.authenticationValidator = authenticationValidator;
-			Field validatedField = ReflectionUtils.findField(OAuth2AuthorizationCodeRequestAuthenticationToken.class,
-					"validated");
-			Assert.notNull(validatedField,
-					"OAuth2AuthorizationCodeRequestAuthenticationToken.validated field cannot be resolved");
-			this.setValidatedField = validatedField;
-			ReflectionUtils.makeAccessible(this.setValidatedField);
 		}
 
 		@Override
@@ -470,9 +487,6 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 					return;
 				}
 
-				authorizationCodeRequestAuthentication.setDetails(
-						OAuth2AuthorizationEndpointFilter.this.authenticationDetailsSource.buildDetails(request));
-
 				RegisteredClient registeredClient = this.registeredClientRepository
 					.findByClientId(authorizationCodeRequestAuthentication.getClientId());
 				if (registeredClient == null) {
@@ -492,14 +506,32 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 							authorizationCodeRequestAuthenticationResult);
 				}
 
+				authorizationCodeRequestAuthentication.setDetails(
+						OAuth2AuthorizationEndpointFilter.this.authenticationDetailsSource.buildDetails(request));
+
 				OAuth2AuthorizationCodeRequestAuthenticationContext authenticationContext = OAuth2AuthorizationCodeRequestAuthenticationContext
 					.with(authorizationCodeRequestAuthentication)
 					.registeredClient(registeredClient)
 					.build();
 
+				// grant_type
+				OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_AUTHORIZATION_GRANT_TYPE_VALIDATOR
+					.accept(authenticationContext);
+
+				// redirect_uri and scope
 				this.authenticationValidator.accept(authenticationContext);
 
-				ReflectionUtils.setField(this.setValidatedField, authorizationCodeRequestAuthentication, true);
+				// code_challenge (REQUIRED for public clients) - RFC 7636 (PKCE)
+				OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_CODE_CHALLENGE_VALIDATOR
+					.accept(authenticationContext);
+
+				// prompt (OPTIONAL for OpenID Connect 1.0 Authentication Request)
+				OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_PROMPT_VALIDATOR
+					.accept(authenticationContext);
+
+				// Set as validated
+				authorizationCodeRequestAuthentication = OAuth2AuthorizationCodeRequestAuthenticationToken
+					.validated(authorizationCodeRequestAuthentication);
 
 				// Set the validated authorization code request as a request
 				// attribute

@@ -33,6 +33,8 @@ import org.springframework.security.config.BeanIds;
 import org.springframework.util.StringUtils;
 
 /**
+ * Base class for parsers which create a {@code UserDetailsService} bean definition.
+ *
  * @author Luke Taylor
  */
 public abstract class AbstractUserDetailsServiceBeanDefinitionParser implements BeanDefinitionParser {

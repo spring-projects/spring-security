@@ -42,6 +42,9 @@ import org.springframework.util.Assert;
 import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
 /**
+ * An {@link AbstractAuthenticationProcessingFilter} for SAML 2.0 Web SSO authentication
+ * responses.
+ *
  * @since 5.2
  */
 public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
@@ -59,7 +62,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 
 	/**
 	 * Creates a {@code Saml2WebSsoAuthenticationFilter} authentication filter that is
-	 * configured to use the {@link #DEFAULT_FILTER_PROCESSES_URI} processing URL
+	 * configured to use the {@link #DEFAULT_FILTER_PROCESSES_URI} processing URL.
 	 * @param relyingPartyRegistrationRepository - repository of configured SAML 2
 	 * entities. Required.
 	 */
@@ -70,7 +73,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	}
 
 	/**
-	 * Creates a {@code Saml2WebSsoAuthenticationFilter} authentication filter
+	 * Creates a {@code Saml2WebSsoAuthenticationFilter} authentication filter.
 	 * @param relyingPartyRegistrationRepository - repository of configured SAML 2
 	 * entities. Required.
 	 * @param filterProcessesUrl the processing URL, must contain a {registrationId}
@@ -86,7 +89,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 
 	/**
 	 * Creates a {@link Saml2WebSsoAuthenticationFilter} that is configured to use the
-	 * {@link #DEFAULT_FILTER_PROCESSES_URI} processing URL
+	 * {@link #DEFAULT_FILTER_PROCESSES_URI} processing URL.
 	 * @param authenticationConverter the strategy for converting an
 	 * {@link HttpServletRequest} into an {@link Authentication}
 	 * @since 6.2
@@ -101,7 +104,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	}
 
 	/**
-	 * Creates a {@link Saml2WebSsoAuthenticationFilter} given the provided parameters
+	 * Creates a {@link Saml2WebSsoAuthenticationFilter} given the provided parameters.
 	 * @param authenticationConverter the strategy for converting an
 	 * {@link HttpServletRequest} into an {@link Authentication}
 	 * @param filterProcessesUrl the processing URL

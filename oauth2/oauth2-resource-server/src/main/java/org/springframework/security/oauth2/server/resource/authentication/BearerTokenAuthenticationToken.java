@@ -41,7 +41,7 @@ public class BearerTokenAuthenticationToken extends AbstractAuthenticationToken 
 	private final String token;
 
 	/**
-	 * Create a {@code BearerTokenAuthenticationToken} using the provided parameter(s)
+	 * Create a {@code BearerTokenAuthenticationToken} using the provided parameter(s).
 	 * @param token - the bearer token
 	 */
 	public BearerTokenAuthenticationToken(String token) {
@@ -53,7 +53,7 @@ public class BearerTokenAuthenticationToken extends AbstractAuthenticationToken 
 	/**
 	 * Get the
 	 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer
-	 * Token</a>
+	 * Token</a>.
 	 * @return the token that proves the caller's authority to perform the
 	 * {@link jakarta.servlet.http.HttpServletRequest}
 	 */

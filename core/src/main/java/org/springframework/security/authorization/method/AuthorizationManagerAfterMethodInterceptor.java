@@ -41,7 +41,7 @@ import org.springframework.util.Assert;
 
 /**
  * A {@link MethodInterceptor} which can determine if an {@link Authentication} has access
- * to the result of an {@link MethodInvocation} using an {@link AuthorizationManager}
+ * to the result of an {@link MethodInvocation} using an {@link AuthorizationManager}.
  *
  * @author Evgeniy Cheban
  * @author Josh Cummings
@@ -77,7 +77,7 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 	}
 
 	/**
-	 * Creates an interceptor for the {@link PostAuthorize} annotation
+	 * Creates an interceptor for the {@link PostAuthorize} annotation.
 	 * @return the interceptor
 	 */
 	public static AuthorizationManagerAfterMethodInterceptor postAuthorize() {
@@ -85,7 +85,7 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 	}
 
 	/**
-	 * Creates an interceptor for the {@link PostAuthorize} annotation
+	 * Creates an interceptor for the {@link PostAuthorize} annotation.
 	 * @param authorizationManager the {@link PostAuthorizeAuthorizationManager} to use
 	 * @return the interceptor
 	 */
@@ -98,7 +98,7 @@ public final class AuthorizationManagerAfterMethodInterceptor implements Authori
 	}
 
 	/**
-	 * Creates an interceptor for the {@link PostAuthorize} annotation
+	 * Creates an interceptor for the {@link PostAuthorize} annotation.
 	 * @param authorizationManager the {@link AuthorizationManager} to use
 	 * @return the interceptor
 	 * @since 6.0

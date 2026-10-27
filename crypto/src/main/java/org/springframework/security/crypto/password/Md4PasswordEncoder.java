@@ -127,7 +127,7 @@ public class Md4PasswordEncoder extends AbstractValidatingPasswordEncoder {
 
 	/**
 	 * Takes a previously encoded password and compares it with a rawpassword after mixing
-	 * in the salt and encoding that value
+	 * in the salt and encoding that value.
 	 * @param rawPassword plain text password
 	 * @param encodedPassword previously encoded password
 	 * @return true or false

@@ -21,6 +21,8 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
+ * A {@link UserDetails} whose password can be changed.
+ *
  * @author Luke Taylor
  * @since 3.1
  */

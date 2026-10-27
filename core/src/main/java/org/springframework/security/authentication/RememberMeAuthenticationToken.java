@@ -80,7 +80,7 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	/**
-	 * Always returns an empty <code>String</code>
+	 * Always returns an empty <code>String</code>.
 	 * @return an empty String
 	 */
 	@Override
@@ -121,7 +121,7 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	/**
-	 * A builder of {@link RememberMeAuthenticationToken} instances
+	 * A builder of {@link RememberMeAuthenticationToken} instances.
 	 *
 	 * @since 7.0
 	 */
@@ -145,7 +145,7 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 		}
 
 		/**
-		 * Use this key
+		 * Use this key.
 		 * @param key the key to use
 		 * @return the {@link Builder} for further configurations
 		 */

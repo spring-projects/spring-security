@@ -85,14 +85,14 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	private String failureUrl;
 
 	/**
-	 * Creates a new instance with minimal defaults
+	 * Creates a new instance with minimal defaults.
 	 */
 	protected AbstractAuthenticationFilterConfigurer() {
 		setLoginPage("/login");
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param authenticationFilter the {@link AbstractAuthenticationProcessingFilter} to
 	 * use
 	 * @param defaultLoginProcessingUrl the default URL to use for
@@ -152,7 +152,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
-	 * Create the {@link RequestMatcher} given a loginProcessingUrl
+	 * Create the {@link RequestMatcher} given a loginProcessingUrl.
 	 * @param loginProcessingUrl creates the {@link RequestMatcher} based upon the
 	 * loginProcessingUrl
 	 * @return the {@link RequestMatcher} to use based upon the loginProcessingUrl
@@ -184,7 +184,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
-	 * Equivalent of invoking permitAll(true)
+	 * Equivalent of invoking permitAll(true).
 	 * @return the {@link FormLoginConfigurer} for additional customization
 	 */
 	public final T permitAll() {
@@ -324,6 +324,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
+	 * Returns true if a custom login page has been specified.
 	 * @return true if a custom login page has been specified, else false
 	 */
 	public final boolean isCustomLoginPage() {
@@ -331,7 +332,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
-	 * Gets the Authentication Filter
+	 * Gets the Authentication Filter.
 	 * @return the Authentication Filter
 	 */
 	protected final F getAuthenticationFilter() {
@@ -339,7 +340,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
-	 * Sets the Authentication Filter
+	 * Sets the Authentication Filter.
 	 * @param authFilter the Authentication Filter
 	 */
 	protected final void setAuthenticationFilter(F authFilter) {
@@ -347,7 +348,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
-	 * Gets the login page
+	 * Gets the login page.
 	 * @return the login page
 	 */
 	protected final String getLoginPage() {
@@ -355,7 +356,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
-	 * Gets the Authentication Entry Point
+	 * Gets the Authentication Entry Point.
 	 * @return the Authentication Entry Point
 	 */
 	protected final AuthenticationEntryPoint getAuthenticationEntryPoint() {
@@ -372,7 +373,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	}
 
 	/**
-	 * Gets the URL to send users to if authentication fails
+	 * Gets the URL to send users to if authentication fails.
 	 * @return the URL to send users if authentication fails (e.g. "/login?error").
 	 */
 	protected final String getFailureUrl() {

@@ -66,7 +66,7 @@ final class OidcBackChannelLogoutReactiveAuthenticationManager implements Reacti
 	private ReactiveJwtDecoderFactory<ClientRegistration> logoutTokenDecoderFactory;
 
 	/**
-	 * Construct an {@link OidcBackChannelLogoutReactiveAuthenticationManager}
+	 * Construct an {@link OidcBackChannelLogoutReactiveAuthenticationManager}.
 	 */
 	OidcBackChannelLogoutReactiveAuthenticationManager() {
 		JwtTypeValidator type = new JwtTypeValidator("JWT", "logout+jwt");

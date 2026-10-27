@@ -59,7 +59,7 @@ public class CredentialPropertiesOutput
 	}
 
 	/**
-	 * The output for {@link CredentialPropertiesOutput}
+	 * The output for {@link CredentialPropertiesOutput}.
 	 *
 	 * @author Rob Winch
 	 * @since 6.4

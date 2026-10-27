@@ -102,7 +102,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
- * Tests for {@link OpenSaml5AuthenticationProvider}
+ * Tests for {@link OpenSaml5AuthenticationProvider}.
  *
  * @author Filip Hanik
  * @author Josh Cummings

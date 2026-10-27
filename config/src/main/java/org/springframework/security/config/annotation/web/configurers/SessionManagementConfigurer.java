@@ -151,7 +151,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	private SecurityContextRepository sessionManagementSecurityContextRepository = new HttpSessionSecurityContextRepository();
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @see HttpSecurity#sessionManagement(Customizer)
 	 */
 	public SessionManagementConfigurer() {
@@ -254,7 +254,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Allows specifying the {@link SessionCreationPolicy}
+	 * Allows specifying the {@link SessionCreationPolicy}.
 	 * @param sessionCreationPolicy the {@link SessionCreationPolicy} to use. Cannot be
 	 * null.
 	 * @return the {@link SessionManagementConfigurer} for further customizations
@@ -530,7 +530,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Returns true if the {@link SessionCreationPolicy} allows session creation, else
-	 * false
+	 * false.
 	 * @return true if the {@link SessionCreationPolicy} allows session creation
 	 */
 	private boolean isAllowSessionCreation() {
@@ -539,7 +539,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Returns true if the {@link SessionCreationPolicy} is stateless
+	 * Returns true if the {@link SessionCreationPolicy} is stateless.
 	 * @return
 	 */
 	private boolean isStateless() {
@@ -619,7 +619,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Creates the default {@link SessionAuthenticationStrategy} for session fixation
+	 * Creates the default {@link SessionAuthenticationStrategy} for session fixation.
 	 * @return the default {@link SessionAuthenticationStrategy} for session fixation
 	 */
 	private static SessionAuthenticationStrategy createDefaultSessionFixationProtectionStrategy() {
@@ -636,7 +636,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Allows configuring SessionFixation protection
+	 * Allows configuring SessionFixation protection.
 	 *
 	 * @author Rob Winch
 	 */

@@ -178,13 +178,13 @@ An `OAuth2Authorization` is a representation of an OAuth2 authorization, which h
 [TIP]
 The corresponding authorization model in Spring Security's OAuth2 Client support is xref:servlet/oauth2/client/core.adoc#oauth2Client-authorized-client[OAuth2AuthorizedClient].
 
-After the successful completion of an authorization grant flow, an `OAuth2Authorization` is created and associates an {security-api-url}/org/springframework/security/oauth2/core/OAuth2AccessToken.html[`OAuth2AccessToken`], an (optional) {security-api-url}/org/springframework/security/oauth2/core/OAuth2RefreshToken.html[`OAuth2RefreshToken`], and additional state specific to the executed authorization grant type.
+After the successful completion of an authorization grant flow, an `OAuth2Authorization` is created and associates an javadoc:org.springframework.security.oauth2.core.OAuth2AccessToken[], an (optional) javadoc:org.springframework.security.oauth2.core.OAuth2RefreshToken[], and additional state specific to the executed authorization grant type.
 
-The {security-api-url}/org/springframework/security/oauth2/core/OAuth2Token.html[`OAuth2Token`] instances associated with an `OAuth2Authorization` vary, depending on the authorization grant type.
+The javadoc:org.springframework.security.oauth2.core.OAuth2Token[] instances associated with an `OAuth2Authorization` vary, depending on the authorization grant type.
 
 For the OAuth2 https://datatracker.ietf.org/doc/html/rfc6749#section-4.1[authorization_code grant], an `OAuth2AuthorizationCode`, an `OAuth2AccessToken`, and an (optional) `OAuth2RefreshToken` are associated.
 
-For the OpenID Connect 1.0 https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[authorization_code grant], an `OAuth2AuthorizationCode`, an {security-api-url}/org/springframework/security/oauth2/core/oidc/OidcIdToken.html[`OidcIdToken`], an `OAuth2AccessToken`, and an (optional) `OAuth2RefreshToken` are associated.
+For the OpenID Connect 1.0 https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[authorization_code grant], an `OAuth2AuthorizationCode`, an javadoc:org.springframework.security.oauth2.core.oidc.OidcIdToken[], an `OAuth2AccessToken`, and an (optional) `OAuth2RefreshToken` are associated.
 
 For the OAuth2 https://datatracker.ietf.org/doc/html/rfc6749#section-4.4[client_credentials grant], only an `OAuth2AccessToken` is associated.
 

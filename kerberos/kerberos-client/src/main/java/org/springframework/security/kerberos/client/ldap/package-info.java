@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Support for authenticating to an LDAP directory using Kerberos.
+ */
 @NullMarked
 package org.springframework.security.kerberos.client.ldap;
 

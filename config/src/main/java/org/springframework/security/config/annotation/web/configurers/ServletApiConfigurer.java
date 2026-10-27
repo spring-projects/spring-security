@@ -66,7 +66,7 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>>
 	private SecurityContextHolderAwareRequestFilter securityContextRequestFilter = new SecurityContextHolderAwareRequestFilter();
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @see HttpSecurity#servletApi(Customizer)
 	 */
 	public ServletApiConfigurer() {

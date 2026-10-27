@@ -46,7 +46,8 @@ public interface OidcSessionRegistry {
 	 * @param clientSessionId the client session
 	 * @return any found {@link OidcSessionInformation}, could be {@code null}
 	 */
-	@Nullable OidcSessionInformation removeSessionInformation(String clientSessionId);
+	@Nullable
+	OidcSessionInformation removeSessionInformation(String clientSessionId);
 
 	/**
 	 * Deregister the OIDC Provider sessions referenced by the provided OIDC Logout Token

@@ -15,24 +15,24 @@ jobs:
       issues: write
     steps:
     - name: Checkout
-      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
     - name: Compute Version
       id: compute-version
-      uses: spring-io/spring-release-actions/compute-version@a1f321783a0769dd2aea4fad6c2ae2f95a52b885 # 0.0.5
+      uses: spring-io/spring-release-actions/compute-version@6795980b9d960a13d420e114d50f1c8abe730769 # 0.0.7
     - name: Get Today's Release Version
       id: todays-release
-      uses: spring-io/spring-release-actions/get-todays-release-version@a1f321783a0769dd2aea4fad6c2ae2f95a52b885 # 0.0.5
+      uses: spring-io/spring-release-actions/get-todays-release-version@6795980b9d960a13d420e114d50f1c8abe730769 # 0.0.7
       with:
         snapshot-version: ${{ steps.compute-version.outputs.version }}
         milestone-repository: ${{ github.repository }}
         milestone-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Compute Next Version
       id: next-version
-      uses: spring-io/spring-release-actions/compute-next-version@a1f321783a0769dd2aea4fad6c2ae2f95a52b885 # 0.0.5
+      uses: spring-io/spring-release-actions/compute-next-version@6795980b9d960a13d420e114d50f1c8abe730769 # 0.0.7
       with:
         version: ${{ steps.todays-release.outputs.release-version }}
     - name: Schedule Next Milestone
-      uses: spring-io/spring-release-actions/schedule-milestone@a1f321783a0769dd2aea4fad6c2ae2f95a52b885 # 0.0.5
+      uses: spring-io/spring-release-actions/schedule-milestone@6795980b9d960a13d420e114d50f1c8abe730769 # 0.0.7
       with:
         version: ${{ steps.next-version.outputs.version }}
         version-date: ${{ steps.next-version.outputs.version-date }}

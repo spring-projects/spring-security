@@ -37,6 +37,8 @@ import java.lang.annotation.Target;
 public @interface PostAuthorize {
 
 	/**
+	 * Returns the Spring-EL expression to be evaluated after invoking the protected
+	 * method.
 	 * @return the Spring-EL expression to be evaluated after invoking the protected
 	 * method
 	 */

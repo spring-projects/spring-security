@@ -136,6 +136,26 @@ public class RestClientOpaqueTokenIntrospectorTests {
 	}
 
 	@Test
+	public void introspectWhenActiveTokenThenSendsFormUrlEncodedRequest() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, ACTIVE_RESPONSE));
+			String introspectUri = server.url("/introspect").toString();
+			OpaqueTokenIntrospector introspectionClient = RestClientOpaqueTokenIntrospector
+				.withIntrospectionUri(introspectUri)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.build();
+			introspectionClient.introspect("token");
+			RecordedRequest request = server.takeRequest();
+			assertThat(request.getMethod()).isEqualTo("POST");
+			assertThat(request.getHeader(HttpHeaders.CONTENT_TYPE))
+				.startsWith(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+			assertThat(request.getHeader(HttpHeaders.ACCEPT)).contains(MediaType.APPLICATION_JSON_VALUE);
+			assertThat(request.getBody().readUtf8()).isEqualTo("token=token");
+		}
+	}
+
+	@Test
 	public void introspectWhenBadClientCredentialsThenError() throws IOException {
 		try (MockWebServer server = new MockWebServer()) {
 			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, ACTIVE_RESPONSE));
@@ -286,6 +306,34 @@ public class RestClientOpaqueTokenIntrospectorTests {
 				restClient);
 		assertThatExceptionOfType(IllegalArgumentException.class)
 			.isThrownBy(() -> introspectionClient.setAuthenticationConverter(null));
+	}
+
+	@Test
+	public void setRequestBodyCustomizerWhenNullThenExceptionIsThrown() {
+		RestClient restClient = mock(RestClient.class);
+		RestClientOpaqueTokenIntrospector introspectionClient = new RestClientOpaqueTokenIntrospector(INTROSPECTION_URL,
+				restClient);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> introspectionClient.setRequestBodyCustomizer(null));
+	}
+
+	@Test
+	public void introspectWhenRequestBodyCustomizerSetThenCustomizesRequest() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			server.setDispatcher(requiresAuth(CLIENT_ID, CLIENT_SECRET, ACTIVE_RESPONSE));
+			String introspectUri = server.url("/introspect").toString();
+			RestClientOpaqueTokenIntrospector introspectionClient = RestClientOpaqueTokenIntrospector
+				.withIntrospectionUri(introspectUri)
+				.clientId(CLIENT_ID)
+				.clientSecret(CLIENT_SECRET)
+				.build();
+			MediaType contentType = MediaType.parseMediaType("application/x-www-form-urlencoded;charset=ISO-8859-1");
+			introspectionClient.setRequestBodyCustomizer((spec) -> spec.contentType(contentType));
+			introspectionClient.introspect("token");
+			RecordedRequest request = server.takeRequest();
+			assertThat(request.getHeader(HttpHeaders.CONTENT_TYPE)).isEqualTo(contentType.toString());
+			assertThat(request.getBody().readUtf8()).isEqualTo("token=token");
+		}
 	}
 
 	@Test

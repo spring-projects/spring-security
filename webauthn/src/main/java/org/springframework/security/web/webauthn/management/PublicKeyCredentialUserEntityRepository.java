@@ -31,18 +31,20 @@ public interface PublicKeyCredentialUserEntityRepository {
 
 	/**
 	 * Finds the {@link PublicKeyCredentialUserEntity} by
-	 * {@link PublicKeyCredentialUserEntity#getId()}
+	 * {@link PublicKeyCredentialUserEntity#getId()}.
 	 * @param id the id to lookup the username by
 	 * @return the username or null if not found.
 	 */
-	@Nullable PublicKeyCredentialUserEntity findById(Bytes id);
+	@Nullable
+	PublicKeyCredentialUserEntity findById(Bytes id);
 
 	/**
 	 * Finds the {@link PublicKeyCredentialUserEntity} by the username.
 	 * @param username the username to lookup the {@link PublicKeyCredentialUserEntity}
 	 * @return the {@link PublicKeyCredentialUserEntity} or null if not found.
 	 */
-	@Nullable PublicKeyCredentialUserEntity findByUsername(String username);
+	@Nullable
+	PublicKeyCredentialUserEntity findByUsername(String username);
 
 	/**
 	 * Saves the {@link PublicKeyCredentialUserEntity} to the associated username.

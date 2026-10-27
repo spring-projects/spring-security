@@ -115,7 +115,7 @@ public final class WebExpressionAuthorizationManager implements AuthorizationMan
 
 	/**
 	 * Use this {@link SecurityExpressionHandler} to create
-	 * {@link WebExpressionAuthorizationManager} instances
+	 * {@link WebExpressionAuthorizationManager} instances.
 	 * @param expressionHandler
 	 * @return a {@link Builder} for constructing
 	 * {@link WebExpressionAuthorizationManager} instances
@@ -154,7 +154,7 @@ public final class WebExpressionAuthorizationManager implements AuthorizationMan
 
 		/**
 		 * Create a {@link WebExpressionAuthorizationManager} using this
-		 * {@code expression}
+		 * {@code expression}.
 		 * @param expression the expression to evaluate
 		 * @return the resulting {@link AuthorizationManager}
 		 */

@@ -40,20 +40,23 @@ public interface AddressStandardClaim {
 	 * not exist.
 	 * @return the full mailing address, or {@code null} if it does not exist
 	 */
-	@Nullable String getFormatted();
+	@Nullable
+	String getFormatted();
 
 	/**
 	 * Returns the full street address, which may include house number, street name, P.O.
 	 * Box, etc., or {@code null} if it does not exist.
 	 * @return the full street address, or {@code null} if it does not exist
 	 */
-	@Nullable String getStreetAddress();
+	@Nullable
+	String getStreetAddress();
 
 	/**
 	 * Returns the city or locality, or {@code null} if it does not exist.
 	 * @return the city or locality, or {@code null} if it does not exist
 	 */
-	@Nullable String getLocality();
+	@Nullable
+	String getLocality();
 
 	/**
 	 * Returns the state, province, prefecture, or region, or {@code null} if it does not
@@ -61,18 +64,21 @@ public interface AddressStandardClaim {
 	 * @return the state, province, prefecture, or region, or {@code null} if it does not
 	 * exist
 	 */
-	@Nullable String getRegion();
+	@Nullable
+	String getRegion();
 
 	/**
 	 * Returns the zip code or postal code, or {@code null} if it does not exist.
 	 * @return the zip code or postal code, or {@code null} if it does not exist
 	 */
-	@Nullable String getPostalCode();
+	@Nullable
+	String getPostalCode();
 
 	/**
 	 * Returns the country, or {@code null} if it does not exist.
 	 * @return the country, or {@code null} if it does not exist
 	 */
-	@Nullable String getCountry();
+	@Nullable
+	String getCountry();
 
 }

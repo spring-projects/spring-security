@@ -22,7 +22,7 @@ import tools.jackson.databind.annotation.JsonSerialize;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
 
 /**
- * Jackson mixin for {@link PublicKeyCredentialType}
+ * Jackson mixin for {@link PublicKeyCredentialType}.
  *
  * @author Rob Winch
  * @since 6.4

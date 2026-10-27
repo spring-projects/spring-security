@@ -30,6 +30,9 @@ import org.springframework.security.config.authentication.AbstractUserDetailsSer
 import org.springframework.util.StringUtils;
 
 /**
+ * Parses the {@code ldap-user-service} element into a {@code UserDetailsService} bean
+ * definition.
+ *
  * @author Luke Taylor
  * @since 2.0
  */

@@ -22,7 +22,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
- * Used to request authentication
+ * Used to request authentication.
  *
  * @author Rob Winch
  * @since 5.0
@@ -31,7 +31,7 @@ import org.springframework.web.server.ServerWebExchange;
 public interface ServerAuthenticationEntryPoint {
 
 	/**
-	 * Initiates the authentication flow
+	 * Initiates the authentication flow.
 	 * @param exchange
 	 * @param ex
 	 * @return {@code Mono<Void>} to indicate when the request for authentication is

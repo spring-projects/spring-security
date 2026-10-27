@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.springframework.security.web.webauthn.api.ResidentKeyRequirement;
 
 /**
- * Jackson serializer for {@link ResidentKeyRequirement}
+ * Jackson serializer for {@link ResidentKeyRequirement}.
  *
  * @author Rob Winch
  * @since 6.4

@@ -30,7 +30,7 @@ import org.springframework.util.Assert;
 
 /**
  * A {@link AuthorizationManager}, that determines if the current request contains the
- * specified address or range of addresses
+ * specified address or range of addresses.
  *
  * @author brunodmartins
  * @since 6.3

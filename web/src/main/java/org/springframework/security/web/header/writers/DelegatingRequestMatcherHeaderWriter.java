@@ -37,7 +37,7 @@ public final class DelegatingRequestMatcherHeaderWriter implements HeaderWriter 
 	private final HeaderWriter delegateHeaderWriter;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param requestMatcher the {@link RequestMatcher} to use. If returns true, the
 	 * delegateHeaderWriter will be invoked.
 	 * @param delegateHeaderWriter the {@link HeaderWriter} to invoke if the

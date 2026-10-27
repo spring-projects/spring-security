@@ -479,6 +479,7 @@ public class JdbcMutableAclService extends JdbcAclService implements MutableAclS
 	}
 
 	/**
+	 * Sets whether the database enforces foreign key constraints.
 	 * @param foreignKeysInDatabase if false this class will perform additional FK
 	 * constrain checking, which may cause deadlocks (the default is true, so deadlocks
 	 * are avoided but the database is expected to enforce FKs)

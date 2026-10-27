@@ -26,7 +26,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
 /**
- * The result of a successful one-time-token authentication
+ * The result of a successful one-time-token authentication.
  *
  * @author Josh Cummings
  * @since 7.0
@@ -65,7 +65,7 @@ public class OneTimeTokenAuthentication extends AbstractAuthenticationToken {
 	}
 
 	/**
-	 * A builder of {@link OneTimeTokenAuthentication} instances
+	 * A builder of {@link OneTimeTokenAuthentication} instances.
 	 *
 	 * @since 7.0
 	 */

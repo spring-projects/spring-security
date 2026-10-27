@@ -44,7 +44,7 @@ public class AuthenticationPayloadInterceptor implements PayloadInterceptor, Ord
 	private PayloadExchangeAuthenticationConverter authenticationConverter = new BasicAuthenticationPayloadExchangeConverter();
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param authenticationManager the manager to use. Cannot be null
 	 */
 	public AuthenticationPayloadInterceptor(ReactiveAuthenticationManager authenticationManager) {
@@ -62,7 +62,7 @@ public class AuthenticationPayloadInterceptor implements PayloadInterceptor, Ord
 	}
 
 	/**
-	 * Sets the convert to be used
+	 * Sets the convert to be used.
 	 * @param authenticationConverter
 	 */
 	public void setAuthenticationConverter(PayloadExchangeAuthenticationConverter authenticationConverter) {

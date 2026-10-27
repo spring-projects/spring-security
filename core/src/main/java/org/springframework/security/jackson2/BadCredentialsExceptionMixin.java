@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 /**
  * This mixin class helps in serialize/deserialize
@@ -43,7 +45,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * Jackson 3
  */
 @SuppressWarnings("removal")
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY)
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "cause", "stackTrace", "authenticationRequest" })
 @Deprecated(forRemoval = true)
 class BadCredentialsExceptionMixin {

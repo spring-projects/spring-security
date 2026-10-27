@@ -28,6 +28,9 @@ import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.util.Assert;
 
 /**
+ * A {@link UserDetailsChecker} that verifies the account status flags on a
+ * {@link UserDetails}.
+ *
  * @author Luke Taylor
  */
 public class AccountStatusUserDetailsChecker implements UserDetailsChecker, MessageSourceAware {
@@ -61,6 +64,7 @@ public class AccountStatusUserDetailsChecker implements UserDetailsChecker, Mess
 	}
 
 	/**
+	 * Sets the {@link MessageSource} used to resolve exception messages.
 	 * @since 5.2
 	 */
 	@Override

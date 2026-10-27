@@ -48,6 +48,7 @@ public interface OAuth2UserService<R extends OAuth2UserRequest, U extends OAuth2
 	 * @throws OAuth2AuthenticationException if an error occurs while attempting to obtain
 	 * the user attributes from the UserInfo Endpoint
 	 */
-	@Nullable U loadUser(R userRequest) throws OAuth2AuthenticationException;
+	@Nullable
+	U loadUser(R userRequest) throws OAuth2AuthenticationException;
 
 }

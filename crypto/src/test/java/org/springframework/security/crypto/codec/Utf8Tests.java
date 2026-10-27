@@ -37,4 +37,48 @@ public class Utf8Tests {
 		assertThat(decoded).isEqualTo("6048b75ed560785c");
 	}
 
+	@Test
+	public void isEqualWhenDifferentLengthThenFalse() {
+		assertThat(Utf8.isEqual("abc", "a")).isFalse();
+		assertThat(Utf8.isEqual("a", "abc")).isFalse();
+	}
+
+	@Test
+	public void isEqualWhenNullAndNotEmptyThenFalse() {
+		assertThat(Utf8.isEqual(null, "a")).isFalse();
+		assertThat(Utf8.isEqual("a", null)).isFalse();
+	}
+
+	@Test
+	public void isEqualWhenNullAndNullThenTrue() {
+		assertThat(Utf8.isEqual(null, null)).isTrue();
+	}
+
+	@Test
+	public void isEqualWhenNullAndEmptyThenFalse() {
+		assertThat(Utf8.isEqual(null, "")).isFalse();
+		assertThat(Utf8.isEqual("", null)).isFalse();
+	}
+
+	@Test
+	public void isEqualWhenNotEmptyAndEmptyThenFalse() {
+		assertThat(Utf8.isEqual("abc", "")).isFalse();
+		assertThat(Utf8.isEqual("", "abc")).isFalse();
+	}
+
+	@Test
+	public void isEqualWhenEmptyAndEmptyThenTrue() {
+		assertThat(Utf8.isEqual("", "")).isTrue();
+	}
+
+	@Test
+	public void isEqualWhenDifferentCaseThenFalse() {
+		assertThat(Utf8.isEqual("aBc", "abc")).isFalse();
+	}
+
+	@Test
+	public void isEqualWhenSameThenTrue() {
+		assertThat(Utf8.isEqual("abcdef", "abcdef")).isTrue();
+	}
+
 }

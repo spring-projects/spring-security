@@ -53,7 +53,7 @@ public class ServiceAuthenticationDetailsSource
 	}
 
 	/**
-	 * Creates an implementation that uses the specified artifactParameterName
+	 * Creates an implementation that uses the specified artifactParameterName.
 	 * @param serviceProperties The ServiceProperties to use to construct the serviceUrl.
 	 * @param artifactParameterName the artifactParameterName that is removed from the
 	 * current URL. The result becomes the service url. Cannot be null and cannot be an
@@ -66,6 +66,7 @@ public class ServiceAuthenticationDetailsSource
 	}
 
 	/**
+	 * Builds the {@code ServiceAuthenticationDetails} from the given request.
 	 * @param context the {@code HttpServletRequest} object.
 	 * @return the {@code ServiceAuthenticationDetails} containing information about the
 	 * current request

@@ -31,10 +31,11 @@ import org.springframework.security.authentication.ott.GenerateOneTimeTokenReque
 public interface GenerateOneTimeTokenRequestResolver {
 
 	/**
-	 * Resolves {@link GenerateOneTimeTokenRequest} from {@link HttpServletRequest}
+	 * Resolves {@link GenerateOneTimeTokenRequest} from {@link HttpServletRequest}.
 	 * @param request {@link HttpServletRequest} to resolve
 	 * @return {@link GenerateOneTimeTokenRequest}
 	 */
-	@Nullable GenerateOneTimeTokenRequest resolve(HttpServletRequest request);
+	@Nullable
+	GenerateOneTimeTokenRequest resolve(HttpServletRequest request);
 
 }

@@ -17,7 +17,7 @@
 package org.springframework.security.core.context;
 
 /**
- * A listener for {@link SecurityContextChangedEvent}s
+ * A listener for {@link SecurityContextChangedEvent}s.
  *
  * @author Josh Cummings
  * @since 5.6

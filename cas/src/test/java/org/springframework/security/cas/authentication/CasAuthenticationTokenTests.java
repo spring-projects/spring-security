@@ -34,6 +34,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
  * Tests {@link CasAuthenticationToken}.
@@ -180,6 +181,40 @@ public class CasAuthenticationTokenTests {
 		assertThat(authentication.getUserDetails()).isEqualTo(factorTwo.getUserDetails());
 		assertThat(authentication.getAssertion()).isEqualTo(factorTwo.getAssertion());
 		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
+	}
+
+	@Test
+	public void toBuilderWhenPrincipalIsEmpty() {
+		final Assertion assertion = new AssertionImpl("test");
+		CasAuthenticationToken token = new CasAuthenticationToken("key", makeUserDetails(), "Password", this.ROLES,
+				makeUserDetails(), assertion);
+		assertThatIllegalArgumentException().isThrownBy(() -> token.toBuilder().principal(null).build());
+		assertThatIllegalArgumentException().isThrownBy(() -> token.toBuilder().principal("").build());
+	}
+
+	@Test
+	public void toBuilderWhenPrincipalIsNotEmpty() {
+		final Assertion assertion = new AssertionImpl("test");
+		CasAuthenticationToken token = new CasAuthenticationToken("key", makeUserDetails(), "Password", this.ROLES,
+				makeUserDetails(), assertion);
+		assertThatNoException().isThrownBy(() -> token.toBuilder().principal("principal").build());
+	}
+
+	@Test
+	public void toBuilderWhenCredentialsIsEmpty() {
+		final Assertion assertion = new AssertionImpl("test");
+		CasAuthenticationToken token = new CasAuthenticationToken("key", makeUserDetails(), "Password", this.ROLES,
+				makeUserDetails(), assertion);
+		assertThatIllegalArgumentException().isThrownBy(() -> token.toBuilder().credentials(null).build());
+		assertThatIllegalArgumentException().isThrownBy(() -> token.toBuilder().credentials("").build());
+	}
+
+	@Test
+	public void toBuilderWhenCredentialsIsNotEmpty() {
+		final Assertion assertion = new AssertionImpl("test");
+		CasAuthenticationToken token = new CasAuthenticationToken("key", makeUserDetails(), "Password", this.ROLES,
+				makeUserDetails(), assertion);
+		assertThatNoException().isThrownBy(() -> token.toBuilder().credentials("credentials").build());
 	}
 
 }

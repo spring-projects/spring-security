@@ -25,6 +25,9 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
 import org.springframework.util.Assert;
 
 /**
+ * An {@link HttpServletResponseWrapper} that rejects header values containing characters
+ * that could be used to inject additional headers or split the response.
+ *
  * @author Luke Taylor
  * @author Eddú Meléndez
  * @author Gabriel Lavoie

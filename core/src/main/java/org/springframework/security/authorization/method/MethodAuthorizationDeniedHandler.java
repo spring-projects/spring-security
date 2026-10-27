@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.security.authorization.AuthorizationResult;
 
 /**
- * An interface used to define a strategy to handle denied method invocations
+ * An interface used to define a strategy to handle denied method invocations.
  *
  * @author Marcus da Coregio
  * @since 6.3
@@ -41,7 +41,8 @@ public interface MethodAuthorizationDeniedHandler {
 	 * @return a replacement result for the denied method invocation, or null, or a
 	 * {@link reactor.core.publisher.Mono} for reactive applications
 	 */
-	@Nullable Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult);
+	@Nullable
+	Object handleDeniedInvocation(MethodInvocation methodInvocation, AuthorizationResult authorizationResult);
 
 	/**
 	 * Handle denied method invocations, implementations might either throw an

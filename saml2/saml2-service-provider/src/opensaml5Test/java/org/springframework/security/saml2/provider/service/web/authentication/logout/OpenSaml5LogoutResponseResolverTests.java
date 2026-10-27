@@ -40,7 +40,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
- * Tests for {@link OpenSaml5LogoutResponseResolver}
+ * Tests for {@link OpenSaml5LogoutResponseResolver}.
  */
 public class OpenSaml5LogoutResponseResolverTests {
 

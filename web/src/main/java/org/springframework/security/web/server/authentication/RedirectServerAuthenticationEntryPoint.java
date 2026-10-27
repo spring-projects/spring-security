@@ -44,7 +44,7 @@ public class RedirectServerAuthenticationEntryPoint implements ServerAuthenticat
 	private ServerRequestCache requestCache = new WebSessionServerRequestCache();
 
 	/**
-	 * Creates an instance
+	 * Creates an instance.
 	 * @param location the location to redirect to (i.e. "/logout-success")
 	 */
 	public RedirectServerAuthenticationEntryPoint(String location) {

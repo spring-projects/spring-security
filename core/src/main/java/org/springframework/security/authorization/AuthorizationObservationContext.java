@@ -23,7 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * An {@link Observation.Context} used during authorizations
+ * An {@link Observation.Context} used during authorizations.
  *
  * @author Josh Cummings
  * @since 6.0
@@ -56,7 +56,7 @@ public class AuthorizationObservationContext<T> extends Observation.Context {
 	}
 
 	/**
-	 * Set the observed {@link Authentication} for this authorization
+	 * Set the observed {@link Authentication} for this authorization.
 	 * @param authentication the observed {@link Authentication}
 	 */
 	public void setAuthentication(Authentication authentication) {
@@ -64,7 +64,7 @@ public class AuthorizationObservationContext<T> extends Observation.Context {
 	}
 
 	/**
-	 * Get the object for which access was requested
+	 * Get the object for which access was requested.
 	 * @return the requested object
 	 */
 	public T getObject() {
@@ -72,7 +72,7 @@ public class AuthorizationObservationContext<T> extends Observation.Context {
 	}
 
 	/**
-	 * Get the observed {@link AuthorizationResult}
+	 * Get the observed {@link AuthorizationResult}.
 	 * @return the observed {@link AuthorizationResult}
 	 * @since 6.4
 	 */
@@ -81,7 +81,7 @@ public class AuthorizationObservationContext<T> extends Observation.Context {
 	}
 
 	/**
-	 * Set the observed {@link AuthorizationResult}
+	 * Set the observed {@link AuthorizationResult}.
 	 * @param authorizationResult the observed {@link AuthorizationResult}
 	 * @since 6.4
 	 */

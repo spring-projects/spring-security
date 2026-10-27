@@ -28,7 +28,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 /**
  * A {@link ServerOneTimeTokenGenerationSuccessHandler} that performs a redirect to a
- * specific location
+ * specific location.
  *
  * @author Max Batischev
  * @since 6.4

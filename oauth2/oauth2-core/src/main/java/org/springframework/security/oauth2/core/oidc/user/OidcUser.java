@@ -71,7 +71,8 @@ public interface OidcUser extends OAuth2User, IdTokenClaimAccessor {
 	 * {@code null} if not present.
 	 * @return the {@link OidcUserInfo} containing claims about the user, or {@code null}
 	 */
-	@Nullable OidcUserInfo getUserInfo();
+	@Nullable
+	OidcUserInfo getUserInfo();
 
 	/**
 	 * Returns the {@link OidcIdToken ID Token} containing claims about the user.

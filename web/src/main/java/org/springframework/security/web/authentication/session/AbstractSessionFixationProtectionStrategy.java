@@ -103,7 +103,7 @@ public abstract class AbstractSessionFixationProtectionStrategy
 	}
 
 	/**
-	 * Applies session fixation
+	 * Applies session fixation.
 	 * @param request the {@link HttpServletRequest} to apply session fixation protection
 	 * for
 	 * @return the new {@link HttpSession} to use. Cannot be null.

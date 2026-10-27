@@ -39,6 +39,8 @@ import org.springframework.security.access.prepost.PrePostAnnotationSecurityMeta
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 
 /**
+ * Configures the infrastructure beans for reactive method security.
+ *
  * @author Rob Winch
  * @author Tadaya Tsuyukubo
  * @since 5.0

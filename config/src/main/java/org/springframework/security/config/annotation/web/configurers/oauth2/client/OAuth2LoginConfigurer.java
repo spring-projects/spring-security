@@ -247,7 +247,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	/**
-	 * Sets the registry for managing the OIDC client-provider session link
+	 * Sets the registry for managing the OIDC client-provider session link.
 	 * @param oidcSessionRegistry the {@link OidcSessionRegistry} to use
 	 * @return the {@link OAuth2LoginConfigurer} for further configuration
 	 * @since 6.2

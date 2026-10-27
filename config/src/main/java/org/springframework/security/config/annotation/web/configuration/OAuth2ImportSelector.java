@@ -25,7 +25,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
- * Used by {@link EnableWebSecurity} to conditionally import:
+ * Used by {@link EnableWebSecurity} to conditionally import:.
  *
  * <ul>
  * <li>{@link OAuth2ClientConfiguration} when the {@code spring-security-oauth2-client}

@@ -29,7 +29,7 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.util.MimeType;
 
 /**
- * Decodes {@link UsernamePasswordMetadata#BASIC_AUTHENTICATION_MIME_TYPE}
+ * Decodes {@link UsernamePasswordMetadata#BASIC_AUTHENTICATION_MIME_TYPE}.
  *
  * @author Rob Winch
  * @since 5.2

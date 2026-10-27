@@ -38,6 +38,8 @@ import org.springframework.security.web.authentication.rememberme.TokenBasedReme
 import org.springframework.util.StringUtils;
 
 /**
+ * Parses the {@code remember-me} element.
+ *
  * @author Luke Taylor
  * @author Ben Alex
  * @author Rob Winch

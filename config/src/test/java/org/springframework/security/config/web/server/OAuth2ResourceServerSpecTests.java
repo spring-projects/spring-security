@@ -73,9 +73,11 @@ import org.springframework.security.oauth2.server.resource.authentication.Reacti
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenAuthenticationConverter;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
+import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -369,6 +371,79 @@ public class OAuth2ResourceServerSpecTests {
 				.expectStatus().isOk();
 		// @formatter:on
 		verify(handler).onAuthenticationFailure(any(), any());
+	}
+
+	@Test
+	public void getWhenUsingCustomAuthenticationSuccessHandlerThenUsesIsAccordingly() {
+		this.spring.register(CustomAuthenticationSuccessHandlerAuthenticationManagerResolverConfig.class).autowire();
+		ServerAuthenticationSuccessHandler handler = this.spring.getContext()
+			.getBean(ServerAuthenticationSuccessHandler.class);
+		ReactiveAuthenticationManager authenticationManager = this.spring.getContext()
+			.getBean(ReactiveAuthenticationManager.class);
+		given(authenticationManager.authenticate(any()))
+			.willAnswer((input) -> Mono.just(input.getArgument(0, Authentication.class)));
+		given(handler.onAuthenticationSuccess(any(), any())).willAnswer((input) -> {
+			WebFilterExchange webFilterExchange = input.getArgument(0, WebFilterExchange.class);
+			return webFilterExchange.getChain().filter(webFilterExchange.getExchange());
+		});
+		// @formatter:off
+		this.client.get()
+				.headers((headers) -> headers.setBearerAuth(this.messageReadToken))
+				.exchange()
+				.expectStatus().isUnauthorized();
+		// @formatter:on
+		verify(handler).onAuthenticationSuccess(any(), any());
+	}
+
+	@Test
+	public void getWhenUsingCustomAuthenticationSuccessHandlerWithJwtThenUsesIsAccordingly() {
+		this.spring.register(CustomAuthenticationSuccessHandlerJwtConfig.class).autowire();
+		ServerAuthenticationSuccessHandler handler = this.spring.getContext()
+			.getBean(ServerAuthenticationSuccessHandler.class);
+		ReactiveAuthenticationManager authenticationManager = this.spring.getContext()
+			.getBean(ReactiveAuthenticationManager.class);
+		given(authenticationManager.authenticate(any()))
+			.willAnswer((input) -> Mono.just(input.getArgument(0, Authentication.class)));
+		given(handler.onAuthenticationSuccess(any(), any())).willAnswer((input) -> {
+			WebFilterExchange webFilterExchange = input.getArgument(0, WebFilterExchange.class);
+			return webFilterExchange.getChain().filter(webFilterExchange.getExchange());
+		});
+		// @formatter:off
+		this.client.get()
+				.headers((headers) -> headers.setBearerAuth(this.messageReadToken))
+				.exchange()
+				.expectStatus().isUnauthorized();
+		// @formatter:on
+		verify(handler).onAuthenticationSuccess(any(), any());
+	}
+
+	@Test
+	public void getWhenUsingCustomAuthenticationSuccessHandlerWIthOpaqueTokenThenUsesIsAccordingly() {
+		this.spring.register(CustomAuthenticationSuccessHandlerOpaqueTokenConfig.class, RootController.class)
+			.autowire();
+		this.spring.getContext()
+			.getBean(MockWebServer.class)
+			.setDispatcher(requiresAuth(this.clientId, this.clientSecret, this.active));
+		ServerAuthenticationSuccessHandler handler = this.spring.getContext()
+			.getBean(ServerAuthenticationSuccessHandler.class);
+		ReactiveAuthenticationManager authenticationManager = this.spring.getContext()
+			.getBean(ReactiveAuthenticationManager.class);
+		given(authenticationManager.authenticate(any()))
+			.willAnswer((input) -> Mono.just(input.getArgument(0, Authentication.class)));
+		given(handler.onAuthenticationSuccess(any(), any())).willAnswer((input) -> {
+			WebFilterExchange webFilterExchange = input.getArgument(0, WebFilterExchange.class);
+			return webFilterExchange.getChain().filter(webFilterExchange.getExchange());
+		});
+		// @formatter:off
+		this.client.get()
+				.headers((headers) -> headers
+						.setBearerAuth(this.messageReadToken)
+				)
+				.exchange()
+				.expectStatus().isOk();
+		// @formatter:on
+
+		verify(handler).onAuthenticationSuccess(any(), any());
 	}
 
 	@Test
@@ -946,6 +1021,111 @@ public class OAuth2ResourceServerSpecTests {
 		@Bean
 		ServerAuthenticationFailureHandler authenticationFailureHandler() {
 			return mock(ServerAuthenticationFailureHandler.class);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class CustomAuthenticationSuccessHandlerAuthenticationManagerResolverConfig {
+
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+			// @formatter:off
+			http
+					.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
+					.oauth2ResourceServer((oauth2) -> oauth2
+							.authenticationSuccessHandler(authenticationSuccessHandler())
+							.authenticationManagerResolver((exchange) -> Mono.just(authenticationManager()))
+					);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		ReactiveAuthenticationManager authenticationManager() {
+			return mock(ReactiveAuthenticationManager.class);
+		}
+
+		@Bean
+		ServerAuthenticationSuccessHandler authenticationSuccessHandler() {
+			return mock(ServerAuthenticationSuccessHandler.class);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class CustomAuthenticationSuccessHandlerJwtConfig {
+
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+			// @formatter:off
+			http
+					.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
+					.oauth2ResourceServer((oauth2) -> oauth2
+							.authenticationSuccessHandler(authenticationSuccessHandler())
+							.jwt((jwt) -> jwt.authenticationManager(authenticationManager()))
+					);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		ReactiveAuthenticationManager authenticationManager() {
+			return mock(ReactiveAuthenticationManager.class);
+		}
+
+		@Bean
+		ServerAuthenticationSuccessHandler authenticationSuccessHandler() {
+			return mock(ServerAuthenticationSuccessHandler.class);
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class CustomAuthenticationSuccessHandlerOpaqueTokenConfig {
+
+		private MockWebServer mockWebServer = new MockWebServer();
+
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+			String introspectionUri = mockWebServer().url("/introspect").toString();
+			// @formatter:off
+			http
+					.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
+					.oauth2ResourceServer((oauth2) -> oauth2
+							.authenticationSuccessHandler(authenticationSuccessHandler())
+							.opaqueToken((opaqueToken) -> opaqueToken
+									.introspectionUri(introspectionUri)
+									.introspectionClientCredentials("client", "secret"))
+					);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		ReactiveAuthenticationManager authenticationManager() {
+			return mock(ReactiveAuthenticationManager.class);
+		}
+
+		@Bean
+		ServerAuthenticationSuccessHandler authenticationSuccessHandler() {
+			return mock(ServerAuthenticationSuccessHandler.class);
+		}
+
+		@Bean
+		MockWebServer mockWebServer() {
+			return this.mockWebServer;
+		}
+
+		@PreDestroy
+		void shutdown() throws IOException {
+			this.mockWebServer.shutdown();
 		}
 
 	}

@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Support for enforcing authorization rules on method invocations.
+ */
 @NullMarked
 package org.springframework.security.authorization.method;
 

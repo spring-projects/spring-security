@@ -53,6 +53,9 @@ import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.web.filter.CorsFilter;
 
 /**
+ * A builder for a {@link DefaultSecurityFilterChain} that allows configuring and ordering
+ * the standard Spring Security {@link Filter} instances.
+ *
  * @param <H>
  * @author Rob Winch
  */
@@ -89,14 +92,14 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>>
 	<C> C getSharedObject(Class<C> sharedType);
 
 	/**
-	 * Allows adding an additional {@link AuthenticationProvider} to be used
+	 * Allows adding an additional {@link AuthenticationProvider} to be used.
 	 * @param authenticationProvider the {@link AuthenticationProvider} to be added
 	 * @return the {@link HttpSecurity} for further customizations
 	 */
 	H authenticationProvider(AuthenticationProvider authenticationProvider);
 
 	/**
-	 * Allows adding an additional {@link UserDetailsService} to be used
+	 * Allows adding an additional {@link UserDetailsService} to be used.
 	 * @param userDetailsService the {@link UserDetailsService} to be added
 	 * @return the {@link HttpSecurity} for further customizations
 	 */

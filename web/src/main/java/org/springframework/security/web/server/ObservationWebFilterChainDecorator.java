@@ -39,7 +39,7 @@ import org.springframework.web.server.WebHandler;
 /**
  * A
  * {@link org.springframework.security.web.server.WebFilterChainProxy.WebFilterChainDecorator}
- * that wraps the chain in before and after observations
+ * that wraps the chain in before and after observations.
  *
  * @author Josh Cummings
  * @since 6.0
@@ -597,7 +597,8 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 			return this.filterSection;
 		}
 
-		@Nullable String getFilterName() {
+		@Nullable
+		String getFilterName() {
 			return this.filterName;
 		}
 

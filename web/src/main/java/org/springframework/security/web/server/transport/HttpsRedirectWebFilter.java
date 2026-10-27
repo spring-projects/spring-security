@@ -63,7 +63,7 @@ public final class HttpsRedirectWebFilter implements WebFilter {
 	}
 
 	/**
-	 * Use this {@link PortMapper} for mapping custom ports
+	 * Use this {@link PortMapper} for mapping custom ports.
 	 * @param portMapper the {@link PortMapper} to use
 	 */
 	public void setPortMapper(PortMapper portMapper) {

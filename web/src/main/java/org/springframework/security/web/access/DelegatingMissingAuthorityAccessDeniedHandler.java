@@ -193,7 +193,7 @@ public final class DelegatingMissingAuthorityAccessDeniedHandler implements Acce
 	}
 
 	/**
-	 * A builder for configuring the set of authority/entry-point pairs
+	 * A builder for configuring the set of authority/entry-point pairs.
 	 *
 	 * @author Josh Cummings
 	 * @since 7.0
@@ -208,7 +208,7 @@ public final class DelegatingMissingAuthorityAccessDeniedHandler implements Acce
 
 		/**
 		 * Use this {@link AuthenticationEntryPoint} when the given
-		 * {@code missingAuthority} is missing from the authenticated user
+		 * {@code missingAuthority} is missing from the authenticated user.
 		 * @param entryPoint the {@link AuthenticationEntryPoint} for the given authority
 		 * @param missingAuthority the authority
 		 * @return the {@link Builder} for further configurations
@@ -222,7 +222,7 @@ public final class DelegatingMissingAuthorityAccessDeniedHandler implements Acce
 
 		/**
 		 * Use this {@link AuthenticationEntryPoint} when the given
-		 * {@code missingAuthority} is missing from the authenticated user
+		 * {@code missingAuthority} is missing from the authenticated user.
 		 * @param entryPoint a consumer to configure the underlying
 		 * {@link DelegatingAuthenticationEntryPoint}
 		 * @param missingAuthority the authority

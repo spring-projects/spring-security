@@ -92,7 +92,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	private LinkedHashMap<RequestMatcher, LogoutSuccessHandler> defaultLogoutSuccessHandlerMappings = new LinkedHashMap<>();
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @see HttpSecurity#logout(Customizer)
 	 */
 	public LogoutConfigurer() {

@@ -21,7 +21,7 @@ import java.net.URI;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * Simple implementation of the {@code AllowFromStrategy}
+ * Simple implementation of the {@code AllowFromStrategy}.
  *
  * @deprecated ALLOW-FROM is an obsolete directive that no longer works in modern
  * browsers. Instead use Content-Security-Policy with the <a href=

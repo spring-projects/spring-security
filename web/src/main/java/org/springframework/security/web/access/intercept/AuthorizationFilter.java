@@ -157,7 +157,7 @@ public class AuthorizationFilter extends GenericFilterBean {
 	}
 
 	/**
-	 * Gets the {@link AuthorizationManager} used by this filter
+	 * Gets the {@link AuthorizationManager} used by this filter.
 	 * @return the {@link AuthorizationManager}
 	 */
 	public AuthorizationManager<HttpServletRequest> getAuthorizationManager() {

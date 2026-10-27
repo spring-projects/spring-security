@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-present the original author or authors.
+ * Copyright 2004-present the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ public final class DefaultAuthorizationManagerFactory<T extends @Nullable Object
 
 	/**
 	 * Sets additional authorization to be applied to the returned
-	 * {@link AuthorizationManager} for the following methods:
+	 * {@link AuthorizationManager} for the following methods:.
 	 *
 	 * <ul>
 	 * <li>{@link #hasRole(String)}</li>

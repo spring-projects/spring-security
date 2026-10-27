@@ -40,7 +40,7 @@ public interface GroupManager {
 	List<String> findAllGroups();
 
 	/**
-	 * Locates the users who are members of a group
+	 * Locates the users who are members of a group.
 	 * @param groupName the group whose members are required
 	 * @return the usernames of the group members
 	 */
@@ -89,7 +89,7 @@ public interface GroupManager {
 	void addGroupAuthority(String groupName, GrantedAuthority authority);
 
 	/**
-	 * Deletes an authority from those assigned to a group
+	 * Deletes an authority from those assigned to a group.
 	 */
 	void removeGroupAuthority(String groupName, GrantedAuthority authority);
 

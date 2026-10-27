@@ -141,7 +141,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 	private AclClassIdUtils aclClassIdUtils;
 
 	/**
-	 * Constructor accepting mandatory arguments
+	 * Constructor accepting mandatory arguments.
 	 * @param dataSource to access the database
 	 * @param aclCache the cache where fully-loaded elements can be stored
 	 * @param aclAuthorizationStrategy authorization strategy (required)
@@ -152,7 +152,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param dataSource to access the database
 	 * @param aclCache the cache where fully-loaded elements can be stored
 	 * @param aclAuthorizationStrategy authorization strategy (required)
@@ -565,7 +565,7 @@ public class BasicLookupStrategy implements LookupStrategy {
 
 		/**
 		 * Accepts the current <code>ResultSet</code> row, and converts it into an
-		 * <code>AclImpl</code> that contains a <code>StubAclParent</code>
+		 * <code>AclImpl</code> that contains a <code>StubAclParent</code>.
 		 * @param acls the Map we should add the converted Acl to
 		 * @param rs the ResultSet focused on a current row
 		 * @throws SQLException if something goes wrong converting values

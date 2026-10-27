@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Password encoding and hashing implementations.
+ */
 @NullMarked
 package org.springframework.security.crypto.password;
 

@@ -19,6 +19,8 @@ package org.springframework.security.integration.multiannotation;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
+ * A service with a {@code @PreAuthorize}-protected method.
+ *
  * @author Luke Taylor
  */
 public interface PreAuthorizeService {

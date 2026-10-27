@@ -28,6 +28,9 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 
 /**
+ * A {@link DeferredSecurityContext} that lazily obtains its {@link SecurityContext} from
+ * a {@link Supplier}.
+ *
  * @author Steve Riesenberg
  * @since 5.8
  */

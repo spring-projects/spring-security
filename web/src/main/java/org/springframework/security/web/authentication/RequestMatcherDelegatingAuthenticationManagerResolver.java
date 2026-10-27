@@ -54,7 +54,7 @@ public final class RequestMatcherDelegatingAuthenticationManagerResolver
 
 	/**
 	 * Construct an {@link RequestMatcherDelegatingAuthenticationManagerResolver} based on
-	 * the provided parameters
+	 * the provided parameters.
 	 * @param authenticationManagers a {@link Map} of
 	 * {@link RequestMatcher}/{@link AuthenticationManager} pairs
 	 */
@@ -66,7 +66,7 @@ public final class RequestMatcherDelegatingAuthenticationManagerResolver
 
 	/**
 	 * Construct an {@link RequestMatcherDelegatingAuthenticationManagerResolver} based on
-	 * the provided parameters
+	 * the provided parameters.
 	 * @param authenticationManagers a {@link Map} of
 	 * {@link RequestMatcher}/{@link AuthenticationManager} pairs
 	 */
@@ -91,7 +91,7 @@ public final class RequestMatcherDelegatingAuthenticationManagerResolver
 	}
 
 	/**
-	 * Set the default {@link AuthenticationManager} to use when a request does not match
+	 * Set the default {@link AuthenticationManager} to use when a request does not match.
 	 * @param defaultAuthenticationManager the default {@link AuthenticationManager} to
 	 * use
 	 */

@@ -80,6 +80,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationToken
 		super(authorizationUri, clientId, principal, redirectUri, state, scopes, null);
 		Assert.notNull(authorizationCode, "authorizationCode cannot be null");
 		this.authorizationCode = authorizationCode;
+		this.validated = true;
 		setAuthenticated(true);
 	}
 
@@ -91,12 +92,30 @@ public class OAuth2AuthorizationCodeRequestAuthenticationToken
 		return this.authorizationCode;
 	}
 
-	final boolean isValidated() {
+	/**
+	 * Returns {@code true} if this
+	 * {@code OAuth2AuthorizationCodeRequestAuthenticationToken} is validated.
+	 * @return {@code true} if this
+	 * {@code OAuth2AuthorizationCodeRequestAuthenticationToken} is validated,
+	 * {@code false} otherwise
+	 * @since 7.2
+	 */
+	public boolean isValidated() {
 		return this.validated;
 	}
 
-	final void setValidated(boolean validated) {
-		this.validated = validated;
+	/**
+	 * Set the provided {@code OAuth2AuthorizationCodeRequestAuthenticationToken} as
+	 * validated.
+	 * @param validAuthorizationCodeRequestAuthentication the valid
+	 * {@code OAuth2AuthorizationCodeRequestAuthenticationToken}
+	 * @return the {@code OAuth2AuthorizationCodeRequestAuthenticationToken} as validated
+	 * @since 7.2
+	 */
+	public static OAuth2AuthorizationCodeRequestAuthenticationToken validated(
+			OAuth2AuthorizationCodeRequestAuthenticationToken validAuthorizationCodeRequestAuthentication) {
+		validAuthorizationCodeRequestAuthentication.validated = true;
+		return validAuthorizationCodeRequestAuthentication;
 	}
 
 }

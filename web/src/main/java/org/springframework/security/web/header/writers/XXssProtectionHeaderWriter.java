@@ -40,7 +40,7 @@ public final class XXssProtectionHeaderWriter implements HeaderWriter {
 	private HeaderValue headerValue;
 
 	/**
-	 * Create a new instance
+	 * Create a new instance.
 	 */
 	public XXssProtectionHeaderWriter() {
 		this.headerValue = HeaderValue.DISABLED;

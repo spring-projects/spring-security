@@ -67,7 +67,7 @@ public class KerberosSecurityTestcase {
 	}
 
 	/**
-	 * Create a Kdc configuration
+	 * Create a Kdc configuration.
 	 */
 	public void createMiniKdcConf() {
 		this.conf = MiniKdc.createConf();

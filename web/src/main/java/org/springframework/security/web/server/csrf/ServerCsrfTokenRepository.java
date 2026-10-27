@@ -34,7 +34,7 @@ import org.springframework.web.server.ServerWebExchange;
 public interface ServerCsrfTokenRepository {
 
 	/**
-	 * Generates a {@link CsrfToken}
+	 * Generates a {@link CsrfToken}.
 	 * @param exchange the {@link ServerWebExchange} to use
 	 * @return the {@link CsrfToken} that was generated. Cannot be null.
 	 */
@@ -49,7 +49,7 @@ public interface ServerCsrfTokenRepository {
 	Mono<Void> saveToken(ServerWebExchange exchange, @Nullable CsrfToken token);
 
 	/**
-	 * Loads the expected {@link CsrfToken} from the {@link ServerWebExchange}
+	 * Loads the expected {@link CsrfToken} from the {@link ServerWebExchange}.
 	 * @param exchange the {@link ServerWebExchange} to use
 	 * @return the {@link CsrfToken} or null if none exists
 	 */

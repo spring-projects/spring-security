@@ -217,7 +217,7 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 	}
 
 	/**
-	 * Sets the {@link WebClient} used for retrieving the user endpoint
+	 * Sets the {@link WebClient} used for retrieving the user endpoint.
 	 * @param webClient the client to use
 	 */
 	public void setWebClient(WebClient webClient) {

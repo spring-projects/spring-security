@@ -36,7 +36,7 @@ public final class CsrfLogoutHandler implements LogoutHandler {
 	private final CsrfTokenRepository csrfTokenRepository;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param csrfTokenRepository the {@link CsrfTokenRepository} to use
 	 */
 	public CsrfLogoutHandler(CsrfTokenRepository csrfTokenRepository) {
@@ -45,7 +45,7 @@ public final class CsrfLogoutHandler implements LogoutHandler {
 	}
 
 	/**
-	 * Clears the {@link CsrfToken}
+	 * Clears the {@link CsrfToken}.
 	 *
 	 * @see org.springframework.security.web.authentication.logout.LogoutHandler#logout(jakarta.servlet.http.HttpServletRequest,
 	 * jakarta.servlet.http.HttpServletResponse,

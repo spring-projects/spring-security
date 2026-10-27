@@ -21,6 +21,9 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * UTF-8 Charset encoder/decoder.
@@ -64,6 +67,23 @@ public final class Utf8 {
 		catch (CharacterCodingException ex) {
 			throw new IllegalArgumentException("Decoding failed", ex);
 		}
+	}
+
+	/**
+	 * Constant time comparison to prevent against timing attacks.
+	 * @param expected the expected {@link CharSequence}
+	 * @param actual the actual {@link CharSequence}
+	 * @return true if {@code expected} and {@code actual} are equal, false otherwise
+	 * @since 5.7.26
+	 */
+	public static boolean isEqual(@Nullable CharSequence expected, @Nullable CharSequence actual) {
+		byte[] expectedBytes = bytesUtf8(expected);
+		byte[] actualBytes = bytesUtf8(actual);
+		return MessageDigest.isEqual(expectedBytes, actualBytes);
+	}
+
+	private static byte @Nullable [] bytesUtf8(@Nullable CharSequence s) {
+		return (s != null) ? Utf8.encode(s) : null;
 	}
 
 }

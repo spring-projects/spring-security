@@ -27,7 +27,7 @@ import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 
 /**
- * Used for creating {@link PasswordEncoder} instances
+ * Used for creating {@link PasswordEncoder} instances.
  *
  * @author Rob Winch
  * @since 5.0

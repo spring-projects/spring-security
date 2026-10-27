@@ -184,11 +184,12 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 	 * @since 5.2
 	 */
 	public void setPostAuthenticationChecks(UserDetailsChecker postAuthenticationChecks) {
-		Assert.notNull(this.postAuthenticationChecks, "postAuthenticationChecks cannot be null");
+		Assert.notNull(postAuthenticationChecks, "postAuthenticationChecks cannot be null");
 		this.postAuthenticationChecks = postAuthenticationChecks;
 	}
 
 	/**
+	 * Sets the {@link MessageSource} used to resolve exception messages.
 	 * @since 5.5
 	 */
 	@Override

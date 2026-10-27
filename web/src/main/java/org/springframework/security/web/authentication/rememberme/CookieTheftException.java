@@ -19,6 +19,8 @@ package org.springframework.security.web.authentication.rememberme;
 import java.io.Serial;
 
 /**
+ * Thrown if a remember-me cookie is presented that indicates it may have been stolen.
+ *
  * @author Luke Taylor
  */
 public class CookieTheftException extends RememberMeAuthenticationException {

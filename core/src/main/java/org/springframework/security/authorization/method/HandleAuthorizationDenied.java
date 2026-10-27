@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  * Annotation for specifying handling behavior when an authorization denied happens in
  * method security or an
  * {@link org.springframework.security.authorization.AuthorizationDeniedException} is
- * thrown during method invocation
+ * thrown during method invocation.
  *
  * @author Marcus da Coregio
  * @since 6.3
@@ -42,7 +42,7 @@ public @interface HandleAuthorizationDenied {
 
 	/**
 	 * The {@link MethodAuthorizationDeniedHandler} used to handle denied authorization
-	 * results
+	 * results.
 	 * @return
 	 */
 	Class<? extends MethodAuthorizationDeniedHandler> handlerClass() default ThrowingMethodAuthorizationDeniedHandler.class;

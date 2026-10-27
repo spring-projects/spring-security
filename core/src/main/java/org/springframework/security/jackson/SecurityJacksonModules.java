@@ -196,6 +196,7 @@ public final class SecurityJacksonModules {
 	}
 
 	/**
+	 * Instantiates the named class and adds it to the given list of modules.
 	 * @param loader the ClassLoader to use
 	 * @param modules list of the modules to add
 	 * @param className name of the class to instantiate

@@ -286,7 +286,7 @@ final class Saml2LoginBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	/**
-	 * Wrapper bean class to provide configuration from applicationContext
+	 * Wrapper bean class to provide configuration from applicationContext.
 	 */
 	public static class Saml2LoginBeanConfig implements ApplicationContextAware {
 

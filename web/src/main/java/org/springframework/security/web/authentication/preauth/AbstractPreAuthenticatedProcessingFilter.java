@@ -297,6 +297,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	}
 
 	/**
+	 * Sets the {@link ApplicationEventPublisher} to use.
 	 * @param anApplicationEventPublisher The ApplicationEventPublisher to use
 	 */
 	@Override
@@ -326,6 +327,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	}
 
 	/**
+	 * Sets the {@link AuthenticationDetailsSource} to use.
 	 * @param authenticationDetailsSource The AuthenticationDetailsSource to use
 	 */
 	public void setAuthenticationDetailsSource(
@@ -339,6 +341,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	}
 
 	/**
+	 * Sets the {@link AuthenticationManager} to use.
 	 * @param authenticationManager The AuthenticationManager to use
 	 */
 	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
@@ -413,7 +416,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	}
 
 	/**
-	 * Override to extract the principal information from the current request
+	 * Override to extract the principal information from the current request.
 	 */
 	protected abstract @Nullable Object getPreAuthenticatedPrincipal(HttpServletRequest request);
 
@@ -425,7 +428,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	protected abstract @Nullable Object getPreAuthenticatedCredentials(HttpServletRequest request);
 
 	/**
-	 * Request matcher for default auth check logic
+	 * Request matcher for default auth check logic.
 	 */
 	private class PreAuthenticatedProcessingRequestMatcher implements RequestMatcher {
 

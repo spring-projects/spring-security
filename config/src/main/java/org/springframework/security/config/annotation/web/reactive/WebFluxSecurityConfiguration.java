@@ -42,6 +42,8 @@ import org.springframework.web.reactive.result.view.AbstractView;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
+ * Configures the infrastructure beans for WebFlux security.
+ *
  * @author Rob Winch
  * @author Yanming Zhou
  * @since 5.0

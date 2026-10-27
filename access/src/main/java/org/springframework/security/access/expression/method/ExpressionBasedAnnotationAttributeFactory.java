@@ -90,7 +90,7 @@ public class ExpressionBasedAnnotationAttributeFactory implements PrePostInvocat
 	}
 
 	/**
-	 * Delay the lookup of the {@link ExpressionParser} to prevent SEC-2136
+	 * Delay the lookup of the {@link ExpressionParser} to prevent SEC-2136.
 	 * @return
 	 */
 	private ExpressionParser getParser() {

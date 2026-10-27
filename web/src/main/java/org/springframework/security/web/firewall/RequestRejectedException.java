@@ -19,6 +19,8 @@ package org.springframework.security.web.firewall;
 import java.io.Serial;
 
 /**
+ * Thrown when a request is rejected by the {@link HttpFirewall}.
+ *
  * @author Luke Taylor
  */
 public class RequestRejectedException extends RuntimeException {

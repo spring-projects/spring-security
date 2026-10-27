@@ -69,7 +69,7 @@ public final class CasGatewayAuthenticationRedirectFilter extends GenericFilterB
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	/**
-	 * Constructs a new instance of this class
+	 * Constructs a new instance of this class.
 	 * @param serviceProperties the {@link ServiceProperties}
 	 */
 	public CasGatewayAuthenticationRedirectFilter(String casLoginUrl, ServiceProperties serviceProperties) {

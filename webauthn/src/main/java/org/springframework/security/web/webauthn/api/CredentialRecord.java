@@ -34,10 +34,11 @@ public interface CredentialRecord {
 
 	/**
 	 * The <a href=
-	 * "https://www.w3.org/TR/webauthn-3/#abstract-opdef-credential-record-type">credential.type</a>
+	 * "https://www.w3.org/TR/webauthn-3/#abstract-opdef-credential-record-type">credential.type</a>.
 	 * @return
 	 */
-	@Nullable PublicKeyCredentialType getCredentialType();
+	@Nullable
+	PublicKeyCredentialType getCredentialType();
 
 	/**
 	 * The <a href=
@@ -48,14 +49,14 @@ public interface CredentialRecord {
 
 	/**
 	 * The <a href=
-	 * "https://www.w3.org/TR/webauthn-3/#abstract-opdef-credential-record-publickey">publicKey</a>
+	 * "https://www.w3.org/TR/webauthn-3/#abstract-opdef-credential-record-publickey">publicKey</a>.
 	 * @return
 	 */
 	PublicKeyCose getPublicKey();
 
 	/**
 	 * The <a href=
-	 * "https://www.w3.org/TR/webauthn-3/#abstract-opdef-credential-record-signcount">authData.signCount</a>
+	 * "https://www.w3.org/TR/webauthn-3/#abstract-opdef-credential-record-signcount">authData.signCount</a>.
 	 * @return
 	 */
 	long getSignatureCount();
@@ -94,7 +95,7 @@ public interface CredentialRecord {
 	boolean isBackupState();
 
 	/**
-	 * A reference to the associated {@link PublicKeyCredentialUserEntity#getId()}
+	 * A reference to the associated {@link PublicKeyCredentialUserEntity#getId()}.
 	 * @return
 	 */
 	Bytes getUserEntityUserId();
@@ -106,7 +107,8 @@ public interface CredentialRecord {
 	 * source was registered.
 	 * @return the attestationObject
 	 */
-	@Nullable Bytes getAttestationObject();
+	@Nullable
+	Bytes getAttestationObject();
 
 	/**
 	 * The <a href=
@@ -115,7 +117,8 @@ public interface CredentialRecord {
 	 * source was registered.
 	 * @return
 	 */
-	@Nullable Bytes getAttestationClientDataJSON();
+	@Nullable
+	Bytes getAttestationClientDataJSON();
 
 	/**
 	 * A human-readable label for this {@link CredentialRecord} assigned by the user.

@@ -133,7 +133,7 @@ public class UserDetailsResourceFactoryBean implements ResourceLoaderAware, Fact
 	}
 
 	/**
-	 * Creates a UserDetailsResourceFactoryBean with a resource from the provided String
+	 * Creates a UserDetailsResourceFactoryBean with a resource from the provided String.
 	 * @param users the string representing the users
 	 * @return the UserDetailsResourceFactoryBean
 	 */

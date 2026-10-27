@@ -34,6 +34,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
+ * Integration tests for services secured with multiple, differing security annotations.
+ *
  * @author Luke Taylor
  */
 @ContextConfiguration(locations = { "/multi-sec-annotation-app-context.xml" })

@@ -52,6 +52,7 @@ public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 	}
 
 	/**
+	 * Creates a new instance using the given strength.
 	 * @param strength the log rounds to use, between 4 and 31
 	 */
 	public BCryptPasswordEncoder(int strength) {
@@ -59,6 +60,7 @@ public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 	}
 
 	/**
+	 * Creates a new instance using the given bcrypt version.
 	 * @param version the version of bcrypt, can be 2a,2b,2y
 	 */
 	public BCryptPasswordEncoder(BCryptVersion version) {
@@ -66,6 +68,7 @@ public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 	}
 
 	/**
+	 * Creates a new instance using the given bcrypt version and secure random instance.
 	 * @param version the version of bcrypt, can be 2a,2b,2y
 	 * @param random the secure random instance to use
 	 */
@@ -74,6 +77,7 @@ public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 	}
 
 	/**
+	 * Creates a new instance using the given strength and secure random instance.
 	 * @param strength the log rounds to use, between 4 and 31
 	 * @param random the secure random instance to use
 	 */
@@ -82,6 +86,7 @@ public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 	}
 
 	/**
+	 * Creates a new instance using the given bcrypt version and strength.
 	 * @param version the version of bcrypt, can be 2a,2b,2y
 	 * @param strength the log rounds to use, between 4 and 31
 	 */
@@ -90,6 +95,8 @@ public class BCryptPasswordEncoder extends AbstractValidatingPasswordEncoder {
 	}
 
 	/**
+	 * Creates a new instance using the given bcrypt version, strength, and secure random
+	 * instance.
 	 * @param version the version of bcrypt, can be 2a,2b,2y
 	 * @param strength the log rounds to use, between 4 and 31
 	 * @param random the secure random instance to use

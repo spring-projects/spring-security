@@ -24,6 +24,9 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 
 /**
+ * Utilities for registering bean definitions that need the configured
+ * {@link GrantedAuthorityDefaults}.
+ *
  * @author Rob Winch
  * @author Ngoc Nhan
  * @since 4.2

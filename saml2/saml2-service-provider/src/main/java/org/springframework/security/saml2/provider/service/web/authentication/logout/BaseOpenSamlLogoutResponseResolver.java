@@ -93,7 +93,7 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 	};
 
 	/**
-	 * Construct a {@link BaseOpenSamlLogoutResponseResolver}
+	 * Construct a {@link BaseOpenSamlLogoutResponseResolver}.
 	 */
 	BaseOpenSamlLogoutResponseResolver(@Nullable RelyingPartyRegistrationRepository registrations,
 			RelyingPartyRegistrationResolver relyingPartyRegistrationResolver, OpenSamlOperations saml) {
@@ -276,7 +276,8 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 			return this.registration;
 		}
 
-		@Nullable Authentication getAuthentication() {
+		@Nullable
+		Authentication getAuthentication() {
 			return this.authentication;
 		}
 

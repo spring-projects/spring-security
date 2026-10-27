@@ -32,23 +32,23 @@ package org.springframework.security.oauth2.core;
 public final class OAuth2TokenIntrospectionClaimNames {
 
 	/**
-	 * {@code active} - Indicator whether or not the token is currently active
+	 * {@code active} - Indicator whether or not the token is currently active.
 	 */
 	public static final String ACTIVE = "active";
 
 	/**
 	 * {@code username} - A human-readable identifier for the resource owner that
-	 * authorized the token
+	 * authorized the token.
 	 */
 	public static final String USERNAME = "username";
 
 	/**
-	 * {@code client_id} - The Client identifier for the token
+	 * {@code client_id} - The Client identifier for the token.
 	 */
 	public static final String CLIENT_ID = "client_id";
 
 	/**
-	 * {@code scope} - The scopes for the token
+	 * {@code scope} - The scopes for the token.
 	 */
 	public static final String SCOPE = "scope";
 
@@ -58,38 +58,38 @@ public final class OAuth2TokenIntrospectionClaimNames {
 	public static final String TOKEN_TYPE = "token_type";
 
 	/**
-	 * {@code exp} - A timestamp indicating when the token expires
+	 * {@code exp} - A timestamp indicating when the token expires.
 	 */
 	public static final String EXP = "exp";
 
 	/**
-	 * {@code iat} - A timestamp indicating when the token was issued
+	 * {@code iat} - A timestamp indicating when the token was issued.
 	 */
 	public static final String IAT = "iat";
 
 	/**
-	 * {@code nbf} - A timestamp indicating when the token is not to be used before
+	 * {@code nbf} - A timestamp indicating when the token is not to be used before.
 	 */
 	public static final String NBF = "nbf";
 
 	/**
 	 * {@code sub} - Usually a machine-readable identifier of the resource owner who
-	 * authorized the token
+	 * authorized the token.
 	 */
 	public static final String SUB = "sub";
 
 	/**
-	 * {@code aud} - The intended audience for the token
+	 * {@code aud} - The intended audience for the token.
 	 */
 	public static final String AUD = "aud";
 
 	/**
-	 * {@code iss} - The issuer of the token
+	 * {@code iss} - The issuer of the token.
 	 */
 	public static final String ISS = "iss";
 
 	/**
-	 * {@code jti} - The identifier for the token
+	 * {@code jti} - The identifier for the token.
 	 */
 	public static final String JTI = "jti";
 

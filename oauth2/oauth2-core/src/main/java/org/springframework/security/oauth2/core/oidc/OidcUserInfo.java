@@ -85,7 +85,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 	}
 
 	/**
-	 * Create a {@link Builder}
+	 * Create a {@link Builder}.
 	 * @return the {@link Builder} for further configuration
 	 * @since 5.3
 	 */
@@ -94,7 +94,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 	}
 
 	/**
-	 * A builder for {@link OidcUserInfo}s
+	 * A builder for {@link OidcUserInfo}s.
 	 *
 	 * @author Josh Cummings
 	 * @since 5.3
@@ -107,7 +107,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this claim in the resulting {@link OidcUserInfo}
+		 * Use this claim in the resulting {@link OidcUserInfo}.
 		 * @param name The claim name
 		 * @param value The claim value
 		 * @return the {@link Builder} for further configurations
@@ -129,7 +129,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this address in the resulting {@link OidcUserInfo}
+		 * Use this address in the resulting {@link OidcUserInfo}.
 		 * @param address The address to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -138,7 +138,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this birthdate in the resulting {@link OidcUserInfo}
+		 * Use this birthdate in the resulting {@link OidcUserInfo}.
 		 * @param birthdate The birthdate to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -147,7 +147,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this email in the resulting {@link OidcUserInfo}
+		 * Use this email in the resulting {@link OidcUserInfo}.
 		 * @param email The email to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -156,7 +156,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this verified-email indicator in the resulting {@link OidcUserInfo}
+		 * Use this verified-email indicator in the resulting {@link OidcUserInfo}.
 		 * @param emailVerified The verified-email indicator to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -165,7 +165,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this family name in the resulting {@link OidcUserInfo}
+		 * Use this family name in the resulting {@link OidcUserInfo}.
 		 * @param familyName The family name to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -174,7 +174,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this gender in the resulting {@link OidcUserInfo}
+		 * Use this gender in the resulting {@link OidcUserInfo}.
 		 * @param gender The gender to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -183,7 +183,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this given name in the resulting {@link OidcUserInfo}
+		 * Use this given name in the resulting {@link OidcUserInfo}.
 		 * @param givenName The given name to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -192,7 +192,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this locale in the resulting {@link OidcUserInfo}
+		 * Use this locale in the resulting {@link OidcUserInfo}.
 		 * @param locale The locale to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -201,7 +201,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this middle name in the resulting {@link OidcUserInfo}
+		 * Use this middle name in the resulting {@link OidcUserInfo}.
 		 * @param middleName The middle name to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -210,7 +210,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this name in the resulting {@link OidcUserInfo}
+		 * Use this name in the resulting {@link OidcUserInfo}.
 		 * @param name The name to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -219,7 +219,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this nickname in the resulting {@link OidcUserInfo}
+		 * Use this nickname in the resulting {@link OidcUserInfo}.
 		 * @param nickname The nickname to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -228,7 +228,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this picture in the resulting {@link OidcUserInfo}
+		 * Use this picture in the resulting {@link OidcUserInfo}.
 		 * @param picture The picture to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -237,7 +237,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this phone number in the resulting {@link OidcUserInfo}
+		 * Use this phone number in the resulting {@link OidcUserInfo}.
 		 * @param phoneNumber The phone number to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -246,7 +246,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this verified-phone-number indicator in the resulting {@link OidcUserInfo}
+		 * Use this verified-phone-number indicator in the resulting {@link OidcUserInfo}.
 		 * @param phoneNumberVerified The verified-phone-number indicator to use
 		 * @return the {@link Builder} for further configurations
 		 * @since 5.8
@@ -256,7 +256,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this preferred username in the resulting {@link OidcUserInfo}
+		 * Use this preferred username in the resulting {@link OidcUserInfo}.
 		 * @param preferredUsername The preferred username to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -265,7 +265,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this profile in the resulting {@link OidcUserInfo}
+		 * Use this profile in the resulting {@link OidcUserInfo}.
 		 * @param profile The profile to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -274,7 +274,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this subject in the resulting {@link OidcUserInfo}
+		 * Use this subject in the resulting {@link OidcUserInfo}.
 		 * @param subject The subject to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -283,7 +283,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this updated-at {@link Instant} in the resulting {@link OidcUserInfo}
+		 * Use this updated-at {@link Instant} in the resulting {@link OidcUserInfo}.
 		 * @param updatedAt The updated-at {@link Instant} to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -292,7 +292,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this website in the resulting {@link OidcUserInfo}
+		 * Use this website in the resulting {@link OidcUserInfo}.
 		 * @param website The website to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -301,7 +301,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this zoneinfo in the resulting {@link OidcUserInfo}
+		 * Use this zoneinfo in the resulting {@link OidcUserInfo}.
 		 * @param zoneinfo The zoneinfo to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -310,7 +310,7 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Build the {@link OidcUserInfo}
+		 * Build the {@link OidcUserInfo}.
 		 * @return The constructed {@link OidcUserInfo}
 		 */
 		public OidcUserInfo build() {

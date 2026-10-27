@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.util.Assert;
 
 /**
- * A {@link Map} based implementation of {@link ReactiveUserDetailsService}
+ * A {@link Map} based implementation of {@link ReactiveUserDetailsService}.
  *
  * @author Rob Winch
  * @since 5.0
@@ -46,7 +46,7 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param users the {@link UserDetails} to use
 	 */
 	public MapReactiveUserDetailsService(UserDetails... users) {
@@ -54,7 +54,7 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param users the {@link UserDetails} to use
 	 */
 	public MapReactiveUserDetailsService(Collection<UserDetails> users) {

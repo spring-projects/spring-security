@@ -20,7 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Utility class for holding the logger for {@link CsrfTokenRequestHandler}
+ * Utility class for holding the logger for {@link CsrfTokenRequestHandler}.
  */
 final class CsrfTokenRequestHandlerLoggerHolder {
 

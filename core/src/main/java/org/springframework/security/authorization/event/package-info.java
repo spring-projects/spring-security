@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Events published during authorization decisions.
+ */
 @NullMarked
 package org.springframework.security.authorization.event;
 

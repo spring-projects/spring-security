@@ -126,9 +126,9 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	 * is not authenticated.
 	 * </p>
 	 * <p>
-	 * If the value is null (default), then the default container behavior will be be
-	 * retained when invoking {@link HttpServletRequest#authenticate(HttpServletResponse)}
-	 * .
+	 * If the value is null (default), then the default container behavior will be
+	 * retained when invoking
+	 * {@link HttpServletRequest#authenticate(HttpServletResponse)}.
 	 * </p>
 	 * @param authenticationEntryPoint the {@link AuthenticationEntryPoint} to use when
 	 * invoking {@link HttpServletRequest#authenticate(HttpServletResponse)} if the user

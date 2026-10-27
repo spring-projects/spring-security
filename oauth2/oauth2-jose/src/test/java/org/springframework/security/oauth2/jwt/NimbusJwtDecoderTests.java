@@ -67,14 +67,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jose.TestKeys;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -325,6 +328,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenIssuerLocationThenOk() {
 		String issuer = "https://example.org/issuer";
 		RestOperations restOperations = mock(RestOperations.class);
@@ -341,6 +345,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenDiscoverJwsAlgorithmsThenOk() {
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
@@ -354,6 +359,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenIssuerLocationThenRejectsMismatchingIssuers() {
 		String issuer = "https://example.org/wrong-issuer";
 		RestOperations restOperations = mock(RestOperations.class);
@@ -389,6 +395,25 @@ public class NimbusJwtDecoderTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> builder.restOperations(null));
 		// @formatter:on
+	}
+
+	// gh-19474
+	@Test
+	@SuppressWarnings("removal")
+	public void withJwkSetUriWhenDefaultRestOperationsThenUsesConfiguredTimeouts() {
+		try {
+			System.setProperty("sun.net.client.defaultConnectTimeout", "12345");
+			System.setProperty("sun.net.client.defaultReadTimeout", "23456");
+			NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder builder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI);
+			RestOperations restOperations = (RestOperations) ReflectionTestUtils.getField(builder, "restOperations");
+			ClientHttpRequestFactory requestFactory = ((RestTemplate) restOperations).getRequestFactory();
+			assertThat(ReflectionTestUtils.getField(requestFactory, "connectTimeout")).isEqualTo(12345);
+			assertThat(ReflectionTestUtils.getField(requestFactory, "readTimeout")).isEqualTo(23456);
+		}
+		finally {
+			System.clearProperty("sun.net.client.defaultConnectTimeout");
+			System.clearProperty("sun.net.client.defaultReadTimeout");
+		}
 	}
 
 	@Test
@@ -670,6 +695,7 @@ public class NimbusJwtDecoderTests {
 
 	// gh-7290
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenJwkSetRequestedThenAcceptHeaderJsonAndJwkSetJson() {
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
@@ -688,6 +714,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenCacheThenStoreRetrievedJwkSetToCache() {
 		Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 		RestOperations restOperations = mock(RestOperations.class);
@@ -709,6 +736,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenCacheStoredThenAbleToRetrieveJwkSetFromCache() {
 		Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 		RestOperations restOperations = mock(RestOperations.class);
@@ -736,6 +764,7 @@ public class NimbusJwtDecoderTests {
 
 	// gh-11621
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenCacheThenRetrieveFromCache() throws Exception {
 		RestOperations restOperations = mock(RestOperations.class);
 		Cache cache = new ConcurrentMapCache("cache");
@@ -753,6 +782,7 @@ public class NimbusJwtDecoderTests {
 
 	// gh-11621
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenCacheAndUnknownKidShouldTriggerFetchOfJwkSet() throws JOSEException {
 		RestOperations restOperations = mock(RestOperations.class);
 		Cache cache = new ConcurrentMapCache("cache");
@@ -779,6 +809,7 @@ public class NimbusJwtDecoderTests {
 
 	// gh-11621
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWithoutCacheSpecifiedAndUnknownKidShouldTriggerFetchOfJwkSet() throws JOSEException {
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class))).willReturn(
@@ -805,6 +836,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenCacheIsConfiguredAndValueLoaderErrorsThenThrowsJwtException() {
 		Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 		RestOperations restOperations = mock(RestOperations.class);
@@ -824,6 +856,7 @@ public class NimbusJwtDecoderTests {
 
 	// gh-11621
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenCacheIsConfiguredAndParseFailsOnCachedValueThenExceptionIgnored() {
 		RestOperations restOperations = mock(RestOperations.class);
 		Cache cache = new ConcurrentMapCache("cache");
@@ -842,6 +875,7 @@ public class NimbusJwtDecoderTests {
 
 	// gh-8730
 	@Test
+	@SuppressWarnings("removal")
 	public void withJwkSetUriWhenUsingCustomTypeHeaderThenRefuseOmittedType() throws Exception {
 		RestOperations restOperations = mock(RestOperations.class);
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
@@ -883,6 +917,7 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenSecretKeyValidateTypeFalseThenSkipsNimbusTypeValidation() throws Exception {
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(TestKeys.DEFAULT_SECRET_KEY)
 			.validateType(false)

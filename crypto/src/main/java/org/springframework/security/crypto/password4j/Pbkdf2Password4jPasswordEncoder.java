@@ -24,6 +24,7 @@ import com.password4j.Hash;
 import com.password4j.PBKDF2Function;
 import com.password4j.Password;
 
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.crypto.password.AbstractValidatingPasswordEncoder;
 import org.springframework.util.Assert;
 
@@ -138,7 +139,7 @@ public class Pbkdf2Password4jPasswordEncoder extends AbstractValidatingPasswordE
 			String expectedHash = parts[1];
 
 			Hash hash = Password.hash(rawPassword).addSalt(salt).with(this.pbkdf2Function);
-			return expectedHash.equals(hash.getResult());
+			return Utf8.isEqual(expectedHash, hash.getResult());
 		}
 		catch (IllegalArgumentException ex) {
 			// Invalid Base64 encoding

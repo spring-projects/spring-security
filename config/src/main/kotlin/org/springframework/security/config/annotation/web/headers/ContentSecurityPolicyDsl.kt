@@ -18,20 +18,65 @@ package org.springframework.security.config.annotation.web.headers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer
+import org.springframework.security.web.util.matcher.RequestMatcher
 
 /**
  * A Kotlin DSL to configure the [HttpSecurity] Content-Security-Policy header using
  * idiomatic Kotlin code.
  *
  * @author Eleftheria Stein
+ * @author Ziqin Wang
  * @since 5.3
- * @property policyDirectives the security policy directive(s) to be used in the response header.
- * @property reportOnly includes the Content-Security-Policy-Report-Only header in the response.
  */
 @HeadersSecurityMarker
 class ContentSecurityPolicyDsl {
+    /**
+     * The security policy directive(s) to be used in the response header.
+     * The [policyDirectives] may contain `{nonce}` as placeholders for a generated secure
+     * random nonce, e.g., `script-src 'self' 'nonce-{nonce}'`.
+     */
     var policyDirectives: String? = null
+
+    /** Includes the `Content-Security-Policy-Report-Only` header in the response. */
     var reportOnly: Boolean? = null
+
+    /**
+     * The name of the servlet request attribute for the generated nonce. Views can read
+     * this attribute to render the nonce in HTML.
+     * @since 7.2
+     */
+    var nonceAttributeName: String? = null
+
+    /**
+     * The [RequestMatcher] to use for determining when CSP should be applied.
+     * The default is to enable CSP in every response if
+     * [org.springframework.security.config.annotation.web.HeadersDsl.contentSecurityPolicy]
+     * is configured.
+     * @since 7.2
+     * @see requestMatchers
+     */
+    var requestMatcher: RequestMatcher? = null
+        set(value) {
+            field = value
+            requestMatcherPatterns = null
+        }
+
+    private var requestMatcherPatterns: Array<out String>? = null
+
+    /**
+     * Specify the matching path patterns for determining when CSP should be applied.
+     * The default is to write CSP header in every response if
+     * [org.springframework.security.config.annotation.web.HeadersDsl.contentSecurityPolicy]
+     * is configured.
+     * @param pathPatterns the path patterns to be matched with a
+     * [org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher]
+     * @since 7.2
+     * @see requestMatcher
+     */
+    fun requestMatchers(vararg pathPatterns: String) {
+        requestMatcher = null
+        requestMatcherPatterns = pathPatterns
+    }
 
     internal fun get(): (HeadersConfigurer<HttpSecurity>.ContentSecurityPolicyConfig) -> Unit {
         return { contentSecurityPolicy ->
@@ -43,6 +88,9 @@ class ContentSecurityPolicyDsl {
                     contentSecurityPolicy.reportOnly()
                 }
             }
+            nonceAttributeName?.also(contentSecurityPolicy::nonceAttributeName)
+            requestMatcher?.also(contentSecurityPolicy::requestMatcher)
+            requestMatcherPatterns?.also(contentSecurityPolicy::requestMatchers)
         }
     }
 }

@@ -37,6 +37,7 @@ import java.lang.annotation.Target;
 public @interface PreAuthorize {
 
 	/**
+	 * Returns the Spring-EL expression to be evaluated.
 	 * @return the Spring-EL expression to be evaluated before invoking the protected
 	 * method
 	 */

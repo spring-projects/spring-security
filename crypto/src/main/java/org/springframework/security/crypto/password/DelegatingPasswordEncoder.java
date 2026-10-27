@@ -153,7 +153,7 @@ public class DelegatingPasswordEncoder extends AbstractValidatingPasswordEncoder
 	private PasswordEncoder defaultPasswordEncoderForMatches = new UnmappedIdPasswordEncoder();
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param idForEncode the id used to lookup which {@link PasswordEncoder} should be
 	 * used for {@link #encode(CharSequence)}
 	 * @param idToPasswordEncoder a Map of id to {@link PasswordEncoder} used to determine
@@ -165,7 +165,7 @@ public class DelegatingPasswordEncoder extends AbstractValidatingPasswordEncoder
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param idForEncode the id used to lookup which {@link PasswordEncoder} should be
 	 * used for {@link #encode(CharSequence)}
 	 * @param idToPasswordEncoder a Map of id to {@link PasswordEncoder} used to determine

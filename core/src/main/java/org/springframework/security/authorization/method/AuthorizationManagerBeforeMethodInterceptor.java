@@ -45,7 +45,7 @@ import org.springframework.util.Assert;
 
 /**
  * A {@link MethodInterceptor} which uses a {@link AuthorizationManager} to determine if
- * an {@link Authentication} may invoke the given {@link MethodInvocation}
+ * an {@link Authentication} may invoke the given {@link MethodInvocation}.
  *
  * @author Evgeniy Cheban
  * @author Josh Cummings
@@ -81,7 +81,7 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	}
 
 	/**
-	 * Creates an interceptor for the {@link PreAuthorize} annotation
+	 * Creates an interceptor for the {@link PreAuthorize} annotation.
 	 * @return the interceptor
 	 */
 	public static AuthorizationManagerBeforeMethodInterceptor preAuthorize() {
@@ -89,7 +89,7 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	}
 
 	/**
-	 * Creates an interceptor for the {@link PreAuthorize} annotation
+	 * Creates an interceptor for the {@link PreAuthorize} annotation.
 	 * @param authorizationManager the {@link PreAuthorizeAuthorizationManager} to use
 	 * @return the interceptor
 	 */
@@ -102,7 +102,7 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	}
 
 	/**
-	 * Creates an interceptor for the {@link PreAuthorize} annotation
+	 * Creates an interceptor for the {@link PreAuthorize} annotation.
 	 * @param authorizationManager the {@link AuthorizationManager} to use
 	 * @return the interceptor
 	 * @since 6.0
@@ -116,7 +116,7 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	}
 
 	/**
-	 * Creates an interceptor for the {@link Secured} annotation
+	 * Creates an interceptor for the {@link Secured} annotation.
 	 * @return the interceptor
 	 */
 	public static AuthorizationManagerBeforeMethodInterceptor secured() {
@@ -124,7 +124,7 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	}
 
 	/**
-	 * Creates an interceptor for the {@link Secured} annotation
+	 * Creates an interceptor for the {@link Secured} annotation.
 	 * @param authorizationManager the {@link SecuredAuthorizationManager} to use
 	 * @return the interceptor
 	 */
@@ -137,7 +137,7 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	}
 
 	/**
-	 * Creates an interceptor for the {@link Secured} annotation
+	 * Creates an interceptor for the {@link Secured} annotation.
 	 * @param authorizationManager the {@link AuthorizationManager} to use
 	 * @return the interceptor
 	 * @since 6.0
@@ -151,7 +151,7 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	}
 
 	/**
-	 * Creates an interceptor for the JSR-250 annotations
+	 * Creates an interceptor for the JSR-250 annotations.
 	 * @return the interceptor
 	 */
 	public static AuthorizationManagerBeforeMethodInterceptor jsr250() {
@@ -159,7 +159,7 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	}
 
 	/**
-	 * Creates an interceptor for the JSR-250 annotations
+	 * Creates an interceptor for the JSR-250 annotations.
 	 * @param authorizationManager the {@link Jsr250AuthorizationManager} to use
 	 * @return the interceptor
 	 */
@@ -172,7 +172,7 @@ public final class AuthorizationManagerBeforeMethodInterceptor implements Author
 	}
 
 	/**
-	 * Creates an interceptor for the JSR-250 annotations
+	 * Creates an interceptor for the JSR-250 annotations.
 	 * @param authorizationManager the {@link AuthorizationManager} to use
 	 * @return the interceptor
 	 * @since 6.0

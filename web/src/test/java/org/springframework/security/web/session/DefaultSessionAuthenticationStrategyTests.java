@@ -49,8 +49,9 @@ public class DefaultSessionAuthenticationStrategyTests {
 	@Test
 	public void newSessionIsCreatedIfSessionAlreadyExists() {
 		SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
-		HttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletRequest request = new MockHttpServletRequest();
 		String sessionId = request.getSession().getId();
+		request.setRequestedSessionId(sessionId);
 		strategy.onAuthentication(mock(Authentication.class), request, new MockHttpServletResponse());
 		assertThat(sessionId.equals(request.getSession().getId())).isFalse();
 	}
@@ -59,11 +60,12 @@ public class DefaultSessionAuthenticationStrategyTests {
 	@Test
 	public void newSessionIsCreatedIfSessionAlreadyExistsWithEventPublisher() {
 		SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
-		HttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletRequest request = new MockHttpServletRequest();
 		HttpSession session = request.getSession();
 		session.setAttribute("blah", "blah");
 		session.setAttribute("SPRING_SECURITY_SAVED_REQUEST_KEY", "DefaultSavedRequest");
 		String oldSessionId = session.getId();
+		request.setRequestedSessionId(oldSessionId);
 		ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
 		strategy.setApplicationEventPublisher(eventPublisher);
 		Authentication mockAuthentication = mock(Authentication.class);
@@ -86,10 +88,11 @@ public class DefaultSessionAuthenticationStrategyTests {
 	public void onlySavedRequestAttributeIsMigratedIfMigrateAttributesIsFalse() {
 		SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
 		strategy.setMigrateSessionAttributes(false);
-		HttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletRequest request = new MockHttpServletRequest();
 		HttpSession session = request.getSession();
 		session.setAttribute("blah", "blah");
 		session.setAttribute("SPRING_SECURITY_SAVED_REQUEST_KEY", "DefaultSavedRequest");
+		request.setRequestedSessionId(session.getId());
 		strategy.onAuthentication(mock(Authentication.class), request, new MockHttpServletResponse());
 		assertThat(request.getSession().getAttribute("blah")).isNull();
 		assertThat(request.getSession().getAttribute("SPRING_SECURITY_SAVED_REQUEST_KEY")).isNotNull();
@@ -100,11 +103,12 @@ public class DefaultSessionAuthenticationStrategyTests {
 	public void onlySavedRequestAttributeIsMigratedIfMigrateAttributesIsFalseWithEventPublisher() {
 		SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
 		strategy.setMigrateSessionAttributes(false);
-		HttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletRequest request = new MockHttpServletRequest();
 		HttpSession session = request.getSession();
 		session.setAttribute("blah", "blah");
 		session.setAttribute("SPRING_SECURITY_SAVED_REQUEST_KEY", "DefaultSavedRequest");
 		String oldSessionId = session.getId();
+		request.setRequestedSessionId(oldSessionId);
 		ApplicationEventPublisher eventPublisher = mock(ApplicationEventPublisher.class);
 		strategy.setApplicationEventPublisher(eventPublisher);
 		Authentication mockAuthentication = mock(Authentication.class);
@@ -133,9 +137,10 @@ public class DefaultSessionAuthenticationStrategyTests {
 	@Test
 	public void onAuthenticationWhenMigrateSessionAttributesTrueThenMaxInactiveIntervalIsMigrated() {
 		SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
-		HttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletRequest request = new MockHttpServletRequest();
 		HttpSession session = request.getSession();
 		session.setMaxInactiveInterval(1);
+		request.setRequestedSessionId(session.getId());
 		Authentication mockAuthentication = mock(Authentication.class);
 		strategy.onAuthentication(mockAuthentication, request, new MockHttpServletResponse());
 		assertThat(request.getSession().getMaxInactiveInterval()).isEqualTo(1);
@@ -145,9 +150,10 @@ public class DefaultSessionAuthenticationStrategyTests {
 	public void onAuthenticationWhenMigrateSessionAttributesFalseThenMaxInactiveIntervalIsNotMigrated() {
 		SessionFixationProtectionStrategy strategy = new SessionFixationProtectionStrategy();
 		strategy.setMigrateSessionAttributes(false);
-		HttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletRequest request = new MockHttpServletRequest();
 		HttpSession session = request.getSession();
 		session.setMaxInactiveInterval(1);
+		request.setRequestedSessionId(session.getId());
 		Authentication mockAuthentication = mock(Authentication.class);
 		strategy.onAuthentication(mockAuthentication, request, new MockHttpServletResponse());
 		assertThat(request.getSession().getMaxInactiveInterval()).isNotEqualTo(1);

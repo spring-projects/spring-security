@@ -66,7 +66,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 
 /**
- * Tests for {@link BaseOpenSamlAssertingPartyMetadataRepository}
+ * Tests for {@link BaseOpenSamlAssertingPartyMetadataRepository}.
  */
 public class OpenSaml5AssertingPartyMetadataRepositoryTests {
 

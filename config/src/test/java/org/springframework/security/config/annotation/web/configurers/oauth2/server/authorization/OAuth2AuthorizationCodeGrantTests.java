@@ -890,7 +890,8 @@ public class OAuth2AuthorizationCodeGrantTests {
 				|| converter instanceof OAuth2AuthorizationCodeRequestAuthenticationConverter
 				|| converter instanceof OAuth2AuthorizationConsentAuthenticationConverter);
 
-		verify(authorizationRequestAuthenticationProvider).authenticate(eq(authorizationCodeRequestAuthentication));
+		verify(authorizationRequestAuthenticationProvider).authenticate(eq(
+				OAuth2AuthorizationCodeRequestAuthenticationToken.validated(authorizationCodeRequestAuthentication)));
 
 		@SuppressWarnings("unchecked")
 		ArgumentCaptor<List<AuthenticationProvider>> authenticationProvidersCaptor = ArgumentCaptor
@@ -1165,6 +1166,12 @@ public class OAuth2AuthorizationCodeGrantTests {
 		String state = extractParameterFromRedirectUri(redirectedUrl, "state");
 		OAuth2Authorization authorization = this.authorizationService.findByToken(state, STATE_TOKEN_TYPE);
 		assertThat(authorization).isNotNull();
+	}
+
+	// gh-19152
+	@Test
+	public void requestWhenAuthorizationEndpointWithCustomAuthenticationProviderThenContextLoads() {
+		this.spring.register(AuthorizationServerConfigurationCustomAuthenticationProvider.class).autowire();
 	}
 
 	private static OAuth2Authorization createAuthorization(RegisteredClient registeredClient) {
@@ -1585,6 +1592,35 @@ public class OAuth2AuthorizationCodeGrantTests {
 									.pushedAuthorizationRequestEndpoint(Customizer.withDefaults())
 									.authorizationEndpoint((authorizationEndpoint) ->
 											authorizationEndpoint.consentPage(consentPage))
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AuthorizationServerConfigurationCustomAuthenticationProvider extends AuthorizationServerConfiguration {
+
+		private final AuthenticationProvider authenticationProvider = mock(AuthenticationProvider.class);
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.authorizationEndpoint((authorizationEndpoint) ->
+											authorizationEndpoint
+													.authenticationProviders((authenticationProviders) -> {
+														authenticationProviders.clear();
+														authenticationProviders.add(this.authenticationProvider);
+													})
+									)
 					)
 					.authorizeHttpRequests((authorize) ->
 							authorize.anyRequest().authenticated()

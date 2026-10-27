@@ -49,6 +49,7 @@ public interface PublicKeyCredentialCreationOptionsRepository {
 	 * @return the {@link PublicKeyCredentialCreationOptions} that was saved, otherwise
 	 * null.
 	 */
-	@Nullable PublicKeyCredentialCreationOptions load(HttpServletRequest request);
+	@Nullable
+	PublicKeyCredentialCreationOptions load(HttpServletRequest request);
 
 }

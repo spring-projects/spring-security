@@ -414,7 +414,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 
 		/**
 		 * An object that allows configuring {@link RequestMatcher}s with URI path
-		 * variables
+		 * variables.
 		 *
 		 * @author Taehong Kim
 		 * @since 6.3
@@ -433,7 +433,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 			 * <p>
 			 * For example, <pre>
 			 * requestMatchers("/user/{username}").hasVariable("username").equalTo(Authentication::getName));
-			 * </pre>
+			 * </pre>.
 			 * @param function a function to get value from {@link Authentication}.
 			 * @return the {@link AuthorizationManagerRequestMatcherRegistry} for further
 			 * customization.

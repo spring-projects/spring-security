@@ -25,7 +25,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
- * Allows configuring a {@link DaoAuthenticationProvider}
+ * Allows configuring a {@link DaoAuthenticationProvider}.
  *
  * @param <B> the type of the {@link SecurityBuilder}
  * @param <C> the type of {@link AbstractDaoAuthenticationConfigurer} this is
@@ -41,7 +41,7 @@ public abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderMana
 	private final U userDetailsService;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param userDetailsService
 	 */
 	AbstractDaoAuthenticationConfigurer(U userDetailsService) {
@@ -88,7 +88,7 @@ public abstract class AbstractDaoAuthenticationConfigurer<B extends ProviderMana
 
 	/**
 	 * Gets the {@link UserDetailsService} that is used with the
-	 * {@link DaoAuthenticationProvider}
+	 * {@link DaoAuthenticationProvider}.
 	 * @return the {@link UserDetailsService} that is used with the
 	 * {@link DaoAuthenticationProvider}
 	 */

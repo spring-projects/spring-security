@@ -57,6 +57,7 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends OnCommit
 	private final boolean disableUrlRewriting;
 
 	/**
+	 * Creates a new instance.
 	 * @param response the response to be wrapped
 	 * @param disableUrlRewriting turns the URL encoding methods into null operations,
 	 * preventing the use of URL rewriting to add the session identifier as a URL

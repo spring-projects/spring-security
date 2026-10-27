@@ -56,7 +56,7 @@ public final class ServerWebExchangeDelegatingReactiveAuthenticationManagerResol
 	/**
 	 * Construct an
 	 * {@link ServerWebExchangeDelegatingReactiveAuthenticationManagerResolver} based on
-	 * the provided parameters
+	 * the provided parameters.
 	 * @param managers a set of {@link ServerWebExchangeMatcherEntry}s
 	 */
 	ServerWebExchangeDelegatingReactiveAuthenticationManagerResolver(
@@ -67,7 +67,7 @@ public final class ServerWebExchangeDelegatingReactiveAuthenticationManagerResol
 	/**
 	 * Construct an
 	 * {@link ServerWebExchangeDelegatingReactiveAuthenticationManagerResolver} based on
-	 * the provided parameters
+	 * the provided parameters.
 	 * @param managers a {@link List} of {@link ServerWebExchangeMatcherEntry}s
 	 */
 	ServerWebExchangeDelegatingReactiveAuthenticationManagerResolver(
@@ -90,7 +90,7 @@ public final class ServerWebExchangeDelegatingReactiveAuthenticationManagerResol
 
 	/**
 	 * Set the default {@link ReactiveAuthenticationManager} to use when a request does
-	 * not match
+	 * not match.
 	 * @param defaultAuthenticationManager the default
 	 * {@link ReactiveAuthenticationManager} to use
 	 */

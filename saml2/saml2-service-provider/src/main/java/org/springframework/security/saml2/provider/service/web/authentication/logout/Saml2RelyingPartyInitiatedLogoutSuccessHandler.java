@@ -58,7 +58,7 @@ public final class Saml2RelyingPartyInitiatedLogoutSuccessHandler implements Log
 
 	/**
 	 * Constructs a {@link Saml2RelyingPartyInitiatedLogoutSuccessHandler} using the
-	 * provided parameters
+	 * provided parameters.
 	 * @param logoutRequestResolver the {@link Saml2LogoutRequestResolver} to use
 	 */
 	public Saml2RelyingPartyInitiatedLogoutSuccessHandler(Saml2LogoutRequestResolver logoutRequestResolver) {

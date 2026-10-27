@@ -19,10 +19,13 @@ package org.springframework.security.cas.jackson2;
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import org.apereo.cas.client.validation.Assertion;
 
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
@@ -55,14 +58,14 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 @SuppressWarnings("removal")
 @Deprecated(forRemoval = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, isGetterVisibility = JsonAutoDetect.Visibility.NONE,
-		getterVisibility = JsonAutoDetect.Visibility.NONE, creatorVisibility = JsonAutoDetect.Visibility.ANY)
+@JsonTypeInfo(use = Id.CLASS, include = As.PROPERTY)
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, isGetterVisibility = Visibility.NONE,
+		getterVisibility = Visibility.NONE, creatorVisibility = Visibility.ANY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class CasAuthenticationTokenMixin {
 
 	/**
-	 * Mixin Constructor helps in deserialize {@link CasAuthenticationToken}
+	 * Mixin Constructor helps in deserialize {@link CasAuthenticationToken}.
 	 * @param keyHash hashCode of provided key to identify if this object made by a given
 	 * {@link CasAuthenticationProvider}
 	 * @param principal typically the UserDetails object (cannot be <code>null</code>)

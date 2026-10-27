@@ -21,6 +21,8 @@ import org.jspecify.annotations.Nullable;
 import org.springframework.util.Assert;
 
 /**
+ * Represents a request URL pattern and optional HTTP method to be secured.
+ *
  * @author Luke Taylor
  * @since 2.0
  */
@@ -44,7 +46,8 @@ public class RequestKey {
 		return this.url;
 	}
 
-	@Nullable String getMethod() {
+	@Nullable
+	String getMethod() {
 		return this.method;
 	}
 

@@ -28,7 +28,7 @@ import org.springframework.util.Assert;
 
 /**
  * A {@link ClaimAccessor} for the &quot;claims&quot; that can be returned in OIDC Logout
- * Tokens
+ * Tokens.
  *
  * @author Josh Cummings
  * @since 6.2
@@ -76,7 +76,7 @@ public interface LogoutTokenClaimAccessor extends ClaimAccessor {
 	}
 
 	/**
-	 * Returns a {@link Map} that identifies this token as a logout token
+	 * Returns a {@link Map} that identifies this token as a logout token.
 	 * @return the identifying {@link Map}
 	 */
 	default Map<String, Object> getEvents() {
@@ -86,7 +86,8 @@ public interface LogoutTokenClaimAccessor extends ClaimAccessor {
 	}
 
 	/**
-	 * Returns a {@code String} value {@code (sid)} representing the OIDC Provider session
+	 * Returns a {@code String} value {@code (sid)} representing the OIDC Provider
+	 * session.
 	 * @return the value representing the OIDC Provider session
 	 */
 	default @Nullable String getSessionId() {

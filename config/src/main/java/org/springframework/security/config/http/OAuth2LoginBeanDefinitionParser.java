@@ -70,6 +70,8 @@ import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
 /**
+ * Parses the {@code oauth2-login} element.
+ *
  * @author Ruby Hartono
  * @since 5.3
  */
@@ -417,7 +419,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	/**
-	 * Wrapper bean class to provide configuration from applicationContext
+	 * Wrapper bean class to provide configuration from applicationContext.
 	 */
 	private static class OAuth2LoginBeanConfig implements ApplicationContextAware {
 

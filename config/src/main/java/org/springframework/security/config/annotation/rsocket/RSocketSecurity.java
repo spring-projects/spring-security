@@ -154,7 +154,7 @@ public class RSocketSecurity {
 	/**
 	 * Adds support for validating a username and password using <a href=
 	 * "https://github.com/rsocket/rsocket/blob/5920ed374d008abb712cb1fd7c9d91778b2f4a68/Extensions/Security/Simple.md">Simple
-	 * Authentication</a>
+	 * Authentication</a>.
 	 * @param simple a customizer
 	 * @return RSocketSecurity for additional configuration
 	 * @since 5.3
@@ -168,7 +168,7 @@ public class RSocketSecurity {
 	}
 
 	/**
-	 * Adds anonymous authentication
+	 * Adds anonymous authentication.
 	 * @param anonymous a customizer
 	 * @return this instance
 	 * @since 7.0
@@ -265,6 +265,9 @@ public class RSocketSecurity {
 	}
 
 	/**
+	 * Specifies the {@link ReactiveAuthenticationManager} to use for simple
+	 * authentication.
+	 *
 	 * @since 5.3
 	 */
 	public final class SimpleAuthenticationSpec {
@@ -286,7 +289,7 @@ public class RSocketSecurity {
 			return this.authenticationManager;
 		}
 
-		protected AuthenticationPayloadInterceptor build() {
+		AuthenticationPayloadInterceptor build() {
 			ReactiveAuthenticationManager manager = getAuthenticationManager();
 			AuthenticationPayloadInterceptor result = new AuthenticationPayloadInterceptor(manager);
 			result.setAuthenticationConverter(new AuthenticationPayloadExchangeConverter());
@@ -304,7 +307,7 @@ public class RSocketSecurity {
 			this.parent = parent;
 		}
 
-		protected AnonymousPayloadInterceptor build() {
+		AnonymousPayloadInterceptor build() {
 			AnonymousPayloadInterceptor result = new AnonymousPayloadInterceptor("anonymousUser");
 			result.setOrder(PayloadInterceptorOrder.ANONYMOUS.getOrder());
 			return result;
@@ -335,7 +338,7 @@ public class RSocketSecurity {
 			return this.authenticationManager;
 		}
 
-		protected AuthenticationPayloadInterceptor build() {
+		AuthenticationPayloadInterceptor build() {
 			ReactiveAuthenticationManager manager = getAuthenticationManager();
 			AuthenticationPayloadInterceptor result = new AuthenticationPayloadInterceptor(manager);
 			result.setOrder(PayloadInterceptorOrder.AUTHENTICATION.getOrder());
@@ -368,7 +371,7 @@ public class RSocketSecurity {
 			return RSocketSecurity.this.authenticationManager;
 		}
 
-		protected List<AuthenticationPayloadInterceptor> build() {
+		List<AuthenticationPayloadInterceptor> build() {
 			ReactiveAuthenticationManager manager = getAuthenticationManager();
 			AuthenticationPayloadInterceptor legacy = new AuthenticationPayloadInterceptor(manager);
 			legacy.setAuthenticationConverter(new BearerPayloadExchangeConverter());
@@ -393,7 +396,7 @@ public class RSocketSecurity {
 		/**
 		 * Matches if
 		 * {@link org.springframework.security.rsocket.api.PayloadExchangeType#isRequest()}
-		 * is true, else not a match
+		 * is true, else not a match.
 		 * @return the Access to set up the authorization rule.
 		 */
 		public Access anyRequest() {
@@ -401,7 +404,7 @@ public class RSocketSecurity {
 		}
 
 		/**
-		 * Always matches
+		 * Always matches.
 		 * @return the Access to set up the authorization rule.
 		 */
 		public Access anyExchange() {

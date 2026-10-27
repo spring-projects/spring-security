@@ -60,6 +60,7 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 	private boolean usePasswordAttrCompare = false;
 
 	/**
+	 * Creates a new instance.
 	 * @deprecated Use
 	 * {@link #PasswordComparisonAuthenticator(BaseLdapPathContextSource, PasswordEncoder)}
 	 * instead

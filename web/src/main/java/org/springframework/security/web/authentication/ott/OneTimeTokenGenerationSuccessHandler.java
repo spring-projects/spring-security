@@ -34,7 +34,7 @@ import org.springframework.security.authentication.ott.OneTimeToken;
 public interface OneTimeTokenGenerationSuccessHandler {
 
 	/**
-	 * Handles generated one-time tokens
+	 * Handles generated one-time tokens.
 	 */
 	void handle(HttpServletRequest request, HttpServletResponse response, OneTimeToken oneTimeToken)
 			throws IOException, ServletException;

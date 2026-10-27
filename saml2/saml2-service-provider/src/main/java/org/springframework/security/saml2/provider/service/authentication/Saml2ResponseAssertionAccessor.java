@@ -38,23 +38,25 @@ public interface Saml2ResponseAssertionAccessor extends Serializable {
 	List<String> getSessionIndexes();
 
 	/**
-	 * Get the first value of Saml2 token attribute by name
+	 * Get the first value of Saml2 token attribute by name.
 	 * @param name the name of the attribute
 	 * @param <A> the type of the attribute
 	 * @return the first attribute value or {@code null} otherwise
 	 */
-	@Nullable default <A> A getFirstAttribute(String name) {
+	@Nullable
+	default <A> A getFirstAttribute(String name) {
 		List<A> values = getAttribute(name);
 		return CollectionUtils.firstElement(values);
 	}
 
 	/**
-	 * Get the Saml2 token attribute by name
+	 * Get the Saml2 token attribute by name.
 	 * @param name the name of the attribute
 	 * @param <A> the type of the attribute
 	 * @return the attribute or {@code null} otherwise
 	 */
-	@Nullable default <A> List<A> getAttribute(String name) {
+	@Nullable
+	default <A> List<A> getAttribute(String name) {
 		return (List<A>) getAttributes().get(name);
 	}
 

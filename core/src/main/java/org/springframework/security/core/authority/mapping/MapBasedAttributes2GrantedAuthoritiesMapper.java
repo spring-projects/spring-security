@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -71,6 +73,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	}
 
 	/**
+	 * Returns the attributes2grantedAuthoritiesMap.
 	 * @return Returns the attributes2grantedAuthoritiesMap.
 	 */
 	public Map<String, Collection<GrantedAuthority>> getAttributes2grantedAuthoritiesMap() {
@@ -78,6 +81,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	}
 
 	/**
+	 * Sets the attributes2grantedAuthoritiesMap to use.
 	 * @param attributes2grantedAuthoritiesMap The attributes2grantedAuthoritiesMap to
 	 * set.
 	 */
@@ -89,7 +93,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	}
 
 	/**
-	 * Preprocess the given map to convert all the values to GrantedAuthority collections
+	 * Preprocess the given map to convert all the values to GrantedAuthority collections.
 	 * @param orgMap The map to process
 	 * @return the processed Map
 	 */
@@ -104,7 +108,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	}
 
 	/**
-	 * Convert the given value to a collection of Granted Authorities
+	 * Convert the given value to a collection of Granted Authorities.
 	 * @param value The value to convert to a GrantedAuthority Collection
 	 * @return Collection containing the GrantedAuthority Collection
 	 */
@@ -119,7 +123,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	 * to the given result collection.
 	 * @param value The value to convert to a GrantedAuthority Collection
 	 */
-	private void addGrantedAuthorityCollection(Collection<GrantedAuthority> result, Object value) {
+	private void addGrantedAuthorityCollection(Collection<GrantedAuthority> result, @Nullable Object value) {
 		if (value == null) {
 			return;
 		}
@@ -163,7 +167,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	}
 
 	/**
-	 *
+	 * Returns the mappable attributes.
 	 * @see org.springframework.security.core.authority.mapping.MappableAttributesRetriever#getMappableAttributes()
 	 */
 	@Override
@@ -172,6 +176,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	}
 
 	/**
+	 * Returns the stringSeparator.
 	 * @return Returns the stringSeparator.
 	 */
 	public String getStringSeparator() {
@@ -179,6 +184,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	}
 
 	/**
+	 * Sets the stringSeparator to use.
 	 * @param stringSeparator The stringSeparator to set.
 	 */
 	public void setStringSeparator(String stringSeparator) {

@@ -42,7 +42,7 @@ public class ImmutableAuthenticationExtensionsClientInput<T> implements Authenti
 	private final T input;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param extensionId the extension id.
 	 * @param input the input.
 	 */

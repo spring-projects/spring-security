@@ -19,18 +19,19 @@ package org.springframework.security.web.webauthn.jackson;
 import java.time.Duration;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import org.jspecify.annotations.Nullable;
 import tools.jackson.databind.annotation.JsonSerialize;
 
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
 
 /**
- * Jackson mixin for {@link PublicKeyCredentialCreationOptions}
+ * Jackson mixin for {@link PublicKeyCredentialCreationOptions}.
  *
  * @author Rob Winch
  * @since 6.4
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(Include.NON_NULL)
 abstract class PublicKeyCredentialCreationOptionsMixin {
 
 	@JsonSerialize(using = DurationSerializer.class)

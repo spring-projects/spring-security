@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Support for propagating the SecurityContext to concurrent tasks.
+ */
 @NullMarked
 package org.springframework.security.concurrent;
 

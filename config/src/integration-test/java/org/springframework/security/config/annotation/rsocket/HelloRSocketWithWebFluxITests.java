@@ -50,6 +50,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
+ * Integration tests for RSocket security combined with WebFlux security.
+ *
  * @author Rob Winch
  */
 @ContextConfiguration

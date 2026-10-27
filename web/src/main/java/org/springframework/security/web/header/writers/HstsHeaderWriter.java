@@ -75,7 +75,7 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	private String hstsHeaderValue;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param requestMatcher maps to {@link #setRequestMatcher(RequestMatcher)}
 	 * @param maxAgeInSeconds maps to {@link #setMaxAgeInSeconds(long)}
 	 * @param includeSubDomains maps to {@link #setIncludeSubDomains(boolean)}
@@ -92,7 +92,7 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param requestMatcher maps to {@link #setRequestMatcher(RequestMatcher)}
 	 * @param maxAgeInSeconds maps to {@link #setMaxAgeInSeconds(long)}
 	 * @param includeSubDomains maps to {@link #setIncludeSubDomains(boolean)}
@@ -102,7 +102,7 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param maxAgeInSeconds maps to {@link #setMaxAgeInSeconds(long)}
 	 * @param includeSubDomains maps to {@link #setIncludeSubDomains(boolean)}
 	 * @param preload maps to {@link #setPreload(boolean)}
@@ -113,7 +113,7 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param maxAgeInSeconds maps to {@link #setMaxAgeInSeconds(long)}
 	 * @param includeSubDomains maps to {@link #setIncludeSubDomains(boolean)}
 	 */
@@ -122,7 +122,7 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param maxAgeInSeconds maps to {@link #setMaxAgeInSeconds(long)}
 	 */
 	public HstsHeaderWriter(long maxAgeInSeconds) {
@@ -130,7 +130,7 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param includeSubDomains maps to {@link #setIncludeSubDomains(boolean)}
 	 */
 	public HstsHeaderWriter(boolean includeSubDomains) {
@@ -138,7 +138,7 @@ public final class HstsHeaderWriter implements HeaderWriter {
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 */
 	public HstsHeaderWriter() {
 		this(DEFAULT_MAX_AGE_SECONDS);

@@ -55,7 +55,8 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 	}
 
 	@Override
-	@Nullable ExpressionAttribute resolveAttribute(Method method, @Nullable Class<?> targetClass) {
+	@Nullable
+	ExpressionAttribute resolveAttribute(Method method, @Nullable Class<?> targetClass) {
 		PreAuthorize preAuthorize = findPreAuthorizeAnnotation(method, targetClass);
 		if (preAuthorize == null) {
 			return null;

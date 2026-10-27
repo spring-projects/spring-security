@@ -35,7 +35,7 @@ import org.springframework.web.server.ServerWebExchange;
 public interface ServerAuthenticationConverter {
 
 	/**
-	 * Converts a {@link ServerWebExchange} to an {@link Authentication}
+	 * Converts a {@link ServerWebExchange} to an {@link Authentication}.
 	 * @param exchange The {@link ServerWebExchange}
 	 * @return A {@link Mono} representing an {@link Authentication}
 	 */

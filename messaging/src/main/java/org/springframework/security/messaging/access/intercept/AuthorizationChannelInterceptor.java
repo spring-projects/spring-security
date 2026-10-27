@@ -37,7 +37,7 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 
 /**
- * Authorizes {@link Message} resources using the provided {@link AuthorizationManager}
+ * Authorizes {@link Message} resources using the provided {@link AuthorizationManager}.
  *
  * @author Josh Cummings
  * @since 5.8
@@ -54,7 +54,7 @@ public final class AuthorizationChannelInterceptor implements ChannelInterceptor
 	private AuthorizationEventPublisher eventPublisher = new NoopAuthorizationEventPublisher();
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param preSendAuthorizationManager the {@link AuthorizationManager} to use. Cannot
 	 * be null.
 	 *

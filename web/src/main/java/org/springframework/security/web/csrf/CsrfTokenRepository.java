@@ -34,7 +34,7 @@ import org.jspecify.annotations.Nullable;
 public interface CsrfTokenRepository {
 
 	/**
-	 * Generates a {@link CsrfToken}
+	 * Generates a {@link CsrfToken}.
 	 * @param request the {@link HttpServletRequest} to use
 	 * @return the {@link CsrfToken} that was generated. Cannot be null.
 	 */
@@ -51,11 +51,12 @@ public interface CsrfTokenRepository {
 	void saveToken(@Nullable CsrfToken token, HttpServletRequest request, HttpServletResponse response);
 
 	/**
-	 * Loads the expected {@link CsrfToken} from the {@link HttpServletRequest}
+	 * Loads the expected {@link CsrfToken} from the {@link HttpServletRequest}.
 	 * @param request the {@link HttpServletRequest} to use
 	 * @return the {@link CsrfToken} or null if none exists
 	 */
-	@Nullable CsrfToken loadToken(HttpServletRequest request);
+	@Nullable
+	CsrfToken loadToken(HttpServletRequest request);
 
 	/**
 	 * Defers loading the {@link CsrfToken} using the {@link HttpServletRequest} and

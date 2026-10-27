@@ -20,6 +20,7 @@ import java.util.function.Function;
 
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ott.InvalidOneTimeTokenException;
 import org.springframework.security.authentication.ott.OneTimeTokenAuthentication;
@@ -27,6 +28,7 @@ import org.springframework.security.authentication.ott.OneTimeTokenAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.util.Assert;
 
 /**
@@ -40,6 +42,9 @@ public final class OneTimeTokenReactiveAuthenticationManager implements Reactive
 	private final ReactiveOneTimeTokenService oneTimeTokenService;
 
 	private final ReactiveUserDetailsService userDetailsService;
+
+	private UserDetailsChecker userDetailsChecker = (user) -> {
+	};
 
 	public OneTimeTokenReactiveAuthenticationManager(ReactiveOneTimeTokenService oneTimeTokenService,
 			ReactiveUserDetailsService userDetailsService) {
@@ -57,6 +62,7 @@ public final class OneTimeTokenReactiveAuthenticationManager implements Reactive
 		return this.oneTimeTokenService.consume(otpAuthenticationToken)
 			.switchIfEmpty(Mono.defer(() -> Mono.error(new InvalidOneTimeTokenException("Invalid token"))))
 			.flatMap((consumed) -> this.userDetailsService.findByUsername(consumed.getUsername()))
+			.doOnNext(this.userDetailsChecker::check)
 			.map(onSuccess(otpAuthenticationToken));
 	}
 
@@ -66,6 +72,23 @@ public final class OneTimeTokenReactiveAuthenticationManager implements Reactive
 			authenticated.setDetails(token.getDetails());
 			return authenticated;
 		};
+	}
+
+	/**
+	 * Use this {@link UserDetailsChecker} to verify the status of the loaded
+	 * {@link UserDetails} after authentication.
+	 *
+	 * <p>
+	 * By default, no checks are performed, keeping this manager's behavior consistent
+	 * with earlier versions of Spring Security. To reject authentication for accounts
+	 * that are locked, disabled, or expired, provide a
+	 * {@link AccountStatusUserDetailsChecker}.
+	 * @param userDetailsChecker the {@link UserDetailsChecker} to use
+	 * @since 7.2
+	 */
+	public void setUserDetailsChecker(UserDetailsChecker userDetailsChecker) {
+		Assert.notNull(userDetailsChecker, "userDetailsChecker cannot be null");
+		this.userDetailsChecker = userDetailsChecker;
 	}
 
 }

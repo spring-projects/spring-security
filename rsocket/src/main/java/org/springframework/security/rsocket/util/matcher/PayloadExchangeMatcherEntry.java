@@ -17,6 +17,8 @@
 package org.springframework.security.rsocket.util.matcher;
 
 /**
+ * Associates a {@link PayloadExchangeMatcher} with an entry of a given type.
+ *
  * @author Rob Winch
  */
 public class PayloadExchangeMatcherEntry<T> {

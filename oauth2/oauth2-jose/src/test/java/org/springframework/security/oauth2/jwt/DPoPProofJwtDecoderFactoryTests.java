@@ -21,6 +21,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -464,6 +465,94 @@ public class DPoPProofJwtDecoderFactoryTests {
 
 		JwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(dPoPProofContext);
 		jwtDecoder.decode(dPoPProof.getTokenValue());
+	}
+
+	/**
+	 * With a small {@code maxSize}, filling the cache and then submitting a new proof
+	 * exercises the cache-full rejection: rather than evicting an existing entry (which
+	 * could let a cached {@code jti} be replayed), the proof that cannot be cached is
+	 * rejected. Replaying a proof while the cache still has room confirms replay
+	 * detection. Each proof is signed with its own key so the per-key request limit is
+	 * never the reason for a rejection.
+	 */
+	@Test
+	public void decodeWhenCacheFullThenThrowBadJwtException() throws Exception {
+		DPoPProofReplayValidator.InMemoryCache cache = new DPoPProofReplayValidator.InMemoryCache();
+		cache.setMaxSize(3);
+		cache.setMaxRequestsPerKey(3);
+		DPoPProofReplayValidator replayValidator = new DPoPProofReplayValidator(cache);
+		this.jwtDecoderFactory.setJwtValidatorFactory(
+				DPoPProofJwtDecoderFactory.createDefaultJwtValidatorFactory(List.of(replayValidator)));
+
+		String method = "GET";
+		String targetUri = "https://resource1";
+		RSAKey jwk1 = TestJwks.generateRsa().keyID("kid-1").build();
+		RSAKey jwk2 = TestJwks.generateRsa().keyID("kid-2").build();
+		RSAKey jwk3 = TestJwks.generateRsa().keyID("kid-3").build();
+		RSAKey jwk4 = TestJwks.generateRsa().keyID("kid-4").build();
+		String proof1 = createJwt(createJwtEncoder(jwk1), createJwsHeader(jwk1),
+				createJwtClaims(method, targetUri, "jti-1"));
+		String proof2 = createJwt(createJwtEncoder(jwk2), createJwsHeader(jwk2),
+				createJwtClaims(method, targetUri, "jti-2"));
+		String proof3 = createJwt(createJwtEncoder(jwk3), createJwsHeader(jwk3),
+				createJwtClaims(method, targetUri, "jti-3"));
+		String proof4 = createJwt(createJwtEncoder(jwk4), createJwsHeader(jwk4),
+				createJwtClaims(method, targetUri, "jti-4"));
+
+		// @formatter:off
+		DPoPProofContext dPoPProofContext = DPoPProofContext.withDPoPProof(proof1)
+				.method(method)
+				.targetUri(targetUri)
+				.build();
+		// @formatter:on
+
+		JwtDecoder jwtDecoder = this.jwtDecoderFactory.createDecoder(dPoPProofContext);
+
+		// Two proofs are accepted and cached; the cache is not yet full
+		jwtDecoder.decode(proof1);
+		jwtDecoder.decode(proof2);
+
+		// Replay detection: proof1 is still cached and there is room, so it is rejected
+		assertThatExceptionOfType(BadJwtException.class).isThrownBy(() -> jwtDecoder.decode(proof1))
+			.withMessageContaining("jti claim is invalid");
+
+		// A third proof fills the cache to its configured maxSize
+		jwtDecoder.decode(proof3);
+
+		// Cache-full rejection: proof4 has an unseen jti with its own key, so it is
+		// rejected because the cache is full, not by replay or the per-key limit
+		assertThatExceptionOfType(BadJwtException.class).isThrownBy(() -> jwtDecoder.decode(proof4))
+			.withMessageContaining("jti claim is invalid");
+	}
+
+	private static JwsHeader createJwsHeader(RSAKey rsaJwk) {
+		// @formatter:off
+		return JwsHeader.with(SignatureAlgorithm.RS256)
+				.type("dpop+jwt")
+				.jwk(rsaJwk.toPublicJWK().toJSONObject())
+				.build();
+		// @formatter:on
+	}
+
+	private static JwtClaimsSet createJwtClaims(String method, String targetUri, String jti) {
+		// @formatter:off
+		return JwtClaimsSet.builder()
+				.issuedAt(Instant.now())
+				.claim("htm", method)
+				.claim("htu", targetUri)
+				.id(jti)
+				.build();
+		// @formatter:on
+	}
+
+	private static JwtEncoder createJwtEncoder(RSAKey rsaJwk) throws Exception {
+		JWKSource<SecurityContext> jwkSource = mock(JWKSource.class);
+		given(jwkSource.get(any(), any())).willReturn(Collections.singletonList(rsaJwk));
+		return new NimbusJwtEncoder(jwkSource);
+	}
+
+	private static String createJwt(JwtEncoder jwtEncoder, JwsHeader jwsHeader, JwtClaimsSet claims) {
+		return jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
 	}
 
 }

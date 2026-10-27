@@ -67,13 +67,13 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 
 	/**
 	 * The name of the path variable that contains the
-	 * {@link ClientRegistration#getRegistrationId()}
+	 * {@link ClientRegistration#getRegistrationId()}.
 	 */
 	public static final String DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME = "registrationId";
 
 	/**
 	 * The default pattern used to resolve the
-	 * {@link ClientRegistration#getRegistrationId()}
+	 * {@link ClientRegistration#getRegistrationId()}.
 	 */
 	public static final String DEFAULT_AUTHORIZATION_REQUEST_PATTERN = "/oauth2/authorization/{"
 			+ DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME + "}";
@@ -97,7 +97,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 	};
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param clientRegistrationRepository the repository to resolve the
 	 * {@link ClientRegistration}
 	 */
@@ -108,7 +108,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 	}
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 * @param clientRegistrationRepository the repository to resolve the
 	 * {@link ClientRegistration}
 	 * @param authorizationRequestMatcher the matcher that determines if the request is a

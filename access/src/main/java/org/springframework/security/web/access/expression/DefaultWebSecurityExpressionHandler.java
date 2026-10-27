@@ -28,6 +28,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 
 /**
+ * The default implementation of {@link SecurityExpressionHandler} for web security.
+ *
  * @author Luke Taylor
  * @author Eddú Meléndez
  * @author Steve Riesenberg

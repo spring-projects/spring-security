@@ -33,7 +33,7 @@ import org.springframework.util.Assert;
 
 /**
  * An {@link AuthenticationConverter} that extracts the OIDC Logout Token authentication
- * request
+ * request.
  *
  * @author Josh Cummings
  * @since 6.2

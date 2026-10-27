@@ -31,7 +31,7 @@ public abstract class BeanIds {
 
 	/**
 	 * The "global" AuthenticationManager instance, registered by the
-	 * &lt;authentication-manager&gt; element
+	 * &lt;authentication-manager&gt; element.
 	 */
 	public static final String AUTHENTICATION_MANAGER = PREFIX + "authenticationManager";
 

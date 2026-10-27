@@ -78,9 +78,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	public final EvaluationContext createEvaluationContext(@Nullable Authentication authentication, T invocation) {
 		SecurityExpressionOperations root = createSecurityExpressionRoot(authentication, invocation);
 		StandardEvaluationContext ctx = createEvaluationContextInternal(authentication, invocation);
-		if (this.beanResolver != null) {
-			ctx.setBeanResolver(this.beanResolver);
-		}
+		ctx.setBeanResolver(this.beanResolver);
 		ctx.setRootObject(root);
 		return ctx;
 	}
@@ -147,6 +145,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	}
 
 	/**
+	 * Returns the {@link RoleHierarchy} to use.
 	 * @deprecated Use {@link #getDefaultAuthorizationManagerFactory()} instead
 	 */
 	@Deprecated(since = "7.0")
@@ -155,6 +154,7 @@ public abstract class AbstractSecurityExpressionHandler<T>
 	}
 
 	/**
+	 * Sets the {@link RoleHierarchy} to use.
 	 * @deprecated Use
 	 * {@link #setAuthorizationManagerFactory(AuthorizationManagerFactory)} instead
 	 */

@@ -23,6 +23,8 @@ import org.springframework.expression.ParseException;
 import org.springframework.security.access.prepost.PreInvocationAttribute;
 
 /**
+ * A {@link PreInvocationAttribute} based on parsed {@link Expression}s.
+ *
  * @author Luke Taylor
  * @since 3.0
  * @deprecated Use

@@ -91,7 +91,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	private AuthenticationDetailsSource<HttpServletRequest, PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails> authenticationDetailsSource;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 *
 	 * @see HttpSecurity#x509(Customizer)
 	 */
@@ -111,7 +111,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Specifies the {@link X509PrincipalExtractor}
+	 * Specifies the {@link X509PrincipalExtractor}.
 	 * @param x509PrincipalExtractor the {@link X509PrincipalExtractor} to use
 	 * @return the {@link X509Configurer} to use
 	 */
@@ -121,7 +121,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Specifies the {@link AuthenticationDetailsSource}
+	 * Specifies the {@link AuthenticationDetailsSource}.
 	 * @param authenticationDetailsSource the {@link AuthenticationDetailsSource} to use
 	 * @return the {@link X509Configurer} to use
 	 */

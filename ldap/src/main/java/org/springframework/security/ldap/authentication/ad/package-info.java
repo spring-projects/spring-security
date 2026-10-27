@@ -15,7 +15,7 @@
  */
 
 /**
- * Package for ActiveDirectory support
+ * Package for ActiveDirectory support.
  */
 @NullMarked
 package org.springframework.security.ldap.authentication.ad;

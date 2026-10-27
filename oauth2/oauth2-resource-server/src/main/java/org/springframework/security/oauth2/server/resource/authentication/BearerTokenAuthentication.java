@@ -45,7 +45,7 @@ public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthentication
 	private final Map<String, Object> attributes;
 
 	/**
-	 * Constructs a {@link BearerTokenAuthentication} with the provided arguments
+	 * Constructs a {@link BearerTokenAuthentication} with the provided arguments.
 	 * @param principal The OAuth 2.0 attributes
 	 * @param credentials The verified token
 	 * @param authorities The authorities associated with the given token
@@ -53,7 +53,7 @@ public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthentication
 	public BearerTokenAuthentication(OAuth2AuthenticatedPrincipal principal, OAuth2AccessToken credentials,
 			Collection<? extends GrantedAuthority> authorities) {
 		super(credentials, principal, credentials, authorities);
-		Assert.isTrue(credentials.getTokenType() == OAuth2AccessToken.TokenType.BEARER,
+		Assert.isTrue(OAuth2AccessToken.TokenType.BEARER.equals(credentials.getTokenType()),
 				"credentials must be a bearer token");
 		this.attributes = Collections.unmodifiableMap(new LinkedHashMap<>(principal.getAttributes()));
 		setAuthenticated(true);
@@ -75,7 +75,7 @@ public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthentication
 	}
 
 	/**
-	 * A builder preserving the concrete {@link Authentication} type
+	 * A builder preserving the concrete {@link Authentication} type.
 	 *
 	 * @since 7.0
 	 */
@@ -103,7 +103,7 @@ public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthentication
 		}
 
 		/**
-		 * A synonym for {@link #token(OAuth2AccessToken)}
+		 * A synonym for {@link #token(OAuth2AccessToken)}.
 		 * @param token the token to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -121,7 +121,8 @@ public class BearerTokenAuthentication extends AbstractOAuth2TokenAuthentication
 		 */
 		@Override
 		public B token(OAuth2AccessToken token) {
-			Assert.isTrue(token.getTokenType() == OAuth2AccessToken.TokenType.BEARER, "token must be a bearer token");
+			Assert.isTrue(OAuth2AccessToken.TokenType.BEARER.equals(token.getTokenType()),
+					"token must be a bearer token");
 			super.credentials(token);
 			return super.token(token);
 		}

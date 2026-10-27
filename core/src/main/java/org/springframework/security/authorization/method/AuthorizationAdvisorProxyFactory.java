@@ -311,13 +311,14 @@ public final class AuthorizationAdvisorProxyFactory implements AuthorizationProx
 		 * @param target the object to proxy
 		 * @return the visited (and possibly proxied) object
 		 */
-		@Nullable Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object target);
+		@Nullable
+		Object visit(AuthorizationAdvisorProxyFactory proxyFactory, Object target);
 
 		/**
 		 * The default {@link TargetVisitor}, which will proxy {@link Class} instances as
 		 * well as instances contained in reactive types (if reactor is present),
 		 * collection types, and other container types like {@link Optional} and
-		 * {@link Supplier}
+		 * {@link Supplier}.
 		 */
 		static TargetVisitor defaults() {
 			return AuthorizationAdvisorProxyFactory.DEFAULT_VISITOR;

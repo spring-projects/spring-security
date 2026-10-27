@@ -121,7 +121,7 @@ public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationT
 	}
 
 	/**
-	 * A builder of {@link CasServiceTicketAuthenticationToken} instances
+	 * A builder of {@link CasServiceTicketAuthenticationToken} instances.
 	 *
 	 * @since 7.0
 	 */

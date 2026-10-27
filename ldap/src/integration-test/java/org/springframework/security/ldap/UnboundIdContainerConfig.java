@@ -23,6 +23,8 @@ import org.springframework.ldap.core.ContextSource;
 import org.springframework.security.ldap.server.UnboundIdContainer;
 
 /**
+ * Configuration for an embedded UnboundID LDAP server used in integration tests.
+ *
  * @author Eddú Meléndez
  */
 @Configuration

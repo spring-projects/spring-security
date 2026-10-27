@@ -27,6 +27,9 @@ import org.springframework.web.reactive.result.view.RequestDataValueProcessor;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
+ * A {@link RequestDataValueProcessor} that adds a hidden input for the CSRF token to
+ * forms.
+ *
  * @author Rob Winch
  * @since 5.0
  */

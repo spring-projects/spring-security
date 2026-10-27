@@ -130,7 +130,7 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 	}
 
 	/**
-	 * Set the {@link BeanResolver} to be used on the expressions
+	 * Set the {@link BeanResolver} to be used on the expressions.
 	 * @param beanResolver the {@link BeanResolver} to use
 	 */
 	public void setBeanResolver(BeanResolver beanResolver) {
@@ -160,10 +160,7 @@ public final class CurrentSecurityContextArgumentResolver implements HandlerMeth
 			StandardEvaluationContext context = new StandardEvaluationContext();
 			context.setRootObject(securityContext);
 			context.setVariable("this", securityContext);
-			// https://github.com/spring-projects/spring-framework/issues/35371
-			if (this.beanResolver != null) {
-				context.setBeanResolver(this.beanResolver);
-			}
+			context.setBeanResolver(this.beanResolver);
 			Expression expression = this.parser.parseExpression(expressionToParse);
 			securityContextResult = expression.getValue(context);
 		}

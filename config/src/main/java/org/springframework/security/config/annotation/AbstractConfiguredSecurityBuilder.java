@@ -187,7 +187,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	}
 
 	/**
-	 * Gets the shared objects
+	 * Gets the shared objects.
 	 * @return the shared Objects
 	 */
 	public Map<Class<?>, Object> getSharedObjects() {
@@ -315,7 +315,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 
 	/**
 	 * Executes the build using the {@link SecurityConfigurer}'s that have been applied
-	 * using the following steps:
+	 * using the following steps:.
 	 *
 	 * <ul>
 	 * <li>Invokes {@link #beforeInit()} for any subclass to hook into</li>
@@ -406,7 +406,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	}
 
 	/**
-	 * The build state for the application
+	 * The build state for the application.
 	 *
 	 * @author Rob Winch
 	 * @since 3.2
@@ -414,7 +414,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	private enum BuildState {
 
 		/**
-		 * This is the state before the {@link SecurityBuilder#build()} is invoked
+		 * This is the state before the {@link SecurityBuilder#build()} is invoked.
 		 */
 		UNBUILT(0),
 
@@ -455,7 +455,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		}
 
 		/**
-		 * Determines if the state is CONFIGURING or later
+		 * Determines if the state is CONFIGURING or later.
 		 * @return
 		 */
 		public boolean isConfigured() {

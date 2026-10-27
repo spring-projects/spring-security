@@ -24,7 +24,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.MimeType;
 
 /**
- * Default implementation of {@link PayloadExchange}
+ * Default implementation of {@link PayloadExchange}.
  *
  * @author Rob Winch
  * @since 5.2

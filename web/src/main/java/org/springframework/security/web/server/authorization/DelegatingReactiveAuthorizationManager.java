@@ -34,6 +34,10 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.web.server.ServerWebExchange;
 
 /**
+ * A {@link ReactiveAuthorizationManager} that delegates to a list of
+ * {@link ReactiveAuthorizationManager} instances based on matching a
+ * {@link ServerWebExchange}.
+ *
  * @author Rob Winch
  * @author Mathieu Ouellet
  * @author Evgeniy Cheban

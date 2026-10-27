@@ -21,7 +21,7 @@ import java.io.Serial;
 import org.springframework.security.core.Authentication;
 
 /**
- * Application event which indicates successful logout
+ * Application event which indicates successful logout.
  *
  * @author Onur Kagan Ozcan
  * @since 5.2.0

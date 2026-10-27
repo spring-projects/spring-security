@@ -33,6 +33,8 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.util.StringUtils;
 
 /**
+ * Parses the {@code logout} element to configure a {@code LogoutFilter}.
+ *
  * @author Luke Taylor
  * @author Ben Alex
  * @author Onur Kagan Ozcan

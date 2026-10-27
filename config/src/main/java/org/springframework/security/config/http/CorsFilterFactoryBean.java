@@ -1,0 +1,68 @@
+/*
+ * Copyright 2004-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.springframework.security.config.http;
+
+import jakarta.servlet.Filter;
+
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.FactoryBean;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.lang.Nullable;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.PreFlightRequestHandler;
+import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.filter.PreFlightRequestFilter;
+
+class CorsFilterFactoryBean implements FactoryBean<Filter>, ApplicationContextAware {
+
+	private static final String HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector";
+
+	private ApplicationContext context;
+
+	@Override
+	public Filter getObject() {
+		if (this.context.containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
+			CorsConfigurationSource source = this.context.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
+					CorsConfigurationSource.class);
+			return new CorsFilter(source);
+		}
+		String[] preFlightRequestHandlerNames = this.context.getBeanNamesForType(PreFlightRequestHandler.class);
+		if (preFlightRequestHandlerNames.length == 1) {
+			PreFlightRequestHandler handler = this.context.getBean(PreFlightRequestHandler.class);
+			return new PreFlightRequestFilter(handler);
+		}
+		throw new NoSuchBeanDefinitionException(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
+				"A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME + " of type "
+						+ CorsConfigurationSource.class.getName()
+						+ " is required to use <cors>. Please ensure Spring Security & Spring "
+						+ "MVC are configured in a shared ApplicationContext.");
+	}
+
+	@Nullable
+	@Override
+	public Class<?> getObjectType() {
+		return Filter.class;
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.context = applicationContext;
+	}
+
+}

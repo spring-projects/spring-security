@@ -18,16 +18,19 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.header.ContentSecurityPolicyNonceGeneratingFilter;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.header.writers.CacheControlHeadersWriter;
@@ -45,6 +48,8 @@ import org.springframework.security.web.header.writers.XContentTypeOptionsHeader
 import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
@@ -75,6 +80,7 @@ import org.springframework.util.Assert;
  * @author Vedran Pavic
  * @author Ankur Pathak
  * @author Daniel Garnier-Moiroux
+ * @author Ziqin Wang
  * @since 3.2
  */
 public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
@@ -94,7 +100,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private final HpkpConfig hpkp = new HpkpConfig();
 
-	private final ContentSecurityPolicyConfig contentSecurityPolicy = new ContentSecurityPolicyConfig();
+	private @Nullable ContentSecurityPolicyConfig contentSecurityPolicy;
 
 	private final ReferrerPolicyConfig referrerPolicy = new ReferrerPolicyConfig();
 
@@ -109,7 +115,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	private final CrossOriginResourcePolicyConfig crossOriginResourcePolicy = new CrossOriginResourcePolicyConfig();
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 *
 	 * @see HttpSecurity#headers(Customizer)
 	 */
@@ -117,7 +123,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Adds a {@link HeaderWriter} instance
+	 * Adds a {@link HeaderWriter} instance.
 	 * @param headerWriter the {@link HeaderWriter} instance to add
 	 * @return the {@link HeadersConfigurer} for additional customizations
 	 */
@@ -130,7 +136,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Configures the {@link XContentTypeOptionsHeaderWriter} which inserts the
 	 * <a href= "https://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx"
-	 * >X-Content-Type-Options</a>:
+	 * >X-Content-Type-Options</a>:.
 	 *
 	 * <pre>
 	 * X-Content-Type-Options: nosniff
@@ -145,7 +151,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * <strong>Note this is not comprehensive XSS protection!</strong>
+	 * <strong>Note this is not comprehensive XSS protection!</strong>.
 	 *
 	 * <p>
 	 * Allows customizing the {@link XXssProtectionHeaderWriter} which adds the <a href=
@@ -245,7 +251,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public HeadersConfigurer<H> contentSecurityPolicy(
 			Customizer<ContentSecurityPolicyConfig> contentSecurityCustomizer) {
-		this.contentSecurityPolicy.writer = new ContentSecurityPolicyHeaderWriter();
+		this.contentSecurityPolicy = new ContentSecurityPolicyConfig();
 		contentSecurityCustomizer.customize(this.contentSecurityPolicy);
 		return HeadersConfigurer.this;
 	}
@@ -273,10 +279,14 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	public void configure(H http) {
 		HeaderWriterFilter headersFilter = createHeaderWriterFilter();
 		http.addFilter(headersFilter);
+		// the nonce is only needed when CSP is configured
+		if (this.contentSecurityPolicy != null) {
+			http.addFilterBefore(this.contentSecurityPolicy.nonceGeneratingFilter, HeaderWriterFilter.class);
+		}
 	}
 
 	/**
-	 * Creates the {@link HeaderWriter}
+	 * Creates the {@link HeaderWriter}.
 	 * @return the {@link HeaderWriter}
 	 */
 	private HeaderWriterFilter createHeaderWriterFilter() {
@@ -302,7 +312,9 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		addIfNotNull(writers, this.hsts.writer);
 		addIfNotNull(writers, this.frameOptions.writer);
 		addIfNotNull(writers, this.hpkp.writer);
-		addIfNotNull(writers, this.contentSecurityPolicy.writer);
+		if (this.contentSecurityPolicy != null) {
+			writers.add(this.contentSecurityPolicy.writer);
+		}
 		addIfNotNull(writers, this.referrerPolicy.writer);
 		addIfNotNull(writers, this.featurePolicy.writer);
 		addIfNotNull(writers, this.permissionsPolicy.writer);
@@ -504,7 +516,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * Ensures that Content Type Options is enabled
+		 * Ensures that Content Type Options is enabled.
 		 * @return the {@link ContentTypeOptionsConfig} for additional customization
 		 */
 		private ContentTypeOptionsConfig enable() {
@@ -559,7 +571,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * Disables X-XSS-Protection header (does not include it)
+		 * Disables X-XSS-Protection header (does not include it).
 		 * @return the {@link HeadersConfigurer} for additional configuration
 		 */
 		public HeadersConfigurer<H> disable() {
@@ -589,7 +601,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * Disables Cache Control
+		 * Disables Cache Control.
 		 * @return the {@link HeadersConfigurer} for additional configuration
 		 */
 		public HeadersConfigurer<H> disable() {
@@ -686,7 +698,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * Disables Strict Transport Security
+		 * Disables Strict Transport Security.
 		 * @return the {@link HeadersConfigurer} for additional configuration
 		 */
 		public HeadersConfigurer<H> disable() {
@@ -695,7 +707,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * Ensures that Strict-Transport-Security is enabled if it is not already
+		 * Ensures that Strict-Transport-Security is enabled if it is not already.
 		 * @return the {@link HstsConfig} for additional customization
 		 */
 		private HstsConfig enable() {
@@ -761,6 +773,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
+	 * Configures the HTTP Public Key Pinning (HPKP) header.
+	 *
 	 * @deprecated see <a href=
 	 * "https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning">Certificate
 	 * and Public Key Pinning</a> for more context
@@ -921,7 +935,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 		/**
 		 * Ensures that Public-Key-Pins or Public-Key-Pins-Report-Only is enabled if it is
-		 * not already
+		 * not already.
 		 * @return the {@link HstsConfig} for additional customization
 		 */
 		private HpkpConfig enable() {
@@ -935,13 +949,17 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 	public final class ContentSecurityPolicyConfig {
 
-		private ContentSecurityPolicyHeaderWriter writer;
+		private final ContentSecurityPolicyHeaderWriter writer = new ContentSecurityPolicyHeaderWriter();
+
+		private final ContentSecurityPolicyNonceGeneratingFilter nonceGeneratingFilter = new ContentSecurityPolicyNonceGeneratingFilter();
 
 		private ContentSecurityPolicyConfig() {
 		}
 
 		/**
-		 * Sets the security policy directive(s) to be used in the response header.
+		 * Sets the security policy directive(s) to be used in the response header. The
+		 * {@code policyDirectives} may contain {@code {nonce}} as placeholders for a
+		 * generated secure random nonce, e.g., {@code script-src 'self' 'nonce-{nonce}'}.
 		 * @param policyDirectives the security policy directive(s)
 		 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
 		 * @throws IllegalArgumentException if policyDirectives is null or empty
@@ -959,6 +977,55 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		public ContentSecurityPolicyConfig reportOnly() {
 			this.writer.setReportOnly(true);
 			return this;
+		}
+
+		/**
+		 * Sets the name of the servlet request attribute for the generated nonce. Views
+		 * can read this attribute to render the nonce in HTML.
+		 * @param nonceAttributeName the name of the nonce attribute
+		 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
+		 * @throws IllegalArgumentException if {@code nonceAttributeName} is {@code null}
+		 * or empty
+		 * @since 7.2
+		 */
+		public ContentSecurityPolicyConfig nonceAttributeName(String nonceAttributeName) {
+			Assert.hasLength(nonceAttributeName, "NonceAttributeName must not be null or empty");
+			this.nonceGeneratingFilter.setAttributeName(nonceAttributeName);
+			return this;
+		}
+
+		/**
+		 * Specifies the {@link RequestMatcher} to use for determining when CSP should be
+		 * applied. The default is to enable CSP in every response if
+		 * {@link HeadersConfigurer#contentSecurityPolicy(Customizer)} is configured.
+		 * @param requestMatcher the {@link RequestMatcher} to use
+		 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
+		 * @throws IllegalArgumentException if {@code requestMatcher} is null
+		 * @since 7.2
+		 * @see #requestMatchers(String...)
+		 */
+		public ContentSecurityPolicyConfig requestMatcher(RequestMatcher requestMatcher) {
+			Assert.notNull(requestMatcher, "RequestMatcher cannot be null");
+			this.writer.setRequestMatcher(requestMatcher);
+			return this;
+		}
+
+		/**
+		 * Specifies the matching path patterns for determining when CSP should be
+		 * applied. The default is to enable CSP in every response if
+		 * {@link HeadersConfigurer#contentSecurityPolicy(Customizer)} is configured.
+		 * @param pathPatterns the path patterns to be matched with a
+		 * {@link PathPatternRequestMatcher}
+		 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
+		 * @throws IllegalArgumentException if any path pattern if rejected by
+		 * {@link PathPatternRequestMatcher.Builder#matcher(String)}
+		 * @since 7.2
+		 * @see #requestMatcher(RequestMatcher)
+		 */
+		public ContentSecurityPolicyConfig requestMatchers(String... pathPatterns) {
+			PathPatternRequestMatcher.Builder builder = HeadersConfigurer.this.getRequestMatcherBuilder();
+			OrRequestMatcher matcher = new OrRequestMatcher(Arrays.stream(pathPatterns).map(builder::matcher).toList());
+			return this.requestMatcher(matcher);
 		}
 
 	}
@@ -1029,7 +1096,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * Sets the policy to be used in the {@code Cross-Origin-Opener-Policy} header
+		 * Sets the policy to be used in the {@code Cross-Origin-Opener-Policy} header.
 		 * @param openerPolicy a {@code Cross-Origin-Opener-Policy}
 		 * @return the {@link CrossOriginOpenerPolicyConfig} for additional configuration
 		 * @throws IllegalArgumentException if openerPolicy is null
@@ -1050,7 +1117,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * Sets the policy to be used in the {@code Cross-Origin-Embedder-Policy} header
+		 * Sets the policy to be used in the {@code Cross-Origin-Embedder-Policy} header.
 		 * @param embedderPolicy a {@code Cross-Origin-Embedder-Policy}
 		 * @return the {@link CrossOriginEmbedderPolicyConfig} for additional
 		 * configuration
@@ -1072,7 +1139,7 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * Sets the policy to be used in the {@code Cross-Origin-Resource-Policy} header
+		 * Sets the policy to be used in the {@code Cross-Origin-Resource-Policy} header.
 		 * @param resourcePolicy a {@code Cross-Origin-Resource-Policy}
 		 * @return the {@link CrossOriginResourcePolicyConfig} for additional
 		 * configuration

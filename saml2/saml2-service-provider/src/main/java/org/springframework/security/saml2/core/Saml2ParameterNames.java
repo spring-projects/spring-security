@@ -30,18 +30,18 @@ package org.springframework.security.saml2.core;
 public final class Saml2ParameterNames {
 
 	/**
-	 * {@code SAMLRequest} - used to request authentication or request logout
+	 * {@code SAMLRequest} - used to request authentication or request logout.
 	 */
 	public static final String SAML_REQUEST = "SAMLRequest";
 
 	/**
-	 * {@code SAMLResponse} - used to respond to an authentication or logout request
+	 * {@code SAMLResponse} - used to respond to an authentication or logout request.
 	 */
 	public static final String SAML_RESPONSE = "SAMLResponse";
 
 	/**
 	 * {@code RelayState} - used to communicate shared state between the relying and
-	 * asserting party
+	 * asserting party.
 	 * @see <a target="_blank" href=
 	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-bindings-2.0-os.pdf#page=8">3.1.1
 	 * Use of RelayState</a>
@@ -50,7 +50,7 @@ public final class Saml2ParameterNames {
 
 	/**
 	 * {@code SigAlg} - used to communicate which signature algorithm to use to verify
-	 * signature
+	 * signature.
 	 */
 	public static final String SIG_ALG = "SigAlg";
 

@@ -34,6 +34,8 @@ import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
 /**
+ * An encryptor that uses RSA public/private key pairs to encrypt and decrypt data.
+ *
  * @author Dave Syer
  * @since 6.3
  */

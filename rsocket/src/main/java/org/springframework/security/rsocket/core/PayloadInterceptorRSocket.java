@@ -32,7 +32,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.MimeType;
 
 /**
- * Combines the {@link PayloadInterceptor} with an {@link RSocketProxy}
+ * Combines the {@link PayloadInterceptor} with an {@link RSocketProxy}.
  *
  * @author Rob Winch
  * @since 5.2

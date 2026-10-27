@@ -189,7 +189,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	}
 
 	/**
-	 * Decoder based on Netscape ldapsdk library
+	 * Decoder based on Netscape ldapsdk library.
 	 */
 	private class NetscapeDecoder implements PPolicyDecoder {
 
@@ -227,7 +227,7 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 
 		static class SpecificTagDecoder extends BERTagDecoder {
 
-			/** Allows us to remember which of the two options we're decoding */
+			/** Allows us to remember which of the two options we're decoding. */
 			private @Nullable Boolean inChoice = null;
 
 			@Override

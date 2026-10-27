@@ -31,7 +31,7 @@ import org.springframework.util.Assert;
 /**
  * A specialized {@link AuthenticationWebFilter} that converts from an
  * {@link OAuth2LoginAuthenticationToken} to an {@link OAuth2AuthenticationToken} and
- * saves the {@link OAuth2AuthorizedClient}
+ * saves the {@link OAuth2AuthorizedClient}.
  *
  * @author Rob Winch
  * @since 5.1
@@ -41,7 +41,7 @@ public class OAuth2LoginAuthenticationWebFilter extends AuthenticationWebFilter 
 	private final ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
 
 	/**
-	 * Creates an instance
+	 * Creates an instance.
 	 * @param authenticationManager the authentication manager to use
 	 * @param authorizedClientRepository
 	 */

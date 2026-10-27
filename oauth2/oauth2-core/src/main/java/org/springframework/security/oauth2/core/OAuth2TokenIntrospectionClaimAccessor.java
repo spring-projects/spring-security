@@ -36,7 +36,8 @@ import org.jspecify.annotations.Nullable;
 public interface OAuth2TokenIntrospectionClaimAccessor extends ClaimAccessor {
 
 	/**
-	 * Returns the indicator {@code (active)} whether or not the token is currently active
+	 * Returns the indicator {@code (active)} whether or not the token is currently
+	 * active.
 	 * @return the indicator whether or not the token is currently active
 	 */
 	default boolean isActive() {
@@ -56,7 +57,7 @@ public interface OAuth2TokenIntrospectionClaimAccessor extends ClaimAccessor {
 	/**
 	 * Returns the client identifier {@code (client_id)} for the token, or {@code null} if
 	 * it does not exist.
-	 * @return the client identifier for the token, or {@code null} if it does not exist
+	 * @return the client identifier for the token, or {@code null} if it does not exist.
 	 */
 	default @Nullable String getClientId() {
 		return getClaimAsString(OAuth2TokenIntrospectionClaimNames.CLIENT_ID);
@@ -65,7 +66,7 @@ public interface OAuth2TokenIntrospectionClaimAccessor extends ClaimAccessor {
 	/**
 	 * Returns the scopes {@code (scope)} associated with the token, or {@code null} if it
 	 * does not exist.
-	 * @return the scopes associated with the token, or {@code null} if it does not exist
+	 * @return the scopes associated with the token, or {@code null} if it does not exist.
 	 */
 	default @Nullable List<String> getScopes() {
 		return getClaimAsStringList(OAuth2TokenIntrospectionClaimNames.SCOPE);
@@ -85,7 +86,7 @@ public interface OAuth2TokenIntrospectionClaimAccessor extends ClaimAccessor {
 	 * Returns a timestamp {@code (exp)} indicating when the token expires, or
 	 * {@code null} if it does not exist.
 	 * @return a timestamp indicating when the token expires, or {@code null} if it does
-	 * not exist
+	 * not exist.
 	 */
 	default @Nullable Instant getExpiresAt() {
 		return getClaimAsInstant(OAuth2TokenIntrospectionClaimNames.EXP);
@@ -95,7 +96,7 @@ public interface OAuth2TokenIntrospectionClaimAccessor extends ClaimAccessor {
 	 * Returns a timestamp {@code (iat)} indicating when the token was issued, or
 	 * {@code null} if it does not exist.
 	 * @return a timestamp indicating when the token was issued, or {@code null} if it
-	 * does not exist
+	 * does not exist.
 	 */
 	default @Nullable Instant getIssuedAt() {
 		return getClaimAsInstant(OAuth2TokenIntrospectionClaimNames.IAT);
@@ -105,7 +106,7 @@ public interface OAuth2TokenIntrospectionClaimAccessor extends ClaimAccessor {
 	 * Returns a timestamp {@code (nbf)} indicating when the token is not to be used
 	 * before, or {@code null} if it does not exist.
 	 * @return a timestamp indicating when the token is not to be used before, or
-	 * {@code null} if it does not exist
+	 * {@code null} if it does not exist.
 	 */
 	default @Nullable Instant getNotBefore() {
 		return getClaimAsInstant(OAuth2TokenIntrospectionClaimNames.NBF);
@@ -124,7 +125,7 @@ public interface OAuth2TokenIntrospectionClaimAccessor extends ClaimAccessor {
 	/**
 	 * Returns the intended audience {@code (aud)} for the token, or {@code null} if it
 	 * does not exist.
-	 * @return the intended audience for the token, or {@code null} if it does not exist
+	 * @return the intended audience for the token, or {@code null} if it does not exist.
 	 */
 	default @Nullable List<String> getAudience() {
 		return getClaimAsStringList(OAuth2TokenIntrospectionClaimNames.AUD);
@@ -133,7 +134,7 @@ public interface OAuth2TokenIntrospectionClaimAccessor extends ClaimAccessor {
 	/**
 	 * Returns the issuer {@code (iss)} of the token, or {@code null} if it does not
 	 * exist.
-	 * @return the issuer of the token, or {@code null} if it does not exist
+	 * @return the issuer of the token, or {@code null} if it does not exist.
 	 */
 	default @Nullable URL getIssuer() {
 		return getClaimAsURL(OAuth2TokenIntrospectionClaimNames.ISS);
@@ -142,7 +143,7 @@ public interface OAuth2TokenIntrospectionClaimAccessor extends ClaimAccessor {
 	/**
 	 * Returns the identifier {@code (jti)} for the token, or {@code null} if it does not
 	 * exist.
-	 * @return the identifier for the token, or {@code null} if it does not exist
+	 * @return the identifier for the token, or {@code null} if it does not exist.
 	 */
 	default @Nullable String getId() {
 		return getClaimAsString(OAuth2TokenIntrospectionClaimNames.JTI);

@@ -56,7 +56,7 @@ public class ServerFormLoginAuthenticationConverter implements Function<ServerWe
 	}
 
 	/**
-	 * The parameter name of the form data to extract the username
+	 * The parameter name of the form data to extract the username.
 	 * @param usernameParameter the username HTTP parameter
 	 */
 	public void setUsernameParameter(String usernameParameter) {
@@ -65,7 +65,7 @@ public class ServerFormLoginAuthenticationConverter implements Function<ServerWe
 	}
 
 	/**
-	 * The parameter name of the form data to extract the password
+	 * The parameter name of the form data to extract the password.
 	 * @param passwordParameter the password HTTP parameter
 	 */
 	public void setPasswordParameter(String passwordParameter) {

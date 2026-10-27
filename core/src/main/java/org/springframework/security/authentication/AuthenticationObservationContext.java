@@ -23,7 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * An {@link Observation.Context} used during authentications
+ * An {@link Observation.Context} used during authentications.
  *
  * @author Josh Cummings
  * @since 6.0
@@ -37,7 +37,7 @@ public class AuthenticationObservationContext extends Observation.Context {
 	private @Nullable Authentication authenticationResult;
 
 	/**
-	 * Get the {@link Authentication} request that was observed
+	 * Get the {@link Authentication} request that was observed.
 	 * @return the observed {@link Authentication} request
 	 */
 	public @Nullable Authentication getAuthenticationRequest() {
@@ -45,7 +45,7 @@ public class AuthenticationObservationContext extends Observation.Context {
 	}
 
 	/**
-	 * Set the {@link Authentication} request that was observed
+	 * Set the {@link Authentication} request that was observed.
 	 * @param authenticationRequest the observed {@link Authentication} request
 	 */
 	public void setAuthenticationRequest(Authentication authenticationRequest) {
@@ -66,7 +66,7 @@ public class AuthenticationObservationContext extends Observation.Context {
 	}
 
 	/**
-	 * Set the {@link Authentication} result that was observed
+	 * Set the {@link Authentication} result that was observed.
 	 * @param authenticationResult the observed {@link Authentication} result
 	 */
 	public void setAuthenticationResult(Authentication authenticationResult) {
@@ -74,7 +74,7 @@ public class AuthenticationObservationContext extends Observation.Context {
 	}
 
 	/**
-	 * Get the {@link AuthenticationManager} class that processed the authentication
+	 * Get the {@link AuthenticationManager} class that processed the authentication.
 	 * @return the observed {@link AuthenticationManager} class
 	 */
 	public @Nullable Class<?> getAuthenticationManagerClass() {
@@ -82,7 +82,7 @@ public class AuthenticationObservationContext extends Observation.Context {
 	}
 
 	/**
-	 * Set the {@link AuthenticationManager} class that processed the authentication
+	 * Set the {@link AuthenticationManager} class that processed the authentication.
 	 * @param authenticationManagerClass the observed {@link AuthenticationManager} class
 	 */
 	public void setAuthenticationManagerClass(Class<?> authenticationManagerClass) {

@@ -65,7 +65,7 @@ public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthent
 
 	/**
 	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided
-	 * parameters
+	 * parameters.
 	 * @param introspector The {@link ReactiveOpaqueTokenIntrospector} to use
 	 */
 	public OpaqueTokenReactiveAuthenticationManager(ReactiveOpaqueTokenIntrospector introspector) {

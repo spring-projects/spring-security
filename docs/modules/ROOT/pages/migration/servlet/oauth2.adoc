@@ -132,4 +132,11 @@ authenticationConverter.setBearerTokenResolver(myBearerTokenResolver)
 authenticationConverter.setAuthenticationDetailsSource(myAuthenticationDetailsSource)
 val filter = BearerTokenAuthenticationFilter(authenticationManager, authenticationConverter)
 ----
+
+== `NimbusJwtDecoder`'s Default Connect and Read Timeouts Are Now 30 Seconds
+
+`NimbusJwtDecoder`'s default `RestOperations`, used to fetch a JWK Set when no `RestOperations` is otherwise configured, previously used a 500 millisecond connect and read timeout.
+This value was too short for many deployments and is now 30 seconds, aligning with the connect and read timeouts already used elsewhere in the OAuth2 Client and Resource Server support, such as xref:servlet/oauth2/client/index.adoc[`ClientRegistrations`].
+
+If your application relies on the previous, shorter timeout -- for example, expecting a fast failure when the authorization server is unreachable -- you can restore it either by setting the JDK's `sun.net.client.defaultConnectTimeout` and `sun.net.client.defaultReadTimeout` system properties (in milliseconds), or by providing your own `RestOperations`, as described in xref:servlet/oauth2/resource-server/jwt.adoc#oauth2resourceserver-jwt-timeouts[Configuring Timeouts].
 ======

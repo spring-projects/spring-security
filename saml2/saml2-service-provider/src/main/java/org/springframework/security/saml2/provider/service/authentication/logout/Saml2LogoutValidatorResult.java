@@ -43,7 +43,7 @@ public final class Saml2LogoutValidatorResult {
 	}
 
 	/**
-	 * Say whether this result indicates success
+	 * Say whether this result indicates success.
 	 * @return whether this result has errors
 	 */
 	public boolean hasErrors() {
@@ -51,7 +51,7 @@ public final class Saml2LogoutValidatorResult {
 	}
 
 	/**
-	 * Return error details regarding the validation attempt
+	 * Return error details regarding the validation attempt.
 	 * @return the collection of results in this result, if any; returns an empty list
 	 * otherwise
 	 */
@@ -60,7 +60,7 @@ public final class Saml2LogoutValidatorResult {
 	}
 
 	/**
-	 * Construct a successful {@link Saml2LogoutValidatorResult}
+	 * Construct a successful {@link Saml2LogoutValidatorResult}.
 	 * @return an {@link Saml2LogoutValidatorResult} with no errors
 	 */
 	public static Saml2LogoutValidatorResult success() {

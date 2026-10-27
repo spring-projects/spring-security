@@ -112,6 +112,7 @@ final class X509SelfSignedCertificateVerifier implements Consumer<OAuth2ClientAu
 		return new OAuth2AuthenticationException(error, error.toString(), cause);
 	}
 
+	@SuppressWarnings("removal")
 	private static final class JwkSetSupplier implements Function<RegisteredClient, JWKSet> {
 
 		private static final MediaType APPLICATION_JWK_SET_JSON = new MediaType("application", "jwk-set+json");

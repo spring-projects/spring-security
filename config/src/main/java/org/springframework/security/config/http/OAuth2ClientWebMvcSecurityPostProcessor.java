@@ -35,6 +35,9 @@ import org.springframework.security.oauth2.client.web.method.annotation.OAuth2Au
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
 /**
+ * Registers an {@link OAuth2AuthorizedClientArgumentResolver} with the
+ * {@link RequestMappingHandlerAdapter} when OAuth2 client beans are present.
+ *
  * @author Joe Grandja
  * @since 5.4
  */

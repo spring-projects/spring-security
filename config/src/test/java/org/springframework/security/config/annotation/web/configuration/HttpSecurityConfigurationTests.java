@@ -99,6 +99,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.config.test.SessionRequestPostProcessors.requestedSession;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -217,7 +218,7 @@ public class HttpSecurityConfigurationTests {
 		MockHttpServletRequestBuilder loginRequest = post("/login")
 				.param("username", "user")
 				.param("password", "password")
-				.session(session)
+				.with(requestedSession(session))
 				.with(csrf());
 		// @formatter:on
 		MvcResult result = this.mockMvc.perform(loginRequest).andReturn();

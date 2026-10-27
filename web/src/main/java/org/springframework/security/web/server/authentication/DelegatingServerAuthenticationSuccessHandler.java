@@ -43,7 +43,7 @@ public class DelegatingServerAuthenticationSuccessHandler implements ServerAuthe
 	}
 
 	/**
-	 * Creates a new instance with the provided list of delegates
+	 * Creates a new instance with the provided list of delegates.
 	 * @param delegates the {@link List} of {@link ServerAuthenticationSuccessHandler}
 	 * @since 6.3
 	 */

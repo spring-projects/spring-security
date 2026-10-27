@@ -24,7 +24,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
 
 /**
- * A reactive {@link Converter} for adapting a non-blocking imperative {@link Converter}
+ * A reactive {@link Converter} for adapting a non-blocking imperative {@link Converter}.
  *
  * @author Josh Cummings
  * @since 5.1.1

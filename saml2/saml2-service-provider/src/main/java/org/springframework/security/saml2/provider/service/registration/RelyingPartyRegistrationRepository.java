@@ -19,7 +19,7 @@ package org.springframework.security.saml2.provider.service.registration;
 import org.jspecify.annotations.Nullable;
 
 /**
- * A repository for {@link RelyingPartyRegistration}s
+ * A repository for {@link RelyingPartyRegistration}s.
  *
  * @author Filip Hanik
  * @author Josh Cummings
@@ -33,7 +33,8 @@ public interface RelyingPartyRegistrationRepository {
 	 * @param registrationId the registration identifier
 	 * @return the {@link RelyingPartyRegistration} if found, otherwise {@code null}
 	 */
-	@Nullable RelyingPartyRegistration findByRegistrationId(String registrationId);
+	@Nullable
+	RelyingPartyRegistration findByRegistrationId(String registrationId);
 
 	/**
 	 * Returns the unique relying party registration associated with the asserting party's

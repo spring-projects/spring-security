@@ -150,7 +150,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 		else {
 			this.logger.debug("No authentication manager set. Password won't be re-checked.");
 		}
-		MutableUserDetails user = this.users.get(username);
+		MutableUserDetails user = this.users.get(username.toLowerCase(Locale.ROOT));
 		Assert.state(user != null, "Current user doesn't exist in database.");
 		user.setPassword(newPassword);
 	}

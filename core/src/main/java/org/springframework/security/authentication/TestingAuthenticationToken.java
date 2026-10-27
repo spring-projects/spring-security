@@ -91,7 +91,7 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 	}
 
 	/**
-	 * A builder of {@link TestingAuthenticationToken} instances
+	 * A builder of {@link TestingAuthenticationToken} instances.
 	 *
 	 * @since 7.0
 	 */

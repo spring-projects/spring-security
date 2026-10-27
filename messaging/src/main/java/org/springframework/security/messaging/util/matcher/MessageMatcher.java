@@ -30,7 +30,7 @@ import org.springframework.messaging.Message;
 public interface MessageMatcher<T> {
 
 	/**
-	 * Matches every {@link Message}
+	 * Matches every {@link Message}.
 	 */
 	MessageMatcher<Object> ANY_MESSAGE = new MessageMatcher<>() {
 
@@ -47,7 +47,7 @@ public interface MessageMatcher<T> {
 	};
 
 	/**
-	 * Returns true if the {@link Message} matches, else false
+	 * Returns true if the {@link Message} matches, else false.
 	 * @param message the {@link Message} to match on
 	 * @return true if the {@link Message} matches, else false
 	 */
@@ -68,7 +68,7 @@ public interface MessageMatcher<T> {
 
 	/**
 	 * The result of matching against a {@code Message} contains the status, true or
-	 * false, of the match and if present, any variables extracted from the match
+	 * false, of the match and if present, any variables extracted from the match.
 	 *
 	 * @since 6.5
 	 */
@@ -85,7 +85,7 @@ public interface MessageMatcher<T> {
 
 		/**
 		 * Return whether the comparison against the {@code Message} produced a successful
-		 * match
+		 * match.
 		 */
 		public boolean isMatch() {
 			return this.match;
@@ -93,7 +93,7 @@ public interface MessageMatcher<T> {
 
 		/**
 		 * Returns the extracted variable values where the key is the variable name and
-		 * the value is the variable value
+		 * the value is the variable value.
 		 * @return a map containing key-value pairs representing extracted variable names
 		 * and variable values
 		 */
@@ -102,7 +102,7 @@ public interface MessageMatcher<T> {
 		}
 
 		/**
-		 * Creates an instance of {@link MatchResult} that is a match with no variables
+		 * Creates an instance of {@link MatchResult} that is a match with no variables.
 		 */
 		public static MatchResult match() {
 			return new MatchResult(true, Collections.emptyMap());
@@ -110,7 +110,7 @@ public interface MessageMatcher<T> {
 
 		/**
 		 * Creates an instance of {@link MatchResult} that is a match with the specified
-		 * variables
+		 * variables.
 		 */
 		public static MatchResult match(Map<String, String> variables) {
 			return new MatchResult(true, variables);
