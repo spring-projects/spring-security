@@ -8,9 +8,7 @@ on:
         required: true
 
 permissions:
-  actions: write
   contents: read
-  issues: write
 
 jobs:
   setup:
@@ -37,6 +35,10 @@ jobs:
       docs-host: ${{ secrets.DOCS_HOST }}
   publish-release-announcements:
     name: Publish Release Announcements
+    permissions:
+      actions: write
+      contents: read
+      issues: write
     needs: [ deploy-schema ]
     if: ${{ !failure() && !cancelled() }}
     uses: spring-io/spring-security-release-tools/.github/workflows/release-announcements-publish.yml@c6656e0cee9fd2930ad238f6e1cafb0b8792e515 # v1.1.0
