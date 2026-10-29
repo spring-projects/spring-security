@@ -143,6 +143,15 @@ public class DefaultFilterChainValidatorTests {
 	}
 
 	@Test
+	void validateWhenFilterSecurityInterceptorConfiguredThenWarnsWithJavaAndXmlGuidance() {
+		this.validator.validate(this.chain);
+		verify(this.logger)
+			.warn("Usage of authorizeRequests is deprecated. Please use authorizeHttpRequests in the configuration. "
+					+ "If you are using XML configuration, remove use-authorization-manager=\"false\" from your <http> element "
+					+ "or set it to \"true\"");
+	}
+
+	@Test
 	void validateWhenSameRequestMatchersArePresentThenUnreachableFilterChainException() {
 		AnonymousAuthenticationFilter authenticationFilter = mock(AnonymousAuthenticationFilter.class);
 		ExceptionTranslationFilter exceptionTranslationFilter = mock(ExceptionTranslationFilter.class);
