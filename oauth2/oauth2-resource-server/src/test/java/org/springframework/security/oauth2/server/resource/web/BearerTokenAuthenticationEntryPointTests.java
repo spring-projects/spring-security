@@ -91,6 +91,16 @@ public class BearerTokenAuthenticationEntryPointTests {
 	}
 
 	@Test
+	public void commenceWhenResourceMetadataResolverReturnsNullThenParameterOmitted() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		this.authenticationEntryPoint.setResourceMetadataParameterResolver((req) -> null);
+		this.authenticationEntryPoint.commence(request, response, new BadCredentialsException("test"));
+		assertThat(response.getStatus()).isEqualTo(401);
+		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Bearer");
+	}
+
+	@Test
 	public void commenceWhenInvalidRequestErrorThenStatus400AndHeaderWithError() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
