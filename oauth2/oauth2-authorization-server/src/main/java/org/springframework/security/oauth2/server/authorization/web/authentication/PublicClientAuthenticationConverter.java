@@ -56,7 +56,8 @@ public final class PublicClientAuthenticationConverter implements Authentication
 		}
 
 		MultiValueMap<String, String> parameters = "GET".equals(request.getMethod())
-				? OAuth2EndpointUtils.getQueryParameters(request) : OAuth2EndpointUtils.getFormParameters(request);
+				? OAuth2EndpointParameters.getQueryParameters(request)
+				: OAuth2EndpointParameters.getFormParameters(request);
 
 		// client_id (REQUIRED for public clients)
 		String clientId = parameters.getFirst(OAuth2ParameterNames.CLIENT_ID);

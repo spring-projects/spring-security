@@ -65,7 +65,8 @@ public final class OAuth2DeviceVerificationAuthenticationConverter implements Au
 		}
 
 		MultiValueMap<String, String> parameters = "GET".equals(request.getMethod())
-				? OAuth2EndpointUtils.getQueryParameters(request) : OAuth2EndpointUtils.getFormParameters(request);
+				? OAuth2EndpointParameters.getQueryParameters(request)
+				: OAuth2EndpointParameters.getFormParameters(request);
 
 		// user_code (REQUIRED)
 		String userCode = parameters.getFirst(OAuth2ParameterNames.USER_CODE);
