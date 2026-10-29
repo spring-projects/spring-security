@@ -16,11 +16,12 @@
 
 package org.springframework.security.core.context;
 
-import java.lang.ScopedValue;
+import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.core.task.TaskDecorator;
 import org.springframework.util.Assert;
 
 /**
@@ -111,28 +112,92 @@ public class ScopedSecurityContextHolderStrategy implements SecurityContextHolde
 		retrieveSecurityContextScopedValueHolder().setSecurityContext(notNullDeferredContext);
 	}
 
+	/**
+	 * @return <code>true</code> if an nstance of {@link ScopedValue},
+	 * {@link ScopedSecurityContextHolderStrategy#SECURITY_CONTEXT} is bound to the
+	 * current thread; otherwise <code>false</code>.
+	 */
 	public boolean isBound() {
 		return SECURITY_CONTEXT.isBound();
 	}
 
 	/**
-	 * Binds an instance of {@link ScopedValue},
-	 * {@link ScopedSecurityContextHolderStrategy#SECURITY_CONTEXT}, to an instance of
-	 * {@link SecurityContextScopedValueHolder} <i>for current thread</i>.
+	 * @return {@link TaskDecorator} binds an instance of {@link ScopedValue},
+	 * {@link ScopedSecurityContextHolderStrategy#SECURITY_CONTEXT} for a thread which
+	 * invokes {@link TaskDecorator#decorate(Runnable)}.
 	 */
-	public static void runWhere(Supplier<SecurityContext> deferredContext, Runnable r) {
-		ScopedValue.where(SECURITY_CONTEXT, new SecurityContextScopedValueHolder(deferredContext)).run(r);
-	}
-
-	public static <R, X extends Throwable> R callWhere(Supplier<SecurityContext> deferredContext, ScopedValue.CallableOp<? extends R, X> op) throws X {
-		return ScopedValue.where(SECURITY_CONTEXT, new SecurityContextScopedValueHolder(deferredContext)).call(op);
+	public static TaskDecorator getTaskDecorator() {
+		return (runnable) -> () -> getSecuriyContextCarrier().run(runnable);
 	}
 
 	/**
-	 * A convenience version of {@link #runWhere(Supplier, Runnable)} method.
+	 * Binds an instance of {@link ScopedValue},
+	 * {@link ScopedSecurityContextHolderStrategy#SECURITY_CONTEXT}, to an instance of
+	 * {@link SecurityContextScopedValueHolder} <i>for current thread</i> and runs
+	 * <code>runnable</code> argument.
+	 */
+	public static void runWhere(Supplier<SecurityContext> deferredContext, Runnable runnable) {
+		ScopedValue.where(SECURITY_CONTEXT, new SecurityContextScopedValueHolder(deferredContext)).run(runnable);
+	}
+
+	/**
+	 * A version of {@link #runWhere(Supplier, Runnable)} method used in a case when
+	 * {@link SecurityContext} is not available.
 	 */
 	public static ScopedValue.Carrier getSecuriyContextCarrier() {
 		return ScopedValue.where(SECURITY_CONTEXT, new SecurityContextScopedValueHolder());
+	}
+
+	/**
+	 * Binds an instance of {@link ScopedValue},
+	 * {@link ScopedSecurityContextHolderStrategy#SECURITY_CONTEXT}, to an instance of
+	 * {@link SecurityContextScopedValueHolder} <i>for current thread</i> and calls
+	 * <code>callableOp</code> argument.
+	 *
+	 * <p>
+	 * </p>
+	 * See also {@link DelegatingSecurityContextRunnable}.
+	 */
+	public static <R, X extends Throwable> R callWhere(Supplier<SecurityContext> deferredContext,
+			ScopedValue.CallableOp<? extends R, X> callableOp) throws X {
+		return ScopedValue.where(SECURITY_CONTEXT, new SecurityContextScopedValueHolder(deferredContext))
+			.call(callableOp);
+	}
+
+	/**
+	 * Binds an instance of {@link ScopedValue},
+	 * {@link ScopedSecurityContextHolderStrategy#SECURITY_CONTEXT}, to an instance of
+	 * {@link SecurityContextScopedValueHolder} <i>for current thread</i> and calls
+	 * <code>callable</code> argument.
+	 *
+	 * <p>
+	 * </p>
+	 * See also {@link DelegatingSecurityContextCallable}.
+	 */
+	public static <R> R callWhere(Supplier<SecurityContext> deferredContext, Callable<? extends R> callable)
+			throws Exception {
+		return ScopedValue.where(SECURITY_CONTEXT, new SecurityContextScopedValueHolder(deferredContext))
+			.call(new CallableOpOfCallable<R>(callable));
+	}
+
+	/**
+	 * A converter from {@link ScopedValue.CallableOp} to {@link Callable}.
+	 *
+	 * @param <T> the result type of method call.
+	 */
+	private static class CallableOpOfCallable<T> implements ScopedValue.CallableOp<T, Exception> {
+
+		private final Callable<? extends T> callable;
+
+		CallableOpOfCallable(Callable<? extends T> op) {
+			this.callable = op;
+		}
+
+		@Override
+		public T call() throws Exception {
+			return this.callable.call();
+		}
+
 	}
 
 	/**
@@ -157,6 +222,71 @@ public class ScopedSecurityContextHolderStrategy implements SecurityContextHolde
 
 		void setSecurityContext(@Nullable Supplier<SecurityContext> securityContext) {
 			this.securityContext = securityContext;
+		}
+
+	}
+
+	/**
+	 * A ScopedSecurityContextHolderStrategy-specific version of
+	 * {@link org.springframework.security.concurrent.DelegatingSecurityContextCallable
+	 * DelegatingSecurityContextCallable}.
+	 *
+	 * @param <R> the result type of {@link Callable#call()} method
+	 */
+	public static class DelegatingSecurityContextCallable<R> implements Callable<R> {
+
+		private final @Nullable SecurityContext securityContext;
+
+		private final Callable<R> delegate;
+
+		private final ScopedSecurityContextHolderStrategy strategy = new ScopedSecurityContextHolderStrategy();
+
+		public DelegatingSecurityContextCallable(@Nullable SecurityContext securityContext, Callable<R> delegate) {
+			this.securityContext = (securityContext != null) ? securityContext
+					: (this.strategy.isBound() ? this.strategy.getContext() : null);
+			this.delegate = delegate;
+		}
+
+		@Override
+		public R call() throws Exception {
+			if (this.securityContext != null) {
+				return callWhere(() -> this.securityContext, this.delegate);
+			}
+			else {
+				return getSecuriyContextCarrier().call(new CallableOpOfCallable<R>(this.delegate));
+			}
+		}
+
+	}
+
+	/**
+	 * A ScopedSecurityContextHolderStrategy-specific version of
+	 * {@link org.springframework.security.concurrent.DelegatingSecurityContextRunnable
+	 * DelegatingSecurityContextRunnable}.
+	 *
+	 */
+	public static class DelegatingSecurityContextRunnable implements Runnable {
+
+		private final @Nullable SecurityContext securityContext;
+
+		private final Runnable delegate;
+
+		private final ScopedSecurityContextHolderStrategy strategy = new ScopedSecurityContextHolderStrategy();
+
+		public DelegatingSecurityContextRunnable(@Nullable SecurityContext securityContext, Runnable delegate) {
+			this.securityContext = (securityContext != null) ? securityContext
+					: (this.strategy.isBound() ? this.strategy.getContext() : null);
+			this.delegate = delegate;
+		}
+
+		@Override
+		public void run() {
+			if (this.securityContext != null) {
+				runWhere(() -> this.securityContext, this.delegate);
+			}
+			else {
+				getSecuriyContextCarrier().run(this.delegate);
+			}
 		}
 
 	}

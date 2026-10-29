@@ -24,6 +24,8 @@ import java.util.concurrent.Future;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnJre;
+import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.internal.stubbing.answers.Returns;
@@ -31,12 +33,14 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.core.context.MockSecurityContextHolderStrategy;
+import org.springframework.security.core.context.ScopedSecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.spy;
@@ -121,6 +125,31 @@ public class DelegatingSecurityContextCallableTests {
 		assertWrapped(this.callable);
 	}
 
+	@DisabledOnJre(JRE.JAVA_17)
+	@Test
+	public void callScopedValueWrapper() throws Exception {
+		givenDelegateCallWillAnswerWithCurrentSecurityContext(new ScopedSecurityContextHolderStrategy());
+		this.callable = new ScopedSecurityContextHolderStrategy.DelegatingSecurityContextCallable<>(
+				this.securityContext, this.delegate);
+		assertWrapped(this.callable);
+	}
+
+	@DisabledOnJre(JRE.JAVA_17)
+	@Test
+	public void callDefaultSecurityContextWithScopedSecurityContextHolderStrategy() throws Exception {
+		SecurityContextHolderStrategy securityContextHolderStrategy = spy(new ScopedSecurityContextHolderStrategy());
+		givenDelegateCallWillAnswerWithCurrentSecurityContext(securityContextHolderStrategy);
+		ScopedSecurityContextHolderStrategy.getSecuriyContextCarrier().run(() -> {
+			securityContextHolderStrategy.setContext(this.securityContext);
+			this.callable = new ScopedSecurityContextHolderStrategy.DelegatingSecurityContextCallable<>(
+					this.securityContext, this.delegate);
+			// ensure callable is what sets up the SecurityContextHolder
+			securityContextHolderStrategy.clearContext();
+			assertThatNoException().isThrownBy(() -> assertWrapped(this.callable));
+			verify(securityContextHolderStrategy, atLeastOnce()).getContext();
+		});
+	}
+
 	@Test
 	public void callDefaultSecurityContext() throws Exception {
 		givenDelegateCallWillAnswerWithCurrentSecurityContext();
@@ -174,6 +203,22 @@ public class DelegatingSecurityContextCallableTests {
 		// ensure callable is what sets up the SecurityContextHolder
 		SecurityContextHolder.clearContext();
 		assertWrapped(this.callable);
+	}
+
+	@DisabledOnJre(JRE.JAVA_17)
+	@Test
+	public void callNullDefaultSecurityContextWithScopedSecurityContextHolderStrategy() throws Exception {
+		SecurityContextHolderStrategy securityContextHolderStrategy = spy(new ScopedSecurityContextHolderStrategy());
+		givenDelegateCallWillAnswerWithCurrentSecurityContext(securityContextHolderStrategy);
+		ScopedSecurityContextHolderStrategy.getSecuriyContextCarrier().run(() -> {
+			securityContextHolderStrategy.setContext(this.securityContext);
+			this.callable = new ScopedSecurityContextHolderStrategy.DelegatingSecurityContextCallable<>(null,
+					this.delegate);
+			// ensure callable is what sets up the SecurityContextHolder
+			securityContextHolderStrategy.clearContext();
+			assertThatNoException().isThrownBy(() -> assertWrapped(this.callable));
+			verify(securityContextHolderStrategy, atLeastOnce()).getContext();
+		});
 	}
 
 	@Test

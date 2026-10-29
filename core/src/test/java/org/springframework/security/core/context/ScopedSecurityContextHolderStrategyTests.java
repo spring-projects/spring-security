@@ -19,6 +19,8 @@ package org.springframework.security.core.context;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnJre;
+import org.junit.jupiter.api.condition.JRE;
 
 import org.springframework.security.core.Authentication;
 
@@ -27,12 +29,14 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+@DisabledOnJre(JRE.JAVA_17)
 class ScopedSecurityContextHolderStrategyTests {
 
 	ScopedSecurityContextHolderStrategy strategy = new ScopedSecurityContextHolderStrategy();
 
 	@Test
 	void deferredNotInvoked() {
+		@SuppressWarnings("unchecked")
 		Supplier<SecurityContext> deferredContext = mock(Supplier.class);
 		ScopedSecurityContextHolderStrategy.getSecuriyContextCarrier().run(() -> {
 			try {
@@ -120,6 +124,20 @@ class ScopedSecurityContextHolderStrategyTests {
 		Authentication authentication = mock(Authentication.class);
 		SecurityContext context = new SecurityContextImpl(authentication);
 		assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> this.strategy.setContext(context));
+	}
+
+	@Test
+	void taskDecorator() {
+		Authentication authentication = mock(Authentication.class);
+		ScopedSecurityContextHolderStrategy.getTaskDecorator().decorate(() -> {
+			try {
+				this.strategy.getContext().setAuthentication(authentication);
+				assertThat(this.strategy.getContext().getAuthentication()).isEqualTo(authentication);
+			}
+			finally {
+				this.strategy.clearContext();
+			}
+		}).run();
 	}
 
 }
