@@ -76,10 +76,10 @@ public class CachingUserDetailsService implements UserDetailsService {
 		UserDetails user = this.userCache.getUserFromCache(username);
 		if (user == null) {
 			user = this.delegate.loadUserByUsername(username);
+			Assert.notNull(user, () -> "UserDetailsService " + this.delegate + " returned null for username " + username
+					+ ". " + "This is an interface contract violation");
+			this.userCache.putUserInCache(user);
 		}
-		Assert.notNull(user, () -> "UserDetailsService " + this.delegate + " returned null for username " + username
-				+ ". " + "This is an interface contract violation");
-		this.userCache.putUserInCache(user);
 		return user;
 	}
 
