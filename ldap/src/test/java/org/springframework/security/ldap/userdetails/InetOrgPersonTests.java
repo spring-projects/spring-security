@@ -81,6 +81,14 @@ public class InetOrgPersonTests {
 		assertThat(p.getDisplayName()).isEqualTo("Ghengis McCann");
 		assertThat(p.getInitials()).isEqualTo("G");
 	}
+	@Test
+	public void testNullUidIsAllowed() {
+		DirContextAdapter ctx = createUserContext();
+		ctx.setAttributeValue("uid", null);
+		InetOrgPerson.Essence essence = new InetOrgPerson.Essence(ctx);
+		InetOrgPerson p = (InetOrgPerson) essence.createUserDetails();
+		assertThat(p.getUid()).isNull();
+	}
 
 	@Test
 	public void testPasswordIsSetFromContextUserPassword() {

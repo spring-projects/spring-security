@@ -77,8 +77,8 @@ public class InetOrgPerson extends Person {
 
 	private @Nullable String uid;
 
-	public String getUid() {
-		return Objects.requireNonNull(this.uid, "uid cannot be null");
+	public @Nullable String getUid() {
+		return this.uid;
 	}
 
 	public @Nullable String getMail() {
@@ -222,8 +222,9 @@ public class InetOrgPerson extends Person {
 			setStreet(ctx.getStringAttribute("street"));
 			setTitle(ctx.getStringAttribute("title"));
 			String uid = ctx.getStringAttribute("uid");
-			Assert.notNull(uid, "uid cannot be null");
-			setUid(uid);
+			if (uid != null) {
+				setUid(uid);
+			}
 		}
 
 		@Override
@@ -236,11 +237,10 @@ public class InetOrgPerson extends Person {
 			((InetOrgPerson) this.instance).mail = email;
 		}
 
-		public void setUid(String uid) {
+		public void setUid(@Nullable String uid) {
 			Assert.notNull(this.instance, "Essence can only be used to create a single instance");
 			((InetOrgPerson) this.instance).uid = uid;
-
-			if (this.username == null) {
+			if (this.username == null && uid != null) {
 				setUsername(uid);
 			}
 		}
