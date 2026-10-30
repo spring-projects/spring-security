@@ -60,6 +60,7 @@ import org.springframework.util.StringUtils;
  * @author Eddú Meléndez
  * @author Onur Kagan Ozcan
  * @author Ngoc Nhan
+ * @author Armen Petrosyan
  * @since 2.0
  */
 public abstract class AbstractRememberMeServices
@@ -206,7 +207,8 @@ public abstract class AbstractRememberMeServices
 	 * delimiter.
 	 * @param cookieValue the value obtained from the submitted cookie
 	 * @return the array of tokens.
-	 * @throws InvalidCookieException if the cookie was not base64 encoded.
+	 * @throws InvalidCookieException if the cookie was not base64 encoded or one of its
+	 * tokens was not URL encoded.
 	 */
 	protected String[] decodeCookie(String cookieValue) throws InvalidCookieException {
 		for (int j = 0; j < cookieValue.length() % 4; j++) {
@@ -221,7 +223,12 @@ public abstract class AbstractRememberMeServices
 		}
 		String[] tokens = StringUtils.delimitedListToStringArray(cookieAsPlainText, DELIMITER);
 		for (int i = 0; i < tokens.length; i++) {
-			tokens[i] = URLDecoder.decode(tokens[i], StandardCharsets.UTF_8);
+			try {
+				tokens[i] = URLDecoder.decode(tokens[i], StandardCharsets.UTF_8);
+			}
+			catch (IllegalArgumentException ex) {
+				throw new InvalidCookieException("Cookie token was not URL encoded; value was '" + cookieValue + "'");
+			}
 		}
 		return tokens;
 	}
