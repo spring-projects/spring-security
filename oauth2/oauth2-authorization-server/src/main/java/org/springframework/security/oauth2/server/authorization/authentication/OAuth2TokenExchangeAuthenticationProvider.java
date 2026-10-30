@@ -39,6 +39,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2Token;
+import org.springframework.security.oauth2.core.converter.ClaimConversionService;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
@@ -302,7 +303,17 @@ public final class OAuth2TokenExchangeAuthenticationProvider implements Authenti
 		}
 
 		for (String claimName : claimNames) {
-			if (!Objects.equals(expectedClaims.get(claimName), actualClaims.get(claimName))) {
+			Object expectedClaim = expectedClaims.get(claimName);
+			Object actualClaim = actualClaims.get(claimName);
+			if (OAuth2TokenClaimNames.ISS.equals(claimName) || OAuth2TokenClaimNames.SUB.equals(claimName)) {
+				// As per https://datatracker.ietf.org/doc/html/rfc7519#section-2,
+				// StringOrURI values are compared as case-sensitive strings.
+				// The same claim may be a String in one set and a URL in the other,
+				// e.g. iss
+				expectedClaim = ClaimConversionService.getSharedInstance().convert(expectedClaim, String.class);
+				actualClaim = ClaimConversionService.getSharedInstance().convert(actualClaim, String.class);
+			}
+			if (!Objects.equals(expectedClaim, actualClaim)) {
 				throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_GRANT);
 			}
 		}
