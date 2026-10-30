@@ -31,6 +31,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send Notification
-        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@6803d775925cdca5990e1e68b5a1c1fe38fa3947 # v1.0.20
+        uses: spring-io/spring-security-release-tools/.github/actions/send-notification@e199c3eb6237f1c0cfdb03b38ddf80f7aefdb8b0 # v1.1.1
         with:
           webhook-url: ${{ secrets.SPRING_SECURITY_CI_GCHAT_WEBHOOK_URL }}
