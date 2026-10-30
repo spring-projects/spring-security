@@ -11,15 +11,16 @@ on:
         type: string
 
 permissions:
-  actions: write
-  contents: write
-  issues: read
-  pull-requests: read
+  contents: read
 
 jobs:
   stage-release-announcements:
     name: Stage Release Announcements
-    uses: spring-io/spring-security-release-tools/.github/workflows/release-announcements-stage.yml@c6656e0cee9fd2930ad238f6e1cafb0b8792e515 # v1.1.0
+    permissions:
+      actions: write
+      contents: write
+      issues: read
+      pull-requests: read
+    uses: spring-io/spring-security-release-tools/.github/workflows/release-announcements-stage.yml@07569de2cd704c6870976fe8f16f7b3cb550d08f # v1.1.2
     with:
       version: ${{ inputs.version || github.ref_name }}
-    secrets: inherit

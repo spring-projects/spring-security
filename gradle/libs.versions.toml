@@ -19,7 +19,7 @@ spring-data-bom = "2026.0.1"
 spring-framework = "7.0.9"
 spring-ldap = "4.1.1"
 com-password4j = "1.8.4"
-io-spring-security = "1.1.0"
+io-spring-security = "1.1.2"
 
 [libraries]
 ch-qos-logback-logback-classic = "ch.qos.logback:logback-classic:1.6.3"
