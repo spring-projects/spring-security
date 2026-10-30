@@ -25,6 +25,6 @@ tasks.withType(JavaCompile).configureEach { task ->
 
 tasks.withType(KotlinCompile).configureEach { task ->
 	if (task.name == 'compileTestKotlin' || task.name == 'compileIntegrationTestKotlin') {
-		task.kotlinOptions.jvmTarget = '25'
+		task.kotlinOptions.jvmTarget = '17'
 	}
 }

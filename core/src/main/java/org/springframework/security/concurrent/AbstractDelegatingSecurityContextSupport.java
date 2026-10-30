@@ -17,6 +17,7 @@
 package org.springframework.security.concurrent;
 
 import java.util.concurrent.Callable;
+import java.util.function.UnaryOperator;
 
 import org.jspecify.annotations.Nullable;
 
@@ -40,6 +41,10 @@ abstract class AbstractDelegatingSecurityContextSupport {
 
 	private final @Nullable SecurityContext securityContext;
 
+	private UnaryOperator<Runnable> runnableWrapper;
+
+	private UnaryOperator<Callable<?>> callableWrapper;
+
 	/**
 	 * Creates a new {@link AbstractDelegatingSecurityContextSupport} that uses the
 	 * specified {@link SecurityContext}.
@@ -50,6 +55,10 @@ abstract class AbstractDelegatingSecurityContextSupport {
 	 */
 	AbstractDelegatingSecurityContextSupport(@Nullable SecurityContext securityContext) {
 		this.securityContext = securityContext;
+		this.runnableWrapper = (delegate) -> DelegatingSecurityContextRunnable.create(delegate, this.securityContext,
+				this.securityContextHolderStrategy);
+		this.callableWrapper = (delegate) -> DelegatingSecurityContextCallable.create(delegate, this.securityContext,
+				this.securityContextHolderStrategy);
 	}
 
 	void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
@@ -58,13 +67,20 @@ abstract class AbstractDelegatingSecurityContextSupport {
 	}
 
 	protected final Runnable wrap(Runnable delegate) {
-		return DelegatingSecurityContextRunnable.create(delegate, this.securityContext,
-				this.securityContextHolderStrategy);
+		return this.runnableWrapper.apply(delegate);
 	}
 
+	@SuppressWarnings("unchecked")
 	protected final <T> Callable<T> wrap(Callable<T> delegate) {
-		return DelegatingSecurityContextCallable.create(delegate, this.securityContext,
-				this.securityContextHolderStrategy);
+		return (Callable<T>) this.callableWrapper.apply(delegate);
+	}
+
+	void setRunnableWrapper(UnaryOperator<Runnable> runnableWrapper) {
+		this.runnableWrapper = runnableWrapper;
+	}
+
+	void setCallableWrapper(UnaryOperator<Callable<?>> callableWrapper) {
+		this.callableWrapper = callableWrapper;
 	}
 
 }
