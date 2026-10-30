@@ -6,6 +6,7 @@ permissions:
   contents: read
 
 env:
+  ORG_GRADLE_PROJECT_branch: ${{ github.base_ref }}
   JAVA_VERSION: '17'
 
 jobs:
@@ -17,8 +18,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: environment
         name: Compute Build Environment
-        uses: spring-io/spring-security-actions/compute-build-environment@8f2e7bb51b5bd78abeeab91e4dbea1520fa68265 # 0.0.5
-      - uses: spring-io/spring-security-actions/pr-build@8f2e7bb51b5bd78abeeab91e4dbea1520fa68265 # 0.0.5
+        uses: spring-io/spring-security-actions/compute-build-environment@d8f7823200918755444538cbb4219d96f2b7be33 # 0.0.12
+      - uses: spring-io/spring-security-actions/pr-build@d8f7823200918755444538cbb4219d96f2b7be33 # 0.0.12
         env:
           ORG_GRADLE_PROJECT_releaseChannel: ${{ steps.environment.outputs.release-channel }}
           ORG_GRADLE_PROJECT_artifactoryUsername: ${{ secrets[steps.environment.outputs.dependabot-username] }}
