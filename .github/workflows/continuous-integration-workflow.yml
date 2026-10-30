@@ -33,7 +33,7 @@ jobs:
   test:
     name: Test
     needs: setup
-    uses: spring-io/spring-security-release-tools/.github/workflows/ci-test.yml@07569de2cd704c6870976fe8f16f7b3cb550d08f # v1.1.2
+    uses: spring-io/spring-security-release-tools/.github/workflows/ci-test.yml@a003088f632cf03f78dc838bb4f722e133aa65b0 # v1.1.2
     with:
       java-version: '17'
       runner: ${{ vars.UBUNTU_RUNS_ON }}
