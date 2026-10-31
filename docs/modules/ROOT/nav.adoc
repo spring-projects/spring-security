@@ -28,6 +28,7 @@
 *** xref:features/integrations/concurrency.adoc[Java's Concurrency APIs]
 *** xref:features/integrations/jackson.adoc[Jackson]
 *** xref:features/integrations/localization.adoc[Localization]
+*** xref:features/integrations/outside-request.adoc[Outside of a Request]
 * xref:modules.adoc[Project Modules]
 * xref:samples.adoc[Samples]
 * xref:servlet/index.adoc[Servlet Applications]
