@@ -474,6 +474,24 @@ public class OAuth2ResourceServerSpecTests {
 	}
 
 	@Test
+	public void postWhenCrossOriginProtectionAndSignedFromAnotherOriginThenReturnsOk() {
+		this.spring.register(PublicKeyCrossOriginProtectionConfig.class, RootController.class).autowire();
+		// @formatter:off
+		this.client.post()
+				.headers((headers) -> {
+					headers.setBearerAuth(this.messageReadToken);
+					headers.set("Sec-Fetch-Site", "cross-site");
+				})
+				.exchange()
+				.expectStatus().isOk();
+		this.client.post()
+				.header("Sec-Fetch-Site", "cross-site")
+				.exchange()
+				.expectStatus().isForbidden();
+		// @formatter:on
+	}
+
+	@Test
 	public void postWhenMissingTokenThenReturnsForbidden() {
 		this.spring.register(PublicKeyConfig.class, RootController.class).autowire();
 		// @formatter:off
@@ -760,6 +778,27 @@ public class OAuth2ResourceServerSpecTests {
 			http
 				.authorizeExchange((authorize) -> authorize
 					.anyExchange().hasAuthority("SCOPE_message:read"))
+				.oauth2ResourceServer((server) -> server
+					.jwt((jwt) -> jwt.publicKey(publicKey())));
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class PublicKeyCrossOriginProtectionConfig {
+
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+			// @formatter:off
+			http
+				.authorizeExchange((authorize) -> authorize
+					.anyExchange().hasAuthority("SCOPE_message:read"))
+				.csrf((csrf) -> csrf
+					.crossOriginProtection(Customizer.withDefaults()))
 				.oauth2ResourceServer((server) -> server
 					.jwt((jwt) -> jwt.publicKey(publicKey())));
 			// @formatter:on

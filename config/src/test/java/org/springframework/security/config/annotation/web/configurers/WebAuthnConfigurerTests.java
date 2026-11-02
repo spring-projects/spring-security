@@ -154,6 +154,28 @@ public class WebAuthnConfigurerTests {
 	}
 
 	@Test
+	public void webauthnWhenCsrfDisabledThenPagesRenderWithoutCsrfToken() throws Exception {
+		this.spring.register(CsrfDisabledWebauthnConfiguration.class).autowire();
+		this.mvc.perform(get("/login")).andExpect(status().isOk());
+		this.mvc
+			.perform(get("/webauthn/register")
+				.with(authentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"))))
+			.andExpect(status().isOk())
+			.andExpect(content().string(containsString("setupRegistration({}")));
+	}
+
+	@Test
+	public void webauthnWhenCsrfCrossOriginProtectionThenPagesRenderWithoutCsrfToken() throws Exception {
+		this.spring.register(CrossOriginProtectionWebauthnConfiguration.class).autowire();
+		this.mvc.perform(get("/login")).andExpect(status().isOk());
+		this.mvc
+			.perform(get("/webauthn/register")
+				.with(authentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"))))
+			.andExpect(status().isOk())
+			.andExpect(content().string(containsString("setupRegistration({}")));
+	}
+
+	@Test
 	void webauthnWhenConfiguredDefaultsRpNameToRpId() throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		this.spring.register(DefaultWebauthnConfiguration.class).autowire();
@@ -462,6 +484,55 @@ public class WebAuthnConfigurerTests {
 			// @formatter:off
 			http
 				.formLogin(Customizer.withDefaults())
+				.webAuthn((authn) -> authn
+					.rpId("example.com")
+				);
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class CsrfDisabledWebauthnConfiguration {
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager();
+		}
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.formLogin(Customizer.withDefaults())
+				.csrf(AbstractHttpConfigurer::disable)
+				.webAuthn((authn) -> authn
+					.rpId("example.com")
+				);
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class CrossOriginProtectionWebauthnConfiguration {
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager();
+		}
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.formLogin(Customizer.withDefaults())
+				.csrf((csrf) -> csrf
+					.crossOriginProtection(Customizer.withDefaults()))
 				.webAuthn((authn) -> authn
 					.rpId("example.com")
 				);
