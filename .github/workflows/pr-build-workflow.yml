@@ -13,7 +13,7 @@ jobs:
   build:
     name: Build
     runs-on: ${{ vars.UBUNTU_RUNS_ON }}
-    if: github.event.pull_request.head.repo.fork == false && github.actor != 'dependabot[bot]'
+    if: github.event.repository.fork == false && github.actor != 'dependabot[bot]'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: environment
