@@ -101,6 +101,10 @@ final class JwtDecoderProviderConfigurationUtils {
 	}
 
 	static Map<String, Object> getConfigurationForOidcIssuerLocation(String oidcIssuerLocation) {
+		return getConfigurationForOidcIssuerLocation(oidcIssuerLocation, rest);
+	}
+
+	static Map<String, Object> getConfigurationForOidcIssuerLocation(String oidcIssuerLocation, RestOperations rest) {
 		return getConfiguration(oidcIssuerLocation, rest, oidc(oidcIssuerLocation));
 	}
 

@@ -37,11 +37,13 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Tests for {@link ClientRegistration}.
  *
  * @author Joe Grandja
+ * @author Evgeniy Cheban
  */
 public class ClientRegistrationTests {
 
@@ -729,6 +731,32 @@ public class ClientRegistrationTests {
 			.build();
 
 		assertThat(clientRegistration.getClientSettings().isRequireProofKey()).isFalse();
+	}
+
+	@Test
+	void buildWhenTrustedIssuerNotMatchThenException() {
+		ClientRegistration.Builder builder = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+			.clientId(CLIENT_ID)
+			.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+			.tokenUri(TOKEN_URI)
+			.issuerUri("https://example.com")
+			.trustedIssuer("https://local.example.com");
+		assertThatIllegalStateException().isThrownBy(builder::build).withMessage("""
+				The Issuer "https://local.example.com" provided in the configuration metadata did \
+				not match the requested issuer "https://example.com"\
+				""");
+	}
+
+	@Test
+	void buildWhenTrustedIssuerMatchesThenBuilds() {
+		ClientRegistration registration = ClientRegistration.withRegistrationId(REGISTRATION_ID)
+			.clientId(CLIENT_ID)
+			.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+			.tokenUri(TOKEN_URI)
+			.issuerUri("https://example.com")
+			.trustedIssuer("https://example.com")
+			.build();
+		assertThat(registration.getProviderDetails().getIssuerUri()).isEqualTo("https://example.com");
 	}
 
 	static List<AuthorizationGrantType> invalidPkceGrantTypes() {
