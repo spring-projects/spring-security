@@ -84,6 +84,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Rob Winch
  * @author Joe Grandja
+ * @author Kai Zander
  * @since 5.1
  */
 public class NimbusReactiveJwtDecoderTests {
@@ -267,10 +268,22 @@ public class NimbusReactiveJwtDecoderTests {
 	}
 
 	@Test
-	public void decodeWhenUsingSignedJwtThenReturnsClaimsGivenByClaimSetConverter() {
+	public void decodeWhenUsingSignedJwtThenReturnsClaimsGivenBySynchronousClaimSetConverter() {
 		Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = mock(Converter.class);
 		this.decoder.setClaimSetConverter(claimSetConverter);
 		given(claimSetConverter.convert(any(Map.class))).willReturn(Collections.singletonMap("custom", "value"));
+		Jwt jwt = this.decoder.decode(this.messageReadToken).block();
+		assertThat(jwt.getClaims()).hasSize(1);
+		assertThat(jwt.getClaims()).containsEntry("custom", "value");
+		verify(claimSetConverter).convert(any(Map.class));
+	}
+
+	@Test
+	public void decodeWhenUsingSignedJwtThenReturnsClaimsGivenByAsynchronousClaimSetConverter() {
+		Converter<Map<String, Object>, Mono<Map<String, Object>>> claimSetConverter = mock(Converter.class);
+		this.decoder.setReactiveClaimSetConverter(claimSetConverter);
+		given(claimSetConverter.convert(any(Map.class)))
+			.willReturn(Mono.just(Collections.singletonMap("custom", "value")));
 		Jwt jwt = this.decoder.decode(this.messageReadToken).block();
 		assertThat(jwt.getClaims()).hasSize(1);
 		assertThat(jwt.getClaims()).containsEntry("custom", "value");
