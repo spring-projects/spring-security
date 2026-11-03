@@ -74,6 +74,13 @@ public class StrictHttpFirewallTests {
 			.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
+	// gh-19995
+	@Test
+	public void getFirewalledRequestWhenQueryMethodThenNoException() {
+		this.request.setMethod(HttpMethod.QUERY.name());
+		this.firewall.getFirewalledRequest(this.request);
+	}
+
 	@Test
 	public void getFirewalledRequestWhenAllowedThenNoException() {
 		List<String> allowedMethods = Arrays.asList("DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT");
