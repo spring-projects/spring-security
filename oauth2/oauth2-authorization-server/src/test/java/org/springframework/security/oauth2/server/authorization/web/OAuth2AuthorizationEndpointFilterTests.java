@@ -542,7 +542,8 @@ public class OAuth2AuthorizationEndpointFilterTests {
 		verifyNoInteractions(filterChain);
 
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-		assertThat(response.getContentType().equals(new MediaType("text", "html", StandardCharsets.UTF_8).toString()));
+		assertThat(response.getContentType())
+			.isEqualTo(new MediaType("text", "html", StandardCharsets.UTF_8).toString());
 		for (String requestedScope : requestedScopes) {
 			assertThat(response.getContentAsString()).contains(scopeCheckbox(requestedScope));
 		}
@@ -573,7 +574,8 @@ public class OAuth2AuthorizationEndpointFilterTests {
 		verifyNoInteractions(filterChain);
 
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
-		assertThat(response.getContentType().equals(new MediaType("text", "html", StandardCharsets.UTF_8).toString()));
+		assertThat(response.getContentType())
+			.isEqualTo(new MediaType("text", "html", StandardCharsets.UTF_8).toString());
 		for (String requestedScope : requestedScopes) {
 			assertThat(response.getContentAsString()).contains(scopeCheckbox(requestedScope));
 		}

@@ -85,8 +85,8 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 		createFids("/someAdminPage.html**", null);
 		FilterInvocation fi = createFilterInvocation("/someAdminPage.html", null, "a=/test", "GET");
 		Collection<ConfigAttribute> response = this.fids.getAttributes(fi);
-		assertThat(response); // see SEC-161 (it should truncate after ?
-								// sign).isEqualTo(def)
+		// see SEC-161 (it should truncate after ? sign)
+		assertThat(response).isEqualTo(this.def);
 	}
 
 	@Test
