@@ -81,7 +81,7 @@ public final class XFrameOptionsHeaderWriter implements HeaderWriter {
 	}
 
 	/**
-	 * Writes the X-Frame-Options header value, overwritting any previous value.
+	 * Writes the X-Frame-Options header value, overwriting any previous value.
 	 * @param request the servlet request
 	 * @param response the servlet response
 	 */
