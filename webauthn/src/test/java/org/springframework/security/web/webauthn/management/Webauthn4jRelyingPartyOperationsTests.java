@@ -36,6 +36,7 @@ import com.webauthn4j.WebAuthnManager;
 import com.webauthn4j.converter.AttestationObjectConverter;
 import com.webauthn4j.converter.util.ObjectConverter;
 import com.webauthn4j.data.AuthenticationData;
+import com.webauthn4j.data.AuthenticationParameters;
 import com.webauthn4j.data.AuthenticationRequest;
 import com.webauthn4j.data.attestation.AttestationObject;
 import com.webauthn4j.data.attestation.authenticator.AttestedCredentialData;
@@ -678,6 +679,51 @@ class Webauthn4jRelyingPartyOperationsTests {
 		// ensure that the raw id bytes are passed into webauthn4j (not the id bytes which
 		// are base64 encoded)
 		assertThat(wa4jRequest.getValue().getCredentialId()).isEqualTo(publicKey.getRawId().getBytes());
+	}
+
+	// gh-19994
+	@Test
+	void authenticateThenWa4jCredentialRecordUsesStoredSignatureCount() throws Exception {
+		PublicKeyCredentialRequestOptions options = TestPublicKeyCredentialRequestOptions.create().build();
+		AuthenticatorAssertionResponse response = TestAuthenticationAssertionResponses
+			.createAuthenticatorAssertionResponse()
+			.build();
+		PublicKeyCredential<AuthenticatorAssertionResponse> credentials = TestPublicKeyCredentials
+			.createPublicKeyCredential(response)
+			.build();
+		RelyingPartyAuthenticationRequest request = new RelyingPartyAuthenticationRequest(options, credentials);
+
+		ImmutableCredentialRecord credentialRecord = TestCredentialRecords.fullUserCredential()
+			.signatureCount(42)
+			.build();
+		given(this.userCredentials.findByCredentialId(request.getPublicKey().getRawId()))
+			.willReturn(credentialRecord);
+		JsonMapper json = new JsonMapper();
+		CBORMapper cbor = mock(CBORMapper.class);
+		CBORMapper.Builder builder = mock(CBORMapper.Builder.class, RETURNS_SELF);
+		given(builder.build()).willReturn(cbor);
+		given(cbor.rebuild()).willReturn(builder);
+		AttestationObject attestationObject = mock(AttestationObject.class);
+		AuthenticatorData wa4jAuthData = mock(AuthenticatorData.class);
+		given(attestationObject.getAuthenticatorData()).willReturn(wa4jAuthData);
+		given(wa4jAuthData.getAttestedCredentialData()).willReturn(mock(AttestedCredentialData.class));
+		given(cbor.readValue(credentialRecord.getAttestationObject().getBytes(), AttestationObject.class))
+			.willReturn(attestationObject);
+		this.rpOperations.setObjectConverter(new ObjectConverter(json, cbor));
+
+		WebAuthnManager manager = mock(WebAuthnManager.class);
+		ArgumentCaptor<AuthenticationParameters> parameters = ArgumentCaptor
+			.forClass(AuthenticationParameters.class);
+		AuthenticationData wa4jData = mock(AuthenticationData.class);
+		given(wa4jData.getAuthenticatorData()).willReturn(mock(AuthenticatorData.class));
+		given(manager.verify(any(AuthenticationRequest.class), parameters.capture())).willReturn(wa4jData);
+		given(this.userEntities.findById(any()))
+			.willReturn(TestPublicKeyCredentialUserEntities.userEntity().build());
+		this.rpOperations.setWebAuthnManager(manager);
+
+		this.rpOperations.authenticate(request);
+
+		assertThat(parameters.getValue().getCredentialRecord().getCounter()).isEqualTo(42);
 	}
 
 	private static AuthenticatorAttestationResponse setFlag(byte... flags) throws Exception {

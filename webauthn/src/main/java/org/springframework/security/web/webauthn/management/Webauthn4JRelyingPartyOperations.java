@@ -402,8 +402,15 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 
 		// CollectedClientData and ExtensionsClientOutputs is registration data, and can
 		// be null at authentication time.
+		AttestedCredentialData attestedCredentialData = wa4jAttestationObject.getAuthenticatorData()
+			.getAttestedCredentialData();
+		Assert.notNull(attestedCredentialData, "attestedCredentialData cannot be null");
 		com.webauthn4j.credential.CredentialRecord wa4jCredentialRecord = new CredentialRecordImpl(
-				wa4jAttestationObject, null, null, convertTransportsToWebauthn4j(credentialRecord.getTransports()));
+				wa4jAttestationObject.getAttestationStatement(), credentialRecord.isUvInitialized(),
+				credentialRecord.isBackupEligible(), credentialRecord.isBackupState(),
+				credentialRecord.getSignatureCount(), attestedCredentialData,
+				wa4jAttestationObject.getAuthenticatorData().getExtensions(), null, null,
+				convertTransportsToWebauthn4j(credentialRecord.getTransports()));
 		List<byte[]> allowCredentials = convertAllowedCredentialsToWebauthn4j(
 				request.getRequestOptions().getAllowCredentials());
 		AuthenticationParameters authenticationParameters = new AuthenticationParameters(serverProperty,
