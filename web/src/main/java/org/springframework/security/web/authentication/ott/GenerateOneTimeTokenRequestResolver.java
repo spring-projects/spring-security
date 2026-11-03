@@ -35,7 +35,6 @@ public interface GenerateOneTimeTokenRequestResolver {
 	 * @param request {@link HttpServletRequest} to resolve
 	 * @return {@link GenerateOneTimeTokenRequest}
 	 */
-	@Nullable
-	GenerateOneTimeTokenRequest resolve(HttpServletRequest request);
+	@Nullable GenerateOneTimeTokenRequest resolve(HttpServletRequest request);
 
 }

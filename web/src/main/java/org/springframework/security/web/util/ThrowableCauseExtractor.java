@@ -34,7 +34,6 @@ public interface ThrowableCauseExtractor {
 	 * @throws IllegalArgumentException if <code>throwable</code> is <code>null</code> or
 	 * otherwise considered invalid for the implementation
 	 */
-	@Nullable
-	Throwable extractCause(Throwable throwable);
+	@Nullable Throwable extractCause(Throwable throwable);
 
 }

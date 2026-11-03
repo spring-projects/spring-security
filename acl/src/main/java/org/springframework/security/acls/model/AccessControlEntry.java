@@ -38,8 +38,7 @@ public interface AccessControlEntry extends Serializable {
 	 * Obtains an identifier that represents this ACE.
 	 * @return the identifier, or <code>null</code> if unsaved
 	 */
-	@Nullable
-	Serializable getId();
+	@Nullable Serializable getId();
 
 	Permission getPermission();
 

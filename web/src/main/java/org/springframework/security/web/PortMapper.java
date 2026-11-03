@@ -37,8 +37,7 @@ public interface PortMapper {
 	 * @param httpsPort
 	 * @return the HTTP port or <code>null</code> if unknown
 	 */
-	@Nullable
-	Integer lookupHttpPort(Integer httpsPort);
+	@Nullable Integer lookupHttpPort(Integer httpsPort);
 
 	/**
 	 * Locates the HTTPS port associated with the specified HTTP port.
@@ -48,8 +47,7 @@ public interface PortMapper {
 	 * @param httpPort
 	 * @return the HTTPS port or <code>null</code> if unknown
 	 */
-	@Nullable
-	Integer lookupHttpsPort(Integer httpPort);
+	@Nullable Integer lookupHttpsPort(Integer httpPort);
 
 	/**
 	 * Get server port from request and automatically apply the configured mapping.

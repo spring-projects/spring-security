@@ -63,7 +63,6 @@ public interface TokenService {
 	 * @return the token, or <code>null</code> if the token was not issued by this
 	 * <code>TokenService</code>
 	 */
-	@Nullable
-	Token verifyToken(String key);
+	@Nullable Token verifyToken(String key);
 
 }

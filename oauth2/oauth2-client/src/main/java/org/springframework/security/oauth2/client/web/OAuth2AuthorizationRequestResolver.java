@@ -42,8 +42,7 @@ public interface OAuth2AuthorizationRequestResolver {
 	 * @return the resolved {@link OAuth2AuthorizationRequest} or {@code null} if not
 	 * available
 	 */
-	@Nullable
-	OAuth2AuthorizationRequest resolve(HttpServletRequest request);
+	@Nullable OAuth2AuthorizationRequest resolve(HttpServletRequest request);
 
 	/**
 	 * Returns the {@link OAuth2AuthorizationRequest} resolved from the provided
@@ -53,7 +52,6 @@ public interface OAuth2AuthorizationRequestResolver {
 	 * @return the resolved {@link OAuth2AuthorizationRequest} or {@code null} if not
 	 * available
 	 */
-	@Nullable
-	OAuth2AuthorizationRequest resolve(HttpServletRequest request, String clientRegistrationId);
+	@Nullable OAuth2AuthorizationRequest resolve(HttpServletRequest request, String clientRegistrationId);
 
 }

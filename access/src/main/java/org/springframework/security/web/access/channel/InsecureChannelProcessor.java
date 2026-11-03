@@ -65,8 +65,7 @@ public class InsecureChannelProcessor implements InitializingBean, ChannelProces
 		for (ConfigAttribute attribute : config) {
 			if (supports(attribute)) {
 				if (invocation.getHttpRequest().isSecure()) {
-					@Nullable
-					HttpServletResponse response = invocation.getResponse();
+					@Nullable HttpServletResponse response = invocation.getResponse();
 					Assert.notNull(response, "HttpServletResponse required");
 					this.entryPoint.commence(invocation.getRequest(), response);
 				}
