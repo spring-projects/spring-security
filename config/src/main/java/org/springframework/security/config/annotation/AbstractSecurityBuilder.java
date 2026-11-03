@@ -56,7 +56,6 @@ public abstract class AbstractSecurityBuilder<O> implements SecurityBuilder<O> {
 	/**
 	 * Subclasses should implement this to perform the build.
 	 * @return the object that should be returned by {@link SecurityBuilder#build()}.
-	 * @throws Exception if an error occurs
 	 */
 	protected abstract O doBuild();
 
