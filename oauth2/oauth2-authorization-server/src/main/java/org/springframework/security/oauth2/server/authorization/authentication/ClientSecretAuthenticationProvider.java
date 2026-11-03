@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.server.authorization.authentication;
 
 import java.time.Instant;
+import java.util.function.Supplier;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,6 +38,7 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.util.Assert;
+import org.springframework.util.function.SingletonSupplier;
 
 /**
  * An {@link AuthenticationProvider} implementation used for OAuth 2.0 Client
@@ -62,7 +64,8 @@ public final class ClientSecretAuthenticationProvider implements AuthenticationP
 
 	private final CodeVerifierAuthenticator codeVerifierAuthenticator;
 
-	private PasswordEncoder passwordEncoder;
+	private Supplier<PasswordEncoder> passwordEncoder = SingletonSupplier
+			.of(PasswordEncoderFactories::createDelegatingPasswordEncoder);
 
 	/**
 	 * Constructs a {@code ClientSecretAuthenticationProvider} using the provided
@@ -76,7 +79,6 @@ public final class ClientSecretAuthenticationProvider implements AuthenticationP
 		Assert.notNull(authorizationService, "authorizationService cannot be null");
 		this.registeredClientRepository = registeredClientRepository;
 		this.codeVerifierAuthenticator = new CodeVerifierAuthenticator(authorizationService);
-		this.passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 	}
 
 	/**
@@ -89,7 +91,7 @@ public final class ClientSecretAuthenticationProvider implements AuthenticationP
 	 */
 	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
 		Assert.notNull(passwordEncoder, "passwordEncoder cannot be null");
-		this.passwordEncoder = passwordEncoder;
+		this.passwordEncoder = () -> passwordEncoder;
 	}
 
 	@Override
@@ -124,7 +126,7 @@ public final class ClientSecretAuthenticationProvider implements AuthenticationP
 		}
 
 		String clientSecret = credentials.toString();
-		if (!this.passwordEncoder.matches(clientSecret, registeredClient.getClientSecret())) {
+		if (!this.passwordEncoder.get().matches(clientSecret, registeredClient.getClientSecret())) {
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug(LogMessage.format(
 						"Invalid request: client_secret does not match" + " for registered client '%s'",
@@ -138,9 +140,9 @@ public final class ClientSecretAuthenticationProvider implements AuthenticationP
 			throw invalidClientException("client_secret_expires_at");
 		}
 
-		if (this.passwordEncoder.upgradeEncoding(registeredClient.getClientSecret())) {
+		if (this.passwordEncoder.get().upgradeEncoding(registeredClient.getClientSecret())) {
 			registeredClient = RegisteredClient.from(registeredClient)
-				.clientSecret(this.passwordEncoder.encode(clientSecret))
+				.clientSecret(this.passwordEncoder.get().encode(clientSecret))
 				.build();
 			this.registeredClientRepository.save(registeredClient);
 		}

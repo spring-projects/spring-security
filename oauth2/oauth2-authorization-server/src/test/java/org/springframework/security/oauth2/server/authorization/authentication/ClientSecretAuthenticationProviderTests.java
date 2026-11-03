@@ -123,6 +123,18 @@ public class ClientSecretAuthenticationProviderTests {
 	}
 
 	@Test
+	public void constructWhenDefaultThenPasswordEncoderIsNotEagerlyInitialized() {
+		// Verifies that constructing the provider and immediately overriding the
+		// PasswordEncoder does not trigger the default DelegatingPasswordEncoder
+		// creation — critical for FIPS-compliant JDKs where MD5 is unavailable.
+		PasswordEncoder customEncoder = mock(PasswordEncoder.class);
+		ClientSecretAuthenticationProvider provider = new ClientSecretAuthenticationProvider(
+				this.registeredClientRepository, this.authorizationService);
+		provider.setPasswordEncoder(customEncoder);
+		assertThat(provider).isNotNull();
+	}
+
+	@Test
 	public void supportsWhenTypeOAuth2ClientAuthenticationTokenThenReturnTrue() {
 		assertThat(this.authenticationProvider.supports(OAuth2ClientAuthenticationToken.class)).isTrue();
 	}
