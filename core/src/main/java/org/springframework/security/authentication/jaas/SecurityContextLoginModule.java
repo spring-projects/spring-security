@@ -109,13 +109,11 @@ public class SecurityContextLoginModule implements LoginModule {
 		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
-	@Nullable
-	Authentication getAuthentication() {
+	@Nullable Authentication getAuthentication() {
 		return this.authen;
 	}
 
-	@Nullable
-	Subject getSubject() {
+	@Nullable Subject getSubject() {
 		return this.subject;
 	}
 
