@@ -6,6 +6,10 @@ workflow:
           primary: 25
     workflows:
       release-tools:
+        ci:
+          name: continuous-integration-workflow
+        pr:
+          name: pr-build-workflow
         deploy-schema: true
         verify: false
       release-train:
