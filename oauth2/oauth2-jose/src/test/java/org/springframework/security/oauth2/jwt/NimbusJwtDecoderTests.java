@@ -737,6 +737,26 @@ public class NimbusJwtDecoderTests {
 
 	@Test
 	@SuppressWarnings("removal")
+	public void decodeWhenJwkSourceBuilderCustomizerDisablesCacheThenFetchesJwkSetEachTime() {
+		RestOperations restOperations = mock(RestOperations.class);
+		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
+			.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
+
+		// @formatter:off
+		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
+				.restOperations(restOperations)
+				.jwkSourceBuilderCustomizer((builder) -> builder.cache(false))
+				.build();
+		// @formatter:on
+
+		jwtDecoder.decode(SIGNED_JWT);
+		jwtDecoder.decode(SIGNED_JWT);
+
+		verify(restOperations, times(2)).exchange(any(RequestEntity.class), eq(String.class));
+	}
+
+	@Test
+	@SuppressWarnings("removal")
 	public void decodeWhenCacheStoredThenAbleToRetrieveJwkSetFromCache() {
 		Cache cache = new ConcurrentMapCache("test-jwk-set-cache");
 		RestOperations restOperations = mock(RestOperations.class);
@@ -900,6 +920,15 @@ public class NimbusJwtDecoderTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).jwtProcessorCustomizer(null))
 				.withMessage("jwtProcessorCustomizer cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void withJwkSetUriWhenJwkSourceBuilderCustomizerNullThenThrowsIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).jwkSourceBuilderCustomizer(null))
+				.withMessage("jwkSourceBuilderCustomizer cannot be null");
 		// @formatter:on
 	}
 
