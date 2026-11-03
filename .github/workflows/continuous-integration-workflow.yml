@@ -29,23 +29,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: environment
         name: Compute Build Environment
-        uses: spring-io/spring-security-actions/compute-build-environment@d8f7823200918755444538cbb4219d96f2b7be33 # 0.0.12
-  test:
-    name: Test
-    needs: setup
-    uses: spring-io/spring-security-release-tools/.github/workflows/ci-test.yml@07569de2cd704c6870976fe8f16f7b3cb550d08f # v1.1.2
-    with:
-      java-version: '17'
-      runner: ${{ vars.UBUNTU_RUNS_ON }}
-      release-channel: ${{ needs.setup.outputs.release-channel }}
-    secrets:
-      artifactory-username: ${{ secrets[needs.setup.outputs.dependencies-username] }}
-      artifactory-password: ${{ secrets[needs.setup.outputs.dependencies-password] }}
+        uses: spring-io/spring-security-actions/compute-build-environment@baf9e987cdff9f39b48279584ede21b83652a7dd # 0.0.15
   build:
     name: Build
     needs: setup
     if: needs.setup.outputs.snapshot == 'true'
-    uses: spring-io/spring-security-release-tools/.github/workflows/ci-build.yml@07569de2cd704c6870976fe8f16f7b3cb550d08f # v1.1.2
+    uses: spring-io/spring-security-release-tools/.github/workflows/ci-build.yml@2da533f3d91484ee6a9346677473649e6cd08988 # v1.1.3
     with:
       java-version: '17'
       runner: ${{ vars.UBUNTU_RUNS_ON }}
@@ -58,7 +47,7 @@ jobs:
   deploy-artifacts:
     name: Deploy Artifacts
     needs: [ setup, build ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/ci-deploy-artifacts.yml@07569de2cd704c6870976fe8f16f7b3cb550d08f # v1.1.2
+    uses: spring-io/spring-security-release-tools/.github/workflows/ci-deploy-artifacts.yml@2da533f3d91484ee6a9346677473649e6cd08988 # v1.1.3
     with:
       runner: ${{ vars.UBUNTU_RUNS_ON }}
       version: ${{ needs.setup.outputs.version }}
@@ -69,7 +58,7 @@ jobs:
     name: Deploy Schema
     needs: [ setup, deploy-artifacts ]
     if: needs.setup.outputs.release-channel == 'oss'
-    uses: spring-io/spring-security-release-tools/.github/workflows/ci-deploy-schema.yml@07569de2cd704c6870976fe8f16f7b3cb550d08f # v1.1.2
+    uses: spring-io/spring-security-release-tools/.github/workflows/ci-deploy-schema.yml@2da533f3d91484ee6a9346677473649e6cd08988 # v1.1.3
     with:
       java-version: '17'
       runner: ${{ vars.UBUNTU_RUNS_ON }}
