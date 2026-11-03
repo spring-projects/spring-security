@@ -23,6 +23,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,7 +31,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import org.springframework.security.authentication.RememberMeAuthenticationToken;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -213,6 +218,69 @@ public class JwtGeneratorTests {
 	}
 
 	// gh-1224
+	// gh-19198
+	@Test
+	public void generateWhenIdTokenTypeAndPrincipalWithoutFactorGrantedAuthorityThenAuthTimeNotIncluded() {
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().scope(OidcScopes.OPENID).build();
+		Authentication principal = new RememberMeAuthenticationToken("key", "principal",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		OAuth2Authorization authorization = TestOAuth2Authorizations.authorization(registeredClient)
+			.attribute(Principal.class.getName(), principal)
+			.build();
+
+		OAuth2ClientAuthenticationToken clientPrincipal = new OAuth2ClientAuthenticationToken(registeredClient,
+				ClientAuthenticationMethod.CLIENT_SECRET_BASIC, registeredClient.getClientSecret());
+		OAuth2AuthorizationRequest authorizationRequest = authorization
+			.getAttribute(OAuth2AuthorizationRequest.class.getName());
+		OAuth2AuthorizationCodeAuthenticationToken authentication = new OAuth2AuthorizationCodeAuthenticationToken(
+				"code", clientPrincipal, authorizationRequest.getRedirectUri(), null);
+
+		SessionInformation sessionInformation = new SessionInformation(principal.getPrincipal(), "session1",
+				Date.from(Instant.now().minus(2, ChronoUnit.HOURS)));
+
+		// @formatter:off
+		OAuth2TokenContext tokenContext = DefaultOAuth2TokenContext.builder()
+				.registeredClient(registeredClient)
+				.principal(principal)
+				.authorizationServerContext(this.authorizationServerContext)
+				.authorization(authorization)
+				.authorizedScopes(authorization.getAuthorizedScopes())
+				.tokenType(ID_TOKEN_TOKEN_TYPE)
+				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+				.authorizationGrant(authentication)
+				.put(SessionInformation.class, sessionInformation)
+				.build();
+		// @formatter:on
+
+		this.jwtGenerator.generate(tokenContext);
+
+		ArgumentCaptor<JwtEncoderParameters> jwtEncoderParametersCaptor = ArgumentCaptor
+			.forClass(JwtEncoderParameters.class);
+		verify(this.jwtEncoder).encode(jwtEncoderParametersCaptor.capture());
+		JwtClaimsSet jwtClaimsSet = jwtEncoderParametersCaptor.getValue().getClaims();
+		assertThat(jwtClaimsSet.<String>getClaim("sid")).isEqualTo(sessionInformation.getSessionId());
+		assertThat(jwtClaimsSet.getClaims()).doesNotContainKey(IdTokenClaimNames.AUTH_TIME);
+	}
+
+	@Test
+	public void getAuthenticationTimeWhenNoFactorGrantedAuthorityThenNull() {
+		Authentication principal = new RememberMeAuthenticationToken("key", "principal",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		assertThat(JwtGenerator.getAuthenticationTime(principal)).isNull();
+	}
+
+	@Test
+	public void getAuthenticationTimeWhenFactorGrantedAuthoritiesThenMostRecent() {
+		Instant passwordTime = Instant.now().minus(1, ChronoUnit.HOURS);
+		Instant ottTime = Instant.now().minus(5, ChronoUnit.MINUTES);
+		Authentication principal = new TestingAuthenticationToken("principal", null, List.of(
+				FactorGrantedAuthority.withAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY)
+					.issuedAt(passwordTime)
+					.build(),
+				FactorGrantedAuthority.withAuthority(FactorGrantedAuthority.OTT_AUTHORITY).issuedAt(ottTime).build()));
+		assertThat(JwtGenerator.getAuthenticationTime(principal)).isEqualTo(Date.from(ottTime));
+	}
+
 	@Test
 	public void generateWhenIdTokenTypeAndRefreshTokenGrantThenReturnJwt() {
 		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().scope(OidcScopes.OPENID).build();
