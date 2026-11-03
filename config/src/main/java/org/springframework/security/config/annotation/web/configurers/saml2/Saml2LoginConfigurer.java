@@ -117,7 +117,7 @@ import org.springframework.util.StringUtils;
 public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		extends AbstractAuthenticationFilterConfigurer<B, Saml2LoginConfigurer<B>, Saml2WebSsoAuthenticationFilter> {
 
-	private static final boolean USE_OPENSAML_5 = Version.getVersion().startsWith("5");
+	private static final boolean USE_OPENSAML_5 = useOpenSaml5(Version.class);
 
 	private String loginPage;
 
@@ -519,6 +519,26 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		if (http.getSharedObject(clazz) == null) {
 			http.setSharedObject(clazz, object);
 		}
+	}
+
+	/**
+	 * Determine whether OpenSAML 5 is on the classpath (or module path). OpenSAML's
+	 * {@link Version#getVersion()} relies on {@link Package#getImplementationVersion()},
+	 * which is {@code null} when OpenSAML is loaded as a named module from the Java
+	 * module path. In that case, fall back to the module's descriptor version. When
+	 * neither is available, assume OpenSAML 5 since it is the only version supported.
+	 * @param versionClass a class from the {@code org.opensaml.core} package, used to
+	 * look up the package/module version
+	 * @return {@code true} if OpenSAML 5 is in use (or its version could not be
+	 * determined), {@code false} otherwise
+	 */
+	static boolean useOpenSaml5(Class<?> versionClass) {
+		String version = versionClass.getPackage().getImplementationVersion();
+		if (version == null) {
+			Module module = versionClass.getModule();
+			version = module.isNamed() ? module.getDescriptor().rawVersion().orElse(null) : null;
+		}
+		return version == null || version.startsWith("5");
 	}
 
 	static class PathQueryRequestMatcher implements RequestMatcher {

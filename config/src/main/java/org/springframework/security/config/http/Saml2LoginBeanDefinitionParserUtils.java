@@ -40,7 +40,7 @@ import org.springframework.util.StringUtils;
  */
 final class Saml2LoginBeanDefinitionParserUtils {
 
-	private static final boolean USE_OPENSAML_5 = Version.getVersion().startsWith("5");
+	private static final boolean USE_OPENSAML_5 = useOpenSaml5(Version.class);
 
 	private static final String ATT_RELYING_PARTY_REGISTRATION_REPOSITORY_REF = "relying-party-registration-repository-ref";
 
@@ -118,6 +118,21 @@ final class Saml2LoginBeanDefinitionParserUtils {
 		return BeanDefinitionBuilder.rootBeanDefinition(Saml2AuthenticationTokenConverter.class)
 			.addConstructorArgValue(resolver)
 			.getBeanDefinition();
+	}
+
+	/**
+	 * {@link Version#getVersion()} relies on {@link Package#getImplementationVersion()},
+	 * which is {@code null} when OpenSAML is loaded as a named module from the Java
+	 * module path. In that case, fall back to the module's descriptor version. When
+	 * neither is available, assume OpenSAML 5 since it is the only version supported.
+	 */
+	static boolean useOpenSaml5(Class<?> versionClass) {
+		String version = versionClass.getPackage().getImplementationVersion();
+		if (version == null) {
+			Module module = versionClass.getModule();
+			version = module.isNamed() ? module.getDescriptor().rawVersion().orElse(null) : null;
+		}
+		return version == null || version.startsWith("5");
 	}
 
 }
