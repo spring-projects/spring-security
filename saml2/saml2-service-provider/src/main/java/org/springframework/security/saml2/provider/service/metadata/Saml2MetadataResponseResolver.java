@@ -34,7 +34,6 @@ public interface Saml2MetadataResponseResolver {
 	 * @param request the HTTP request
 	 * @return a {@link Saml2MetadataResponse} instance
 	 */
-	@Nullable
-	Saml2MetadataResponse resolve(HttpServletRequest request);
+	@Nullable Saml2MetadataResponse resolve(HttpServletRequest request);
 
 }

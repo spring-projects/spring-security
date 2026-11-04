@@ -34,8 +34,7 @@ public interface AclService {
 	 * @param parentIdentity to locate children of
 	 * @return the children (or <tt>null</tt> if none were found)
 	 */
-	@Nullable
-	List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity);
+	@Nullable List<ObjectIdentity> findChildren(ObjectIdentity parentIdentity);
 
 	/**
 	 * Same as {@link #readAclsById(List)} except it returns only a single Acl.

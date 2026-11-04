@@ -46,8 +46,7 @@ public class RequestKey {
 		return this.url;
 	}
 
-	@Nullable
-	String getMethod() {
+	@Nullable String getMethod() {
 		return this.method;
 	}
 

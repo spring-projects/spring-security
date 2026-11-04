@@ -41,8 +41,7 @@ public interface AuthenticationProvider {
 	 * <code>Authentication</code> class will be tried.
 	 * @throws AuthenticationException if authentication fails.
 	 */
-	@Nullable
-	Authentication authenticate(Authentication authentication) throws AuthenticationException;
+	@Nullable Authentication authenticate(Authentication authentication) throws AuthenticationException;
 
 	/**
 	 * Returns <code>true</code> if this <Code>AuthenticationProvider</code> supports the

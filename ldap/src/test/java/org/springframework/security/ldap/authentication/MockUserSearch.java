@@ -29,8 +29,7 @@ import org.springframework.security.ldap.search.LdapUserSearch;
 @NullMarked
 public class MockUserSearch implements LdapUserSearch {
 
-	@Nullable
-	DirContextOperations user;
+	@Nullable DirContextOperations user;
 
 	public MockUserSearch() {
 	}

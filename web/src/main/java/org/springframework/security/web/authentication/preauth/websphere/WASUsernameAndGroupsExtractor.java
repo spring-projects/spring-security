@@ -33,7 +33,6 @@ interface WASUsernameAndGroupsExtractor {
 
 	List<String> getGroupsForCurrentUser();
 
-	@Nullable
-	String getCurrentUserName();
+	@Nullable String getCurrentUserName();
 
 }
