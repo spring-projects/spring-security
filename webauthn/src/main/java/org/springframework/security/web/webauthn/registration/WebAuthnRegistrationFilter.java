@@ -269,8 +269,7 @@ public class WebAuthnRegistrationFilter extends OncePerRequestFilter {
 
 		private @Nullable RelyingPartyPublicKey publicKey;
 
-		@Nullable
-		RelyingPartyPublicKey getPublicKey() {
+		@Nullable RelyingPartyPublicKey getPublicKey() {
 			return this.publicKey;
 		}
 

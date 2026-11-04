@@ -26,7 +26,6 @@ public interface PublicKeyCredentialRequestOptionsRequest {
 	 * The current {@link Authentication}. Possibly null or an anonymous.
 	 * @return the current {@link Authentication}
 	 */
-	@Nullable
-	Authentication getAuthentication();
+	@Nullable Authentication getAuthentication();
 
 }

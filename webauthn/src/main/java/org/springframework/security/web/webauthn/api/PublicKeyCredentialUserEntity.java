@@ -59,7 +59,6 @@ public interface PublicKeyCredentialUserEntity extends Serializable {
 	 * is a human-palatable name for the user account, intended only for display.
 	 * @return the display name
 	 */
-	@Nullable
-	String getDisplayName();
+	@Nullable String getDisplayName();
 
 }

@@ -425,13 +425,11 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 			return this.nonceExpiryTime < now;
 		}
 
-		@Nullable
-		String getUsername() {
+		@Nullable String getUsername() {
 			return this.username;
 		}
 
-		@Nullable
-		String getResponse() {
+		@Nullable String getResponse() {
 			return this.response;
 		}
 
