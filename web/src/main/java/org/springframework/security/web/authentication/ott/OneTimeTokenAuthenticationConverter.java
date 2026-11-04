@@ -21,9 +21,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.ott.OneTimeTokenAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
@@ -39,6 +42,8 @@ public class OneTimeTokenAuthenticationConverter implements AuthenticationConver
 
 	private final Log logger = LogFactory.getLog(getClass());
 
+	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
+
 	@Override
 	public @Nullable Authentication convert(HttpServletRequest request) {
 		String token = request.getParameter("token");
@@ -46,7 +51,21 @@ public class OneTimeTokenAuthenticationConverter implements AuthenticationConver
 			this.logger.debug("No token found in request");
 			return null;
 		}
-		return new OneTimeTokenAuthenticationToken(token);
+		OneTimeTokenAuthenticationToken authenticationToken = new OneTimeTokenAuthenticationToken(token);
+		authenticationToken.setDetails(this.authenticationDetailsSource.buildDetails(request));
+		return authenticationToken;
+	}
+
+	/**
+	 * Set the {@link AuthenticationDetailsSource} to use. Defaults to
+	 * {@link WebAuthenticationDetailsSource}.
+	 * @param authenticationDetailsSource the {@code AuthenticationDetailsSource} to use
+	 * @since 7.2
+	 */
+	public void setAuthenticationDetailsSource(
+			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
+		Assert.notNull(authenticationDetailsSource, "authenticationDetailsSource cannot be null");
+		this.authenticationDetailsSource = authenticationDetailsSource;
 	}
 
 }

@@ -16,8 +16,13 @@
 
 package org.springframework.security.web.authentication.ott;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 
 import static org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher.pathPattern;
 
@@ -34,9 +39,35 @@ public final class OneTimeTokenAuthenticationFilter extends AbstractAuthenticati
 
 	public static final String DEFAULT_LOGIN_PROCESSING_URL = "/login/ott";
 
+	private AuthenticationConverter authenticationConverter;
+
 	public OneTimeTokenAuthenticationFilter() {
 		super(pathPattern(HttpMethod.POST, DEFAULT_LOGIN_PROCESSING_URL));
-		setAuthenticationConverter(new OneTimeTokenAuthenticationConverter());
+		this.authenticationConverter = new OneTimeTokenAuthenticationConverter();
+		super.setAuthenticationConverter(this.authenticationConverter);
+	}
+
+	@Override
+	public void setAuthenticationConverter(AuthenticationConverter authenticationConverter) {
+		super.setAuthenticationConverter(authenticationConverter);
+		this.authenticationConverter = authenticationConverter;
+	}
+
+	/**
+	 * Sets the {@link AuthenticationDetailsSource} to use. By default, it is set to use
+	 * the {@link WebAuthenticationDetailsSource}. Note that this configuration applies
+	 * exclusively when the {@link #authenticationConverter} is set to
+	 * {@link OneTimeTokenAuthenticationConverter}. If you are utilizing a different
+	 * implementation, you will need to manually specify the authentication details on it.
+	 * @param authenticationDetailsSource the {@link AuthenticationDetailsSource} to use.
+	 */
+	@Override
+	public void setAuthenticationDetailsSource(
+			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
+		super.setAuthenticationDetailsSource(authenticationDetailsSource);
+		if (this.authenticationConverter instanceof OneTimeTokenAuthenticationConverter converter) {
+			converter.setAuthenticationDetailsSource(authenticationDetailsSource);
+		}
 	}
 
 }
