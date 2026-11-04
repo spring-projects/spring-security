@@ -244,15 +244,21 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 		}
 
 		// Parent was null, or didn't authenticate (or throw an exception).
+		boolean providerNotFound = false;
 		if (lastException == null) {
 			lastException = new ProviderNotFoundException(this.messages.getMessage("ProviderManager.providerNotFound",
 					new Object[] { toTest.getName() }, "No AuthenticationProvider found for {0}"));
+			// This exception is synthesized because no provider here supports the
+			// token. In a parent/child hierarchy the manager that actually handled
+			// the request publishes the failure event, so publishing this one would
+			// emit a spurious event that masks the real AuthenticationException.
+			providerNotFound = true;
 		}
 		// If the parent AuthenticationManager was attempted and failed then it will
 		// publish an AbstractAuthenticationFailureEvent
 		// This check prevents a duplicate AbstractAuthenticationFailureEvent if the
 		// parent AuthenticationManager already published it
-		if (parentException == null) {
+		if (parentException == null && !providerNotFound) {
 			prepareException(lastException, authentication);
 		}
 
