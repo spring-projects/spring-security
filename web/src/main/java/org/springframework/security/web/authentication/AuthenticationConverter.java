@@ -36,7 +36,6 @@ import org.springframework.security.core.AuthenticationException;
  */
 public interface AuthenticationConverter {
 
-	@Nullable
-	Authentication convert(HttpServletRequest request);
+	@Nullable Authentication convert(HttpServletRequest request);
 
 }

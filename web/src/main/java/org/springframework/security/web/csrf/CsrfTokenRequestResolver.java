@@ -38,7 +38,6 @@ public interface CsrfTokenRequestResolver {
 	 * @param csrfToken the {@link CsrfToken} created by the {@link CsrfTokenRepository}
 	 * @return the token value resolved from the request
 	 */
-	@Nullable
-	String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken);
+	@Nullable String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken);
 
 }

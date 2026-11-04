@@ -39,8 +39,7 @@ public interface SecurityContext extends Serializable {
 	 * @return the <code>Authentication</code> or <code>null</code> if no authentication
 	 * information is available
 	 */
-	@Nullable
-	Authentication getAuthentication();
+	@Nullable Authentication getAuthentication();
 
 	/**
 	 * Changes the currently authenticated principal, or removes the authentication

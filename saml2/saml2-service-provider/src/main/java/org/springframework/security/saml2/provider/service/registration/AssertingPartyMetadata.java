@@ -121,8 +121,7 @@ public interface AssertingPartyMetadata extends Serializable {
 	 * @return the SingleLogoutService Location
 	 * @since 5.6
 	 */
-	@Nullable
-	String getSingleLogoutServiceLocation();
+	@Nullable String getSingleLogoutServiceLocation();
 
 	/**
 	 * Get the <a href=
@@ -135,8 +134,7 @@ public interface AssertingPartyMetadata extends Serializable {
 	 * @return the SingleLogoutService Response Location
 	 * @since 5.6
 	 */
-	@Nullable
-	String getSingleLogoutServiceResponseLocation();
+	@Nullable String getSingleLogoutServiceResponseLocation();
 
 	/**
 	 * Get the <a href=

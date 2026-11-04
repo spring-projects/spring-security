@@ -308,8 +308,7 @@ public final class OpenSaml5AssertingPartyMetadataRepository implements Assertin
 		}
 
 		@Override
-		@Nullable
-		EntityDescriptor resolveSingle(EntityIdCriterion entityId) throws Exception {
+		@Nullable EntityDescriptor resolveSingle(EntityIdCriterion entityId) throws Exception {
 			return super.metadataResolver.resolveSingle(new CriteriaSet(entityId));
 		}
 

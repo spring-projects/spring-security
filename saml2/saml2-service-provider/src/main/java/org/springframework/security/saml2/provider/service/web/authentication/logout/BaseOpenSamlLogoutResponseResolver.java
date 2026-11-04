@@ -276,8 +276,7 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 			return this.registration;
 		}
 
-		@Nullable
-		Authentication getAuthentication() {
+		@Nullable Authentication getAuthentication() {
 			return this.authentication;
 		}
 

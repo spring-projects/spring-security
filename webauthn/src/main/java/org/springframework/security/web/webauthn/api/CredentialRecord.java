@@ -37,8 +37,7 @@ public interface CredentialRecord {
 	 * "https://www.w3.org/TR/webauthn-3/#abstract-opdef-credential-record-type">credential.type</a>.
 	 * @return
 	 */
-	@Nullable
-	PublicKeyCredentialType getCredentialType();
+	@Nullable PublicKeyCredentialType getCredentialType();
 
 	/**
 	 * The <a href=
@@ -107,8 +106,7 @@ public interface CredentialRecord {
 	 * source was registered.
 	 * @return the attestationObject
 	 */
-	@Nullable
-	Bytes getAttestationObject();
+	@Nullable Bytes getAttestationObject();
 
 	/**
 	 * The <a href=
@@ -117,8 +115,7 @@ public interface CredentialRecord {
 	 * source was registered.
 	 * @return
 	 */
-	@Nullable
-	Bytes getAttestationClientDataJSON();
+	@Nullable Bytes getAttestationClientDataJSON();
 
 	/**
 	 * A human-readable label for this {@link CredentialRecord} assigned by the user.
