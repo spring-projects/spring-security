@@ -50,7 +50,6 @@ import org.springframework.security.core.session.SessionDestroyedEvent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -198,14 +197,8 @@ public class JaasAuthenticationProviderTests {
 	public void testLoginExceptionResolver() {
 		assertThat(this.jaasProvider.getLoginExceptionResolver()).isNotNull();
 		this.jaasProvider.setLoginExceptionResolver((e) -> new LockedException("This is just a test!"));
-		try {
-			this.jaasProvider.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
-		}
-		catch (LockedException ex) {
-		}
-		catch (Exception ex) {
-			fail("LockedException should have been thrown and caught");
-		}
+		assertThatExceptionOfType(LockedException.class).isThrownBy(() -> this.jaasProvider
+			.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password")));
 	}
 
 	@Test

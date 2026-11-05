@@ -60,7 +60,6 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -214,9 +213,7 @@ public class DaoAuthenticationProviderTests {
 		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
 		Authentication result = provider.authenticate(token);
-		if (!(result instanceof UsernamePasswordAuthenticationToken)) {
-			fail("Should have returned instance of UsernamePasswordAuthenticationToken");
-		}
+		assertThat(result).isInstanceOf(UsernamePasswordAuthenticationToken.class);
 		UsernamePasswordAuthenticationToken castResult = (UsernamePasswordAuthenticationToken) result;
 		assertThat(castResult.getPrincipal().getClass()).isEqualTo(User.class);
 		assertThat(castResult.getCredentials()).isEqualTo("koala");
@@ -230,14 +227,10 @@ public class DaoAuthenticationProviderTests {
 		DaoAuthenticationProvider provider = createProvider(new MockUserDetailsServiceUserRod());
 		provider.setUserCache(new MockUserCache());
 		Authentication result = provider.authenticate(token);
-		if (!(result instanceof UsernamePasswordAuthenticationToken)) {
-			fail("Should have returned instance of UsernamePasswordAuthenticationToken");
-		}
+		assertThat(result).isInstanceOf(UsernamePasswordAuthenticationToken.class);
 		// Now try to authenticate with the previous result (with its UserDetails)
 		Authentication result2 = provider.authenticate(result);
-		if (!(result2 instanceof UsernamePasswordAuthenticationToken)) {
-			fail("Should have returned instance of UsernamePasswordAuthenticationToken");
-		}
+		assertThat(result2).isInstanceOf(UsernamePasswordAuthenticationToken.class);
 		assertThat(result2.getCredentials()).isEqualTo(result.getCredentials());
 	}
 
@@ -248,9 +241,7 @@ public class DaoAuthenticationProviderTests {
 		provider.setUserCache(new MockUserCache());
 		provider.setForcePrincipalAsString(true);
 		Authentication result = provider.authenticate(token);
-		if (!(result instanceof UsernamePasswordAuthenticationToken)) {
-			fail("Should have returned instance of UsernamePasswordAuthenticationToken");
-		}
+		assertThat(result).isInstanceOf(UsernamePasswordAuthenticationToken.class);
 		UsernamePasswordAuthenticationToken castResult = (UsernamePasswordAuthenticationToken) result;
 		assertThat(castResult.getPrincipal().getClass()).isEqualTo(String.class);
 		assertThat(castResult.getPrincipal()).isEqualTo("rod");
