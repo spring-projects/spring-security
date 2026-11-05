@@ -100,6 +100,8 @@ public final class SecurityMockMvcResultMatchers {
 
 		private @Nullable Collection<String> expectedAuthorities;
 
+		private @Nullable Collection<? extends GrantedAuthority> expectedRoles;
+
 		private Predicate<GrantedAuthority> ignoreAuthorities = (authority) -> false;
 
 		private @Nullable Consumer<Authentication> assertAuthentication;
@@ -140,8 +142,7 @@ public final class SecurityMockMvcResultMatchers {
 			}
 			if (this.expectedGrantedAuthorities != null) {
 				AssertionErrors.assertTrue("Authentication cannot be null", auth != null);
-				Collection<? extends GrantedAuthority> authorities = new ArrayList<>(auth.getAuthorities());
-				authorities.removeIf(this.ignoreAuthorities);
+				Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
 				AssertionErrors.assertTrue(
 						authorities + " does not contain the same authorities as " + this.expectedGrantedAuthorities,
 						authorities.containsAll(this.expectedGrantedAuthorities));
@@ -151,17 +152,22 @@ public final class SecurityMockMvcResultMatchers {
 			}
 			if (this.expectedAuthorities != null) {
 				AssertionErrors.assertTrue("Authentication cannot be null", auth != null);
-				List<String> authorities = auth.getAuthorities()
-					.stream()
-					.filter(Predicate.not(this.ignoreAuthorities))
-					.map(GrantedAuthority::getAuthority)
-					.toList();
+				List<String> authorities = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
 				AssertionErrors.assertTrue(
 						authorities + " does not contain the same authorities as " + this.expectedAuthorities,
 						this.expectedAuthorities.containsAll(authorities));
 				AssertionErrors.assertTrue(
 						this.expectedAuthorities + " does not contain the same authorities as " + authorities,
 						authorities.containsAll(this.expectedAuthorities));
+			}
+			if (this.expectedRoles != null) {
+				AssertionErrors.assertTrue("Authentication cannot be null", auth != null);
+				Collection<? extends GrantedAuthority> roles = new ArrayList<>(auth.getAuthorities());
+				roles.removeIf(this.ignoreAuthorities);
+				AssertionErrors.assertTrue(roles + " does not contain the same authorities as " + this.expectedRoles,
+						roles.containsAll(this.expectedRoles));
+				AssertionErrors.assertTrue(this.expectedRoles + " does not contain the same authorities as " + roles,
+						this.expectedRoles.containsAll(roles));
 			}
 		}
 
@@ -283,7 +289,8 @@ public final class SecurityMockMvcResultMatchers {
 			}
 			this.ignoreAuthorities = (authority) -> (authority.getAuthority() != null
 					&& !authority.getAuthority().startsWith(rolePrefix));
-			return withAuthorities(withPrefix);
+			this.expectedRoles = withPrefix;
+			return this;
 		}
 
 	}
