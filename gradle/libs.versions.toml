@@ -16,7 +16,7 @@ org-opensaml5 = "5.1.6"
 reactor = "2025.0.7"
 spring-data-bom = "2025.1.7"
 spring-framework = "7.0.9"
-spring-ldap = "4.0.5"
+spring-ldap = "4.0.6"
 com-password4j = "1.8.4"
 io-spring-security = "1.1.3"
 
