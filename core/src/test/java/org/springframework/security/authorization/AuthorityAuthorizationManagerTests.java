@@ -214,8 +214,28 @@ public class AuthorityAuthorizationManagerTests {
 	}
 
 	@Test
+	public void hasAnyRoleWhenDuplicateRolesThenGrantedDecision() {
+		AuthorityAuthorizationManager<Object> manager = AuthorityAuthorizationManager.hasAnyRole("USER", "USER");
+
+		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		Object object = new Object();
+
+		assertThat(manager.authorize(authentication, object).isGranted()).isTrue();
+	}
+
+	@Test
 	public void hasAnyAuthorityWhenUserHasAnyAuthorityThenGrantedDecision() {
 		AuthorityAuthorizationManager<Object> manager = AuthorityAuthorizationManager.hasAnyAuthority("ADMIN", "USER");
+
+		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "USER");
+		Object object = new Object();
+
+		assertThat(manager.authorize(authentication, object).isGranted()).isTrue();
+	}
+
+	@Test
+	public void hasAnyAuthorityWhenDuplicateAuthoritiesThenGrantedDecision() {
+		AuthorityAuthorizationManager<Object> manager = AuthorityAuthorizationManager.hasAnyAuthority("USER", "USER");
 
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "USER");
 		Object object = new Object();
