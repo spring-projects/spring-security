@@ -98,6 +98,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.filter.CorsFilter;
 
+
 /**
  * A {@link HttpSecurity} is similar to Spring Security's XML &lt;http&gt; element in the
  * namespace configuration. It allows configuring web based security for specific http
@@ -1428,6 +1429,32 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	public HttpSecurity oidcLogout(Customizer<OidcLogoutConfigurer<HttpSecurity>> oidcLogoutCustomizer) {
 		oidcLogoutCustomizer.customize(getOrApply(new OidcLogoutConfigurer<>()));
 		return HttpSecurity.this;
+	}
+
+	/**
+	 * Configures OpenID Connect (OIDC) Back-Channel Logout support.
+	 *
+	 * <p>This method enables the configuration of OIDC Back-Channel Logout by applying
+	 * the provided {@link Customizer} to an instance of {@link OidcLogoutConfigurer}. It
+	 * initializes the back-channel logout support with default settings, making it easier
+	 * to integrate with other logout configurations.
+	 *
+	 * <p>For example, to enable OIDC Back-Channel Logout with default settings:
+	 * <pre>
+	 *     http.oidcBackChannelLogout(Customizer.withDefaults());
+	 * </pre>
+	 *
+	 * @param oidcBackChannelLogoutCustomizer the customizer to configure OIDC Back-Channel Logout options
+	 * @return the {@code HttpSecurity} instance for further customizations
+	 * @throws Exception if an error occurs during configuration
+	 * @since 6.5
+	 */
+	public HttpSecurity oidcBackChannelLogout(Customizer<OidcLogoutConfigurer<HttpSecurity>> oidcBackChannelLogoutCustomizer)
+			throws Exception {
+		oidcBackChannelLogoutCustomizer.customize(
+				getOrApply(new OidcLogoutConfigurer<>()).backChannel(Customizer.withDefaults())
+		);
+		return this;
 	}
 
 	/**
