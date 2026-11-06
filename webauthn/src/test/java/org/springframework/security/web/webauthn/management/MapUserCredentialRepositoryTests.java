@@ -144,4 +144,33 @@ class MapUserCredentialRepositoryTests {
 			.containsOnly(newCredentialRecord);
 	}
 
+	@Test
+	void saveWhenCredentialIdReassignedThenPreviousUserNoLongerHasCredential() {
+		ImmutableCredentialRecord credentialRecord = TestCredentialRecords.userCredential().build();
+		this.userCredentials.save(credentialRecord);
+		CredentialRecord reassignedCredentialRecord = ImmutableCredentialRecord.fromCredentialRecord(credentialRecord)
+			.userEntityUserId(TestBytes.get())
+			.build();
+		this.userCredentials.save(reassignedCredentialRecord);
+		assertThat(this.userCredentials.findByCredentialId(credentialRecord.getCredentialId()))
+			.isEqualTo(reassignedCredentialRecord);
+		assertThat(this.userCredentials.findByUserId(credentialRecord.getUserEntityUserId())).isEmpty();
+		assertThat(this.userCredentials.findByUserId(reassignedCredentialRecord.getUserEntityUserId()))
+			.containsOnly(reassignedCredentialRecord);
+	}
+
+	@Test
+	void deleteWhenCredentialIdReassignedThenNoStaleEntryForPreviousUser() {
+		ImmutableCredentialRecord credentialRecord = TestCredentialRecords.userCredential().build();
+		this.userCredentials.save(credentialRecord);
+		CredentialRecord reassignedCredentialRecord = ImmutableCredentialRecord.fromCredentialRecord(credentialRecord)
+			.userEntityUserId(TestBytes.get())
+			.build();
+		this.userCredentials.save(reassignedCredentialRecord);
+		this.userCredentials.delete(credentialRecord.getCredentialId());
+		assertThat(this.userCredentials.findByCredentialId(credentialRecord.getCredentialId())).isNull();
+		assertThat(this.userCredentials.findByUserId(credentialRecord.getUserEntityUserId())).isEmpty();
+		assertThat(this.userCredentials.findByUserId(reassignedCredentialRecord.getUserEntityUserId())).isEmpty();
+	}
+
 }
