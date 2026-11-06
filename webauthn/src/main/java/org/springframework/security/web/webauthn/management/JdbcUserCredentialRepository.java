@@ -324,11 +324,13 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 			Instant created = fromTimestamp(rs.getTimestamp("created"));
 			Instant lastUsed = fromTimestamp(rs.getTimestamp("last_used"));
 			String label = rs.getString("label");
-			String[] transports = rs.getString("authenticator_transports").split(",");
+			String transportsValue = rs.getString("authenticator_transports");
 
 			Set<AuthenticatorTransport> authenticatorTransports = new HashSet<>();
-			for (String transport : transports) {
-				authenticatorTransports.add(AuthenticatorTransport.valueOf(transport));
+			if (transportsValue != null && !transportsValue.isEmpty()) {
+				for (String transport : transportsValue.split(",")) {
+					authenticatorTransports.add(AuthenticatorTransport.valueOf(transport));
+				}
 			}
 			Assert.notNull(lastUsed, "last_used cannot be null");
 			Assert.notNull(created, "created cannot be null");
