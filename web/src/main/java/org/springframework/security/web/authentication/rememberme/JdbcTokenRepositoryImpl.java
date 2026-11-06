@@ -34,7 +34,9 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
  *
  * @author Luke Taylor
  * @since 2.0
+ * @deprecated Use {@link JdbcPersistentTokenRepository}
  */
+@Deprecated(since = "7.1.0")
 @SuppressWarnings("removal")
 public class JdbcTokenRepositoryImpl extends JdbcDaoSupport implements PersistentTokenRepository {
 
