@@ -128,7 +128,12 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 			this.disableOnResponseCommitted();
 		}
 
-		protected void writeHeaders() {
+		// Synchronized so that a thread committing the response waits for a thread that
+		// is writing the headers, for example when asynchronous processing commits the
+		// response while the finally block in doHeadersAfter is writing the headers.
+		// Otherwise the servlet container may write out the headers while they are being
+		// modified.
+		protected synchronized void writeHeaders() {
 			if (isDisableOnResponseCommitted()) {
 				return;
 			}
