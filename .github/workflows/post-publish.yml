@@ -1,0 +1,48 @@
+name: "Post Publish"
+run-name: "${{ inputs.tag || github.ref_name }}: Post Publish${{ github.event_name == 'workflow_dispatch' && inputs.dry-run && ' (dry run)' || '' }}"
+
+# What is done after a release was made public and its tag is pushed (the tag is the release
+# version, 7.1.3): its issues are copied to the OSS repository, the tag is merged forward into the
+# newer branches, and the branches that were built for the testing and the staging are deleted.
+# It runs when a tag of a version is pushed (for real), and by hand with the tag as an input (a dry
+# run unless it is unticked). What it does, and the secret that it needs, are in the guide of the
+# reusable workflow that does it:
+#
+#   https://github.com/spring-io/spring-security-actions/blob/0.0.20/docs/post-publish.md
+#
+# The reusable workflow and its actions are in the repository spring-io/spring-security-actions,
+# and are called at the commit of a tag.
+#
+# This file is the same in the OSS repository and in the commercial one: the work is always done
+# in the commercial repository, which is the OSS one with -commercial, whichever of the two the tag
+# is pushed to. Both repositories need the secret RELEASE_AUTOMATION_TOKEN. The caller has to be in
+# the history of the tagged commit, as a tag runs the file of the commit that it points to.
+
+"on":
+  push:
+    tags:
+      - "[0-9]*.[0-9]*.[0-9]*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "The tag, which is the version of the release, for example 7.1.3"
+        required: true
+        type: string
+      dry-run:
+        description: "Only say what would be done: nothing is copied, pushed or deleted"
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  post-publish:
+    name: Post publish
+    uses: spring-io/spring-security-actions/.github/workflows/post-publish.yml@0775821cbcabf7b0a3289c8b49e8bf93aaa6ecab # 0.0.20
+    with:
+      tag: ${{ inputs.tag || github.ref_name }}
+      dry-run: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run }}
+      runs-on: ${{ vars.UBUNTU_RUNS_ON }}
+    secrets:
+      RELEASE_AUTOMATION_TOKEN: ${{ secrets.RELEASE_AUTOMATION_TOKEN }}
