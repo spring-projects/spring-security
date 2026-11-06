@@ -21,7 +21,7 @@ jobs:
       uses: spring-io/spring-release-actions/compute-version@6795980b9d960a13d420e114d50f1c8abe730769 # 0.0.7
     - name: Get Today's Release Version
       id: todays-release
-      uses: spring-io/spring-release-actions/get-todays-release-version@6795980b9d960a13d420e114d50f1c8abe730769 # 0.0.7
+      uses: spring-io/spring-release-actions/get-todays-release-version@3f7412aeec60ad13127b2a536a1b19a2803a5b81 # 0.0.8
       with:
         snapshot-version: ${{ steps.compute-version.outputs.version }}
         milestone-repository: ${{ github.repository }}
