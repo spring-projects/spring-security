@@ -32,8 +32,10 @@ import org.springframework.security.core.userdetails.User
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint
 import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers.pathMatchers
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.config.EnableWebFlux
 import java.util.*
@@ -87,6 +89,49 @@ class ServerExceptionHandlingDslTests {
                     authenticationEntryPoint = RedirectServerAuthenticationEntryPoint("/auth")
                 }
             }
+        }
+    }
+
+    @Test
+    fun `unauthenticated request when default entry point for matches then directed to preferred entry point`() {
+        this.spring.register(DefaultEntryPointForConfig::class.java).autowire()
+
+        this.client.get()
+                .uri("/api/test")
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.I_AM_A_TEAPOT)
+
+        this.client.get()
+                .uri("/")
+                .exchange()
+                .expectStatus().isUnauthorized
+    }
+
+    @Configuration
+    @EnableWebFluxSecurity
+    @EnableWebFlux
+    open class DefaultEntryPointForConfig {
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                authorizeExchange {
+                    authorize(anyExchange, authenticated)
+                }
+                httpBasic { }
+                exceptionHandling {
+                    defaultAuthenticationEntryPointFor(HttpStatusServerEntryPoint(HttpStatus.I_AM_A_TEAPOT), pathMatchers("/api/**"))
+                }
+            }
+        }
+
+        @Bean
+        open fun userDetailsService(): MapReactiveUserDetailsService {
+            val user = User.withDefaultPasswordEncoder()
+                    .username("user")
+                    .password("password")
+                    .roles("USER")
+                    .build()
+            return MapReactiveUserDetailsService(user)
         }
     }
 
