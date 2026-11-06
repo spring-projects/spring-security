@@ -234,7 +234,7 @@ public class StrictServerWebExchangeFirewall implements ServerWebExchangeFirewal
 	/**
 	 * <p>
 	 * Determines which HTTP methods should be allowed. The default is to allow "DELETE",
-	 * "GET", "HEAD", "OPTIONS", "PATCH", "POST", and "PUT".
+	 * "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT", and "QUERY".
 	 * </p>
 	 * @param allowedHttpMethods the case-sensitive collection of HTTP methods that are
 	 * allowed.
@@ -614,6 +614,7 @@ public class StrictServerWebExchangeFirewall implements ServerWebExchangeFirewal
 		result.add(HttpMethod.PATCH);
 		result.add(HttpMethod.POST);
 		result.add(HttpMethod.PUT);
+		result.add(HttpMethod.QUERY);
 		return result;
 	}
 
