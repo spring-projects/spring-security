@@ -254,6 +254,26 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 			.isThrownBy(() -> ((Mono<?>) advice.invoke(mockMethodInvocation)).block());
 	}
 
+	// gh-19400
+	@Test
+	public void invokeSuspendingWhenProceedReturnsPlainValueThenWrapsAsMono() throws Throwable {
+		MethodInvocation mockMethodInvocation = spy(new MockMethodInvocation(new Sample(),
+				Sample.class.getDeclaredMethod("suspending", kotlin.coroutines.Continuation.class)));
+		// Simulates @Cacheable cache hit returning a plain value instead of a Mono
+		given(mockMethodInvocation.proceed()).willReturn("cached");
+		ReactiveAuthorizationManager<MethodInvocationResult> mockReactiveAuthorizationManager = mock(
+				ReactiveAuthorizationManager.class);
+		given(mockReactiveAuthorizationManager.authorize(any(), any()))
+			.willReturn(Mono.just(new AuthorizationDecision(true)));
+		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(
+				Pointcut.TRUE, mockReactiveAuthorizationManager);
+		Object result = interceptor.invoke(mockMethodInvocation);
+		assertThat(result).asInstanceOf(InstanceOfAssertFactories.type(Mono.class))
+			.extracting(Mono::block)
+			.isEqualTo("cached");
+		verify(mockReactiveAuthorizationManager).authorize(any(), any());
+	}
+
 	private Object masking(InvocationOnMock invocation) {
 		MethodInvocationResult result = invocation.getArgument(0);
 		return result.getResult() + "-masked";
@@ -277,6 +297,14 @@ public class AuthorizationManagerAfterReactiveMethodInterceptorTests {
 
 		Flux<String> flux() {
 			return Flux.just("john", "bob");
+		}
+
+		/**
+		 * JVM shape of a Kotlin {@code suspend} function (last parameter is
+		 * {@link kotlin.coroutines.Continuation}).
+		 */
+		Object suspending(kotlin.coroutines.Continuation<? super String> continuation) {
+			return null;
 		}
 
 	}
