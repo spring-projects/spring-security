@@ -54,7 +54,7 @@ public final class OAuth2RefreshTokenAuthenticationConverter implements Authenti
 
 	@Override
 	public @Nullable Authentication convert(HttpServletRequest request) {
-		MultiValueMap<String, String> parameters = OAuth2EndpointUtils.getFormParameters(request);
+		MultiValueMap<String, String> parameters = OAuth2EndpointParameters.getFormParameters(request);
 
 		// grant_type (REQUIRED)
 		String grantType = parameters.getFirst(OAuth2ParameterNames.GRANT_TYPE);

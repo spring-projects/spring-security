@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.server.authorization.oidc.web.authentication;
+package org.springframework.security.oauth2.server.authorization.web.authentication;
 
 import java.util.Map;
 
@@ -25,18 +25,23 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
 /**
- * Utility methods for the OAuth 2.0 Protocol Endpoints.
+ * Utility methods for extracting OAuth 2.0 endpoint request parameters.
  *
  * @author Joe Grandja
  * @author Greg Li
- * @since 7.0
+ * @since 7.2
  */
-final class OAuth2EndpointUtils {
+public final class OAuth2EndpointParameters {
 
-	private OAuth2EndpointUtils() {
+	private OAuth2EndpointParameters() {
 	}
 
-	static MultiValueMap<String, String> getFormParameters(HttpServletRequest request) {
+	/**
+	 * Returns the form parameters from the request, excluding query parameters.
+	 * @param request the request
+	 * @return the form parameters
+	 */
+	public static MultiValueMap<String, String> getFormParameters(HttpServletRequest request) {
 		Map<String, String[]> parameterMap = request.getParameterMap();
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameterMap.forEach((key, values) -> {
@@ -51,7 +56,12 @@ final class OAuth2EndpointUtils {
 		return parameters;
 	}
 
-	static MultiValueMap<String, String> getQueryParameters(HttpServletRequest request) {
+	/**
+	 * Returns the query parameters from the request.
+	 * @param request the request
+	 * @return the query parameters
+	 */
+	public static MultiValueMap<String, String> getQueryParameters(HttpServletRequest request) {
 		Map<String, String[]> parameterMap = request.getParameterMap();
 		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
 		parameterMap.forEach((key, values) -> {

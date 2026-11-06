@@ -51,7 +51,7 @@ public final class JwtClientAssertionAuthenticationConverter implements Authenti
 
 	@Override
 	public @Nullable Authentication convert(HttpServletRequest request) {
-		MultiValueMap<String, String> parameters = OAuth2EndpointUtils.getFormParameters(request);
+		MultiValueMap<String, String> parameters = OAuth2EndpointParameters.getFormParameters(request);
 
 		if (parameters.getFirst(OAuth2ParameterNames.CLIENT_ASSERTION_TYPE) == null
 				|| parameters.getFirst(OAuth2ParameterNames.CLIENT_ASSERTION) == null) {

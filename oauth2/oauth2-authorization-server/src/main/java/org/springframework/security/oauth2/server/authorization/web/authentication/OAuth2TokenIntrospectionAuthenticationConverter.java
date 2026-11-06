@@ -52,7 +52,7 @@ public final class OAuth2TokenIntrospectionAuthenticationConverter implements Au
 
 	@Override
 	public @Nullable Authentication convert(HttpServletRequest request) {
-		MultiValueMap<String, String> parameters = OAuth2EndpointUtils.getFormParameters(request);
+		MultiValueMap<String, String> parameters = OAuth2EndpointParameters.getFormParameters(request);
 
 		// token (REQUIRED)
 		String token = parameters.getFirst(OAuth2ParameterNames.TOKEN);
