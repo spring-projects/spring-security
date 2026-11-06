@@ -283,12 +283,31 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		}
 
 		/**
-		 * Use this updated-at {@link Instant} in the resulting {@link OidcUserInfo}.
-		 * @param updatedAt The updated-at {@link Instant} to use
+		 * Use this updated-at value in the resulting {@link OidcUserInfo}.
+		 * <p>
+		 * The value is used as is. Consider {@link #updatedAt(Instant)}, which produces
+		 * the number of seconds from the epoch as required by the specification.
+		 * @param updatedAt The updated-at value to use
 		 * @return the {@link Builder} for further configurations
 		 */
 		public Builder updatedAt(String updatedAt) {
 			return this.claim(StandardClaimNames.UPDATED_AT, updatedAt);
+		}
+
+		/**
+		 * Use this updated-at {@link Instant} in the resulting {@link OidcUserInfo}.
+		 * <p>
+		 * The claim is set to the number of seconds from 1970-01-01T00:00:00Z, as
+		 * defined by <a target="_blank" href=
+		 * "https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Section
+		 * 5.1 Standard Claims</a>.
+		 * @param updatedAt The updated-at {@link Instant} to use
+		 * @return the {@link Builder} for further configurations
+		 * @since 7.2
+		 */
+		public Builder updatedAt(Instant updatedAt) {
+			Assert.notNull(updatedAt, "updatedAt cannot be null");
+			return this.claim(StandardClaimNames.UPDATED_AT, updatedAt.getEpochSecond());
 		}
 
 		/**
