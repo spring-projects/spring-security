@@ -17,6 +17,7 @@
 package org.springframework.security.web.webauthn.management;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -106,6 +107,19 @@ public class JdbcUserCredentialRepositoryTests {
 				.isThrownBy(() -> this.jdbcUserCredentialRepository.findByUserId(null))
 				.withMessage("userId cannot be null");
 		// @formatter:on
+	}
+
+	@Test
+	void saveCredentialRecordWhenTransportsEmptyThenRemainsEmpty() {
+		CredentialRecord userCredential = TestCredentialRecords.fullUserCredential().transports(Set.of()).build();
+
+		this.jdbcUserCredentialRepository.save(userCredential);
+
+		CredentialRecord savedUserCredential = this.jdbcUserCredentialRepository
+			.findByCredentialId(userCredential.getCredentialId());
+
+		assertThat(savedUserCredential).isNotNull();
+		assertThat(savedUserCredential.getTransports()).isEmpty();
 	}
 
 	@Test
