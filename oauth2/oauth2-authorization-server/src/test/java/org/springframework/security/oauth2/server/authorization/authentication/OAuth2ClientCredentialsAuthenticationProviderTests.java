@@ -167,6 +167,13 @@ public class OAuth2ClientCredentialsAuthenticationProviderTests {
 	}
 
 	@Test
+	public void setDPoPProofVerifierFactoryWhenNullThenThrowIllegalArgumentException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.authenticationProvider.setDPoPProofVerifierFactory(null))
+			.withMessage("dPoPProofVerifierFactory cannot be null");
+	}
+
+	@Test
 	public void authenticateWhenClientPrincipalNotOAuth2ClientAuthenticationTokenThenThrowOAuth2AuthenticationException() {
 		RegisteredClient registeredClient = TestRegisteredClients.registeredClient2().build();
 		TestingAuthenticationToken clientPrincipal = new TestingAuthenticationToken(registeredClient.getClientId(),
