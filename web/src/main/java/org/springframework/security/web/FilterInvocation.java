@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
@@ -186,6 +187,11 @@ public class FilterInvocation {
 		@Override
 		public String getCharacterEncoding() {
 			return "UTF-8";
+		}
+
+		@Override
+		public DispatcherType getDispatcherType() {
+			return DispatcherType.REQUEST;
 		}
 
 		@Override
