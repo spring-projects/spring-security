@@ -231,11 +231,42 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationValidator
 				throw createException(OAuth2ErrorCodes.INVALID_REQUEST, PkceParameterNames.CODE_CHALLENGE_METHOD,
 						PKCE_ERROR_URI, authorizationCodeRequestAuthentication, registeredClient);
 			}
+			// RFC 7636 §4.1 / §4.2: 43–128 chars from the unreserved set
+			if (!isValidCodeChallenge(codeChallenge)) {
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug(LogMessage.format(
+							"Invalid request: code_challenge is malformed for registered client '%s'",
+							registeredClient.getId()));
+				}
+				throw createException(OAuth2ErrorCodes.INVALID_REQUEST, PkceParameterNames.CODE_CHALLENGE,
+						PKCE_ERROR_URI, authorizationCodeRequestAuthentication, registeredClient);
+			}
 		}
 		else if (registeredClient.getClientSettings().isRequireProofKey()) {
 			throw createException(OAuth2ErrorCodes.INVALID_REQUEST, PkceParameterNames.CODE_CHALLENGE, PKCE_ERROR_URI,
 					authorizationCodeRequestAuthentication, registeredClient);
 		}
+	}
+
+	/**
+	 * Returns {@code true} if {@code codeChallenge} conforms to RFC 7636 §4.1 / §4.2:
+	 * length 43–128 and only unreserved characters
+	 * {@code [A-Z] / [a-z] / [0-9] / "-" / "." / "_" / "~"}.
+	 */
+	private static boolean isValidCodeChallenge(String codeChallenge) {
+		int length = codeChallenge.length();
+		if (length < 43 || length > 128) {
+			return false;
+		}
+		for (int i = 0; i < length; i++) {
+			char c = codeChallenge.charAt(i);
+			if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' || c == '.'
+					|| c == '_' || c == '~') {
+				continue;
+			}
+			return false;
+		}
+		return true;
 	}
 
 	private static void validatePrompt(OAuth2AuthorizationCodeRequestAuthenticationContext authenticationContext) {
