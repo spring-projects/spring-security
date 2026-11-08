@@ -26,6 +26,14 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -95,7 +103,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 	private static final String DECODING_ERROR_MESSAGE_TEMPLATE = "An error occurred while attempting to decode the Jwt: %s";
 
-	private final JWTProcessor<SecurityContext> jwtProcessor;
+	private final CompletableFuture<JWTProcessor<SecurityContext>> jwtProcessor;
 
 	private Converter<Map<String, Object>, Map<String, Object>> claimSetConverter = MappedJwtClaimSetConverter
 		.withDefaults(Collections.emptyMap());
@@ -108,7 +116,11 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	 */
 	public NimbusJwtDecoder(JWTProcessor<SecurityContext> jwtProcessor) {
 		Assert.notNull(jwtProcessor, "jwtProcessor cannot be null");
-		this.jwtProcessor = jwtProcessor;
+		this.jwtProcessor = CompletableFuture.completedFuture(jwtProcessor);
+	}
+
+	private NimbusJwtDecoder(CompletableFuture<JWTProcessor<SecurityContext>> backgroundProcessor) {
+		this.jwtProcessor = backgroundProcessor;
 	}
 
 	/**
@@ -162,7 +174,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	private Jwt createJwt(String token, JWT parsedJwt) {
 		try {
 			// Verify the signature
-			JWTClaimsSet jwtClaimsSet = this.jwtProcessor.process(parsedJwt, null);
+			JWTClaimsSet jwtClaimsSet = this.jwtProcessor.get().process(parsedJwt, null);
 			Map<String, Object> headers = new LinkedHashMap<>(parsedJwt.getHeader().toJSONObject());
 			Map<String, Object> claims = this.claimSetConverter.convert(jwtClaimsSet.getClaims());
 			// @formatter:off
@@ -182,6 +194,16 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		catch (JOSEException ex) {
 			this.logger.trace("Failed to process JWT", ex);
 			throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, ex.getMessage()), ex);
+		}
+		catch (ExecutionException ex) {
+			Throwable cause = (ex.getCause() != null) ? ex.getCause() : ex;
+			this.logger.trace("Failed to initialize JWT decoder", cause);
+			throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE, cause.getMessage()), cause);
+		}
+		catch (InterruptedException ex) {
+			Thread.currentThread().interrupt();
+			throw new JwtException(String.format(DECODING_ERROR_MESSAGE_TEMPLATE,
+					"Interrupted while waiting for JWT decoder initialization"), ex);
 		}
 		catch (Exception ex) {
 			this.logger.trace("Failed to process JWT", ex);
@@ -307,6 +329,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
 
 		private OAuth2TokenValidator<Jwt> validator = JwtValidators.createDefault();
+
+		private boolean backgroundInitialization;
 
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
@@ -434,6 +458,19 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		/**
+		 * Initialize the decoder in the background. Decoder construction returns without
+		 * waiting for issuer metadata or JWK Set retrieval. A decode request waits for
+		 * initialization to complete, and fails with a {@link JwtException} if
+		 * initialization fails.
+		 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
+		 * @since 7.1
+		 */
+		public JwkSetUriJwtDecoderBuilder backgroundInitialization() {
+			this.backgroundInitialization = true;
+			return this;
+		}
+
+		/**
 		 * Use the given {@link Consumer} to customize the {@link JWTProcessor
 		 * ConfigurableJWTProcessor} before passing it to the build
 		 * {@link NimbusJwtDecoder}.
@@ -492,9 +529,52 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		 * @return the configured {@link NimbusJwtDecoder}
 		 */
 		public NimbusJwtDecoder build() {
-			NimbusJwtDecoder decoder = new NimbusJwtDecoder(processor());
+			NimbusJwtDecoder decoder;
+			if (this.backgroundInitialization) {
+				CompletableFuture<JWTProcessor<SecurityContext>> initialized = new CompletableFuture<>();
+				try {
+					backgroundExecutor().execute(() -> {
+						try {
+							initialized.complete(processor());
+						}
+						catch (Throwable ex) {
+							initialized.completeExceptionally(ex);
+						}
+					});
+				}
+				catch (RuntimeException ex) {
+					initialized.completeExceptionally(ex);
+				}
+				decoder = new NimbusJwtDecoder(initialized);
+			}
+			else {
+				decoder = new NimbusJwtDecoder(processor());
+			}
 			decoder.setJwtValidator(this.validator);
 			return decoder;
+		}
+
+		private static Executor backgroundExecutor() {
+			return BackgroundExecutor.INSTANCE;
+		}
+
+		private static final class BackgroundExecutor {
+
+			private static final AtomicInteger THREAD_NUMBER = new AtomicInteger();
+
+			private static final Executor INSTANCE = new ThreadPoolExecutor(4, 4, 0L, TimeUnit.MILLISECONDS,
+					new ArrayBlockingQueue<>(256), new ThreadFactory() {
+
+						@Override
+						public Thread newThread(Runnable runnable) {
+							Thread thread = new Thread(runnable,
+									"spring-security-jwt-initializer-" + THREAD_NUMBER.incrementAndGet());
+							thread.setDaemon(true);
+							return thread;
+						}
+
+					}, new ThreadPoolExecutor.AbortPolicy());
+
 		}
 
 		private static final class SpringJWKSource<C extends SecurityContext> implements JWKSetSource<C> {
