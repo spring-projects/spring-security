@@ -101,7 +101,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-		return Boolean.TRUE.equals(request.getAttribute(SHOULD_NOT_FILTER));
+		return isSkipped(request);
 	}
 
 	@Override
@@ -135,8 +135,17 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		filterChain.doFilter(request, response);
 	}
 
+	/**
+	 * Marks the request so that neither this filter nor
+	 * {@link CrossOriginProtectionFilter} protects it against CSRF.
+	 * @param request the request not to protect
+	 */
 	public static void skipRequest(HttpServletRequest request) {
 		request.setAttribute(SHOULD_NOT_FILTER, Boolean.TRUE);
+	}
+
+	static boolean isSkipped(HttpServletRequest request) {
+		return Boolean.TRUE.equals(request.getAttribute(SHOULD_NOT_FILTER));
 	}
 
 	/**
