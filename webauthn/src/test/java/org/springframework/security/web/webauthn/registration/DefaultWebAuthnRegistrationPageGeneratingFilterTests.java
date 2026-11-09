@@ -116,7 +116,29 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 	}
 
 	@Test
-	void doFilterWhenCspNonceAttrPresent() throws Exception {
+	void doFilterWhenCspNonceAttrPresentThenScriptHasNonceAttr() throws Exception {
+		givenUserWithNoCredentials();
+		ContentSecurityPolicyNonce cspNonce = () -> "TEST/CONTENT+SECURITY+POLICY/NONCE";
+		String body = bodyAsString(matchingRequest().requestAttr(ContentSecurityPolicyNonce.class.getName(), cspNonce));
+		assertThat(body).contains("<script type=\"text/javascript\" nonce=\"TEST/CONTENT+SECURITY+POLICY/NONCE\">");
+	}
+
+	@Test
+	void doFilterWhenNoCspNonceAttrThenScriptHasNoNonceAttr() throws Exception {
+		givenUserWithNoCredentials();
+		String body = bodyAsString(matchingRequest());
+		assertThat(body).contains("<script type=\"text/javascript\">").doesNotContain("nonce=");
+	}
+
+	@Test
+	void doFilterWhenCspNonceHasSpecialCharactersThenNonceAttrIsEscaped() throws Exception {
+		givenUserWithNoCredentials();
+		ContentSecurityPolicyNonce cspNonce = () -> "\"><b>&";
+		String body = bodyAsString(matchingRequest().requestAttr(ContentSecurityPolicyNonce.class.getName(), cspNonce));
+		assertThat(body).contains("<script type=\"text/javascript\" nonce=\"&quot;&gt;&lt;b&gt;&amp;\">");
+	}
+
+	private void givenUserWithNoCredentials() {
 		PublicKeyCredentialUserEntity userEntity = ImmutablePublicKeyCredentialUserEntity.builder()
 			.name("user")
 			.id(TestBytes.get())
@@ -124,9 +146,6 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 			.build();
 		given(this.userEntities.findByUsername(any())).willReturn(userEntity);
 		given(this.userCredentials.findByUserId(userEntity.getId())).willReturn(Collections.emptyList());
-		ContentSecurityPolicyNonce cspNonce = () -> "TEST/CONTENT+SECURITY+POLICY/NONCE";
-		String body = bodyAsString(matchingRequest().requestAttr(ContentSecurityPolicyNonce.class.getName(), cspNonce));
-		assertThat(body).contains("<script type=\"text/javascript\" nonce=\"TEST/CONTENT+SECURITY+POLICY/NONCE\">");
 	}
 
 	@Test
