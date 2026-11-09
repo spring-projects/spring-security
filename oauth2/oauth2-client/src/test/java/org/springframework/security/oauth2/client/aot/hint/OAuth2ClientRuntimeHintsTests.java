@@ -24,8 +24,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
+import org.springframework.aot.hint.TypeReference;
 import org.springframework.aot.hint.predicate.RuntimeHintsPredicates;
 import org.springframework.core.io.support.SpringFactoriesLoader;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,9 +55,28 @@ class OAuth2ClientRuntimeHintsTests {
 		assertThat(RuntimeHintsPredicates.resource().forResource(schemaFile)).accepts(this.hints);
 	}
 
+	@ParameterizedTest
+	@MethodSource("getSerializableTypes")
+	void serializableTypesHaveHints(TypeReference typeReference) {
+		assertThat(this.hints.reflection().getTypeHint(typeReference)).isNotNull();
+		assertThat(this.hints.reflection().getTypeHint(typeReference).isJavaSerialization()).isTrue();
+	}
+
 	private static Stream<String> getOAuth2ClientSchemaFiles() {
 		return Stream.of("org/springframework/security/oauth2/client/oauth2-client-schema.sql",
 				"org/springframework/security/oauth2/client/oauth2-client-schema-postgres.sql");
+	}
+
+	private static Stream<TypeReference> getSerializableTypes() {
+		return Stream.of(
+				TypeReference.of("java.time.Ser"),
+				TypeReference.of("java.util.Collections$UnmodifiableMap"),
+				TypeReference.of("java.util.Collections$UnmodifiableSet"),
+				TypeReference.of("java.util.Collections$UnmodifiableList"),
+				TypeReference.of(OAuth2AuthorizationRequest.class),
+				TypeReference.of(OAuth2AuthenticationToken.class),
+				TypeReference.of(OAuth2AuthorizedClient.class),
+				TypeReference.of(DefaultOAuth2User.class));
 	}
 
 }
