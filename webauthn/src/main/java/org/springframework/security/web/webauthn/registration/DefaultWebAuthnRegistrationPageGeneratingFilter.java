@@ -168,8 +168,8 @@ public class DefaultWebAuthnRegistrationPageGeneratingFilter extends OncePerRequ
 							},
 						}
 						document.addEventListener("DOMContentLoaded", () => {
-							setupRegistration({{csrfHeaders}}, "{{contextPath}}", ui)
 							document.getElementById("register-form").addEventListener("submit", (e) => e.preventDefault())
+							setupRegistration({{csrfHeaders}}, "{{contextPath}}", ui)
 						})
 					//-->
 					</script>
