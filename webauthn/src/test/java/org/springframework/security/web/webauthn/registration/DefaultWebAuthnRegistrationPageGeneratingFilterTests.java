@@ -196,8 +196,8 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 										},
 									}
 									document.addEventListener("DOMContentLoaded", () => {
-										setupRegistration({"X-CSRF-TOKEN" : "CSRF_TOKEN"}, "", ui)
 										document.getElementById("register-form").addEventListener("submit", (e) => e.preventDefault())
+										setupRegistration({"X-CSRF-TOKEN" : "CSRF_TOKEN"}, "", ui)
 									})
 								//-->
 								</script>
@@ -279,9 +279,13 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 		given(this.userCredentials.findByUserId(userEntity.getId())).willReturn(Arrays.asList(credential));
 		String body = bodyAsString(matchingRequest());
 		assertThat(body).contains("<script type=\"text/javascript\" src=\"/login/webauthn.js\"></script>");
-		assertThat(body).containsIgnoringWhitespaces("""
-				document.addEventListener("DOMContentLoaded", () => {
-					setupRegistration({"X-CSRF-TOKEN" : "CSRF_TOKEN"}, "",""");
+		assertThat(body).contains(
+				"""
+									document.addEventListener("DOMContentLoaded", () => {
+										document.getElementById("register-form").addEventListener("submit", (e) => e.preventDefault())
+										setupRegistration({"X-CSRF-TOKEN" : "CSRF_TOKEN"}, "", ui)
+									})
+						""");
 	}
 
 	@Test
