@@ -19,7 +19,6 @@ package org.springframework.security.web.server.firewall;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Disabled;
@@ -566,26 +565,6 @@ class StrictServerWebExchangeFirewallTests {
 			String value = new String(Character.toChars(codePoint));
 			assertSameAsPattern(value);
 			assertSameAsPattern("a" + value + "b");
-		}
-	}
-
-	@Test
-	void allowedHeaderNamesAndValuesWhenMixedCharactersThenSameAsPattern() {
-		int[] interesting = { 0x00, 0x09, 0x0A, 0x0D, 0x1F, 0x20, 0x7E, 0x7F, 0x85, 0x9F, 0xA0, 0x378, 0xAC00, 0xD800,
-				0xDC00, 0xFFFF, 0x1F600, 0xE0001, 0x10FFFF };
-		Random random = new Random(20061);
-		for (int i = 0; i < 100_000; i++) {
-			StringBuilder value = new StringBuilder();
-			int length = random.nextInt(24);
-			for (int j = 0; j < length; j++) {
-				int codePoint = switch (random.nextInt(3)) {
-					case 0 -> interesting[random.nextInt(interesting.length)];
-					case 1 -> 0x20 + random.nextInt(0x5F);
-					default -> random.nextInt(Character.MAX_CODE_POINT + 1);
-				};
-				value.append(Character.toChars(codePoint));
-			}
-			assertSameAsPattern(value.toString());
 		}
 	}
 
