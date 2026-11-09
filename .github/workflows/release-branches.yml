@@ -13,7 +13,9 @@ name: release-branches
 #
 # The embargoed branches only exist in the commercial repository, so this never runs in
 # this one. The commercial repository needs the secret RELEASE_AUTOMATION_TOKEN, and may set
-# the variable RELEASE_TRAIN_REPOSITORY (spring-io/release-train if it is not set).
+# the variable RELEASE_TRAIN_REPOSITORY (spring-io/release-train if it is not set), and the
+# variable SNAPSHOT_SUFFIX_OVERRIDES to choose -SNAPSHOT or -INTERNAL-SNAPSHOT for a dependency
+# (see the docs of the workflow).
 
 on:
   push:
@@ -41,5 +43,6 @@ jobs:
     with:
       runs-on: ${{ vars.UBUNTU_RUNS_ON }}
       release-train-repository: ${{ vars.RELEASE_TRAIN_REPOSITORY }}
+      snapshot-suffix-overrides: ${{ vars.SNAPSHOT_SUFFIX_OVERRIDES }}
     secrets:
       RELEASE_AUTOMATION_TOKEN: ${{ secrets.RELEASE_AUTOMATION_TOKEN }}
