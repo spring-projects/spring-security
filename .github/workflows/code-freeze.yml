@@ -7,7 +7,7 @@ run-name: "${{ inputs.release-train }}: Code Freeze${{ inputs.dry-run && ' (dry 
 # run. What it does, the secret that it needs, and the stub that the default branch of the
 # commercial repository needs, are in the guide of the reusable workflow that does it:
 #
-#   https://github.com/spring-io/spring-security-actions/blob/0.0.21/docs/code-freeze.md
+#   https://github.com/spring-io/spring-security-actions/blob/0.0.22/docs/code-freeze.md
 #
 # The reusable workflow and its actions are in the repository spring-io/spring-security-actions,
 # and are called at the commit of a tag.
@@ -44,7 +44,7 @@ jobs:
   code-freeze:
     name: Code freeze
     if: ${{ endsWith(github.repository, '-commercial') }}
-    uses: spring-io/spring-security-actions/.github/workflows/code-freeze.yml@638e8ab304fc07680b8274a178a180f5ba9ae8ee # 0.0.21
+    uses: spring-io/spring-security-actions/.github/workflows/code-freeze.yml@062dd632ff2ceec82ce89d494ebb1f072476ddc2 # 0.0.22
     with:
       release-train: ${{ inputs.release-train }}
       branches: ${{ inputs.branches }}
