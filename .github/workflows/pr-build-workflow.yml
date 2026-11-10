@@ -12,7 +12,7 @@ env:
 jobs:
   build:
     name: Build
-    runs-on: ${{ vars.UBUNTU_RUNS_ON }}
+    runs-on: ${{ vars.UBUNTU_RUNS_ON || 'ubuntu-latest' }}
     if: github.event.repository.fork == false && github.actor != 'dependabot[bot]'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

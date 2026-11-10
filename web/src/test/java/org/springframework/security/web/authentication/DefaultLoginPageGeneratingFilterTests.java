@@ -39,6 +39,7 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.access.DelegatingMissingAuthorityAccessDeniedHandler;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 import org.springframework.security.web.servlet.TestMockHttpServletRequests;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -305,6 +306,58 @@ public class DefaultLoginPageGeneratingFilterTests {
 		assertThat(response.getContentAsString()).contains("""
 				<input type="text" id="username" name="username" value="user" placeholder="Username" required readonly>
 				""");
+	}
+
+	@Test
+	void generatesWhenNonceBasedCspConfiguredThenScriptBlockHasNonceAttr() throws ServletException, IOException {
+		ContentSecurityPolicyNonce cspNonce = () -> "TEST/CONTENT+SECURITY+POLICY/NONCE";
+		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter();
+		filter.setLoginPageUrl(DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL);
+		filter.setPasskeysEnabled(true); // Uses inline <script> block
+		MockHttpServletRequest request = TestMockHttpServletRequests.get("/login").build();
+		request.setAttribute(ContentSecurityPolicyNonce.class.getName(), cspNonce);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(request, response, this.chain);
+		assertThat(response.getContentAsString())
+			.contains("<script type=\"text/javascript\" nonce=\"TEST/CONTENT+SECURITY+POLICY/NONCE\">");
+	}
+
+	@Test
+	void generatesWhenNoNonceBasedCspConfiguredThenScriptBlockHasNoNonceAttr() throws ServletException, IOException {
+		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter();
+		filter.setLoginPageUrl(DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL);
+		filter.setPasskeysEnabled(true); // Uses inline <script> block
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(TestMockHttpServletRequests.get("/login").build(), response, this.chain);
+		assertThat(response.getContentAsString()).contains("<script type=\"text/javascript\">")
+			.doesNotContain("nonce=");
+	}
+
+	@Test
+	void generatesWhenNonceHasSpecialCharactersThenNonceAttrIsEscaped() throws ServletException, IOException {
+		ContentSecurityPolicyNonce cspNonce = () -> "\"><b>&";
+		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter();
+		filter.setLoginPageUrl(DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL);
+		filter.setPasskeysEnabled(true); // Uses inline <script> block
+		MockHttpServletRequest request = TestMockHttpServletRequests.get("/login").build();
+		request.setAttribute(ContentSecurityPolicyNonce.class.getName(), cspNonce);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(request, response, this.chain);
+		assertThat(response.getContentAsString())
+			.contains("<script type=\"text/javascript\" nonce=\"&quot;&gt;&lt;b&gt;&amp;\">");
+	}
+
+	@Test
+	void generatesWhenPasskeysDisabledAndNonceBasedCspConfiguredThenNoScriptBlock()
+			throws ServletException, IOException {
+		ContentSecurityPolicyNonce cspNonce = () -> "TEST/CONTENT+SECURITY+POLICY/NONCE";
+		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter();
+		filter.setLoginPageUrl(DefaultLoginPageGeneratingFilter.DEFAULT_LOGIN_PAGE_URL);
+		MockHttpServletRequest request = TestMockHttpServletRequests.get("/login").build();
+		request.setAttribute(ContentSecurityPolicyNonce.class.getName(), cspNonce);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(request, response, this.chain);
+		assertThat(response.getContentAsString()).doesNotContain("<script").doesNotContain("nonce=");
 	}
 
 	@Test
