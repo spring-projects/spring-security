@@ -74,8 +74,8 @@ Because ``AuthorizationGrantedEvent``s have the potential to be quite noisy, the
 
 In fact, publishing these events will likely require some business logic on your part to ensure that your application is not inundated with noisy authorization events.
 
-You can provide your own predicate that filters success events.
-For example, the following publisher only publishes authorization grants where `ROLE_ADMIN` was required:
+`SpringAuthorizationEventPublisher` publishes only ``AuthorizationDeniedEvent``s, so the predicate you give it decides which denials are published rather than adding grants.
+For example, the following publisher skips denials that did not require `ROLE_ADMIN`:
 
 [tabs]
 ======
@@ -84,11 +84,11 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
-AuthorizationEventPublisher authorizationEventPublisher() {
-    SpringAuthorizationEventPublisher eventPublisher = new SpringAuthorizationEventPublisher();
-    eventPublisher.setShouldPublishEvent((result) -> {
-        if (!result.isGranted()) {
-            return true;
+AuthorizationEventPublisher authorizationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+    SpringAuthorizationEventPublisher eventPublisher = new SpringAuthorizationEventPublisher(applicationEventPublisher);
+    eventPublisher.setShouldPublishResult((result) -> {
+        if (result.isGranted()) {
+            return false;
         }
         if (result instanceof AuthorityAuthorizationDecision decision) {
             Collection<GrantedAuthority> authorities = decision.getAuthorities();
@@ -105,17 +105,17 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Bean
-fun authorizationEventPublisher(): AuthorizationEventPublisher {
-    val eventPublisher = SpringAuthorizationEventPublisher()
-    eventPublisher.setShouldPublishEvent { (result) ->
-        if (!result.isGranted()) {
-            return true
+fun authorizationEventPublisher(applicationEventPublisher: ApplicationEventPublisher): AuthorizationEventPublisher {
+    val eventPublisher = SpringAuthorizationEventPublisher(applicationEventPublisher)
+    eventPublisher.setShouldPublishResult { result ->
+        if (result.isGranted) {
+            return@setShouldPublishResult false
         }
-        if (decision is AuthorityAuthorizationDecision) {
-            val authorities = decision.getAuthorities()
-            return AuthorityUtils.authorityListToSet(authorities).contains("ROLE_ADMIN")
+        if (result is AuthorityAuthorizationDecision) {
+            val authorities = result.authorities
+            return@setShouldPublishResult AuthorityUtils.authorityListToSet(authorities).contains("ROLE_ADMIN")
         }
-        return false
+        false
     }
     return eventPublisher
 }
