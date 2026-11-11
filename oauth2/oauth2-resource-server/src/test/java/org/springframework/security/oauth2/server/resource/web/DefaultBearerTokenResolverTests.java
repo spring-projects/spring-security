@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * Tests for {@link DefaultBearerTokenResolver}.
  *
  * @author Vedran Pavic
+ * @author Andrey Litvitski
  */
 public class DefaultBearerTokenResolverTests {
 
@@ -52,6 +53,14 @@ public class DefaultBearerTokenResolverTests {
 	public void resolveWhenValidHeaderIsPresentThenTokenIsResolved() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer " + TEST_TOKEN);
+		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
+	}
+
+	// gh-19500
+	@Test
+	public void resolveWhenHeaderHasMultipleSpacesBeforeTokenThenTokenIsResolved() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Bearer  " + TEST_TOKEN);
 		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
 	}
 
