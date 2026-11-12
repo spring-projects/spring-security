@@ -6,7 +6,7 @@ name: release-branches
 # branches are pushed, the release joins the release train. What it builds, and the secret and
 # the variable that it needs, are in the guide of the reusable workflow that does it:
 #
-#   https://github.com/spring-io/spring-security-actions/blob/0.0.29/docs/release-branches.md
+#   https://github.com/spring-io/spring-security-actions/blob/0.0.30/docs/release-branches.md
 #
 # The reusable workflow and its actions are in the repository spring-io/spring-security-actions,
 # and are called at the commit of a tag.
@@ -39,7 +39,7 @@ concurrency:
 jobs:
   release-branches:
     name: Build the branches
-    uses: spring-io/spring-security-actions/.github/workflows/release-branches.yml@8a4a2256b0787c7551b0e847b0cdd2392c89ab7b # 0.0.29
+    uses: spring-io/spring-security-actions/.github/workflows/release-branches.yml@1b4c6e8e5092d555396905fd00d863139dfcd9ba # 0.0.30
     with:
       runs-on: ${{ vars.UBUNTU_RUNS_ON }}
       release-train-repository: ${{ vars.RELEASE_TRAIN_REPOSITORY }}
