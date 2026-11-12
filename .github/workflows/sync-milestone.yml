@@ -30,7 +30,7 @@ jobs:
           CHANGES: ${{ toJSON(github.event.changes) }}
           SENDER: ${{ github.event.sender.login }}
         run: |
-          gh workflow run sync-milestone.yml \
+          gh workflow run sync-milestone-oss.yml \
             --repo "${GITHUB_REPOSITORY}-commercial" --ref main \
             --field repository="$GITHUB_REPOSITORY" \
             --field milestone="$TITLE" \
