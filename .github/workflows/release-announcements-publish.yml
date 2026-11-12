@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: environment
         name: Compute Build Environment
-        uses: spring-io/spring-security-actions/compute-build-environment@663f2fac7d57e6b535f85745b1930ddad8e7f4f8 # 0.0.31
+        uses: spring-io/spring-security-actions/compute-build-environment@684ca83d1b00d67326499eb02e6517d4f5bd73d1 # 0.0.32
   deploy-schema:
     name: Deploy Schema
     needs: setup
