@@ -8,7 +8,7 @@ run-name: "${{ inputs.tag || github.ref_name }}: Post Publish${{ github.event_na
 # run unless it is unticked). What it does, and the secret that it needs, are in the guide of the
 # reusable workflow that does it:
 #
-#   https://github.com/spring-io/spring-security-actions/blob/0.0.30/docs/post-publish.md
+#   https://github.com/spring-io/spring-security-actions/blob/0.0.31/docs/post-publish.md
 #
 # The reusable workflow and its actions are in the repository spring-io/spring-security-actions,
 # and are called at the commit of a tag.
@@ -49,7 +49,7 @@ permissions:
 jobs:
   post-publish:
     name: Post publish
-    uses: spring-io/spring-security-actions/.github/workflows/post-publish.yml@1b4c6e8e5092d555396905fd00d863139dfcd9ba # 0.0.30
+    uses: spring-io/spring-security-actions/.github/workflows/post-publish.yml@663f2fac7d57e6b535f85745b1930ddad8e7f4f8 # 0.0.31
     with:
       tag: ${{ inputs.tag || github.ref_name }}
       ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || '' }}
