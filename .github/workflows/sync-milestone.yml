@@ -1,0 +1,38 @@
+name: sync-milestone
+
+# When a milestone of this repository is edited, the sync of the milestones runs in the commercial
+# repository (it is the OSS repository with -commercial), which has the release branches, the
+# release trains and the token: the due date of a release is the date of its release train, and the
+# release and its hotfix follow it. This only starts it, and gives it what the edit changed.
+# See https://github.com/spring-io/spring-security-actions/blob/0.0.28/docs/milestones.md
+#
+# GitHub runs the event milestone only from the default branch, so this file is of the default
+# branch (main) only, and does nothing on the other branches. It needs the secret
+# RELEASE_AUTOMATION_TOKEN, with Actions: Read and write on the commercial repository.
+
+on:
+  milestone:
+    types: [edited]
+
+permissions: {}
+
+jobs:
+  dispatch:
+    name: Run the sync in the commercial repository
+    runs-on: ${{ vars.UBUNTU_RUNS_ON || 'ubuntu-latest' }}
+    steps:
+      # The title of a milestone is typed by a person, so it is given to the script as an
+      # environment variable and not written into it.
+      - name: Run the sync in the commercial repository
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_AUTOMATION_TOKEN }}
+          TITLE: ${{ github.event.milestone.title }}
+          CHANGES: ${{ toJSON(github.event.changes) }}
+          SENDER: ${{ github.event.sender.login }}
+        run: |
+          gh workflow run sync-milestone.yml \
+            --repo "${GITHUB_REPOSITORY}-commercial" --ref main \
+            --field repository="$GITHUB_REPOSITORY" \
+            --field milestone="$TITLE" \
+            --field changes="$CHANGES" \
+            --field sender="$SENDER"
