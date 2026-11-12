@@ -5,9 +5,9 @@ runs:
   steps:
     - id: environment
       name: Compute Build Environment
-      uses: spring-io/spring-security-actions/compute-build-environment@8a4a2256b0787c7551b0e847b0cdd2392c89ab7b # 0.0.29
+      uses: spring-io/spring-security-actions/compute-build-environment@1b4c6e8e5092d555396905fd00d863139dfcd9ba # 0.0.30
     - name: Test Release
-      uses: spring-io/spring-security-actions/run-gradle@8a4a2256b0787c7551b0e847b0cdd2392c89ab7b # 0.0.29
+      uses: spring-io/spring-security-actions/run-gradle@1b4c6e8e5092d555396905fd00d863139dfcd9ba # 0.0.30
       env:
         ORG_GRADLE_PROJECT_releaseChannel: ${{ steps.environment.outputs.release-channel }}
       with:
