@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: environment
         name: Compute Build Environment
-        uses: spring-io/spring-security-actions/compute-build-environment@5707602cd3a5b457f27691c2160115f35f1b0063 # 0.0.28
+        uses: spring-io/spring-security-actions/compute-build-environment@8a4a2256b0787c7551b0e847b0cdd2392c89ab7b # 0.0.29
   build:
     name: Build
     needs: setup
