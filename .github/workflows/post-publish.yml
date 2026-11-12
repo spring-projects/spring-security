@@ -37,8 +37,14 @@ run-name: "${{ inputs.tag || github.ref_name }}: Post Publish${{ github.event_na
         default: true
         type: boolean
 
+# The reusable workflow has jobs that need more than read access (deploy-docs dispatches a workflow,
+# publish-release-notes creates the GitHub release), and a called workflow cannot be given more
+# than its caller has: with less, the run fails at startup.
 permissions:
-  contents: read
+  actions: write
+  contents: write
+  issues: read
+  pull-requests: read
 
 jobs:
   post-publish:
@@ -51,3 +57,5 @@ jobs:
       runs-on: ${{ vars.UBUNTU_RUNS_ON }}
     secrets:
       RELEASE_AUTOMATION_TOKEN: ${{ secrets.RELEASE_AUTOMATION_TOKEN }}
+      GH_WEBSITE_COMMERCIAL_CONTENT_TOKEN: ${{ secrets.GH_WEBSITE_COMMERCIAL_CONTENT_TOKEN }}
+      GH_ACTIONS_REPO_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
