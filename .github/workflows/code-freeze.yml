@@ -44,7 +44,7 @@ jobs:
   code-freeze:
     name: Code freeze
     if: ${{ endsWith(github.repository, '-commercial') }}
-    uses: spring-io/spring-security-actions/.github/workflows/code-freeze.yml@bd3cae229836f13ec484a981b94caf041e8cb4d9 # 0.0.28
+    uses: spring-io/spring-security-actions/.github/workflows/code-freeze.yml@5707602cd3a5b457f27691c2160115f35f1b0063 # 0.0.28
     with:
       release-train: ${{ inputs.release-train }}
       branches: ${{ inputs.branches }}
