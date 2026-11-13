@@ -33,7 +33,11 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2Token;
+import org.springframework.security.oauth2.jwt.DPoPProofContext;
+import org.springframework.security.oauth2.jwt.DPoPProofJwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
@@ -74,6 +78,8 @@ public final class OAuth2ClientCredentialsAuthenticationProvider implements Auth
 
 	private Consumer<OAuth2ClientCredentialsAuthenticationContext> authenticationValidator = new OAuth2ClientCredentialsAuthenticationValidator();
 
+	private JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory;
+
 	/**
 	 * Constructs an {@code OAuth2ClientCredentialsAuthenticationProvider} using the
 	 * provided parameters.
@@ -86,6 +92,7 @@ public final class OAuth2ClientCredentialsAuthenticationProvider implements Auth
 		Assert.notNull(tokenGenerator, "tokenGenerator cannot be null");
 		this.authorizationService = authorizationService;
 		this.tokenGenerator = tokenGenerator;
+		this.dPoPProofVerifierFactory = new DPoPProofJwtDecoderFactory();
 	}
 
 	@Override
@@ -119,7 +126,8 @@ public final class OAuth2ClientCredentialsAuthenticationProvider implements Auth
 		Set<String> authorizedScopes = new LinkedHashSet<>(clientCredentialsAuthentication.getScopes());
 
 		// Verify the DPoP Proof (if available)
-		Jwt dPoPProof = DPoPProofVerifier.verifyIfAvailable(clientCredentialsAuthentication);
+		Jwt dPoPProof = DPoPProofVerifier.verifyIfAvailable(clientCredentialsAuthentication,
+				this.dPoPProofVerifierFactory);
 
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace("Validated token request parameters");
@@ -197,6 +205,19 @@ public final class OAuth2ClientCredentialsAuthenticationProvider implements Auth
 			Consumer<OAuth2ClientCredentialsAuthenticationContext> authenticationValidator) {
 		Assert.notNull(authenticationValidator, "authenticationValidator cannot be null");
 		this.authenticationValidator = authenticationValidator;
+	}
+
+	/**
+	 * Sets the {@link JwtDecoderFactory} that provides a {@link JwtDecoder} for the
+	 * specified {@link DPoPProofContext} and is used for authenticating a DPoP Proof
+	 * {@link Jwt}. The default factory is {@link DPoPProofJwtDecoderFactory}.
+	 * @param dPoPProofVerifierFactory the {@link JwtDecoderFactory} that provides a
+	 * {@link JwtDecoder} for the specified {@link DPoPProofContext}
+	 * @since 7.2
+	 */
+	public void setDPoPProofVerifierFactory(JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory) {
+		Assert.notNull(dPoPProofVerifierFactory, "dPoPProofVerifierFactory cannot be null");
+		this.dPoPProofVerifierFactory = dPoPProofVerifierFactory;
 	}
 
 }

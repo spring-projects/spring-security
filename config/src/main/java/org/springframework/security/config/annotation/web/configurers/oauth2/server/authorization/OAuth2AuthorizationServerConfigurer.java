@@ -43,11 +43,21 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
+import org.springframework.security.oauth2.jwt.DPoPProofContext;
+import org.springframework.security.oauth2.jwt.DPoPProofJwtDecoderFactory;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationContext;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationException;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationToken;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientCredentialsAuthenticationProvider;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2DeviceCodeAuthenticationProvider;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2RefreshTokenAuthenticationProvider;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2TokenExchangeAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContext;
 import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContextHolder;
@@ -95,6 +105,8 @@ public final class OAuth2AuthorizationServerConfigurer
 	private final Map<Class<? extends AbstractOAuth2Configurer>, AbstractOAuth2Configurer> configurers = createConfigurers();
 
 	private RequestMatcher endpointsMatcher;
+
+	private DPoPConfigurer dPoPConfigurer;
 
 	/**
 	 * Sets the repository of registered clients.
@@ -326,6 +338,23 @@ public final class OAuth2AuthorizationServerConfigurer
 	}
 
 	/**
+	 * Configures DPoP-bound access token support. DPoP-bound access tokens are always
+	 * supported by the OAuth 2.0 Token Endpoint. This method provides more options for
+	 * customizing the support.
+	 * @param dPoPCustomizer the {@link Customizer} to provide more options for the
+	 * {@link DPoPConfigurer}
+	 * @return the {@link OAuth2AuthorizationServerConfigurer} for further configuration
+	 * @since 7.2
+	 */
+	public OAuth2AuthorizationServerConfigurer dPoP(Customizer<DPoPConfigurer> dPoPCustomizer) {
+		if (this.dPoPConfigurer == null) {
+			this.dPoPConfigurer = new DPoPConfigurer();
+		}
+		dPoPCustomizer.customize(this.dPoPConfigurer);
+		return this;
+	}
+
+	/**
 	 * Returns a {@link RequestMatcher} for the authorization server endpoints.
 	 * @return a {@link RequestMatcher} for the authorization server endpoints
 	 */
@@ -384,6 +413,10 @@ public final class OAuth2AuthorizationServerConfigurer
 				pushedAuthorizationRequestEndpointConfigurer
 					.addAuthorizationCodeRequestAuthenticationValidator(oidcAuthenticationRequestValidator);
 			}
+		}
+
+		if (this.dPoPConfigurer != null) {
+			this.dPoPConfigurer.init(httpSecurity);
 		}
 
 		List<RequestMatcher> requestMatchers = new ArrayList<>();
@@ -593,6 +626,48 @@ public final class OAuth2AuthorizationServerConfigurer
 		}
 		SmartApplicationListener smartListener = new GenericApplicationListenerAdapter(delegate);
 		delegatingApplicationListener.addListener(smartListener);
+	}
+
+	/**
+	 * A configurer for OAuth 2.0 Demonstrating Proof of Possession (DPoP) support.
+	 *
+	 * <p>
+	 * The configuration applies to the OAuth 2.0 Token Endpoint.
+	 *
+	 * @since 7.2
+	 * @see OAuth2AuthorizationCodeAuthenticationProvider
+	 * @see OAuth2RefreshTokenAuthenticationProvider
+	 * @see OAuth2ClientCredentialsAuthenticationProvider
+	 * @see OAuth2DeviceCodeAuthenticationProvider
+	 * @see OAuth2TokenExchangeAuthenticationProvider
+	 * @see <a target="_blank" href="https://datatracker.ietf.org/doc/html/rfc9449">RFC
+	 * 9449 OAuth 2.0 Demonstrating Proof of Possession (DPoP)</a>
+	 */
+	public final class DPoPConfigurer {
+
+		private JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory;
+
+		/**
+		 * Sets the {@link JwtDecoderFactory} that provides a {@link JwtDecoder} for the
+		 * specified {@link DPoPProofContext} and is used for authenticating a DPoP Proof
+		 * {@link Jwt}. The default factory is {@link DPoPProofJwtDecoderFactory}.
+		 * @param dPoPProofVerifierFactory the {@link JwtDecoderFactory} that provides a
+		 * {@link JwtDecoder} for the specified {@link DPoPProofContext}
+		 * @return the {@link DPoPConfigurer} for further configuration
+		 */
+		public DPoPConfigurer dPoPProofVerifierFactory(JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory) {
+			Assert.notNull(dPoPProofVerifierFactory, "dPoPProofVerifierFactory cannot be null");
+			this.dPoPProofVerifierFactory = dPoPProofVerifierFactory;
+			return this;
+		}
+
+		private void init(HttpSecurity httpSecurity) {
+			if (this.dPoPProofVerifierFactory != null) {
+				// Shared with OAuth2TokenEndpointConfigurer
+				httpSecurity.setSharedObject(JwtDecoderFactory.class, this.dPoPProofVerifierFactory);
+			}
+		}
+
 	}
 
 }

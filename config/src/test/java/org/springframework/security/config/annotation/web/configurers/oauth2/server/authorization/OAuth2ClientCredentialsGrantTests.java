@@ -69,9 +69,12 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.jose.TestJwks;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.security.oauth2.jwt.DPoPProofContext;
+import org.springframework.security.oauth2.jwt.DPoPProofJwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
@@ -171,6 +174,9 @@ public class OAuth2ClientCredentialsGrantTests {
 
 	@Autowired
 	private RegisteredClientRepository registeredClientRepository;
+
+	@Autowired(required = false)
+	private JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory;
 
 	@BeforeAll
 	public static void init() {
@@ -503,6 +509,29 @@ public class OAuth2ClientCredentialsGrantTests {
 	}
 
 	@Test
+	public void requestWhenCustomDPoPProofVerifierFactoryThenUsed() throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithDPoPProofVerifierFactory.class).autowire();
+
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient2().build();
+		this.registeredClientRepository.save(registeredClient);
+
+		String tokenEndpointUri = "http://localhost" + DEFAULT_TOKEN_ENDPOINT_URI;
+		String dPoPProof = generateDPoPProof(tokenEndpointUri);
+
+		this.mvc
+			.perform(post(DEFAULT_TOKEN_ENDPOINT_URI)
+				.param(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantType.CLIENT_CREDENTIALS.getValue())
+				.param(OAuth2ParameterNames.SCOPE, "scope1 scope2")
+				.header(HttpHeaders.AUTHORIZATION,
+						"Basic " + encodeBasicAuth(registeredClient.getClientId(), registeredClient.getClientSecret()))
+				.header(OAuth2AccessToken.TokenType.DPOP.getValue(), dPoPProof))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.token_type").value(OAuth2AccessToken.TokenType.DPOP.getValue()));
+
+		verify(this.dPoPProofVerifierFactory).createDecoder(any());
+	}
+
+	@Test
 	public void requestWhenTokenRequestWithMultiplePasswordEncodersThenPrimaryPasswordEncoderUsed() throws Exception {
 		this.spring.register(AuthorizationServerConfigurationWithMultiplePasswordEncoders.class).autowire();
 
@@ -617,6 +646,33 @@ public class OAuth2ClientCredentialsGrantTests {
 			return http.build();
 		}
 		// @formatter:on
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AuthorizationServerConfigurationWithDPoPProofVerifierFactory extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http,
+				JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.dPoP((dPoP) -> dPoP.dPoPProofVerifierFactory(dPoPProofVerifierFactory))
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+		@Bean
+		JwtDecoderFactory<DPoPProofContext> dPoPProofVerifierFactory() {
+			return spy(new DPoPProofJwtDecoderFactory());
+		}
 
 	}
 
