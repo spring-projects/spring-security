@@ -49,7 +49,15 @@ public final class RestClientRefreshTokenTokenResponseClient
 		OAuth2AccessTokenResponse.Builder tokenResponseBuilder = OAuth2AccessTokenResponse
 			.withResponse(accessTokenResponse);
 		if (CollectionUtils.isEmpty(accessTokenResponse.getAccessToken().getScopes())) {
-			tokenResponseBuilder.scopes(grantRequest.getAccessToken().getScopes());
+			// RFC 6749 section 5.1 allows the response to omit the scope when it is
+			// identical to the scope requested by the client. Fall back to the requested
+			// scope, if present, and otherwise to the previously granted scope.
+			if (!CollectionUtils.isEmpty(grantRequest.getScopes())) {
+				tokenResponseBuilder.scopes(grantRequest.getScopes());
+			}
+			else {
+				tokenResponseBuilder.scopes(grantRequest.getAccessToken().getScopes());
+			}
 		}
 		if (accessTokenResponse.getRefreshToken() == null) {
 			// Reuse existing refresh token
