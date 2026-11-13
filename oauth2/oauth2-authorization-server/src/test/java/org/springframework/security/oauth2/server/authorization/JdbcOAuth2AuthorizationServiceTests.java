@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -353,6 +354,30 @@ public class JdbcOAuth2AuthorizationServiceTests {
 		assertThat(authorization).isEqualTo(result);
 		result = this.authorizationService.findByToken(accessToken.getTokenValue(), null);
 		assertThat(authorization).isEqualTo(result);
+	}
+
+	// gh-20084
+	@Test
+	public void findByTokenWhenAccessTokenClaimsContainImmutableCollectionsThenFound() {
+		given(this.registeredClientRepository.findById(eq(REGISTERED_CLIENT.getId()))).willReturn(REGISTERED_CLIENT);
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token",
+				Instant.now().minusSeconds(60).truncatedTo(ChronoUnit.MILLIS),
+				Instant.now().truncatedTo(ChronoUnit.MILLIS));
+		Map<String, Object> claims = Map.of("roles", Stream.of("ROLE_USER", "ROLE_ADMIN").toList(), "scope",
+				Set.of("read", "write"), "aud", List.of("client"), "attributes", Map.of("k", "v"));
+		OAuth2Authorization authorization = OAuth2Authorization.withRegisteredClient(REGISTERED_CLIENT)
+			.id(ID)
+			.principalName(PRINCIPAL_NAME)
+			.authorizationGrantType(AUTHORIZATION_GRANT_TYPE)
+			.token(AUTHORIZATION_CODE)
+			.token(accessToken, (metadata) -> metadata.put(OAuth2Authorization.Token.CLAIMS_METADATA_NAME, claims))
+			.build();
+		this.authorizationService.save(authorization);
+
+		OAuth2Authorization result = this.authorizationService.findByToken(accessToken.getTokenValue(),
+				OAuth2TokenType.ACCESS_TOKEN);
+		assertThat(result).isNotNull();
+		assertThat(result.getAccessToken().getClaims()).isEqualTo(claims);
 	}
 
 	@Test

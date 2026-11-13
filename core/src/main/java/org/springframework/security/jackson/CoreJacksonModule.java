@@ -94,7 +94,13 @@ public class CoreJacksonModule extends SecurityJacksonModule {
 			.allowIfSubType("java.util.Collections$SingletonList")
 			.allowIfSubType("java.util.TreeMap")
 			.allowIfSubType("java.util.HashSet")
-			.allowIfSubType("java.util.LinkedHashSet");
+			.allowIfSubType("java.util.LinkedHashSet")
+			.allowIfSubType("java.util.ImmutableCollections$List12")
+			.allowIfSubType("java.util.ImmutableCollections$ListN")
+			.allowIfSubType("java.util.ImmutableCollections$Set12")
+			.allowIfSubType("java.util.ImmutableCollections$SetN")
+			.allowIfSubType("java.util.ImmutableCollections$Map1")
+			.allowIfSubType("java.util.ImmutableCollections$MapN");
 	}
 
 	@Override
