@@ -123,6 +123,31 @@ public class Saml2LogoutRequestFilterTests {
 	}
 
 	@Test
+	public void doFilterWhenPostResponseDestinationHasQueryThenPreservesQueryInAction() throws Exception {
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full()
+			.assertingPartyMetadata((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST))
+			.build();
+		Authentication authentication = new TestingAuthenticationToken("user", "password");
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		MockHttpServletRequest request = post("/logout/saml2/slo").param(Saml2ParameterNames.SAML_REQUEST, "request")
+			.build();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		given(this.relyingPartyRegistrationResolver.resolve(any(), any())).willReturn(registration);
+		given(this.logoutRequestValidator.validate(any())).willReturn(Saml2LogoutValidatorResult.success());
+		Saml2LogoutResponse logoutResponse = Saml2LogoutResponse.withRelyingPartyRegistration(registration)
+			.samlResponse("response")
+			.location("https://idp.example/slo?binding=post&tenant=a%26b")
+			.build();
+		given(this.logoutResponseResolver.resolve(any(), any())).willReturn(logoutResponse);
+		this.logoutRequestProcessingFilter.doFilterInternal(request, response, new MockFilterChain());
+		assertThat(response.getContentAsString())
+			.contains("action=\"https://idp.example/slo?binding=post&amp;tenant=a%26b\"")
+			.contains("name=\"SAMLResponse\"")
+			.doesNotContain("name=\"binding\"")
+			.doesNotContain("name=\"tenant\"");
+	}
+
+	@Test
 	public void doFilterWhenRequestMismatchesThenNoLogout() throws Exception {
 		Authentication authentication = new TestingAuthenticationToken("user", "password");
 		SecurityContextHolder.getContext().setAuthentication(authentication);
