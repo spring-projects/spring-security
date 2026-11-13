@@ -55,6 +55,40 @@ public class JwtClaimValidatorTests {
 	}
 
 	@Test
+	public void validateWhenClaimIsMissingAndTestAcceptsNullThenReturnsSuccess() {
+		JwtClaimValidator<String> validator = new JwtClaimValidator<>("loa", Objects::isNull);
+		Jwt jwt = TestJwts.jwt().build();
+
+		assertThat(validator.validate(jwt)).isEqualTo(OAuth2TokenValidatorResult.success());
+	}
+
+	@Test
+	public void validateWhenClaimValueIsNullAndTestAcceptsNullThenReturnsSuccess() {
+		JwtClaimValidator<String> validator = new JwtClaimValidator<>("loa", Objects::isNull);
+		Jwt jwt = TestJwts.jwt().claim("loa", null).build();
+
+		assertThat(validator.validate(jwt)).isEqualTo(OAuth2TokenValidatorResult.success());
+	}
+
+	@Test
+	public void validateWhenClaimIsMissingAndTestRejectsNullThenReturnsFailure() {
+		JwtClaimValidator<String> validator = new JwtClaimValidator<>("loa", Objects::nonNull);
+		Jwt jwt = TestJwts.jwt().build();
+
+		assertThat(validator.validate(jwt).getErrors()).extracting(OAuth2Error::getErrorCode)
+			.containsExactly(OAuth2ErrorCodes.INVALID_TOKEN);
+	}
+
+	@Test
+	public void validateWhenClaimValueIsNullAndTestRejectsNullThenReturnsFailure() {
+		JwtClaimValidator<String> validator = new JwtClaimValidator<>("loa", Objects::nonNull);
+		Jwt jwt = TestJwts.jwt().claim("loa", null).build();
+
+		assertThat(validator.validate(jwt).getErrors()).extracting(OAuth2Error::getErrorCode)
+			.containsExactly(OAuth2ErrorCodes.INVALID_TOKEN);
+	}
+
+	@Test
 	public void validateWhenClaimIsNullThenThrowsIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new JwtClaimValidator<>(null, test));
 	}
