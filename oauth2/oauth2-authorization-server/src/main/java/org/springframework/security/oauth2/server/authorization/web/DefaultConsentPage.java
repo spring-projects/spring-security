@@ -29,6 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
+import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 import org.springframework.web.util.HtmlUtils;
 
 /**
@@ -83,6 +84,11 @@ final class DefaultConsentPage {
 		String userCode = additionalParameters.get(OAuth2ParameterNames.USER_CODE);
 		String encodedUserCode = (userCode != null) ? HtmlUtils.htmlEscape(userCode) : null;
 
+		ContentSecurityPolicyNonce cspNonce = (ContentSecurityPolicyNonce) request
+			.getAttribute(ContentSecurityPolicyNonce.class.getName());
+		String nonceAttr = (cspNonce != null) ? " nonce=\"%s\"".formatted(HtmlUtils.htmlEscape(cspNonce.getNonce()))
+				: "";
+
 		// @formatter:off
 		StringBuilder builder = new StringBuilder();
 		builder.append("<!DOCTYPE html>");
@@ -92,11 +98,14 @@ final class DefaultConsentPage {
 		builder.append("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">");
 		builder.append("    <link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css\" integrity=\"sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z\" crossorigin=\"anonymous\">");
 		builder.append("    <title>Consent required</title>");
-		builder.append("	<script>");
+		builder.append("	<script" + nonceAttr + ">");
 		builder.append("		function cancelConsent() {");
 		builder.append("			document.consent_form.reset();");
 		builder.append("			document.consent_form.submit();");
 		builder.append("		}");
+		builder.append("		document.addEventListener(\"DOMContentLoaded\", () => {");
+		builder.append("			document.getElementById(\"cancel-consent\").addEventListener(\"click\", cancelConsent);");
+		builder.append("		});");
 		builder.append("	</script>");
 		builder.append("</head>");
 		builder.append("<body>");
@@ -153,7 +162,7 @@ final class DefaultConsentPage {
 		builder.append("                    <button class=\"btn btn-primary btn-lg\" type=\"submit\" id=\"submit-consent\">Submit Consent</button>");
 		builder.append("                </div>");
 		builder.append("                <div class=\"form-group\">");
-		builder.append("                    <button class=\"btn btn-link regular\" type=\"button\" onclick=\"cancelConsent();\" id=\"cancel-consent\">Cancel</button>");
+		builder.append("                    <button class=\"btn btn-link regular\" type=\"button\" id=\"cancel-consent\">Cancel</button>");
 		builder.append("                </div>");
 		builder.append("            </form>");
 		builder.append("        </div>");
