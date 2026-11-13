@@ -41,12 +41,10 @@ class AuthenticatorTransportDeserializer extends StdDeserializer<AuthenticatorTr
 	public @Nullable AuthenticatorTransport deserialize(JsonParser parser, DeserializationContext ctxt)
 			throws JacksonException {
 		String transportValue = parser.readValueAs(String.class);
-		for (AuthenticatorTransport transport : AuthenticatorTransport.values()) {
-			if (transport.getValue().equals(transportValue)) {
-				return transport;
-			}
+		if (transportValue == null) {
+			return null;
 		}
-		return null;
+		return AuthenticatorTransport.valueOf(transportValue);
 	}
 
 }
