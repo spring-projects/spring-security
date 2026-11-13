@@ -58,6 +58,10 @@ public class VerifyDependenciesVersionsPlugin implements Plugin<Project> {
 		TaskProvider<VerifyDependenciesVersionsTask> verifyDependenciesVersionsTaskProvider = project.getTasks().register("verifyDependenciesVersions", VerifyDependenciesVersionsTask.class, (task) -> {
 			task.setGroup("Verification");
 			task.setDescription("Verify that specific dependencies are using the same version");
+			task.onlyIf("releaseChannel is oss or unset", (t) -> {
+				Object channel = project.findProperty("releaseChannel");
+				return channel == null || "oss".equals(channel.toString());
+			});
 			task.getOauth2OidcSdkVersion().convention(oauth2OidcSdk.get().map(Dependency::getVersion));
 			task.getExpectedNimbusJoseJwtVersion().convention(nimbusJoseJwt.get().map(Dependency::getVersion));
 			task.getOutputFile().convention(project.getLayout().getBuildDirectory().file("verify-dependencies-versions"));
