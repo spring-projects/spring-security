@@ -33,6 +33,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenIntrospection;
@@ -137,6 +138,26 @@ public class OAuth2TokenIntrospectionAuthenticationProviderTests {
 			.authenticate(authentication);
 
 		verify(this.authorizationService).findByToken(eq(authentication.getToken()), isNull());
+		assertThat(authenticationResult.isAuthenticated()).isFalse();
+		assertThat(authenticationResult.getTokenClaims().getClaims()).hasSize(1);
+		assertThat(authenticationResult.getTokenClaims().isActive()).isFalse();
+	}
+
+	@Test
+	public void authenticateWhenTokenMatchesStateThenNotActive() {
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		OAuth2Authorization authorization = TestOAuth2Authorizations.authorization(registeredClient)
+			.attribute(OAuth2ParameterNames.STATE, "state")
+			.build();
+		given(this.authorizationService.findByToken(eq("state"), isNull())).willReturn(authorization);
+		OAuth2ClientAuthenticationToken clientPrincipal = new OAuth2ClientAuthenticationToken(registeredClient,
+				ClientAuthenticationMethod.CLIENT_SECRET_BASIC, registeredClient.getClientSecret());
+
+		OAuth2TokenIntrospectionAuthenticationToken authentication = new OAuth2TokenIntrospectionAuthenticationToken(
+				"state", clientPrincipal, null, null);
+		OAuth2TokenIntrospectionAuthenticationToken authenticationResult = (OAuth2TokenIntrospectionAuthenticationToken) this.authenticationProvider
+			.authenticate(authentication);
+
 		assertThat(authenticationResult.isAuthenticated()).isFalse();
 		assertThat(authenticationResult.getTokenClaims().getClaims()).hasSize(1);
 		assertThat(authenticationResult.getTokenClaims().isActive()).isFalse();
