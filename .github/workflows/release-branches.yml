@@ -39,7 +39,7 @@ concurrency:
 jobs:
   release-branches:
     name: Build the branches
-    uses: spring-io/spring-security-actions/.github/workflows/release-branches.yml@684ca83d1b00d67326499eb02e6517d4f5bd73d1 # 0.0.32
+    uses: spring-io/spring-security-actions/.github/workflows/release-branches.yml@fb60de7ce6004db5cf697c61f69ab33e61673a47 # 0.0.33
     with:
       runs-on: ${{ vars.UBUNTU_RUNS_ON }}
       release-train-repository: ${{ vars.RELEASE_TRAIN_REPOSITORY }}
