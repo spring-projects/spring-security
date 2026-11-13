@@ -16,15 +16,21 @@
 
 package org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
@@ -40,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -111,6 +118,8 @@ public class OidcUserInfoTests {
 
 	private static SecurityContextRepository securityContextRepository;
 
+	private static NimbusJwtEncoder dPoPProofJwtEncoder;
+
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
@@ -142,6 +151,9 @@ public class OidcUserInfoTests {
 	@BeforeAll
 	public static void init() {
 		securityContextRepository = spy(new HttpSessionSecurityContextRepository());
+		JWKSet clientJwkSet = new JWKSet(TestJwks.DEFAULT_EC_JWK);
+		JWKSource<SecurityContext> clientJwkSource = (jwkSelector, securityContext) -> jwkSelector.select(clientJwkSet);
+		dPoPProofJwtEncoder = new NimbusJwtEncoder(clientJwkSource);
 		authenticationConverter = mock(AuthenticationConverter.class);
 		authenticationConvertersConsumer = mock(Consumer.class);
 		authenticationProvider = mock(AuthenticationProvider.class);
@@ -323,6 +335,25 @@ public class OidcUserInfoTests {
 		assertThat(securityContext.getAuthentication()).isNull();
 	}
 
+	@Test
+	public void requestWhenUserInfoRequestWithDPoPBoundAccessTokenThenUserInfoResponse() throws Exception {
+		this.spring.register(AuthorizationServerConfiguration.class).autowire();
+
+		OAuth2Authorization authorization = createAuthorization(TestJwks.DEFAULT_EC_JWK);
+		this.authorizationService.save(authorization);
+
+		OAuth2AccessToken accessToken = authorization.getAccessToken().getToken();
+		String dPoPProof = generateDPoPProof(HttpMethod.GET.name(),
+				"http://localhost" + DEFAULT_OIDC_USER_INFO_ENDPOINT_URI, accessToken.getTokenValue());
+		// @formatter:off
+		this.mvc.perform(get(DEFAULT_OIDC_USER_INFO_ENDPOINT_URI)
+				.header(HttpHeaders.AUTHORIZATION, "DPoP " + accessToken.getTokenValue())
+				.header(OAuth2AccessToken.TokenType.DPOP.getValue(), dPoPProof))
+				.andExpect(status().is2xxSuccessful())
+				.andExpectAll(userInfoResponse());
+		// @formatter:on
+	}
+
 	private static ResultMatcher[] userInfoResponse() {
 		// @formatter:off
 		return new ResultMatcher[] {
@@ -350,11 +381,21 @@ public class OidcUserInfoTests {
 		// @formatter:on
 	}
 
-	private OAuth2Authorization createAuthorization() {
+	private OAuth2Authorization createAuthorization() throws Exception {
+		return createAuthorization(null);
+	}
+
+	private OAuth2Authorization createAuthorization(JWK dPoPProofJwk) throws Exception {
 		JwsHeader headers = JwsHeader.with(SignatureAlgorithm.RS256).build();
+		String jwkThumbprint = (dPoPProofJwk != null) ? dPoPProofJwk.computeThumbprint().toString() : null;
 		// @formatter:off
 		JwtClaimsSet claimSet = JwtClaimsSet.builder()
-				.claims((claims) -> claims.putAll(createUserInfo().getClaims()))
+				.claims((claims) -> {
+					claims.putAll(createUserInfo().getClaims());
+					if (jwkThumbprint != null) {
+						claims.put("cnf", Collections.singletonMap("jkt", jwkThumbprint));
+					}
+				})
 				.build();
 		// @formatter:on
 		Jwt jwt = this.jwtEncoder.encode(JwtEncoderParameters.from(headers, claimSet));
@@ -362,13 +403,42 @@ public class OidcUserInfoTests {
 		Instant now = Instant.now();
 		Set<String> scopes = new HashSet<>(Arrays.asList(OidcScopes.OPENID, OidcScopes.ADDRESS, OidcScopes.EMAIL,
 				OidcScopes.PHONE, OidcScopes.PROFILE));
-		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, jwt.getTokenValue(),
-				now, now.plusSeconds(300), scopes);
+		OAuth2AccessToken.TokenType tokenType = (jwkThumbprint != null) ? OAuth2AccessToken.TokenType.DPOP
+				: OAuth2AccessToken.TokenType.BEARER;
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(tokenType, jwt.getTokenValue(), now, now.plusSeconds(300),
+				scopes);
 		OidcIdToken idToken = OidcIdToken.withTokenValue("id-token")
 			.claims((claims) -> claims.putAll(createUserInfo().getClaims()))
 			.build();
 
 		return TestOAuth2Authorizations.authorization().accessToken(accessToken).token(idToken).build();
+	}
+
+	private static String generateDPoPProof(String method, String resourceUri, String accessToken) throws Exception {
+		// @formatter:off
+		Map<String, Object> publicJwk = TestJwks.DEFAULT_EC_JWK
+				.toPublicJWK()
+				.toJSONObject();
+		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.ES256)
+				.type("dpop+jwt")
+				.jwk(publicJwk)
+				.build();
+		JwtClaimsSet claims = JwtClaimsSet.builder()
+				.issuedAt(Instant.now())
+				.claim("htm", method)
+				.claim("htu", resourceUri)
+				.claim("ath", computeSHA256(accessToken))
+				.id(UUID.randomUUID().toString())
+				.build();
+		// @formatter:on
+		Jwt jwt = dPoPProofJwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims));
+		return jwt.getTokenValue();
+	}
+
+	private static String computeSHA256(String value) throws Exception {
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		byte[] digest = md.digest(value.getBytes(StandardCharsets.UTF_8));
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 	}
 
 	private static OidcUserInfo createUserInfo() {
