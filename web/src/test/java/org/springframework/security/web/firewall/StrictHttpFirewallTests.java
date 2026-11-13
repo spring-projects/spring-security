@@ -18,6 +18,7 @@ package org.springframework.security.web.firewall;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
@@ -38,6 +39,11 @@ public class StrictHttpFirewallTests {
 
 	public String[] unnormalizedPaths = { "/..", "/./path/", "/path/path/.", "/path/path//.", "./path/../path//.",
 			"./path", ".//path", ".", "//path", "//path/path", "//path//path", "/path//path" };
+
+	private static final Pattern ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN = Pattern
+		.compile("[\\p{IsAssigned}&&[^\\p{IsControl}]]*");
+
+	private static final Pattern HEADER_VALUE_PATTERN = Pattern.compile("[\\p{IsAssigned}&&[[^\\p{IsControl}]||\\t]]*");
 
 	private StrictHttpFirewall firewall = new StrictHttpFirewall();
 
@@ -926,6 +932,23 @@ public class StrictHttpFirewallTests {
 	public void getFirewalledRequestGetDateHeaderWhenNameIsNullThenNegativeOne() {
 		HttpServletRequest request = this.firewall.getFirewalledRequest(this.request);
 		assertThat(request.getDateHeader(null)).isEqualTo(-1);
+	}
+
+	@Test
+	public void allowedHeaderNamesAndValuesWhenSingleCodePointThenSameAsPattern() {
+		for (int codePoint = Character.MIN_CODE_POINT; codePoint <= Character.MAX_CODE_POINT; codePoint++) {
+			String value = new String(Character.toChars(codePoint));
+			assertSameAsPattern(value);
+			assertSameAsPattern("a" + value + "b");
+		}
+	}
+
+	private static void assertSameAsPattern(String value) {
+		boolean expectedName = ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN.matcher(value).matches();
+		boolean expectedValue = HEADER_VALUE_PATTERN.matcher(value).matches();
+		assertThat(StrictHttpFirewall.ALLOWED_HEADER_NAMES.test(value)).as(value).isEqualTo(expectedName);
+		assertThat(StrictHttpFirewall.ALLOWED_HEADER_VALUES.test(value)).as(value).isEqualTo(expectedValue);
+		assertThat(StrictHttpFirewall.ALLOWED_PARAMETER_NAMES.test(value)).as(value).isEqualTo(expectedName);
 	}
 
 }
