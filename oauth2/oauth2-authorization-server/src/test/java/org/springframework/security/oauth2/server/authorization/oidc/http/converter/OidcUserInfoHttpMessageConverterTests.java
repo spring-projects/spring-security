@@ -184,6 +184,20 @@ public class OidcUserInfoHttpMessageConverterTests {
 	}
 
 	@Test
+	public void writeInternalWhenUpdatedAtInstantThenWritesEpochSeconds() {
+		OidcUserInfo userInfo = OidcUserInfo.builder()
+			.subject("user1")
+			.updatedAt(Instant.ofEpochSecond(1607633867))
+			.build();
+		MockHttpOutputMessage outputMessage = new MockHttpOutputMessage();
+
+		this.messageConverter.writeInternal(userInfo, outputMessage);
+
+		String userInfoResponse = outputMessage.getBodyAsString();
+		assertThat(userInfoResponse).contains("\"updated_at\":1607633867");
+	}
+
+	@Test
 	public void writeInternalWhenWriteFailsThenThrowsException() {
 		String errorMessage = "this is not a valid converter";
 		Converter<OidcUserInfo, Map<String, Object>> failingConverter = (source) -> {
