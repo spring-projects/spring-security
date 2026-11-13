@@ -16,6 +16,8 @@
 
 package org.springframework.security.oauth2.server.authorization.web.authentication;
 
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.PlainJWT;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -85,10 +87,42 @@ public class JwtClientAssertionAuthenticationConverterTests {
 	}
 
 	@Test
-	public void convertWhenMissingClientIdThenInvalidRequestError() {
+	public void convertWhenMissingClientIdAndMalformedAssertionThenInvalidRequestError() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter(OAuth2ParameterNames.CLIENT_ASSERTION_TYPE, JWT_BEARER_TYPE);
 		request.addParameter(OAuth2ParameterNames.CLIENT_ASSERTION, "jwt-assertion");
+		assertThrown(request, OAuth2ErrorCodes.INVALID_REQUEST);
+	}
+
+	@Test
+	public void convertWhenMissingClientIdThenResolveAssertionSubject() {
+		String assertion = new PlainJWT(new JWTClaimsSet.Builder().subject("client-1").build()).serialize();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addParameter(OAuth2ParameterNames.CLIENT_ASSERTION_TYPE, JWT_BEARER_TYPE);
+		request.addParameter(OAuth2ParameterNames.CLIENT_ASSERTION, assertion);
+		OAuth2ClientAuthenticationToken authentication = (OAuth2ClientAuthenticationToken) this.converter
+			.convert(request);
+		assertThat(authentication.getPrincipal()).isEqualTo("client-1");
+		assertThat(authentication.getCredentials()).isEqualTo(assertion);
+		assertThat(authentication.isAuthenticated()).isFalse();
+	}
+
+	@Test
+	public void convertWhenMissingClientIdAndMissingSubjectThenInvalidRequestError() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addParameter(OAuth2ParameterNames.CLIENT_ASSERTION_TYPE, JWT_BEARER_TYPE);
+		request.addParameter(OAuth2ParameterNames.CLIENT_ASSERTION,
+				new PlainJWT(new JWTClaimsSet.Builder().build()).serialize());
+		assertThrown(request, OAuth2ErrorCodes.INVALID_REQUEST);
+	}
+
+	@Test
+	public void convertWhenEmptyClientIdThenInvalidRequestError() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addParameter(OAuth2ParameterNames.CLIENT_ASSERTION_TYPE, JWT_BEARER_TYPE);
+		request.addParameter(OAuth2ParameterNames.CLIENT_ASSERTION,
+				new PlainJWT(new JWTClaimsSet.Builder().subject("client-1").build()).serialize());
+		request.addParameter(OAuth2ParameterNames.CLIENT_ID, "");
 		assertThrown(request, OAuth2ErrorCodes.INVALID_REQUEST);
 	}
 
