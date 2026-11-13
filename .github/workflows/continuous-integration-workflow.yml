@@ -58,7 +58,7 @@ jobs:
     name: Deploy Schema
     needs: [ setup, deploy-artifacts ]
     if: needs.setup.outputs.release-channel == 'oss'
-    uses: spring-io/spring-security-release-tools/.github/workflows/ci-deploy-schema.yml@2da533f3d91484ee6a9346677473649e6cd08988 # v1.1.3
+    uses: spring-io/spring-security-release-tools/.github/workflows/ci-deploy-schema.yml@2a1fcccb8e12e8e09eab8375d7b9d206d1591737 # v1.1.4
     with:
       java-version: '25'
       runner: ${{ vars.UBUNTU_RUNS_ON }}
