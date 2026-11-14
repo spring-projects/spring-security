@@ -30,6 +30,7 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -330,6 +331,39 @@ public class SwitchUserFilterTests {
 		assertThatExceptionOfType(AuthenticationException.class)
 			.isThrownBy(() -> filter.doFilter(request, response, chain));
 		verify(chain, never()).doFilter(request, response);
+	}
+
+	// gh-19418
+	@Test
+	public void attemptSwitchUserWithNoCurrentUserFails() {
+		SecurityContextHolder.clearContext();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
+		SwitchUserFilter filter = new SwitchUserFilter();
+		filter.setUserDetailsService(new MockUserDetailsService());
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+			.isThrownBy(() -> filter.attemptSwitchUser(request))
+			.withMessageContaining("No current user associated with this request");
+	}
+
+	// gh-19418
+	@Test
+	public void switchUserWithNoCurrentUserInvokesFailureHandler() throws Exception {
+		SecurityContextHolder.clearContext();
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/login/impersonate");
+		request.setContextPath("/mywebapp");
+		request.setRequestURI("/mywebapp/login/impersonate");
+		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		SwitchUserFilter filter = new SwitchUserFilter();
+		filter.setTargetUrl("/target");
+		filter.setUserDetailsService(new MockUserDetailsService());
+		filter.setSwitchFailureUrl("/switchfailed");
+		filter.afterPropertiesSet();
+		FilterChain chain = mock(FilterChain.class);
+		filter.doFilter(request, response, chain);
+		verify(chain, never()).doFilter(request, response);
+		assertThat(response.getRedirectedUrl()).isEqualTo("/mywebapp/switchfailed");
 	}
 
 	@Test
