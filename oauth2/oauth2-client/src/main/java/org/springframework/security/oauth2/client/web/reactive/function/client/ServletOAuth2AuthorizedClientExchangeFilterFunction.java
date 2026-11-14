@@ -374,13 +374,17 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 
 	@Override
 	public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
+		return mergeRequestAttributesIfNecessary(request).flatMap((req) -> authorizeAndExchange(req, next));
+	}
+
+	private Mono<ClientResponse> authorizeAndExchange(ClientRequest request, ExchangeFunction next) {
 		// @formatter:off
-		return mergeRequestAttributesIfNecessary(request)
+		return Mono.just(request)
 				.filter((req) -> req.attribute(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME).isPresent())
 				.flatMap((req) -> reauthorizeClient(getOAuth2AuthorizedClient(req.attributes()), req))
 				.switchIfEmpty(
 						Mono.defer(() ->
-							mergeRequestAttributesIfNecessary(request)
+							Mono.just(request)
 								.filter((req) -> resolveClientRegistrationId(req) != null)
 								.flatMap((req) -> authorizeClient(resolveClientRegistrationId(req), req))
 						)
