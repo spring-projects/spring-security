@@ -140,6 +140,13 @@ class StrictServerWebExchangeFirewallTests {
 		assertThatExceptionOfType(ServerExchangeRejectedException.class).isThrownBy(() -> getFirewalledExchange());
 	}
 
+	// gh-19995
+	@Test
+	void getFirewalledExchangeWhenQueryMethodThenNoException() {
+		this.request = MockServerHttpRequest.method(HttpMethod.QUERY, "/");
+		getFirewalledExchange();
+	}
+
 	@Test
 	void getFirewalledExchangeWhenAllowedThenNoException() {
 		List<String> allowedMethods = Arrays.asList("DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT");
