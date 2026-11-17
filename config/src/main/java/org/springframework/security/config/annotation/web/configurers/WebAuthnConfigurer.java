@@ -22,10 +22,14 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.ResolvableType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -180,7 +184,7 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		ProviderManager providerManager = new ProviderManager(
 				new WebAuthnAuthenticationProvider(rpOperations, userDetailsService));
 		getBeanOrNull(AuthenticationEventPublisher.class).ifPresent(providerManager::setAuthenticationEventPublisher);
-		webAuthnAuthnFilter.setAuthenticationManager(providerManager);
+		webAuthnAuthnFilter.setAuthenticationManager(authenticationManagerPostProcessor().postProcess(providerManager));
 		webAuthnAuthnFilter = postProcess(webAuthnAuthnFilter);
 		WebAuthnRegistrationFilter webAuthnRegistrationFilter = new WebAuthnRegistrationFilter(userCredentials,
 				rpOperations);
@@ -231,6 +235,17 @@ public class WebAuthnConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
 		return context.getBeanProvider(PublicKeyCredentialCreationOptionsRepository.class).getIfUnique();
+	}
+
+	private ObjectPostProcessor<AuthenticationManager> authenticationManagerPostProcessor() {
+		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
+		if (context == null) {
+			return ObjectPostProcessor.identity();
+		}
+		ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class,
+				AuthenticationManager.class);
+		ObjectProvider<ObjectPostProcessor<AuthenticationManager>> postProcessors = context.getBeanProvider(type);
+		return postProcessors.getIfUnique(ObjectPostProcessor::identity);
 	}
 
 	private <C> Optional<C> getSharedOrBean(H http, Class<C> type) {
