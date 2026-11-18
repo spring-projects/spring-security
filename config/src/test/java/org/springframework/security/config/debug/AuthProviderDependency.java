@@ -19,7 +19,7 @@ package org.springframework.security.config.debug;
 import org.springframework.stereotype.Component;
 
 /**
- * Fake depenency for {@link TestAuthenticationProvider}
+ * Fake dependency for {@link TestAuthenticationProvider}
  *
  * @author Rob Winch
  *
