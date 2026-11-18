@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -96,6 +97,30 @@ public class SecurityMockMvcResultMatchersTests {
 			this.mockMvc
 				.perform(formLogin())
 				.andExpect(authenticated().withRoles("USER"))
+		// @formatter:on
+		);
+	}
+
+	@Test
+	public void withRolesAndWithAuthoritiesWhenAllAuthoritiesMatchThenSuccess() throws Exception {
+		// @formatter:off
+		this.mockMvc
+			.perform(formLogin())
+			.andExpect(authenticated()
+				.withRoles("USER", "SELLER")
+				.withAuthorities("ROLE_USER", "ROLE_SELLER", FactorGrantedAuthority.PASSWORD_AUTHORITY));
+		// @formatter:on
+	}
+
+	@Test
+	public void withRolesAndWithAuthoritiesWhenNonRoleAuthorityMissingThenFails() throws Exception {
+		assertThatExceptionOfType(AssertionError.class).isThrownBy(() ->
+		// @formatter:off
+			this.mockMvc
+				.perform(formLogin())
+				.andExpect(authenticated()
+					.withRoles("USER", "SELLER")
+					.withAuthorities("ROLE_USER", "ROLE_SELLER"))
 		// @formatter:on
 		);
 	}
