@@ -16,12 +16,16 @@
 
 package org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import com.nimbusds.jose.jwk.JWKSet;
@@ -43,6 +47,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -73,7 +78,13 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResp
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
 import org.springframework.security.oauth2.jose.TestJwks;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2ClientRegistration;
@@ -137,6 +148,8 @@ public class OAuth2ClientRegistrationTests {
 
 	private static JWKSource<SecurityContext> jwkSource;
 
+	private static NimbusJwtEncoder dPoPProofJwtEncoder;
+
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
@@ -166,6 +179,9 @@ public class OAuth2ClientRegistrationTests {
 	public static void init() {
 		JWKSet jwkSet = new JWKSet(TestJwks.DEFAULT_RSA_JWK);
 		jwkSource = (jwkSelector, securityContext) -> jwkSelector.select(jwkSet);
+		JWKSet clientJwkSet = new JWKSet(TestJwks.DEFAULT_EC_JWK);
+		JWKSource<SecurityContext> clientJwkSource = (jwkSelector, securityContext) -> jwkSelector.select(clientJwkSet);
+		dPoPProofJwtEncoder = new NimbusJwtEncoder(clientJwkSource);
 		db = new EmbeddedDatabaseBuilder().generateUniqueName(true)
 			.setType(EmbeddedDatabaseType.HSQL)
 			.setScriptEncoding("UTF-8")
@@ -499,6 +515,62 @@ public class OAuth2ClientRegistrationTests {
 				""")).isEqualTo(HttpStatus.BAD_REQUEST.value());
 	}
 
+	@Test
+	public void requestWhenClientRegistrationRequestWithDPoPBoundAccessTokenThenClientRegistrationResponse()
+			throws Exception {
+		this.spring.register(AuthorizationServerConfiguration.class).autowire();
+
+		String clientRegistrationScope = "client.create";
+		// @formatter:off
+		RegisteredClient clientRegistrar = RegisteredClient.withId("client-registrar-1")
+				.clientId("client-registrar-1")
+				.clientSecret("{noop}secret")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+				.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+				.scope(clientRegistrationScope)
+				.build();
+		// @formatter:on
+		this.registeredClientRepository.save(clientRegistrar);
+
+		String tokenEndpointUri = ISSUER.concat(DEFAULT_TOKEN_ENDPOINT_URI);
+		MvcResult mvcResult = this.mvc
+			.perform(post(tokenEndpointUri)
+				.param(OAuth2ParameterNames.GRANT_TYPE, AuthorizationGrantType.CLIENT_CREDENTIALS.getValue())
+				.param(OAuth2ParameterNames.SCOPE, clientRegistrationScope)
+				.with(httpBasic("client-registrar-1", "secret"))
+				.header(OAuth2AccessToken.TokenType.DPOP.getValue(),
+						generateDPoPProof(HttpMethod.POST.name(), tokenEndpointUri, null)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.token_type").value(OAuth2AccessToken.TokenType.DPOP.getValue()))
+			.andReturn();
+		OAuth2AccessToken accessToken = readAccessTokenResponse(mvcResult.getResponse()).getAccessToken();
+
+		// @formatter:off
+		OAuth2ClientRegistration clientRegistration = OAuth2ClientRegistration.builder()
+				.clientName("client-name")
+				.redirectUri("https://client.example.com")
+				.grantType(AuthorizationGrantType.AUTHORIZATION_CODE.getValue())
+				.grantType(AuthorizationGrantType.CLIENT_CREDENTIALS.getValue())
+				.scope("scope1")
+				.scope("scope2")
+				.build();
+		// @formatter:on
+
+		String clientRegistrationEndpointUri = ISSUER.concat(DEFAULT_OAUTH2_CLIENT_REGISTRATION_ENDPOINT_URI);
+		mvcResult = this.mvc
+			.perform(post(clientRegistrationEndpointUri)
+				.header(HttpHeaders.AUTHORIZATION, "DPoP " + accessToken.getTokenValue())
+				.header(OAuth2AccessToken.TokenType.DPOP.getValue(),
+						generateDPoPProof(HttpMethod.POST.name(), clientRegistrationEndpointUri,
+								accessToken.getTokenValue()))
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(getClientRegistrationRequestContent(clientRegistration)))
+			.andExpect(status().isCreated())
+			.andReturn();
+
+		assertClientRegistrationResponse(clientRegistration, readClientRegistrationResponse(mvcResult.getResponse()));
+	}
+
 	private int requestWhenInvalidClientMetadataThenBadRequest(String json) throws Exception {
 		String clientRegistrationScope = "client.create";
 		// @formatter:off
@@ -594,6 +666,34 @@ public class OAuth2ClientRegistrationTests {
 			.containsExactlyInAnyOrderElementsOf(clientRegistrationRequest.getScopes());
 		assertThat(clientRegistrationResponse.getTokenEndpointAuthenticationMethod())
 			.isEqualTo(ClientAuthenticationMethod.CLIENT_SECRET_BASIC.getValue());
+	}
+
+	private static String generateDPoPProof(String method, String targetUri, String accessToken) throws Exception {
+		// @formatter:off
+		Map<String, Object> publicJwk = TestJwks.DEFAULT_EC_JWK
+				.toPublicJWK()
+				.toJSONObject();
+		JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.ES256)
+				.type("dpop+jwt")
+				.jwk(publicJwk)
+				.build();
+		JwtClaimsSet.Builder claims = JwtClaimsSet.builder()
+				.issuedAt(Instant.now())
+				.claim("htm", method)
+				.claim("htu", targetUri)
+				.id(UUID.randomUUID().toString());
+		// @formatter:on
+		if (accessToken != null) {
+			claims.claim("ath", computeSHA256(accessToken));
+		}
+		Jwt jwt = dPoPProofJwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims.build()));
+		return jwt.getTokenValue();
+	}
+
+	private static String computeSHA256(String value) throws Exception {
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+		byte[] digest = md.digest(value.getBytes(StandardCharsets.UTF_8));
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(digest);
 	}
 
 	private static OAuth2AccessTokenResponse readAccessTokenResponse(MockHttpServletResponse response)
