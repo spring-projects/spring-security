@@ -54,6 +54,7 @@ dependencies {
 	provided 'jakarta.servlet:jakarta.servlet-api'
 
 	testImplementation project(path: ':spring-security-core', configuration: 'tests')
+	testImplementation 'ch.qos.logback:logback-classic'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'jakarta.xml.bind:jakarta.xml.bind-api'
 	testImplementation 'jakarta.websocket:jakarta.websocket-api'
