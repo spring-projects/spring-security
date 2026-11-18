@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006, 2017 Acegi Technology Pty Limited
+ * Copyright 2004, 2005, 2006, 2017, 2026 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,8 +127,6 @@ public class BasicLookupStrategy implements LookupStrategy {
 
 	private final Field fieldAces = FieldUtils.getField(AclImpl.class, "aces");
 
-	private final Field fieldAcl = FieldUtils.getField(AccessControlEntryImpl.class, "acl");
-
 	// SQL Customization fields
 	private String selectClause = DEFAULT_SELECT_CLAUSE;
 
@@ -171,7 +169,6 @@ public class BasicLookupStrategy implements LookupStrategy {
 		this.objectIdentityGenerator = new ObjectIdentityRetrievalStrategyImpl();
 		this.aclClassIdUtils = new AclClassIdUtils();
 		this.fieldAces.setAccessible(true);
-		this.fieldAcl.setAccessible(true);
 	}
 
 	private String computeRepeatingSql(String repeatingSql, int requiredRepetitions) {
@@ -201,22 +198,11 @@ public class BasicLookupStrategy implements LookupStrategy {
 		}
 	}
 
-	private void setAclOnAce(AccessControlEntryImpl ace, AclImpl acl) {
-		try {
-			this.fieldAcl.set(ace, acl);
-		}
-		catch (IllegalAccessException ex) {
-			throw new IllegalStateException("Could not or set AclImpl on AccessControlEntryImpl fields", ex);
-		}
-	}
-
-	private void setAces(AclImpl acl, List<AccessControlEntryImpl> aces) {
-		try {
-			this.fieldAces.set(acl, aces);
-		}
-		catch (IllegalAccessException ex) {
-			throw new IllegalStateException("Could not set AclImpl entries", ex);
-		}
+	private void addAces(AclImpl acl, List<AccessControlEntryImpl> aces) {
+		// Populate the existing aces list in place rather than replacing the
+		// (final) field reference via reflection, which Java 26+ blocks. The
+		// list itself is mutable; only the field that holds it is final.
+		readAces(acl).addAll(aces);
 	}
 
 	/**
@@ -407,25 +393,19 @@ public class BasicLookupStrategy implements LookupStrategy {
 		AclImpl result = new AclImpl(inputAcl.getObjectIdentity(), inputAcl.getId(), this.aclAuthorizationStrategy,
 				this.grantingStrategy, parent, null, inputAcl.isEntriesInheriting(), owner);
 
-		// Copy the "aces" from the input to the destination
-
-		// Obtain the "aces" from the input ACL
+		// Copy the "aces" from the input to the destination.
+		//
+		// Re-create each AccessControlEntryImpl rather than mutating its final
+		// "acl" back-reference via reflection, so that StubAclParent references
+		// are replaced with the new "result" AclImpl instance (as per SEC-951).
+		// Java 26+ blocks reflective mutation of final fields.
 		List<AccessControlEntryImpl> aces = readAces(inputAcl);
-
-		// Create a list in which to store the "aces" for the "result" AclImpl instance
-		List<AccessControlEntryImpl> acesNew = new ArrayList<>();
-
-		// Iterate over the "aces" input and replace each nested
-		// AccessControlEntryImpl.getAcl() with the new "result" AclImpl instance
-		// This ensures StubAclParent instances are removed, as per SEC-951
+		List<AccessControlEntryImpl> acesNew = new ArrayList<>(aces.size());
 		for (AccessControlEntryImpl ace : aces) {
-			setAclOnAce(ace, result);
-			acesNew.add(ace);
+			acesNew.add(new AccessControlEntryImpl(ace.getId(), result, ace.getSid(), ace.getPermission(),
+					ace.isGranting(), ace.isAuditSuccess(), ace.isAuditFailure()));
 		}
-
-		// Finally, now that the "aces" have been converted to have the "result" AclImpl
-		// instance, modify the "result" AclImpl instance
-		setAces(result, acesNew);
+		addAces(result, acesNew);
 
 		return result;
 	}
