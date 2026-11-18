@@ -37,9 +37,9 @@ import org.springframework.security.web.authentication.ott.OneTimeTokenGeneratio
  * @property authenticationSuccessHandler the [AuthenticationSuccessHandler] to be used
  * @property generateRequestResolver the [GenerateOneTimeTokenRequestResolver] to be used
  * @property defaultSubmitPageUrl sets the URL that the default submit page will be generated
- * @property showDefaultSubmitPage configures whether the default one-time token submit page should be shown
  * @property loginProcessingUrl the URL to process the login request
  * @property tokenGeneratingUrl the URL that a One-Time Token generate request will be processed
+ * @property showDefaultSubmitPage configures whether the default one-time token submit page should be shown
  * @property oneTimeTokenGenerationSuccessHandler the strategy to be used to handle generated one-time tokens
  * @property authenticationProvider the [AuthenticationProvider] to use when authenticating the user
  */
@@ -73,7 +73,7 @@ class OneTimeTokenLoginDsl {
             }
             generateRequestResolver?.also {
                 oneTimeTokenLoginConfigurer.generateRequestResolver(
-                        generateRequestResolver
+                    generateRequestResolver
                 )
             }
             defaultSubmitPageUrl?.also { oneTimeTokenLoginConfigurer.defaultSubmitPageUrl(defaultSubmitPageUrl) }
