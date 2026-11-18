@@ -30,11 +30,11 @@ public final class CryptoAssumptions {
 	}
 
 	public static void assumeGCMJCE() {
-		assumeAes256("GCM");
+		assumeAes256("AES/GCM/NoPadding");
 	}
 
 	public static void assumeCBCJCE() {
-		assumeAes256("CBC");
+		assumeAes256("AES/CBC/PKCS5Padding");
 	}
 
 	private static void assumeAes256(String cipherAlgorithm) {
