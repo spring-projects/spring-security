@@ -19,6 +19,7 @@ package org.springframework.security.web;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
 
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -145,6 +146,11 @@ public class FilterInvocationTests {
 		Enumeration<String> headers = request.getHeaders("unknown");
 		assertThat(headers.hasMoreElements()).isFalse();
 		assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(headers::nextElement);
+	}
+
+	@Test
+	public void dummyRequestDispatcherTypeIsRequest() {
+		assertThat(new DummyRequest().getDispatcherType()).isEqualTo(DispatcherType.REQUEST);
 	}
 
 }
