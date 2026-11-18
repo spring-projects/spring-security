@@ -391,8 +391,7 @@ public class JdbcMutableAclServiceTests {
 		this.jdbcMutableAclService.updateAcl(parent);
 		child = (MutableAcl) this.jdbcMutableAclService.readAclById(childOid);
 		parent = (MutableAcl) child.getParentAcl();
-		assertThat(parent.getEntries()).hasSize(2)
-			.withFailMessage("Fails because child has a stale reference to its parent");
+		assertThat(parent.getEntries()).as("Fails because child has a stale reference to its parent").hasSize(2);
 		assertThat(parent.getEntries().get(0).getPermission().getMask()).isEqualTo(1);
 		assertThat(parent.getEntries().get(0).getSid()).isEqualTo(new PrincipalSid("ben"));
 		assertThat(parent.getEntries().get(1).getPermission().getMask()).isEqualTo(1);

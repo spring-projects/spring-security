@@ -138,7 +138,7 @@ public class EnableWebFluxSecurityTests {
 				.expectStatus().isOk()
 				.returnResult(String.class);
 		// @formatter:on
-		result.assertWithDiagnostics(() -> assertThat(result.getResponseCookies().isEmpty()));
+		result.assertWithDiagnostics(() -> assertThat(result.getResponseCookies()).isEmpty());
 	}
 
 	@Test
