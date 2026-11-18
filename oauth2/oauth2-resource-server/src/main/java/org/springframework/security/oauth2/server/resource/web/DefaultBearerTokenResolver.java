@@ -42,7 +42,7 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 
 	private static final String ACCESS_TOKEN_PARAMETER_NAME = "access_token";
 
-	private static final Pattern authorizationPattern = Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+=*)$",
+	private static final Pattern authorizationPattern = Pattern.compile("^Bearer +(?<token>[a-zA-Z0-9-._~+/]+=*)$",
 			Pattern.CASE_INSENSITIVE);
 
 	private boolean allowFormEncodedBodyParameter = false;
