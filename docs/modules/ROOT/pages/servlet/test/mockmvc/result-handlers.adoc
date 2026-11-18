@@ -55,6 +55,8 @@ List<String> userMessages = messageRepository.findAllUserMessages();
 assertThat(userMessages).hasSize(1);
 ----
 
+If the `TestSecurityContextHolder` does not contain an `Authentication`, for example when the request uses `with(user("user"))` or `formLogin()` instead of `@WithMockUser`, the `SecurityContext` saved in the `SecurityContextRepository` by the request is exported instead.
+
 [NOTE]
 ====
 Remember to clear the `SecurityContextHolder` between your tests, or it may leak amongst them

@@ -19,6 +19,8 @@ package org.springframework.security.test.web.servlet.response;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.TestSecurityContextHolder;
+import org.springframework.security.test.web.support.WebTestUtils;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultHandler;
@@ -36,7 +38,10 @@ public final class SecurityMockMvcResultHandlers {
 
 	/**
 	 * Exports the {@link SecurityContext} from {@link TestSecurityContextHolder} to
-	 * {@link SecurityContextHolder}.
+	 * {@link SecurityContextHolder}. If {@link TestSecurityContextHolder} does not
+	 * contain an {@link org.springframework.security.core.Authentication}, the
+	 * {@link SecurityContext} saved by the request in the
+	 * {@link SecurityContextRepository} is exported instead.
 	 */
 	public static ResultHandler exportTestSecurityContext() {
 		return new ExportTestSecurityContextHandler();
@@ -44,7 +49,9 @@ public final class SecurityMockMvcResultHandlers {
 
 	/**
 	 * A {@link ResultHandler} that copies the {@link SecurityContext} from
-	 * {@link TestSecurityContextHolder} to {@link SecurityContextHolder}.
+	 * {@link TestSecurityContextHolder}, or from the {@link SecurityContextRepository}
+	 * when {@link TestSecurityContextHolder} has no authentication, to
+	 * {@link SecurityContextHolder}.
 	 *
 	 * @author Marcus da Coregio
 	 * @since 5.6
@@ -53,7 +60,17 @@ public final class SecurityMockMvcResultHandlers {
 
 		@Override
 		public void handle(MvcResult result) {
-			SecurityContextHolder.setContext(TestSecurityContextHolder.getContext());
+			SecurityContext securityContext = TestSecurityContextHolder.getContext();
+			if (securityContext.getAuthentication() == null) {
+				SecurityContextRepository securityContextRepository = WebTestUtils
+					.getSecurityContextRepository(result.getRequest());
+				SecurityContext repositoryContext = securityContextRepository.loadDeferredContext(result.getRequest())
+					.get();
+				if (repositoryContext.getAuthentication() != null) {
+					securityContext = repositoryContext;
+				}
+			}
+			SecurityContextHolder.setContext(securityContext);
 		}
 
 	}

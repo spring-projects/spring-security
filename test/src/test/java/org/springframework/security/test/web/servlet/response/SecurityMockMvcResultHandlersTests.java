@@ -22,15 +22,23 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,6 +46,8 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultHandlers.exportTestSecurityContext;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -64,7 +74,7 @@ public class SecurityMockMvcResultHandlersTests {
 
 	@AfterEach
 	public void tearDown() {
-		SecurityContextHolder.clearContext();
+		TestSecurityContextHolder.clearContext();
 	}
 
 	@Test
@@ -88,10 +98,69 @@ public class SecurityMockMvcResultHandlersTests {
 		assertThat(authentication).isNull();
 	}
 
+	@Test
+	public void withUserRequestPostProcessorThenSecurityContextRepositoryCopiedToSecurityContextHolder()
+			throws Exception {
+		this.mockMvc.perform(get("/").with(user("bob"))).andDo(exportTestSecurityContext());
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		assertThat(authentication.getName()).isEqualTo("bob");
+	}
+
+	@Test
+	public void withFormLoginThenSecurityContextRepositoryCopiedToSecurityContextHolder() throws Exception {
+		this.mockMvc.perform(formLogin()).andDo(exportTestSecurityContext());
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		assertThat(authentication.getName()).isEqualTo("user");
+	}
+
+	@Test
+	public void withoutAuthenticationThenNothingCopiedToSecurityContextHolder() throws Exception {
+		this.mockMvc.perform(get("/")).andDo(exportTestSecurityContext());
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		assertThat(authentication).isNull();
+	}
+
+	@Test
+	@WithMockUser
+	public void withTestSecurityContextAndOtherUserInSecurityContextRepositoryThenTestSecurityContextCopied()
+			throws Exception {
+		this.mockMvc.perform(get("/").with(user("bob"))).andDo(exportTestSecurityContext());
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		assertThat(authentication.getName()).isEqualTo("user");
+	}
+
+	@Test
+	public void withTestSecurityContextAndEmptySecurityContextRepositoryThenTestSecurityContextCopied()
+			throws Exception {
+		MvcResult result = this.mockMvc.perform(get("/")).andReturn();
+		TestSecurityContextHolder.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+		exportTestSecurityContext().handle(result);
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		assertThat(authentication.getName()).isEqualTo("user");
+	}
+
 	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class Config {
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			// @formatter:off
+			UserDetails user = User.withDefaultPasswordEncoder().username("user").password("password").roles("USER").build();
+			// @formatter:on
+			return new InMemoryUserDetailsManager(user);
+		}
 
 		@RestController
 		static class Controller {
