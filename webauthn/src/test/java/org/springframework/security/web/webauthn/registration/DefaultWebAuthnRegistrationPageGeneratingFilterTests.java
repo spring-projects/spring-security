@@ -105,6 +105,25 @@ class DefaultWebAuthnRegistrationPageGeneratingFilterTests {
 	}
 
 	@Test
+	void doFilterWhenNoCsrfTokenThenNoCsrfHeaderOrInput() throws Exception {
+		PublicKeyCredentialUserEntity userEntity = ImmutablePublicKeyCredentialUserEntity.builder()
+			.name("user")
+			.id(TestBytes.get())
+			.displayName("User")
+			.build();
+		given(this.userEntities.findByUsername(any())).willReturn(userEntity);
+		given(this.userCredentials.findByUserId(userEntity.getId()))
+			.willReturn(Arrays.asList(TestCredentialRecords.userCredential().build()));
+		String body = bodyAsString(get("/webauthn/register"));
+		assertThat(body).contains("setupRegistration({}");
+		assertThat(body.replaceAll("\\s", "")).contains("""
+				<form class="delete-form no-margin" method="post" action="/webauthn/register/NauGCN7bZ5jEBwThcde51g">
+					<input type="hidden" name="method" value="delete">
+					<button class="primary small" type="submit">Delete</button>
+				</form>""".replaceAll("\\s", ""));
+	}
+
+	@Test
 	void doFilterWhenNullPublicKeyCredentialUserEntityThenNoResults() throws Exception {
 		String body = bodyAsString(matchingRequest());
 		assertThat(body).contains("No Passkeys");
