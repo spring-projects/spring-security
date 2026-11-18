@@ -317,6 +317,36 @@ public class ServerBearerTokenAuthenticationConverterTests {
 	}
 
 	@Test
+	public void resolveWhenContentTypeContainsCharsetAndBodyParameterIsPresentThenTokenIsResolved() {
+		this.converter.setAllowFormEncodedBodyParameter(true);
+		MockServerHttpRequest request = MockServerHttpRequest.post("/")
+			.header(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded;charset=UTF-8")
+			.body("access_token=" + TEST_TOKEN);
+
+		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
+	}
+
+	@Test
+	public void resolveWhenContentTypeIsUppercaseAndBodyParameterIsPresentThenTokenIsResolved() {
+		this.converter.setAllowFormEncodedBodyParameter(true);
+		MockServerHttpRequest request = MockServerHttpRequest.post("/")
+			.header(HttpHeaders.CONTENT_TYPE, "APPLICATION/X-WWW-FORM-URLENCODED")
+			.body("access_token=" + TEST_TOKEN);
+
+		assertThat(convertToToken(request).getToken()).isEqualTo(TEST_TOKEN);
+	}
+
+	@Test
+	public void resolveWhenContentTypeIsWildcardAndBodyParameterIsPresentThenTokenIsNotResolved() {
+		this.converter.setAllowFormEncodedBodyParameter(true);
+		MockServerHttpRequest request = MockServerHttpRequest.post("/")
+			.header(HttpHeaders.CONTENT_TYPE, "*/*")
+			.body("access_token=" + TEST_TOKEN);
+
+		assertThat(convertToToken(request)).isNull();
+	}
+
+	@Test
 	public void resolveWhenNoBodyParameterThenTokenIsNotResolved() {
 		this.converter.setAllowFormEncodedBodyParameter(true);
 		MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.post("/")
