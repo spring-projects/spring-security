@@ -53,8 +53,11 @@ public class OrServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 
 	@Override
 	public Mono<MatchResult> matches(ServerWebExchange exchange) {
-		return Flux.fromIterable(this.matchers)
-			.doOnNext((matcher) -> logger.debug(LogMessage.format("Trying to match using %s", matcher)))
+		return Flux.fromIterable(this.matchers).doOnNext((matcher) -> {
+			if (logger.isDebugEnabled()) {
+				logger.debug(LogMessage.format("Trying to match using %s", matcher));
+			}
+		})
 			.flatMap((matcher) -> matcher.matches(exchange))
 			.filter(MatchResult::isMatch)
 			.next()
