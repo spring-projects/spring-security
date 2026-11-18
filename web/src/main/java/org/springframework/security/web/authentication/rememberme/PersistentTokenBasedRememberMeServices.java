@@ -162,6 +162,21 @@ public class PersistentTokenBasedRememberMeServices extends AbstractRememberMeSe
 		super.logout(request, response, authentication);
 		if (authentication != null) {
 			this.tokenRepository.removeUserTokens(authentication.getName());
+			return;
+		}
+
+		String rememberMeCookie = extractRememberMeCookie(request);
+		if (rememberMeCookie != null) {
+			try {
+				String[] cookieTokens = decodeCookie(rememberMeCookie);
+				PersistentRememberMeToken persistentToken = this.tokenRepository.getTokenForSeries(cookieTokens[0]);
+				if (persistentToken != null) {
+					this.tokenRepository.removeUserTokens(persistentToken.getUsername());
+				}
+			}
+			catch (InvalidCookieException ex) {
+				// Ignore invalid remember-me cookies during logout
+			}
 		}
 	}
 
