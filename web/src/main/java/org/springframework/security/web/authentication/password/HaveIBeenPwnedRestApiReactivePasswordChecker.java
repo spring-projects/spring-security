@@ -19,6 +19,7 @@ package org.springframework.security.web.authentication.password;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.Locale;
 
 import org.apache.commons.logging.Log;
@@ -30,7 +31,6 @@ import reactor.core.scheduler.Schedulers;
 
 import org.springframework.security.authentication.password.CompromisedPasswordDecision;
 import org.springframework.security.authentication.password.ReactiveCompromisedPasswordChecker;
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -57,7 +57,7 @@ public class HaveIBeenPwnedRestApiReactivePasswordChecker implements ReactiveCom
 
 	@Override
 	public Mono<CompromisedPasswordDecision> check(@Nullable String password) {
-		return getHash(password).map((hash) -> new String(Hex.encode(hash)))
+		return getHash(password).map((hash) -> HexFormat.of().formatHex(hash))
 			.flatMap(this::findLeakedPassword)
 			.defaultIfEmpty(Boolean.FALSE)
 			.map(CompromisedPasswordDecision::new);

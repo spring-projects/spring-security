@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.server.authorization.web;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HexFormat;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,7 +37,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -180,19 +180,19 @@ public class OAuth2ClientAuthenticationFilterTests {
 	public void doFilterWhenRequestMatchesAndClientIdContainsNonPrintableASCIIThenInvalidRequestError()
 			throws Exception {
 		// Hex 00 -> null
-		String clientId = new String(Hex.decode("00"), StandardCharsets.UTF_8);
+		String clientId = new String(HexFormat.of().parseHex("00"), StandardCharsets.UTF_8);
 		assertWhenInvalidClientIdThenInvalidRequestError(clientId);
 
 		// Hex 0a61 -> line feed + a
-		clientId = new String(Hex.decode("0a61"), StandardCharsets.UTF_8);
+		clientId = new String(HexFormat.of().parseHex("0a61"), StandardCharsets.UTF_8);
 		assertWhenInvalidClientIdThenInvalidRequestError(clientId);
 
 		// Hex 1b -> escape
-		clientId = new String(Hex.decode("1b"), StandardCharsets.UTF_8);
+		clientId = new String(HexFormat.of().parseHex("1b"), StandardCharsets.UTF_8);
 		assertWhenInvalidClientIdThenInvalidRequestError(clientId);
 
 		// Hex 1b61 -> escape + a
-		clientId = new String(Hex.decode("1b61"), StandardCharsets.UTF_8);
+		clientId = new String(HexFormat.of().parseHex("1b61"), StandardCharsets.UTF_8);
 		assertWhenInvalidClientIdThenInvalidRequestError(clientId);
 	}
 

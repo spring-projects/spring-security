@@ -16,13 +16,14 @@
 
 package org.springframework.security.crypto.encrypt;
 
+import java.util.HexFormat;
+
 import javax.crypto.SecretKey;
 import javax.crypto.spec.PBEKeySpec;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.encrypt.AesBytesEncryptor.CipherAlgorithm;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm;
@@ -47,7 +48,7 @@ public class AesBytesEncryptorTests {
 	@BeforeEach
 	public void setUp() {
 		this.generator = mock(BytesKeyGenerator.class);
-		given(this.generator.generateKey()).willReturn(Hex.decode("4b0febebd439db7ca77153cb254520c3"));
+		given(this.generator.generateKey()).willReturn(HexFormat.of().parseHex("4b0febebd439db7ca77153cb254520c3"));
 		given(this.generator.getKeyLength()).willReturn(16);
 	}
 
@@ -65,7 +66,7 @@ public class AesBytesEncryptorTests {
 		CryptoAssumptions.assumeCBCJCE();
 		AesBytesEncryptor encryptor = new AesBytesEncryptor(this.password, this.hexSalt, this.generator);
 		byte[] encryption = encryptor.encrypt(this.secret.getBytes());
-		assertThat(new String(Hex.encode(encryption)))
+		assertThat(new String(HexFormat.of().formatHex(encryption)))
 			.isEqualTo("4b0febebd439db7ca77153cb254520c3b7232ac29355d07869433f1ecf55fe94");
 		byte[] decryption = encryptor.decrypt(encryption);
 		assertThat(new String(decryption)).isEqualTo(this.secret);
@@ -77,7 +78,7 @@ public class AesBytesEncryptorTests {
 		AesBytesEncryptor encryptor = new AesBytesEncryptor(this.password, this.hexSalt, this.generator,
 				CipherAlgorithm.GCM);
 		byte[] encryption = encryptor.encrypt(this.secret.getBytes());
-		assertThat(new String(Hex.encode(encryption)))
+		assertThat(new String(HexFormat.of().formatHex(encryption)))
 			.isEqualTo("4b0febebd439db7ca77153cb254520c3e4d61ae38207b4e42b820d311dc3d4e0e2f37ed5ee");
 		byte[] decryption = encryptor.decrypt(encryption);
 		assertThat(new String(decryption)).isEqualTo(this.secret);
@@ -86,11 +87,12 @@ public class AesBytesEncryptorTests {
 	@Test
 	public void roundtripWhenUsingSecretKeyThenEncryptsAndDecrypts() {
 		CryptoAssumptions.assumeGCMJCE();
-		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), Hex.decode(this.hexSalt), 1024, 256);
+		PBEKeySpec keySpec = new PBEKeySpec(this.password.toCharArray(), HexFormat.of().parseHex(this.hexSalt), 1024,
+				256);
 		SecretKey secretKey = CipherUtils.newSecretKey(SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1.name(), keySpec);
 		AesBytesEncryptor encryptor = new AesBytesEncryptor(secretKey, this.generator, CipherAlgorithm.GCM);
 		byte[] encryption = encryptor.encrypt(this.secret.getBytes());
-		assertThat(new String(Hex.encode(encryption)))
+		assertThat(new String(HexFormat.of().formatHex(encryption)))
 			.isEqualTo("4b0febebd439db7ca77153cb254520c3e4d61ae38207b4e42b820d311dc3d4e0e2f37ed5ee");
 		byte[] decryption = encryptor.decrypt(encryption);
 		assertThat(new String(decryption)).isEqualTo(this.secret);

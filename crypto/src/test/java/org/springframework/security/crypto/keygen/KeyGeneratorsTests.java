@@ -17,10 +17,9 @@
 package org.springframework.security.crypto.keygen;
 
 import java.util.Arrays;
+import java.util.HexFormat;
 
 import org.junit.jupiter.api.Test;
-
-import org.springframework.security.crypto.codec.Hex;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -61,7 +60,7 @@ public class KeyGeneratorsTests {
 		StringKeyGenerator keyGenerator = KeyGenerators.string();
 		String hexStringKey = keyGenerator.generateKey();
 		assertThat(hexStringKey).hasSize(16);
-		assertThat(Hex.decode(hexStringKey)).hasSize(8);
+		assertThat(HexFormat.of().parseHex(hexStringKey)).hasSize(8);
 		String hexStringKey2 = keyGenerator.generateKey();
 		assertThat(hexStringKey.equals(hexStringKey2)).isFalse();
 	}
