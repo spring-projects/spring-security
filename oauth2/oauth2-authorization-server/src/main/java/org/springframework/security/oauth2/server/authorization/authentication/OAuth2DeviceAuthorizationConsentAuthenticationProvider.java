@@ -50,6 +50,7 @@ import org.springframework.util.Assert;
  * used in the OAuth 2.0 Device Authorization Grant.
  *
  * @author Steve Riesenberg
+ * @author Andrey Litvitski
  * @since 7.0
  * @see OAuth2DeviceAuthorizationConsentAuthenticationToken
  * @see OAuth2AuthorizationConsent
@@ -183,7 +184,7 @@ public final class OAuth2DeviceAuthorizationConsentAuthenticationProvider implem
 		OAuth2Authorization.Token<OAuth2UserCode> userCodeToken = authorization.getToken(OAuth2UserCode.class);
 		Assert.notNull(userCodeToken, "userCode cannot be null");
 
-		if (authorities.isEmpty()) {
+		if (authorities.isEmpty() && !requestedScopes.isEmpty()) {
 			// Authorization consent denied (or revoked)
 			if (currentAuthorizationConsent != null) {
 				this.authorizationConsentService.remove(currentAuthorizationConsent);
@@ -203,11 +204,13 @@ public final class OAuth2DeviceAuthorizationConsentAuthenticationProvider implem
 			throw createException(OAuth2ErrorCodes.ACCESS_DENIED, OAuth2ParameterNames.CLIENT_ID);
 		}
 
-		OAuth2AuthorizationConsent authorizationConsent = authorizationConsentBuilder.build();
-		if (currentAuthorizationConsent == null || !authorizationConsent.equals(currentAuthorizationConsent)) {
-			this.authorizationConsentService.save(authorizationConsent);
-			if (this.logger.isTraceEnabled()) {
-				this.logger.trace("Saved authorization consent");
+		if (!authorities.isEmpty()) {
+			OAuth2AuthorizationConsent authorizationConsent = authorizationConsentBuilder.build();
+			if (currentAuthorizationConsent == null || !authorizationConsent.equals(currentAuthorizationConsent)) {
+				this.authorizationConsentService.save(authorizationConsent);
+				if (this.logger.isTraceEnabled()) {
+					this.logger.trace("Saved authorization consent");
+				}
 			}
 		}
 
