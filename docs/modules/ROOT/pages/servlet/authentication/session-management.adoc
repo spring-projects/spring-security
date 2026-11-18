@@ -148,7 +148,7 @@ If you are using a custom authentication mechanism, you might want to <<store-au
 === Storing the `Authentication` manually
 
 In some cases, for example, you might be authenticating a user manually instead of relying on Spring Security filters.
-You can use a custom filters or a {spring-framework-reference-url}/web.html#mvc-controller[Spring MVC controller] endpoint to do that.
+You can use a custom filters or a {spring-framework-reference-url}web/webmvc/mvc-controller.html[Spring MVC controller] endpoint to do that.
 If you want to save the authentication between requests, in the `HttpSession`, for example, you have to do so:
 
 [tabs]
