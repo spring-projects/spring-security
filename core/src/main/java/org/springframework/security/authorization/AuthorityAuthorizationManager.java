@@ -35,7 +35,7 @@ import org.springframework.util.Assert;
  * @since 5.5
  * @see AllAuthoritiesAuthorizationManager
  */
-public final class AuthorityAuthorizationManager<T> implements AuthorizationManager<T> {
+public final class AuthorityAuthorizationManager<T extends @Nullable Object> implements AuthorizationManager<T> {
 
 	private static final String ROLE_PREFIX = "ROLE_";
 
@@ -65,7 +65,7 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
 	 */
-	public static <T> AuthorityAuthorizationManager<T> hasRole(String role) {
+	public static <T extends @Nullable Object> AuthorityAuthorizationManager<T> hasRole(String role) {
 		Assert.notNull(role, "role cannot be null");
 		Assert.isTrue(!role.startsWith(ROLE_PREFIX), () -> role + " should not start with " + ROLE_PREFIX + " since "
 				+ ROLE_PREFIX + " is automatically prepended when using hasRole. Consider using hasAuthority instead.");
@@ -79,7 +79,7 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
 	 */
-	public static <T> AuthorityAuthorizationManager<T> hasAuthority(String authority) {
+	public static <T extends @Nullable Object> AuthorityAuthorizationManager<T> hasAuthority(String authority) {
 		Assert.notNull(authority, "authority cannot be null");
 		return new AuthorityAuthorizationManager<>(authority);
 	}
@@ -92,7 +92,7 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
 	 */
-	public static <T> AuthorityAuthorizationManager<T> hasAnyRole(String... roles) {
+	public static <T extends @Nullable Object> AuthorityAuthorizationManager<T> hasAnyRole(String... roles) {
 		return hasAnyRole(ROLE_PREFIX, roles);
 	}
 
@@ -104,7 +104,8 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
 	 */
-	public static <T> AuthorityAuthorizationManager<T> hasAnyRole(String rolePrefix, String[] roles) {
+	public static <T extends @Nullable Object> AuthorityAuthorizationManager<T> hasAnyRole(String rolePrefix,
+			String[] roles) {
 		Assert.notNull(rolePrefix, "rolePrefix cannot be null");
 		Assert.notEmpty(roles, "roles cannot be empty");
 		Assert.noNullElements(roles, "roles cannot contain null values");
@@ -118,7 +119,7 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
 	 */
-	public static <T> AuthorityAuthorizationManager<T> hasAnyAuthority(String... authorities) {
+	public static <T extends @Nullable Object> AuthorityAuthorizationManager<T> hasAnyAuthority(String... authorities) {
 		Assert.notEmpty(authorities, "authorities cannot be empty");
 		Assert.noNullElements(authorities, "authorities cannot contain null values");
 		return new AuthorityAuthorizationManager<>(authorities);
