@@ -49,7 +49,12 @@ public final class InMemoryClientRegistrationRepository
 	 * @param registrations the client registration(s)
 	 */
 	public InMemoryClientRegistrationRepository(ClientRegistration... registrations) {
-		this(Arrays.asList(registrations));
+		this(toList(registrations));
+	}
+
+	private static List<ClientRegistration> toList(ClientRegistration... registrations) {
+		Assert.notEmpty(registrations, "registrations cannot be null or empty");
+		return Arrays.asList(registrations);
 	}
 
 	/**
@@ -69,6 +74,7 @@ public final class InMemoryClientRegistrationRepository
 	private static Map<String, ClientRegistration> toUnmodifiableConcurrentMap(List<ClientRegistration> registrations) {
 		ConcurrentHashMap<String, ClientRegistration> result = new ConcurrentHashMap<>();
 		for (ClientRegistration registration : registrations) {
+			Assert.notNull(registration, "no registration can be null");
 			Assert.state(!result.containsKey(registration.getRegistrationId()),
 					() -> String.format("Duplicate key %s", registration.getRegistrationId()));
 			result.put(registration.getRegistrationId(), registration);
