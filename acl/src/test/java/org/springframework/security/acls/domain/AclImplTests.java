@@ -493,6 +493,20 @@ public class AclImplTests {
 		ace.hashCode();
 	}
 
+	@Test
+	public void hashCodeWhenStrategiesDifferThenMatchesEquals() {
+		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, 100);
+		Sid sid = new PrincipalSid("joe");
+		AclAuthorizationStrategy authz = mock(AclAuthorizationStrategy.class);
+		AclAuthorizationStrategy otherAuthz = mock(AclAuthorizationStrategy.class);
+		PermissionGrantingStrategy pgs = new DefaultPermissionGrantingStrategy(this.mockAuditLogger);
+		PermissionGrantingStrategy otherPgs = new DefaultPermissionGrantingStrategy(this.mockAuditLogger);
+		AclImpl acl = new AclImpl(oid, 1L, authz, pgs, null, null, true, sid);
+		AclImpl other = new AclImpl(oid, 1L, otherAuthz, otherPgs, null, null, true, sid);
+		assertThat(acl).isEqualTo(other);
+		assertThat(acl.hashCode()).isEqualTo(other.hashCode());
+	}
+
 	private static class MaskPermissionGrantingStrategy extends DefaultPermissionGrantingStrategy {
 
 		MaskPermissionGrantingStrategy(AuditLogger auditLogger) {
