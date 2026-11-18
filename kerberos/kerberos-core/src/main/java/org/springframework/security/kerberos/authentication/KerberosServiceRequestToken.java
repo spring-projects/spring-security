@@ -186,6 +186,7 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 	 * @return the decrypted message
 	 * @throws PrivilegedActionException if jaas throws and error
 	 */
+	@SuppressWarnings("removal")
 	public byte[] decrypt(final byte[] data, final int offset, final int length) throws PrivilegedActionException {
 		KerberosTicketValidation validation = getTicketValidation();
 		if (validation == null) {
@@ -220,6 +221,7 @@ public class KerberosServiceRequestToken extends AbstractAuthenticationToken imp
 	 * @return the encrypted message
 	 * @throws PrivilegedActionException if jaas throws and error
 	 */
+	@SuppressWarnings("removal")
 	public byte[] encrypt(final byte[] data, final int offset, final int length) throws PrivilegedActionException {
 		KerberosTicketValidation validation = getTicketValidation();
 		if (validation == null) {
