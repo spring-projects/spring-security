@@ -37,6 +37,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -148,8 +149,50 @@ public final class ClientRegistrations {
 	 * Provider Configuration.
 	 */
 	public static ClientRegistration.Builder fromOidcIssuerLocation(String issuer) {
+		return fromOidcIssuerLocation(issuer, rest);
+	}
+
+	/**
+	 * Creates a {@link ClientRegistration.Builder} using the provided <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * by making an <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">OpenID
+	 * Provider Configuration Request</a> and using the values in the <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
+	 * Provider Configuration Response</a> to initialize the
+	 * {@link ClientRegistration.Builder}.
+	 *
+	 * <p>
+	 * For example, if the issuer provided is "https://example.com", then an "OpenID
+	 * Provider Configuration Request" will be made to
+	 * "https://example.com/.well-known/openid-configuration". The result is expected to
+	 * be an "OpenID Provider Configuration Response".
+	 * </p>
+	 *
+	 * This method uses the provided {@link RestOperations} to query oidc issuer
+	 * configuration.
+	 *
+	 * <p>
+	 * Example usage:
+	 * </p>
+	 * <pre>
+	 * RestTemplate rest = new RestTemplate();
+	 * ClientRegistration registration = ClientRegistrations.fromOidcIssuerLocation("https://example.com", rest)
+	 *     .clientId("client-id")
+	 *     .clientSecret("client-secret")
+	 *     .build();
+	 * </pre>
+	 * @param issuer the <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * @param restOperations the {@link RestOperations} to use
+	 * @return a {@link ClientRegistration.Builder} that was initialized by the OpenID
+	 * Provider Configuration.
+	 * @since 7.2
+	 */
+	public static ClientRegistration.Builder fromOidcIssuerLocation(String issuer, RestOperations restOperations) {
 		Assert.hasText(issuer, "issuer cannot be empty");
-		return getBuilder(issuer, oidc(issuer));
+		Assert.notNull(restOperations, "restOperations cannot be null");
+		return getBuilder(issuer, oidc(issuer, restOperations));
 	}
 
 	/**
@@ -191,11 +234,65 @@ public final class ClientRegistrations {
 	 * described endpoints
 	 */
 	public static ClientRegistration.Builder fromIssuerLocation(String issuer) {
-		Assert.hasText(issuer, "issuer cannot be empty");
-		return getBuilder(issuer, oidc(issuer), oidcRfc8414(issuer), oauth(issuer));
+		return fromIssuerLocation(issuer, rest);
 	}
 
-	static Supplier<ClientRegistration.Builder> oidc(String issuer) {
+	/**
+	 * Creates a {@link ClientRegistration.Builder} using the provided <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * by querying three different discovery endpoints serially, using the values in the
+	 * first successful response to initialize. If an endpoint returns anything other than
+	 * a 200 or a 4xx, the method will exit without attempting subsequent endpoints.
+	 *
+	 * <p>
+	 * The three endpoints are computed as follows, given that the {@code issuer} is
+	 * composed of a {@code host} and a {@code path}:
+	 * </p>
+	 *
+	 * <ol>
+	 * <li>{@code host/.well-known/openid-configuration/path}, as defined in
+	 * <a href="https://tools.ietf.org/html/rfc8414#section-5">RFC 8414's Compatibility
+	 * Notes</a>.</li>
+	 * <li>{@code issuer/.well-known/openid-configuration}, as defined in <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">
+	 * OpenID Provider Configuration</a>.</li>
+	 * <li>{@code host/.well-known/oauth-authorization-server/path}, as defined in
+	 * <a href="https://tools.ietf.org/html/rfc8414#section-3.1">Authorization Server
+	 * Metadata Request</a>.</li>
+	 * </ol>
+	 *
+	 * Note that the second endpoint is the equivalent of calling
+	 * {@link ClientRegistrations#fromOidcIssuerLocation(String)}.
+	 *
+	 * <p>
+	 * This method uses the provided {@link RestOperations} to query issuer configuration.
+	 * </p>
+	 *
+	 * <p>
+	 * Example usage:
+	 * </p>
+	 * <pre>
+	 * RestTemplate rest = new RestTemplate();
+	 * ClientRegistration registration = ClientRegistrations.fromIssuerLocation("https://example.com", rest)
+	 *     .clientId("client-id")
+	 *     .clientSecret("client-secret")
+	 *     .build();
+	 * </pre>
+	 * @param issuer the <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * @param restOperations the {@link RestOperations} to use
+	 * @return a {@link ClientRegistration.Builder} that was initialized by one of the
+	 * described endpoints
+	 * @since 7.2
+	 */
+	public static ClientRegistration.Builder fromIssuerLocation(String issuer, RestOperations restOperations) {
+		Assert.hasText(issuer, "issuer cannot be empty");
+		Assert.notNull(restOperations, "restOperations cannot be null");
+		return getBuilder(issuer, oidc(issuer, restOperations), oidcRfc8414(issuer, restOperations),
+				oauth(issuer, restOperations));
+	}
+
+	static Supplier<ClientRegistration.Builder> oidc(String issuer, RestOperations rest) {
 		UriComponents uri = oidcUri(issuer);
 		// @formatter:on
 		return () -> {
@@ -220,10 +317,10 @@ public final class ClientRegistrations {
 				.build();
 	}
 
-	static Supplier<ClientRegistration.Builder> oidcRfc8414(String issuer) {
+	static Supplier<ClientRegistration.Builder> oidcRfc8414(String issuer, RestOperations rest) {
 		UriComponents uri = oidcRfc8414Uri(issuer);
 		// @formatter:on
-		return getRfc8414Builder(issuer, uri);
+		return getRfc8414Builder(issuer, uri, rest);
 	}
 
 	static UriComponents oidcRfc8414Uri(String issuer) {
@@ -234,9 +331,9 @@ public final class ClientRegistrations {
 				.build();
 	}
 
-	static Supplier<ClientRegistration.Builder> oauth(String issuer) {
+	static Supplier<ClientRegistration.Builder> oauth(String issuer, RestOperations rest) {
 		UriComponents uri = oauthUri(issuer);
-		return getRfc8414Builder(issuer, uri);
+		return getRfc8414Builder(issuer, uri, rest);
 	}
 
 	static UriComponents oauthUri(String issuer) {
@@ -248,7 +345,8 @@ public final class ClientRegistrations {
 		// @formatter:on
 	}
 
-	private static Supplier<ClientRegistration.Builder> getRfc8414Builder(String issuer, UriComponents uri) {
+	private static Supplier<ClientRegistration.Builder> getRfc8414Builder(String issuer, UriComponents uri,
+			RestOperations rest) {
 		return () -> {
 			RequestEntity<Void> request = RequestEntity.get(uri.toUriString()).build();
 			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
@@ -317,9 +415,6 @@ public final class ClientRegistrations {
 	private static ClientRegistration.Builder withProviderConfiguration(AuthorizationServerMetadata metadata,
 			String issuer) {
 		String metadataIssuer = metadata.getIssuer().getValue();
-		Assert.state(issuer.equals(metadataIssuer),
-				() -> "The Issuer \"" + metadataIssuer + "\" provided in the configuration metadata did "
-						+ "not match the requested issuer \"" + issuer + "\"");
 		String name = URI.create(issuer).getHost();
 		ClientAuthenticationMethod method = getClientAuthenticationMethod(metadata.getTokenEndpointAuthMethods());
 		URI authorizationEndpointURI = metadata.getAuthorizationEndpointURI();
@@ -336,6 +431,7 @@ public final class ClientRegistrations {
 				.authorizationUri((authorizationEndpointURI != null) ? authorizationEndpointURI.toASCIIString() : null)
 				.providerConfigurationMetadata(configurationMetadata)
 				.issuerUri(issuer)
+				.trustedIssuer(metadataIssuer)
 				.clientName(issuer);
 		if (tokenEndpointURI != null) {
 			builder.tokenUri(tokenEndpointURI.toASCIIString());

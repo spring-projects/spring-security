@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestOperations;
 
 /**
  * Allows creating a {@link JwtDecoder} from an <a href=
@@ -30,6 +31,7 @@ import org.springframework.util.Assert;
  *
  * @author Josh Cummings
  * @author Rafiullah Hamedy
+ * @author Evgeniy Cheban
  * @since 5.1
  */
 public final class JwtDecoders {
@@ -55,6 +57,32 @@ public final class JwtDecoders {
 		Assert.hasText(oidcIssuerLocation, "oidcIssuerLocation cannot be empty");
 		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils
 			.getConfigurationForOidcIssuerLocation(oidcIssuerLocation);
+		return (T) withProviderConfiguration(configuration, oidcIssuerLocation);
+	}
+
+	/**
+	 * Creates a {@link JwtDecoder} using the provided <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * by making an <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">OpenID
+	 * Provider Configuration Request</a> and using the values in the <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
+	 * Provider Configuration Response</a> to initialize the {@link JwtDecoder}. This
+	 * method uses {@link RestOperations} to query oidc issuer configuration.
+	 * @param oidcIssuerLocation the <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * @param restOperations the {@link RestOperations} to use
+	 * @return a {@link JwtDecoder} that was initialized by the OpenID Provider
+	 * Configuration.
+	 * @since 7.2
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T extends JwtDecoder> T fromOidcIssuerLocation(String oidcIssuerLocation,
+			RestOperations restOperations) {
+		Assert.hasText(oidcIssuerLocation, "oidcIssuerLocation cannot be empty");
+		Assert.notNull(restOperations, "restOperations cannot be null");
+		Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils
+			.getConfigurationForOidcIssuerLocation(oidcIssuerLocation, restOperations);
 		return (T) withProviderConfiguration(configuration, oidcIssuerLocation);
 	}
 
@@ -90,6 +118,49 @@ public final class JwtDecoders {
 	public static <T extends JwtDecoder> T fromIssuerLocation(String issuer) {
 		Assert.hasText(issuer, "issuer cannot be empty");
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
+		OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
+		jwtDecoder.setJwtValidator(jwtValidator);
+		return (T) jwtDecoder;
+	}
+
+	/**
+	 * Creates a {@link JwtDecoder} using the provided <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * by querying three different discovery endpoints serially, using the values in the
+	 * first successful response to initialize. If an endpoint returns anything other than
+	 * a 200 or a 4xx, the method will exit without attempting subsequent endpoints.
+	 *
+	 * <p>
+	 * The three endpoints are computed as follows, given that the {@code issuer} is
+	 * composed of a {@code host} and a {@code path}:
+	 * </p>
+	 *
+	 * <ol>
+	 * <li>{@code host/.well-known/openid-configuration/path}, as defined in
+	 * <a href="https://tools.ietf.org/html/rfc8414#section-5">RFC 8414's Compatibility
+	 * Notes</a>.</li>
+	 * <li>{@code issuer/.well-known/openid-configuration}, as defined in <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">
+	 * OpenID Provider Configuration</a>.</li>
+	 * <li>{@code host/.well-known/oauth-authorization-server/path}, as defined in
+	 * <a href="https://tools.ietf.org/html/rfc8414#section-3.1">Authorization Server
+	 * Metadata Request</a>.</li>
+	 * </ol>
+	 *
+	 * Note that the second endpoint is the equivalent of calling
+	 * {@link JwtDecoders#fromOidcIssuerLocation(String)}
+	 * @param issuer the <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * @param restOperations the {@link RestOperations} to use
+	 * @return a {@link JwtDecoder} that was initialized by one of the described endpoints
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T extends JwtDecoder> T fromIssuerLocation(String issuer, RestOperations restOperations) {
+		Assert.hasText(issuer, "issuer cannot be empty");
+		Assert.notNull(restOperations, "restOperations cannot be null");
+		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
+			.restOperations(restOperations)
+			.build();
 		OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
 		jwtDecoder.setJwtValidator(jwtValidator);
 		return (T) jwtDecoder;
