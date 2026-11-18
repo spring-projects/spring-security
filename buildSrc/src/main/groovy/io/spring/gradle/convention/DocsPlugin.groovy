@@ -25,7 +25,7 @@ public class DocsPlugin implements Plugin<Project> {
 			subproject.pluginManager.withPlugin("security-kotlin") {
 				subproject.pluginManager.apply("org.jetbrains.dokka")
 				configureDokka(subproject)
-				project.dependencies.add("dokka", subproject)
+				project.dependencies.add("dokka", project.dependencyFactory.createProjectDependency(subproject.path))
 			}
 		}
 

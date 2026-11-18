@@ -166,8 +166,8 @@ configure(project.tasks.withType(Test)) {
 }
 
 test {
-	onOutput { descriptor, event ->
-		if (!project.hasProperty('serialization')) {
+	addTestOutputListener { descriptor, event ->
+		if (!providers.gradleProperty('serialization').isPresent()) {
 			return
 		}
 		if (descriptor.name=='listClassesMissingSerialVersion()') {
