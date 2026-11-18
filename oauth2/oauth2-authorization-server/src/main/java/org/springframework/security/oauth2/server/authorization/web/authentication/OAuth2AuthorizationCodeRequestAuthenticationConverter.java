@@ -85,7 +85,8 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationConverter impleme
 		}
 
 		MultiValueMap<String, String> parameters = "GET".equals(request.getMethod())
-				? OAuth2EndpointUtils.getQueryParameters(request) : OAuth2EndpointUtils.getFormParameters(request);
+				? OAuth2EndpointParameters.getQueryParameters(request)
+				: OAuth2EndpointParameters.getFormParameters(request);
 
 		boolean pushedAuthorizationRequest = isPushedAuthorizationRequest(request);
 

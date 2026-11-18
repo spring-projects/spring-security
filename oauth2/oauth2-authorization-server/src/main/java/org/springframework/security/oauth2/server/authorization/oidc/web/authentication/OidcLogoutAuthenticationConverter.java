@@ -31,6 +31,7 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcLogoutAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.oidc.web.OidcLogoutEndpointFilter;
+import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2EndpointParameters;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -54,7 +55,8 @@ public final class OidcLogoutAuthenticationConverter implements AuthenticationCo
 	@Override
 	public Authentication convert(HttpServletRequest request) {
 		MultiValueMap<String, String> parameters = "GET".equals(request.getMethod())
-				? OAuth2EndpointUtils.getQueryParameters(request) : OAuth2EndpointUtils.getFormParameters(request);
+				? OAuth2EndpointParameters.getQueryParameters(request)
+				: OAuth2EndpointParameters.getFormParameters(request);
 
 		// id_token_hint (REQUIRED) // RECOMMENDED as per spec
 		String idTokenHint = parameters.getFirst("id_token_hint");
