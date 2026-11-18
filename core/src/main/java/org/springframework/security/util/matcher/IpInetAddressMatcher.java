@@ -94,6 +94,13 @@ final class IpInetAddressMatcher implements InetAddressMatcher {
 		}
 		byte[] remAddr = toCheck.getAddress();
 		byte[] reqAddr = this.requiredAddress.getAddress();
+		if (remAddr.length != reqAddr.length) {
+			// Different address families (IPv4 vs IPv6): never match, per the class-level
+			// contract. Without this check, a mask wide enough to exceed the shorter
+			// array's length throws ArrayIndexOutOfBoundsException instead of returning
+			// false.
+			return false;
+		}
 		int nMaskFullBytes = this.nMaskBits / 8;
 		byte finalByte = (byte) (0xFF00 >> (this.nMaskBits & 0x07));
 		for (int i = 0; i < nMaskFullBytes; i++) {
