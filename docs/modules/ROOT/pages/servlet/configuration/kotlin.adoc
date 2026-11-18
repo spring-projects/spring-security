@@ -381,7 +381,7 @@ A top level Security Dsl can be summarized as any class Dsl class that matches `
 This translates to any Security Dsl that is a single argument to a public method on `HttpSecurityDsl`.
 
 A few examples can help to clarify.
-If `ContentTypeOptionsDsl.() -> Unit` is published as a Bean, it will not be be automatically applied because it is an argument to `HeadersDsl#contentTypeOptions(ContentTypeOptionsDsl.() -> Unit)` and is not an argument to a method defined on `HttpSecurityDsl`.
+If `ContentTypeOptionsDsl.() -> Unit` is published as a Bean, it will not be automatically applied because it is an argument to `HeadersDsl#contentTypeOptions(ContentTypeOptionsDsl.() -> Unit)` and is not an argument to a method defined on `HttpSecurityDsl`.
 However, if `HeadersDsl.() -> Unit` is published as a Bean, it will be automatically applied because it is an argument to `HttpSecurityDsl.headers(HeadersDsl.() -> Unit)`.
 
 For example, the following configuration ensure all `HttpSecurityDsl` instances are configured to:
@@ -398,9 +398,9 @@ First, all xref:servlet/configuration/java.adoc#modular-httpsecurity-configurati
 Second, each xref:#httpsecuritydsl-bean[HttpSecurityDsl.() -> Unit Beans] is applied using {spring-framework-api-url}org/springframework/beans/factory/ObjectProvider.html#orderedStream()[ObjectProvider#orderedStream()].
 This means that if there are multiple `HttpSecurity.() -> Unit` Beans, the {spring-framework-api-url}org/springframework/core/annotation/Order.html[@Order] annotation can be added to the Bean definitions to control the ordering.
 
-Next, every xref:#top-level-dsl-bean[Top Level Security Dsl Beans] type is looked up and each is is applied using `ObjectProvider#orderedStream()`.
-If there is are different types of top level security Beans (e.g. `HeadersDsl.() -> Unit` and `HttpsRedirectDsl.() -> Unit`), then the order that each Dsl type is invoked is undefined.
-However, the order that each instance of of the same top level security Bean type is defined by `ObjectProvider#orderedStream()` and can be controlled using `@Order` on the Bean the definitions.
+Next, every xref:#top-level-dsl-bean[Top Level Security Dsl Beans] type is looked up and each is applied using `ObjectProvider#orderedStream()`.
+If there are different types of top level security Beans (e.g. `HeadersDsl.() -> Unit` and `HttpsRedirectDsl.() -> Unit`), then the order that each Dsl type is invoked is undefined.
+However, the order that each instance of the same top level security Bean type is defined by `ObjectProvider#orderedStream()` and can be controlled using `@Order` on the Bean definitions.
 
 Finally, the `HttpSecurityDsl` Bean is injected as a Bean.
 All `*Dsl.() -> Unit` Beans are applied before the `HttpSecurityDsl` Bean is created.
