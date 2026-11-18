@@ -544,6 +544,7 @@ public class HeaderSpecTests {
 				.exchangeMatchers("/foo/**")
 				.policyDirectives("script-src 'self'"))
 			.contentSecurityPolicy((csp) -> csp
+				.exchangeMatchers("/bar/**")
 				.policyDirectives(policyDirectives)));
 		// @formatter:on
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.http.build()).build();
@@ -552,6 +553,37 @@ public class HeaderSpecTests {
 			.uri("https://example.com/bar")
 			.exchange()
 			.expectHeader().valueEquals(headerName, policyDirectives);
+		client.get()
+			.uri("https://example.com/foo")
+			.exchange()
+			.expectHeader().doesNotExist(headerName);
+		// @formatter:on
+	}
+
+	@Test
+	public void headersWhenContentSecurityPolicyComposedThenRepeatedCallsDoesNotClobberPreviousOnes() {
+		String headerName = ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY_REPORT_ONLY;
+		String policyDirectives = "script-src 'self'";
+		// @formatter:off
+		this.http.headers((headers) -> headers
+			.contentSecurityPolicy((csp) -> csp
+				.exchangeMatchers("/ssr/**")
+				.policyDirectives(policyDirectives))
+			.contentSecurityPolicy((csp) -> csp
+				.reportOnly(true)));
+		// @formatter:on
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.http.build()).build();
+		// @formatter:off
+		client.get()
+			.uri("https://example.com/ssr/foo")
+			.exchange()
+			.expectHeader().doesNotExist(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY)
+			.expectHeader().valueEquals(headerName, policyDirectives);
+		client.get()
+			.uri("https://example.com/static/bar")
+			.exchange()
+			.expectHeader().doesNotExist(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY)
+			.expectHeader().doesNotExist(headerName);
 		// @formatter:on
 	}
 

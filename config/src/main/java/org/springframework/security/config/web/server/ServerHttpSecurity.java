@@ -2477,7 +2477,7 @@ public class ServerHttpSecurity {
 
 		private PermissionsPolicyServerHttpHeadersWriter permissionsPolicy = new PermissionsPolicyServerHttpHeadersWriter();
 
-		private ContentSecurityPolicyServerHttpHeadersWriter contentSecurityPolicy = new ContentSecurityPolicyServerHttpHeadersWriter();
+		private final ContentSecurityPolicySpec contentSecurityPolicy = new ContentSecurityPolicySpec();
 
 		private ReferrerPolicyServerHttpHeadersWriter referrerPolicy = new ReferrerPolicyServerHttpHeadersWriter();
 
@@ -2487,13 +2487,11 @@ public class ServerHttpSecurity {
 
 		private CrossOriginResourcePolicyServerHttpHeadersWriter crossOriginResourcePolicy = new CrossOriginResourcePolicyServerHttpHeadersWriter();
 
-		private @Nullable ContentSecurityPolicyNonceGeneratingWebFilter nonceGeneratingFilter;
-
 		private HeaderSpec() {
 			this.writers = new ArrayList<>(Arrays.asList(this.cacheControl, this.contentTypeOptions, this.hsts,
-					this.frameOptions, this.xss, this.featurePolicy, this.permissionsPolicy, this.contentSecurityPolicy,
-					this.referrerPolicy, this.crossOriginOpenerPolicy, this.crossOriginEmbedderPolicy,
-					this.crossOriginResourcePolicy));
+					this.frameOptions, this.xss, this.featurePolicy, this.permissionsPolicy,
+					this.contentSecurityPolicy.writer, this.referrerPolicy, this.crossOriginOpenerPolicy,
+					this.crossOriginEmbedderPolicy, this.crossOriginResourcePolicy));
 		}
 
 		/**
@@ -2566,9 +2564,9 @@ public class ServerHttpSecurity {
 			ServerHttpHeadersWriter writer = new CompositeServerHttpHeadersWriter(this.writers);
 			HttpHeaderWriterWebFilter result = new HttpHeaderWriterWebFilter(writer);
 			http.addFilterAt(result, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
-			// nonceGeneratingFilter is instantiated iff CSP is configured
-			if (this.nonceGeneratingFilter != null) {
-				http.addFilterBefore(this.nonceGeneratingFilter, SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
+			if (this.contentSecurityPolicy.isEnabled()) {
+				http.addFilterBefore(this.contentSecurityPolicy.nonceGeneratingFilter,
+						SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
 			}
 		}
 
@@ -2590,7 +2588,7 @@ public class ServerHttpSecurity {
 		 * @return the {@link HeaderSpec} to customize
 		 */
 		public HeaderSpec contentSecurityPolicy(Customizer<ContentSecurityPolicySpec> contentSecurityPolicyCustomizer) {
-			contentSecurityPolicyCustomizer.customize(new ContentSecurityPolicySpec());
+			contentSecurityPolicyCustomizer.customize(this.contentSecurityPolicy.enable());
 			return this;
 		}
 
@@ -2846,12 +2844,24 @@ public class ServerHttpSecurity {
 
 			private static final String DEFAULT_SRC_SELF_POLICY = "default-src 'self'";
 
-			private final ContentSecurityPolicyNonceGeneratingWebFilter nonceGeneratingFilter = new ContentSecurityPolicyNonceGeneratingWebFilter();
+			private final ContentSecurityPolicyServerHttpHeadersWriter writer = new ContentSecurityPolicyServerHttpHeadersWriter();
+
+			private @Nullable ContentSecurityPolicyNonceGeneratingWebFilter nonceGeneratingFilter;
 
 			private ContentSecurityPolicySpec() {
-				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(DEFAULT_SRC_SELF_POLICY);
-				HeaderSpec.this.contentSecurityPolicy.setExchangeMatcher(ServerWebExchangeMatchers.anyExchange());
-				HeaderSpec.this.nonceGeneratingFilter = this.nonceGeneratingFilter;
+			}
+
+			private ContentSecurityPolicySpec enable() {
+				if (!this.isEnabled()) {
+					this.writer.setPolicyDirectives(DEFAULT_SRC_SELF_POLICY);
+					this.writer.setExchangeMatcher(ServerWebExchangeMatchers.anyExchange());
+					this.nonceGeneratingFilter = new ContentSecurityPolicyNonceGeneratingWebFilter();
+				}
+				return this;
+			}
+
+			private boolean isEnabled() {
+				return this.nonceGeneratingFilter != null;
 			}
 
 			/**
@@ -2862,7 +2872,7 @@ public class ServerHttpSecurity {
 			 * @return the {@link HeaderSpec} to continue configuring
 			 */
 			public HeaderSpec reportOnly(boolean reportOnly) {
-				HeaderSpec.this.contentSecurityPolicy.setReportOnly(reportOnly);
+				this.writer.setReportOnly(reportOnly);
 				return HeaderSpec.this;
 			}
 
@@ -2875,7 +2885,7 @@ public class ServerHttpSecurity {
 			 * @return the {@link HeaderSpec} to continue configuring
 			 */
 			public HeaderSpec policyDirectives(String policyDirectives) {
-				HeaderSpec.this.contentSecurityPolicy.setPolicyDirectives(policyDirectives);
+				this.writer.setPolicyDirectives(policyDirectives);
 				return HeaderSpec.this;
 			}
 
@@ -2891,7 +2901,7 @@ public class ServerHttpSecurity {
 			 */
 			public ContentSecurityPolicySpec nonceAttributeName(String nonceAttributeName) {
 				Assert.hasLength(nonceAttributeName, "NonceAttributeName must not be null or empty");
-				this.nonceGeneratingFilter.setAttributeName(nonceAttributeName);
+				Objects.requireNonNull(this.nonceGeneratingFilter).setAttributeName(nonceAttributeName);
 				return this;
 			}
 
@@ -2907,7 +2917,7 @@ public class ServerHttpSecurity {
 			 */
 			public ContentSecurityPolicySpec exchangeMatcher(ServerWebExchangeMatcher matcher) {
 				Assert.notNull(matcher, "Matcher must not be null");
-				HeaderSpec.this.contentSecurityPolicy.setExchangeMatcher(matcher);
+				this.writer.setExchangeMatcher(matcher);
 				return this;
 			}
 
