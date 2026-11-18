@@ -16,13 +16,20 @@
 
 package org.springframework.security.web.authentication.ott;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.ott.OneTimeTokenAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link OneTimeTokenAuthenticationConverter}
@@ -67,6 +74,45 @@ class OneTimeTokenAuthenticationConverterTests {
 	void convertWhenNoTokenParameterThenNull() {
 		Authentication authentication = this.converter.convert(new MockHttpServletRequest());
 		assertThat(authentication).isNull();
+	}
+
+	// gh-19863
+	@Test
+	void convertWhenTokenParameterThenAuthenticationRequestHasDetails() {
+		String ipAddress = "10.0.0.100";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setParameter("token", "1234");
+		request.setRemoteAddr(ipAddress);
+
+		Authentication authenticationRequest = this.converter.convert(request);
+
+		assertThat(authenticationRequest).isNotNull();
+		assertThat(authenticationRequest.getDetails()).isInstanceOf(WebAuthenticationDetails.class);
+
+		WebAuthenticationDetails details = (WebAuthenticationDetails) authenticationRequest.getDetails();
+		assertThat(details.getRemoteAddress()).isEqualTo(ipAddress);
+	}
+
+	// gh-19863
+	@Test
+	@SuppressWarnings("unchecked")
+	void convertWhenCustomAuthenticationDetailsSourceSetThenTokenIsConverted() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setParameter("token", "1234");
+		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = mock(
+				AuthenticationDetailsSource.class);
+		this.converter.setAuthenticationDetailsSource(authenticationDetailsSource);
+
+		Authentication authentication = this.converter.convert(request);
+
+		verify(authenticationDetailsSource).buildDetails(any());
+		assertThat(authentication).isNotNull();
+	}
+
+	// gh-19863
+	@Test
+	void setAuthenticationDetailsSourceWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setAuthenticationDetailsSource(null));
 	}
 
 }
