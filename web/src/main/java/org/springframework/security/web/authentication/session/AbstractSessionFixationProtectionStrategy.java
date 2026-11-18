@@ -116,10 +116,14 @@ public abstract class AbstractSessionFixationProtectionStrategy
 	 * subclasses to plug in additional behaviour. *
 	 * <p>
 	 * The default implementation of this method publishes a
-	 * {@link SessionFixationProtectionEvent} to notify the application that the session
-	 * ID has changed. If you override this method and still wish these events to be
-	 * published, you should call {@code super.onSessionChange()} within your overriding
-	 * method.
+	 * {@link SessionFixationProtectionEvent} and a
+	 * {@link SessionFixationProtectionSessionIdChangedEvent} to notify the application
+	 * that the session ID has changed. The latter allows
+	 * {@link org.springframework.security.core.session.SessionRegistryImpl} to track the
+	 * session ID change without requiring
+	 * {@link org.springframework.security.web.session.HttpSessionEventPublisher} to be
+	 * registered. If you override this method and still wish these events to be published,
+	 * you should call {@code super.onSessionChange()} within your overriding method.
 	 * @param originalSessionId the original session identifier
 	 * @param newSession the newly created session
 	 * @param auth the token for the newly authenticated principal
@@ -127,6 +131,8 @@ public abstract class AbstractSessionFixationProtectionStrategy
 	protected void onSessionChange(String originalSessionId, HttpSession newSession, Authentication auth) {
 		this.applicationEventPublisher
 			.publishEvent(new SessionFixationProtectionEvent(auth, originalSessionId, newSession.getId()));
+		this.applicationEventPublisher
+			.publishEvent(new SessionFixationProtectionSessionIdChangedEvent(newSession, originalSessionId));
 	}
 
 	/**
