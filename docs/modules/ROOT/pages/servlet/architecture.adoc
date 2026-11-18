@@ -186,9 +186,13 @@ However, there might be times that you want to add a custom `Filter` to the <<se
 
 javadoc:org.springframework.security.config.annotation.web.builders.HttpSecurity[] comes with three methods for adding filters:
 
-* `#addFilterBefore(Filter, Class<?>)` adds your filter before another filter
-* `#addFilterAfter(Filter, Class<?>)` adds your filter after another filter
+* `#addFilterBefore(Filter, Class<?>)` adds your filter immediately before another filter
+* `#addFilterAfter(Filter, Class<?>)` adds your filter immediately after another filter
 * `#addFilterAt(Filter, Class<?>)` replaces another filter with your filter
+
+For Example, if your original chain is: A → B → C,
+and you do: http.addFilterBefore(X, C.class);
+the result is: A → B → X → C
 
 [[adding-custom-filter]]
 ==== Adding a Custom Filter
