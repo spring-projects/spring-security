@@ -19,6 +19,7 @@ package org.springframework.security.web.webauthn.authentication;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -26,6 +27,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialUserEntity;
 import org.springframework.security.web.webauthn.management.RelyingPartyAuthenticationRequest;
@@ -49,6 +51,8 @@ public class WebAuthnAuthenticationProvider implements AuthenticationProvider {
 	private final WebAuthnRelyingPartyOperations relyingPartyOperations;
 
 	private final UserDetailsService userDetailsService;
+	private final UserDetailsChecker userDetailsChecker = new AccountStatusUserDetailsChecker();
+
 
 	/**
 	 * Creates a new instance.
@@ -72,6 +76,7 @@ public class WebAuthnAuthenticationProvider implements AuthenticationProvider {
 				.authenticate(webAuthnRequest.getWebAuthnRequest());
 			String username = userEntity.getName();
 			UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+			this.userDetailsChecker.check(userDetails);
 			Collection<GrantedAuthority> authorities = new HashSet<>(userDetails.getAuthorities());
 			authorities.add(FactorGrantedAuthority.fromAuthority(AUTHORITY));
 			return new WebAuthnAuthentication(userEntity, authorities);
