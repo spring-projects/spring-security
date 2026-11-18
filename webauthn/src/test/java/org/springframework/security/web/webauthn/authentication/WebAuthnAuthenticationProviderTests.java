@@ -16,12 +16,15 @@
 
 package org.springframework.security.web.webauthn.authentication;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.SecurityAssertions;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.FactorGrantedAuthority;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.webauthn.api.AuthenticatorAssertionResponse;
 import org.springframework.security.web.webauthn.api.PublicKeyCredential;
@@ -57,6 +60,81 @@ class WebAuthnAuthenticationProviderTests {
 		given(operations.authenticate(any())).willReturn(TestPublicKeyCredentialUserEntities.userEntity().build());
 		Authentication result = provider.authenticate(request);
 		SecurityAssertions.assertThat(result).hasAuthority(FactorGrantedAuthority.WEBAUTHN_AUTHORITY);
+	}
+
+	@Test
+	void authenticateWithLockedUserShouldFail() {
+		WebAuthnRelyingPartyOperations operations = mock(WebAuthnRelyingPartyOperations.class);
+		UserDetailsService users = mock(UserDetailsService.class);
+		PublicKeyCredentialRequestOptions options = TestPublicKeyCredentialRequestOptions.create().build();
+		AuthenticatorAssertionResponse response = TestAuthenticationAssertionResponses
+			.createAuthenticatorAssertionResponse()
+			.build();
+		PublicKeyCredential<AuthenticatorAssertionResponse> credentials = TestPublicKeyCredentials
+			.createPublicKeyCredential(response)
+			.build();
+		Authentication request = new WebAuthnAuthenticationRequestToken(
+				new RelyingPartyAuthenticationRequest(options, credentials));
+		WebAuthnAuthenticationProvider provider = new WebAuthnAuthenticationProvider(operations, users);
+		given(users.loadUserByUsername(any())).willReturn(PasswordEncodedUser.withUsername("locked").password("password").accountLocked(true).roles("USER").build());
+		given(operations.authenticate(any())).willReturn(TestPublicKeyCredentialUserEntities.userEntity().build());
+		Assertions.assertThrows(BadCredentialsException.class,()-> provider.authenticate(request));
+	}
+
+	@Test
+	void authenticateWithDisabledUserShouldFail() {
+		WebAuthnRelyingPartyOperations operations = mock(WebAuthnRelyingPartyOperations.class);
+		UserDetailsService users = mock(UserDetailsService.class);
+		PublicKeyCredentialRequestOptions options = TestPublicKeyCredentialRequestOptions.create().build();
+		AuthenticatorAssertionResponse response = TestAuthenticationAssertionResponses
+			.createAuthenticatorAssertionResponse()
+			.build();
+		PublicKeyCredential<AuthenticatorAssertionResponse> credentials = TestPublicKeyCredentials
+			.createPublicKeyCredential(response)
+			.build();
+		Authentication request = new WebAuthnAuthenticationRequestToken(
+				new RelyingPartyAuthenticationRequest(options, credentials));
+		WebAuthnAuthenticationProvider provider = new WebAuthnAuthenticationProvider(operations, users);
+		given(users.loadUserByUsername(any())).willReturn(PasswordEncodedUser.withUsername("disabled").password("password").disabled(true).roles("USER").build());
+		given(operations.authenticate(any())).willReturn(TestPublicKeyCredentialUserEntities.userEntity().build());
+		Assertions.assertThrows(BadCredentialsException.class,()-> provider.authenticate(request));
+	}
+	@Test
+	void authenticateWithExpiredUserShouldFail() {
+		WebAuthnRelyingPartyOperations operations = mock(WebAuthnRelyingPartyOperations.class);
+		UserDetailsService users = mock(UserDetailsService.class);
+		PublicKeyCredentialRequestOptions options = TestPublicKeyCredentialRequestOptions.create().build();
+		AuthenticatorAssertionResponse response = TestAuthenticationAssertionResponses
+			.createAuthenticatorAssertionResponse()
+			.build();
+		PublicKeyCredential<AuthenticatorAssertionResponse> credentials = TestPublicKeyCredentials
+			.createPublicKeyCredential(response)
+			.build();
+		Authentication request = new WebAuthnAuthenticationRequestToken(
+				new RelyingPartyAuthenticationRequest(options, credentials));
+		WebAuthnAuthenticationProvider provider = new WebAuthnAuthenticationProvider(operations, users);
+		given(users.loadUserByUsername(any())).willReturn(PasswordEncodedUser.withUsername("expired").password("password").accountExpired(true).roles("USER").build());
+		given(operations.authenticate(any())).willReturn(TestPublicKeyCredentialUserEntities.userEntity().build());
+		Assertions.assertThrows(BadCredentialsException.class,()-> provider.authenticate(request));
+	}
+
+	@Test
+	void authenticateWithCredentialsExpiredUserShouldFail() {
+		WebAuthnRelyingPartyOperations operations = mock(WebAuthnRelyingPartyOperations.class);
+		UserDetailsService users = mock(UserDetailsService.class);
+		PublicKeyCredentialRequestOptions options = TestPublicKeyCredentialRequestOptions.create().build();
+		AuthenticatorAssertionResponse response = TestAuthenticationAssertionResponses
+			.createAuthenticatorAssertionResponse()
+			.build();
+		PublicKeyCredential<AuthenticatorAssertionResponse> credentials = TestPublicKeyCredentials
+			.createPublicKeyCredential(response)
+			.build();
+		Authentication request = new WebAuthnAuthenticationRequestToken(
+				new RelyingPartyAuthenticationRequest(options, credentials));
+		WebAuthnAuthenticationProvider provider = new WebAuthnAuthenticationProvider(operations, users);
+		given(users.loadUserByUsername(any())).willReturn(PasswordEncodedUser.withUsername("credentialsExpired").password("password").credentialsExpired(true).roles("USER").build());
+		given(operations.authenticate(any())).willReturn(TestPublicKeyCredentialUserEntities.userEntity().build());
+		Assertions.assertThrows(BadCredentialsException.class,()-> provider.authenticate(request));
 	}
 
 }
