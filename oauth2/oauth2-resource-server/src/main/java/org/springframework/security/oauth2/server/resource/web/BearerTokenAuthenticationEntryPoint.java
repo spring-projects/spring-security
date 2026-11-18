@@ -54,7 +54,7 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 
 	private @Nullable String realmName;
 
-	private Function<HttpServletRequest, String> resourceMetadataParameterResolver = BearerTokenAuthenticationEntryPoint::getResourceMetadataParameter;
+	private Function<HttpServletRequest, @Nullable String> resourceMetadataParameterResolver = BearerTokenAuthenticationEntryPoint::getResourceMetadataParameter;
 
 	/**
 	 * Collect error details from the provided parameters and format according to RFC
@@ -88,7 +88,10 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 				status = bearerTokenError.getHttpStatus();
 			}
 		}
-		parameters.put("resource_metadata", this.resourceMetadataParameterResolver.apply(request));
+		String resourceMetadata = this.resourceMetadataParameterResolver.apply(request);
+		if (StringUtils.hasText(resourceMetadata)) {
+			parameters.put("resource_metadata", resourceMetadata);
+		}
 		String wwwAuthenticate = computeWWWAuthenticateHeaderValue(parameters);
 		response.addHeader(HttpHeaders.WWW_AUTHENTICATE, wwwAuthenticate);
 		response.setStatus(status.value());
@@ -104,12 +107,13 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 
 	/**
 	 * Set the resolver to compute the {@code resource_metadata} parameter from the
-	 * request.
-	 * @param resourceMetadataParameterResolver
+	 * request. If the resolver returns {@code null} or a blank string, the parameter is
+	 * omitted from the {@link HttpHeaders#WWW_AUTHENTICATE} header.
+	 * @param resourceMetadataParameterResolver the resolver to use
 	 * @since 7.1
 	 */
 	public void setResourceMetadataParameterResolver(
-			Function<HttpServletRequest, String> resourceMetadataParameterResolver) {
+			Function<HttpServletRequest, @Nullable String> resourceMetadataParameterResolver) {
 		Assert.notNull(resourceMetadataParameterResolver, "resourceMetadataParameterResolver cannot be null");
 		this.resourceMetadataParameterResolver = resourceMetadataParameterResolver;
 	}
