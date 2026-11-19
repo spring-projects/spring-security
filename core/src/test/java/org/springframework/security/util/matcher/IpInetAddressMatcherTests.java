@@ -112,6 +112,18 @@ class IpInetAddressMatcherTests {
 	}
 
 	@Test
+	void matchesWhenIpv4AddressAndIpv6CidrThenReturnsFalse() throws Exception {
+		IpInetAddressMatcher matcher = new IpInetAddressMatcher("2001:db8::/32");
+		assertThat(matcher.matches(InetAddress.getByName("32.1.13.184"))).isFalse();
+	}
+
+	@Test
+	void matchesWhenIpv6AddressAndIpv4CidrThenReturnsFalse() throws Exception {
+		IpInetAddressMatcher matcher = new IpInetAddressMatcher("32.1.13.184/32");
+		assertThat(matcher.matches(InetAddress.getByName("2001:db8::"))).isFalse();
+	}
+
+	@Test
 	void matchesWhenStringIpv4MatchThenReturnsTrue() {
 		IpInetAddressMatcher matcher = new IpInetAddressMatcher("192.168.1.1");
 		assertThat(matcher.matches("192.168.1.1")).isTrue();
