@@ -26,6 +26,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
@@ -109,6 +110,23 @@ public class OAuth2TokenRevocationAuthenticationProviderTests {
 				ClientAuthenticationMethod.CLIENT_SECRET_BASIC, registeredClient.getClientSecret());
 		OAuth2TokenRevocationAuthenticationToken authentication = new OAuth2TokenRevocationAuthenticationToken("token",
 				clientPrincipal, OAuth2TokenType.ACCESS_TOKEN.getValue());
+		OAuth2TokenRevocationAuthenticationToken authenticationResult = (OAuth2TokenRevocationAuthenticationToken) this.authenticationProvider
+			.authenticate(authentication);
+		assertThat(authenticationResult.isAuthenticated()).isFalse();
+		verify(this.authorizationService, never()).save(any());
+	}
+
+	@Test
+	public void authenticateWhenTokenMatchesStateThenNotRevoked() {
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		OAuth2Authorization authorization = TestOAuth2Authorizations.authorization(registeredClient)
+			.attribute(OAuth2ParameterNames.STATE, "state")
+			.build();
+		given(this.authorizationService.findByToken(eq("state"), isNull())).willReturn(authorization);
+		OAuth2ClientAuthenticationToken clientPrincipal = new OAuth2ClientAuthenticationToken(registeredClient,
+				ClientAuthenticationMethod.CLIENT_SECRET_BASIC, registeredClient.getClientSecret());
+		OAuth2TokenRevocationAuthenticationToken authentication = new OAuth2TokenRevocationAuthenticationToken("state",
+				clientPrincipal, null);
 		OAuth2TokenRevocationAuthenticationToken authenticationResult = (OAuth2TokenRevocationAuthenticationToken) this.authenticationProvider
 			.authenticate(authentication);
 		assertThat(authenticationResult.isAuthenticated()).isFalse();

@@ -81,7 +81,13 @@ public final class OAuth2TokenRevocationAuthenticationProvider implements Authen
 		}
 
 		OAuth2Authorization.Token<OAuth2Token> token = authorization.getToken(tokenRevocationAuthentication.getToken());
-		Assert.notNull(token, "token cannot be null");
+		if (token == null) {
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace("Did not authenticate token revocation request since token was not found");
+			}
+			// The authorization matched on another value (e.g. state), not a token
+			return tokenRevocationAuthentication;
+		}
 		authorization = OAuth2Authorization.from(authorization).invalidate(token.getToken()).build();
 		this.authorizationService.save(authorization);
 
