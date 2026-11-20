@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
@@ -52,6 +53,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.mock.http.client.MockClientHttpResponse;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -90,6 +92,7 @@ import org.springframework.security.oauth2.server.authorization.client.JdbcRegis
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.TestRegisteredClients;
+import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcLogoutAuthenticationProvider;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.token.DelegatingOAuth2TokenGenerator;
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
@@ -99,6 +102,7 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.session.HttpSessionIdChangedEvent;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.LinkedMultiValueMap;
@@ -468,6 +472,46 @@ public class OidcTests {
 		assertThat(user1Session.isInvalid()).isFalse();
 	}
 
+	// gh-20058
+	@Test
+	public void requestWhenLogoutRequestAfterSessionIdChangedThenNotLogout() throws Exception {
+		this.spring.register(AuthorizationServerConfiguration.class).autowire();
+
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().scope(OidcScopes.OPENID).build();
+		this.registeredClientRepository.save(registeredClient);
+
+		MockHttpSession session = new MockHttpSession();
+		String idToken = authorizeAndRequestIdToken(registeredClient, session);
+		changeSessionId(session);
+
+		this.mvc.perform(post(DEFAULT_OIDC_LOGOUT_ENDPOINT_URI).param("id_token_hint", idToken).session(session))
+			.andExpect(status().isBadRequest())
+			.andExpect(status().reason("[invalid_token] OpenID Connect 1.0 Logout Request Parameter: sid"));
+
+		assertThat(session.isInvalid()).isFalse();
+	}
+
+	// gh-20058
+	@Test
+	public void requestWhenLogoutRequestAfterSessionIdChangedAndCustomSessionValidatorThenLogout() throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithCustomSessionValidator.class).autowire();
+
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().scope(OidcScopes.OPENID).build();
+		this.registeredClientRepository.save(registeredClient);
+
+		MockHttpSession session = new MockHttpSession();
+		String idToken = authorizeAndRequestIdToken(registeredClient, session);
+		changeSessionId(session);
+
+		MvcResult mvcResult = this.mvc
+			.perform(post(DEFAULT_OIDC_LOGOUT_ENDPOINT_URI).param("id_token_hint", idToken).session(session))
+			.andExpect(status().is3xxRedirection())
+			.andReturn();
+
+		assertThat(mvcResult.getResponse().getRedirectedUrl()).matches("/");
+		assertThat(session.isInvalid()).isTrue();
+	}
+
 	@Test
 	public void requestWhenCustomTokenGeneratorThenUsed() throws Exception {
 		this.spring.register(AuthorizationServerConfigurationWithTokenGenerator.class).autowire();
@@ -570,6 +614,43 @@ public class OidcTests {
 			.andExpect(jsonPath("$.scope").isNotEmpty())
 			.andExpect(jsonPath("$.id_token").isNotEmpty())
 			.andReturn();
+	}
+
+	private String authorizeAndRequestIdToken(RegisteredClient registeredClient, MockHttpSession session)
+			throws Exception {
+		MvcResult mvcResult = this.mvc
+			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI)
+				.queryParams(getAuthorizationRequestParameters(registeredClient))
+				.session(session)
+				.with(user("user")
+					.authorities(FactorGrantedAuthority.fromAuthority(FactorGrantedAuthority.PASSWORD_AUTHORITY))))
+			.andExpect(status().is3xxRedirection())
+			.andReturn();
+		String authorizationCode = extractParameterFromRedirectUri(mvcResult.getResponse().getRedirectedUrl(), "code");
+		OAuth2Authorization authorization = this.authorizationService.findByToken(authorizationCode,
+				AUTHORIZATION_CODE_TOKEN_TYPE);
+
+		mvcResult = this.mvc
+			.perform(post(DEFAULT_TOKEN_ENDPOINT_URI).params(getTokenRequestParameters(registeredClient, authorization))
+				.header(HttpHeaders.AUTHORIZATION,
+						"Basic " + encodeBasicAuth(registeredClient.getClientId(), registeredClient.getClientSecret())))
+			.andExpect(status().isOk())
+			.andReturn();
+		MockHttpServletResponse servletResponse = mvcResult.getResponse();
+		MockClientHttpResponse httpResponse = new MockClientHttpResponse(servletResponse.getContentAsByteArray(),
+				HttpStatus.valueOf(servletResponse.getStatus()));
+		OAuth2AccessTokenResponse accessTokenResponse = accessTokenHttpResponseConverter
+			.read(OAuth2AccessTokenResponse.class, httpResponse);
+		return (String) accessTokenResponse.getAdditionalParameters().get(OidcParameterNames.ID_TOKEN);
+	}
+
+	// Simulates a Session ID change, as done on re-authentication to protect against
+	// session fixation
+	private static void changeSessionId(MockHttpSession session) {
+		String previousSessionId = session.getId();
+		session.changeSessionId();
+		((SessionRegistryImpl) sessionRegistry)
+			.onApplicationEvent(new HttpSessionIdChangedEvent(session, previousSessionId));
 	}
 
 	private static OAuth2Authorization createAuthorization(RegisteredClient registeredClient) {
@@ -776,6 +857,40 @@ public class OidcTests {
 				return this.delegate.generate(context);
 			}
 
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Configuration
+	static class AuthorizationServerConfigurationWithCustomSessionValidator extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+				.oauth2AuthorizationServer((authorizationServer) ->
+					authorizationServer
+						.oidc((oidc) ->
+							oidc
+								.logoutEndpoint((logoutEndpoint) ->
+									logoutEndpoint
+										.authenticationProviders(configureSessionValidator())
+								)
+						)
+				);
+			return http.build();
+		}
+		// @formatter:on
+
+		private static Consumer<List<AuthenticationProvider>> configureSessionValidator() {
+			return (authenticationProviders) -> authenticationProviders.forEach((authenticationProvider) -> {
+				if (authenticationProvider instanceof OidcLogoutAuthenticationProvider oidcLogoutAuthenticationProvider) {
+					// Accept ID Tokens issued before the Session ID changed
+					oidcLogoutAuthenticationProvider.setSessionValidator((authenticationContext) -> {
+					});
+				}
+			});
 		}
 
 	}
