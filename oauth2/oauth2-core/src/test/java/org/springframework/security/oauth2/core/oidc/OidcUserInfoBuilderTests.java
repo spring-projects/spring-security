@@ -16,9 +16,12 @@
 
 package org.springframework.security.oauth2.core.oidc;
 
+import java.time.Instant;
+
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OidcUserInfo}
@@ -89,6 +92,23 @@ public class OidcUserInfoBuilderTests {
 		// @formatter:on
 		assertThat(userInfo.getClaims()).hasSize(1);
 		assertThat(userInfo.getClaims().get(name)).isSameAs(value);
+	}
+
+	@Test
+	public void updatedAtWhenInstantThenClaimIsEpochSeconds() {
+		Instant updatedAt = Instant.parse("2020-12-10T20:57:47.123Z");
+		// @formatter:off
+		OidcUserInfo userInfo = OidcUserInfo.builder()
+				.updatedAt(updatedAt)
+				.build();
+		// @formatter:on
+		assertThat(userInfo.getClaims()).containsEntry(StandardClaimNames.UPDATED_AT, 1607633867L);
+		assertThat(userInfo.getUpdatedAt()).isEqualTo(Instant.ofEpochSecond(1607633867));
+	}
+
+	@Test
+	public void updatedAtWhenInstantIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> OidcUserInfo.builder().updatedAt((Instant) null));
 	}
 
 }
