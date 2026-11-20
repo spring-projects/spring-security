@@ -21,7 +21,7 @@ jobs:
       with:
         fetch-depth: 5
     - name: Set Up Gradle
-      uses: spring-io/spring-gradle-build-action@c8668747d7c264864c8c7f7026d0d277d14a78dc # v2.0.6
+      uses: spring-io/spring-gradle-build-action@99a2aa4bd02e3a216fdbc574e256ec860f791d4c # v2.0.7
       with:
         # Use JDK 17 since 6.5.x Kotlin version does not support JDK 25 and thus will fail
         java-version: '17'
