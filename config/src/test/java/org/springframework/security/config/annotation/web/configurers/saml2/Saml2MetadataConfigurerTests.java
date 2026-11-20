@@ -20,6 +20,7 @@ import com.google.common.net.HttpHeaders;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.opensaml.core.Version;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -42,6 +43,7 @@ import org.springframework.security.saml2.provider.service.registration.TestRely
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -132,6 +134,19 @@ public class Saml2MetadataConfigurerTests {
 		this.mvc.perform(get("/saml/metadata"))
 			.andExpect(status().isOk())
 			.andExpect(content().string(containsString("md:EntityDescriptor")));
+	}
+
+	// gh-19628
+	@Test
+	void useOpenSaml5WhenImplementationVersionUnavailableThenDoesNotThrow() {
+		// simulates OpenSAML being loaded from the Java module path, where
+		// Package#getImplementationVersion() returns null
+		assertThat(Saml2MetadataConfigurer.useOpenSaml5(getClass())).isTrue();
+	}
+
+	@Test
+	void useOpenSaml5WhenOpenSamlVersionClassThenMatchesRuntimeVersion() {
+		assertThat(Saml2MetadataConfigurer.useOpenSaml5(Version.class)).isEqualTo(Version.getVersion().startsWith("5"));
 	}
 
 	@EnableWebSecurity
