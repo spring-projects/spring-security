@@ -19,7 +19,9 @@ package org.springframework.security.core.userdetails.jdbc;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.springframework.context.ApplicationContextException;
 import org.springframework.context.MessageSource;
@@ -108,6 +110,7 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  * @author colin sampaleanu
  * @author Luke Taylor
+ * @author Josh Long
  */
 public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, MessageSourceAware {
 
@@ -147,10 +150,40 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 
 	private boolean enableGroups;
 
+	private final Function<String, String> usernameNormalizer;
+
+	/**
+	 * Creates a new instance that normalizes usernames to lower case using
+	 * {@link Locale#ROOT} before they are used as query parameters.
+	 */
 	public JdbcDaoImpl() {
+		this((username) -> username.toLowerCase(Locale.ROOT));
+	}
+
+	/**
+	 * Creates a new instance that applies the given {@code usernameNormalizer} to
+	 * usernames before they are used as query parameters. This ensures that two users
+	 * whose names differ only in, for example, case cannot coexist.
+	 * @param usernameNormalizer the function used to normalize usernames, must not be
+	 * null
+	 * @since 7.2
+	 */
+	public JdbcDaoImpl(Function<String, String> usernameNormalizer) {
+		Assert.notNull(usernameNormalizer, "usernameNormalizer cannot be null");
+		this.usernameNormalizer = usernameNormalizer;
 		this.usersByUsernameQuery = DEF_USERS_BY_USERNAME_QUERY;
 		this.authoritiesByUsernameQuery = DEF_AUTHORITIES_BY_USERNAME_QUERY;
 		this.groupAuthoritiesByUsernameQuery = DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY;
+	}
+
+	/**
+	 * Normalizes the given username using the configured normalization function.
+	 * @param username the username to normalize
+	 * @return the normalized username
+	 * @since 7.2
+	 */
+	protected String normalizeUsername(String username) {
+		return this.usernameNormalizer.apply(username);
 	}
 
 	/**
@@ -183,7 +216,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		List<UserDetails> users = loadUsersByUsername(username);
+		List<UserDetails> users = loadUsersByUsername(normalizeUsername(username));
 		if (users.isEmpty()) {
 			this.logger.debug("Query returned no results for user '" + username + "'");
 			throw new UsernameNotFoundException(this.messages.getMessage("JdbcDaoImpl.notFound",
@@ -204,7 +237,7 @@ public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, M
 			throw new UsernameNotFoundException(this.messages.getMessage("JdbcDaoImpl.noAuthority",
 					new Object[] { username }, "User {0} has no GrantedAuthority"));
 		}
-		return createUserDetails(username, user, dbAuths);
+		return createUserDetails(normalizeUsername(username), user, dbAuths);
 	}
 
 	/**

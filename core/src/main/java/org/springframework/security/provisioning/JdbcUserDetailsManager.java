@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
@@ -70,6 +71,7 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @author Junhyeok Lee
  * @author Andrey Litvitski
+ * @author Josh Long
  * @since 2.0
  */
 public class JdbcUserDetailsManager extends JdbcDaoImpl
@@ -181,6 +183,30 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 	}
 
 	/**
+	 * Creates a new instance that applies the given {@code usernameNormalizer} to
+	 * usernames before they are stored or used as query parameters.
+	 * @param usernameNormalizer the function used to normalize usernames, must not be
+	 * null
+	 * @since 7.2
+	 */
+	public JdbcUserDetailsManager(Function<String, String> usernameNormalizer) {
+		super(usernameNormalizer);
+	}
+
+	/**
+	 * Creates a new instance that applies the given {@code usernameNormalizer} to
+	 * usernames before they are stored or used as query parameters.
+	 * @param dataSource the {@link DataSource} to use
+	 * @param usernameNormalizer the function used to normalize usernames, must not be
+	 * null
+	 * @since 7.2
+	 */
+	public JdbcUserDetailsManager(DataSource dataSource, Function<String, String> usernameNormalizer) {
+		super(usernameNormalizer);
+		setDataSource(dataSource);
+	}
+
+	/**
 	 * Sets the {@code RowMapper} to convert each user result row into a
 	 * {@link UserDetails} object.
 	 *
@@ -249,8 +275,9 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 	@Override
 	public void createUser(final UserDetails user) {
 		validateUserDetails(user);
+		String username = normalizeUsername(user.getUsername());
 		requireJdbcTemplate().update(this.createUserSql, (ps) -> {
-			ps.setString(1, user.getUsername());
+			ps.setString(1, username);
 			ps.setString(2, user.getPassword());
 			ps.setBoolean(3, user.isEnabled());
 			int paramCount = ps.getParameterMetaData().getParameterCount();
@@ -262,43 +289,45 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 			}
 		});
 		if (getEnableAuthorities()) {
-			insertUserAuthorities(user);
+			insertUserAuthorities(username, user);
 		}
 	}
 
 	@Override
 	public void updateUser(final UserDetails user) {
 		validateUserDetails(user);
+		String username = normalizeUsername(user.getUsername());
 		requireJdbcTemplate().update(this.updateUserSql, (ps) -> {
 			ps.setString(1, user.getPassword());
 			ps.setBoolean(2, user.isEnabled());
 			int paramCount = ps.getParameterMetaData().getParameterCount();
 			if (paramCount == 3) {
-				ps.setString(3, user.getUsername());
+				ps.setString(3, username);
 			}
 			else {
 				// NOTE: acc_locked, acc_expired and creds_expired are also updated
 				ps.setBoolean(3, !user.isAccountNonLocked());
 				ps.setBoolean(4, !user.isAccountNonExpired());
 				ps.setBoolean(5, !user.isCredentialsNonExpired());
-				ps.setString(6, user.getUsername());
+				ps.setString(6, username);
 			}
 		});
 		if (getEnableAuthorities()) {
-			deleteUserAuthorities(user.getUsername());
-			insertUserAuthorities(user);
+			deleteUserAuthorities(username);
+			insertUserAuthorities(username, user);
 		}
-		this.userCache.removeUserFromCache(user.getUsername());
+		this.userCache.removeUserFromCache(username);
 	}
 
-	private void insertUserAuthorities(UserDetails user) {
+	private void insertUserAuthorities(String username, UserDetails user) {
 		for (GrantedAuthority auth : user.getAuthorities()) {
-			requireJdbcTemplate().update(this.createAuthoritySql, user.getUsername(), auth.getAuthority());
+			requireJdbcTemplate().update(this.createAuthoritySql, username, auth.getAuthority());
 		}
 	}
 
 	@Override
 	public void deleteUser(String username) {
+		username = normalizeUsername(username);
 		if (getEnableAuthorities()) {
 			deleteUserAuthorities(username);
 		}
@@ -331,6 +360,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 			this.logger.debug("No authentication manager set. Password won't be re-checked.");
 		}
 		this.logger.debug("Changing password for user '" + username + "'");
+		username = normalizeUsername(username);
 		requireJdbcTemplate().update(this.changePasswordSql, newPassword, username);
 		Authentication authentication = createNewAuthentication(currentUser, newPassword);
 		SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
@@ -349,8 +379,10 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 
 	@Override
 	public boolean userExists(String username) {
+		String normalizedUsername = (username != null) ? normalizeUsername(username) : null;
 		@SuppressWarnings("ConstantConditions")
-		Integer usersCount = requireJdbcTemplate().queryForObject(this.userExistsSql, Integer.class, username);
+		Integer usersCount = requireJdbcTemplate().queryForObject(this.userExistsSql, Integer.class,
+				normalizedUsername);
 		if (usersCount == null || usersCount > 1) {
 			throw new IncorrectResultSizeDataAccessException(
 					"[" + usersCount + "] users found with name '" + username + "', expected 1", 1);
@@ -420,12 +452,13 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 		this.logger.debug("Adding user '" + username + "' to group '" + groupName + "'");
 		Assert.hasText(username, "username should have text");
 		Assert.hasText(groupName, "groupName should have text");
+		String normalizedUsername = normalizeUsername(username);
 		int id = findGroupId(groupName);
 		requireJdbcTemplate().update(this.insertGroupMemberSql, (ps) -> {
 			ps.setInt(1, id);
-			ps.setString(2, username);
+			ps.setString(2, normalizedUsername);
 		});
-		this.userCache.removeUserFromCache(username);
+		this.userCache.removeUserFromCache(normalizedUsername);
 	}
 
 	@Override
@@ -433,12 +466,13 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl
 		this.logger.debug("Removing user '" + username + "' to group '" + groupName + "'");
 		Assert.hasText(username, "username should have text");
 		Assert.hasText(groupName, "groupName should have text");
+		String normalizedUsername = normalizeUsername(username);
 		int id = findGroupId(groupName);
 		requireJdbcTemplate().update(this.deleteGroupMemberSql, (ps) -> {
 			ps.setInt(1, id);
-			ps.setString(2, username);
+			ps.setString(2, normalizedUsername);
 		});
-		this.userCache.removeUserFromCache(username);
+		this.userCache.removeUserFromCache(normalizedUsername);
 	}
 
 	@Override
