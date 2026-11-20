@@ -230,7 +230,7 @@ public class KerberosRestTemplate extends RestTemplate {
 	}
 
 	@Override
-	protected final <T> T doExecute(final URI url, final @Nullable String uriTemplate,
+	protected final <T> @Nullable T doExecute(final URI url, final @Nullable String uriTemplate,
 			final @Nullable HttpMethod method, final @Nullable RequestCallback requestCallback,
 			final @Nullable ResponseExtractor<T> responseExtractor) throws RestClientException {
 
@@ -238,10 +238,10 @@ public class KerberosRestTemplate extends RestTemplate {
 			LoginContext lc = buildLoginContext();
 			lc.login();
 			Subject serviceSubject = lc.getSubject();
-			return Subject.doAs(serviceSubject, new PrivilegedAction<T>() {
+			return Subject.doAs(serviceSubject, new PrivilegedAction<@Nullable T>() {
 
 				@Override
-				public T run() {
+				public @Nullable T run() {
 					return KerberosRestTemplate.this.doExecuteSubject(url, uriTemplate, method, requestCallback,
 							responseExtractor);
 				}
@@ -256,14 +256,14 @@ public class KerberosRestTemplate extends RestTemplate {
 		}
 	}
 
-	private <T> T doExecuteSubject(URI url, @Nullable String uriTemplate, @Nullable HttpMethod method,
+	private <T> @Nullable T doExecuteSubject(URI url, @Nullable String uriTemplate, @Nullable HttpMethod method,
 			@Nullable RequestCallback requestCallback, @Nullable ResponseExtractor<T> responseExtractor)
 			throws RestClientException {
-		T result = super.doExecute(url, uriTemplate, method, requestCallback, responseExtractor);
-		if (result == null) {
-			throw new RestClientException("doExecute returned null");
-		}
-		return result;
+		// RestTemplate.doExecute() legitimately returns null, e.g. when there is
+		// no ResponseExtractor (delete(), put()) or when the extractor maps a
+		// response such as 204 No Content to null. Let the null pass through
+		// instead of failing a successful request.
+		return super.doExecute(url, uriTemplate, method, requestCallback, responseExtractor);
 	}
 
 	private static final class ClientLoginConfig extends Configuration {
