@@ -23,6 +23,8 @@ import java.util.function.Consumer;
 
 import org.jspecify.annotations.Nullable;
 
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthenticationContext;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.util.Assert;
@@ -69,6 +71,28 @@ public final class OidcLogoutAuthenticationContext implements OAuth2Authenticati
 	}
 
 	/**
+	 * Returns the {@link OidcIdToken ID Token} associated with the {@code id_token_hint},
+	 * or {@code null} if not available.
+	 * @return the {@link OidcIdToken}, or {@code null} if not available
+	 * @since 7.3
+	 * @see OidcLogoutAuthenticationProvider#setSessionValidator(Consumer)
+	 */
+	public @Nullable OidcIdToken getIdToken() {
+		return get(OidcIdToken.class);
+	}
+
+	/**
+	 * Returns the {@link SessionInformation} of the End-User's current session, or
+	 * {@code null} if not available.
+	 * @return the {@link SessionInformation}, or {@code null} if not available
+	 * @since 7.3
+	 * @see OidcLogoutAuthenticationProvider#setSessionValidator(Consumer)
+	 */
+	public @Nullable SessionInformation getSessionInformation() {
+		return get(SessionInformation.class);
+	}
+
+	/**
 	 * Constructs a new {@link Builder} with the provided
 	 * {@link OidcLogoutAuthenticationToken}.
 	 * @param authentication the {@link OidcLogoutAuthenticationToken}
@@ -94,6 +118,27 @@ public final class OidcLogoutAuthenticationContext implements OAuth2Authenticati
 		 */
 		public Builder registeredClient(RegisteredClient registeredClient) {
 			return put(RegisteredClient.class, registeredClient);
+		}
+
+		/**
+		 * Sets the {@link OidcIdToken ID Token} associated with the
+		 * {@code id_token_hint}.
+		 * @param idToken the {@link OidcIdToken}
+		 * @return the {@link Builder} for further configuration
+		 * @since 7.3
+		 */
+		public Builder idToken(OidcIdToken idToken) {
+			return put(OidcIdToken.class, idToken);
+		}
+
+		/**
+		 * Sets the {@link SessionInformation} of the End-User's current session.
+		 * @param sessionInformation the {@link SessionInformation}
+		 * @return the {@link Builder} for further configuration
+		 * @since 7.3
+		 */
+		public Builder sessionInformation(SessionInformation sessionInformation) {
+			return put(SessionInformation.class, sessionInformation);
 		}
 
 		/**

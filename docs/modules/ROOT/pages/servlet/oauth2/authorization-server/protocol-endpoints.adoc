@@ -917,6 +917,73 @@ static class CustomPostLogoutRedirectUriValidator implements Consumer<OidcLogout
 }
 ----
 
+[[oauth2AuthorizationServer-oidc-logout-endpoint-customizing-session-validation]]
+=== Customizing Session Validation
+
+When the End-User is authenticated, `OidcLogoutAuthenticationProvider` validates that the ID Token is associated with the End-User's current session.
+By default, the `sid` claim of the ID Token must match the hash of the Session ID found in the `SessionRegistry`.
+If validation fails, an `OAuth2AuthenticationException` is thrown with the `invalid_token` error code.
+
+The default session validation rejects ID Tokens issued before the Session ID changed, for example when the Session ID is changed on re-authentication to protect against session fixation.
+In that case, the Client can no longer log out the End-User with the ID Tokens it holds.
+
+`OidcLogoutAuthenticationProvider` provides the ability to override the default session validation by supplying a custom session validator of type `Consumer<OidcLogoutAuthenticationContext>` to `setSessionValidator()`.
+The session validator is invoked after the End-User identity is validated.
+
+[TIP]
+`OidcLogoutAuthenticationContext` holds the `OidcLogoutAuthenticationToken`, the `OidcIdToken` associated with the `id_token_hint` and, when found in the `SessionRegistry`, the `SessionInformation` of the End-User's current session.
+
+[IMPORTANT]
+If validation fails, the session validator *MUST* throw `OAuth2AuthenticationException`.
+
+The following example shows how to configure `OidcLogoutAuthenticationProvider` with a custom session validator, which compares the `sid` claim with an identifier that remains stable for the lifetime of the End-User's session:
+
+[source,java]
+----
+@Bean
+public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+	http
+		.oauth2AuthorizationServer((authorizationServer) ->
+			authorizationServer
+                .oidc(oidc ->
+                    oidc
+                        .logoutEndpoint(logoutEndpoint ->
+                            logoutEndpoint
+                                .authenticationProviders(configureSessionValidator())
+                        )
+                )
+		);
+
+	return http.build();
+}
+
+private Consumer<List<AuthenticationProvider>> configureSessionValidator() {
+	return (authenticationProviders) ->
+			authenticationProviders.forEach((authenticationProvider) -> {
+				if (authenticationProvider instanceof OidcLogoutAuthenticationProvider oidcLogoutAuthenticationProvider) {
+					Consumer<OidcLogoutAuthenticationContext> sessionValidator = new StableSessionIdentifierValidator();
+					oidcLogoutAuthenticationProvider.setSessionValidator(sessionValidator);
+				}
+			});
+}
+
+static class StableSessionIdentifierValidator implements Consumer<OidcLogoutAuthenticationContext> {
+
+	@Override
+	public void accept(OidcLogoutAuthenticationContext authenticationContext) {
+		OidcLogoutAuthenticationToken oidcLogoutAuthentication =
+				authenticationContext.getAuthentication();
+		OidcIdToken idToken = authenticationContext.getIdToken();
+
+		// TODO
+		// Compare the "sid" claim of the ID Token with the identifier of the End-User's session
+		// (for example, a claim added to the ID Token by an OAuth2TokenCustomizer)
+		// and throw OAuth2AuthenticationException if they do not match
+
+	}
+}
+----
+
 [[oauth2AuthorizationServer-oidc-user-info-endpoint]]
 == OpenID Connect 1.0 UserInfo Endpoint
 
