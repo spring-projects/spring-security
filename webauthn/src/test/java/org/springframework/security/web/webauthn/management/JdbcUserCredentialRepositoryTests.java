@@ -17,6 +17,7 @@
 package org.springframework.security.web.webauthn.management;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -132,6 +133,18 @@ public class JdbcUserCredentialRepositoryTests {
 		assertThat(savedUserCredential.getTransports().contains(AuthenticatorTransport.BLE)).isTrue();
 		assertThat(new String(savedUserCredential.getAttestationObject().getBytes())).isEqualTo("test");
 		assertThat(new String(savedUserCredential.getAttestationClientDataJSON().getBytes())).isEqualTo("test");
+	}
+
+	@Test
+	void saveCredentialRecordWhenTransportsEmptyThenReturnsEmptyTransports() {
+		CredentialRecord userCredential = TestCredentialRecords.fullUserCredential().transports(Set.of()).build();
+		this.jdbcUserCredentialRepository.save(userCredential);
+
+		CredentialRecord savedUserCredential = this.jdbcUserCredentialRepository
+			.findByCredentialId(userCredential.getCredentialId());
+
+		assertThat(savedUserCredential).isNotNull();
+		assertThat(savedUserCredential.getTransports()).isEmpty();
 	}
 
 	@Test

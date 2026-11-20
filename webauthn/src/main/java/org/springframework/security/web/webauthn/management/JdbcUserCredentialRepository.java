@@ -45,6 +45,7 @@ import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCose;
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialType;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * A JDBC implementation of an {@link UserCredentialRepository} that uses a
@@ -324,7 +325,7 @@ public final class JdbcUserCredentialRepository implements UserCredentialReposit
 			Instant created = fromTimestamp(rs.getTimestamp("created"));
 			Instant lastUsed = fromTimestamp(rs.getTimestamp("last_used"));
 			String label = rs.getString("label");
-			String[] transports = rs.getString("authenticator_transports").split(",");
+			String[] transports = StringUtils.commaDelimitedListToStringArray(rs.getString("authenticator_transports"));
 
 			Set<AuthenticatorTransport> authenticatorTransports = new HashSet<>();
 			for (String transport : transports) {
