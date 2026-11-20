@@ -19,6 +19,7 @@ package org.springframework.security.web.server.firewall;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -49,6 +50,11 @@ class StrictServerWebExchangeFirewallTests {
 			"http://exploit.example/.//path", "http://exploit.example/.", "http://exploit.example//path",
 			"http://exploit.example//path/path", "http://exploit.example//path//path",
 			"http://exploit.example/path//path" };
+
+	private static final Pattern ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN = Pattern
+		.compile("[\\p{IsAssigned}&&[^\\p{IsControl}]]*");
+
+	private static final Pattern HEADER_VALUE_PATTERN = Pattern.compile("[\\p{IsAssigned}&&[[^\\p{IsControl}]||\\t]]*");
 
 	private StrictServerWebExchangeFirewall firewall = new StrictServerWebExchangeFirewall();
 
@@ -551,6 +557,25 @@ class StrictServerWebExchangeFirewallTests {
 		HttpHeaders headers = mutatedExchange.getRequest().getHeaders();
 		assertThatExceptionOfType(ServerExchangeRejectedException.class)
 			.isThrownBy(() -> headers.get(invalidHeaderName));
+	}
+
+	@Test
+	void allowedHeaderNamesAndValuesWhenSingleCodePointThenSameAsPattern() {
+		for (int codePoint = Character.MIN_CODE_POINT; codePoint <= Character.MAX_CODE_POINT; codePoint++) {
+			String value = new String(Character.toChars(codePoint));
+			assertSameAsPattern(value);
+			assertSameAsPattern("a" + value + "b");
+		}
+	}
+
+	private static void assertSameAsPattern(String value) {
+		boolean expectedName = ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN.matcher(value).matches();
+		boolean expectedValue = HEADER_VALUE_PATTERN.matcher(value).matches();
+		assertThat(StrictServerWebExchangeFirewall.ALLOWED_HEADER_NAMES.test(value)).as(value).isEqualTo(expectedName);
+		assertThat(StrictServerWebExchangeFirewall.ALLOWED_HEADER_VALUES.test(value)).as(value)
+			.isEqualTo(expectedValue);
+		assertThat(StrictServerWebExchangeFirewall.ALLOWED_PARAMETER_NAMES.test(value)).as(value)
+			.isEqualTo(expectedName);
 	}
 
 }
