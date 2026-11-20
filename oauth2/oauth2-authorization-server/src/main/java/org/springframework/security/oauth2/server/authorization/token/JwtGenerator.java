@@ -144,7 +144,10 @@ public final class JwtGenerator implements OAuth2TokenGenerator<Jwt> {
 				SessionInformation sessionInformation = context.get(SessionInformation.class);
 				if (sessionInformation != null) {
 					claimsBuilder.claim("sid", sessionInformation.getSessionId());
-					claimsBuilder.claim(IdTokenClaimNames.AUTH_TIME, getAuthenticationTime(principal));
+					Date authenticationTime = getAuthenticationTime(principal);
+					if (authenticationTime != null) {
+						claimsBuilder.claim(IdTokenClaimNames.AUTH_TIME, authenticationTime);
+					}
 				}
 			}
 			else if (AuthorizationGrantType.REFRESH_TOKEN.equals(authorizationGrantType)) {
@@ -231,7 +234,15 @@ public final class JwtGenerator implements OAuth2TokenGenerator<Jwt> {
 		this.clock = clock;
 	}
 
-	static Date getAuthenticationTime(Authentication authentication) {
+	/**
+	 * Returns the time of the most recent authentication factor of the given
+	 * {@link Authentication}, or {@code null} if it has no
+	 * {@link FactorGrantedAuthority}, for example when it was created by remember-me
+	 * authentication.
+	 * @param authentication the authentication of the resource owner
+	 * @return the authentication time, or {@code null} if it is not known
+	 */
+	static @Nullable Date getAuthenticationTime(Authentication authentication) {
 		Instant authenticationTime = null;
 		for (GrantedAuthority grantedAuthority : authentication.getAuthorities()) {
 			if (grantedAuthority instanceof FactorGrantedAuthority factorGrantedAuthority) {
@@ -240,8 +251,7 @@ public final class JwtGenerator implements OAuth2TokenGenerator<Jwt> {
 				}
 			}
 		}
-		Assert.notNull(authenticationTime, "authenticationTime cannot be null");
-		return Date.from(authenticationTime);
+		return (authenticationTime != null) ? Date.from(authenticationTime) : null;
 	}
 
 }
