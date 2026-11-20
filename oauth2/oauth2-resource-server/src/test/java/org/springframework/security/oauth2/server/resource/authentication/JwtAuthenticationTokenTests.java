@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
@@ -131,6 +132,30 @@ public class JwtAuthenticationTokenTests {
 		assertThat(result.getPrincipal()).isSameAs(factorTwo.getPrincipal());
 		assertThat(result.getName()).isSameAs(factorTwo.getName());
 		assertThat(authorities).containsExactlyInAnyOrder("FACTOR_ONE", "FACTOR_TWO");
+	}
+
+	@Test
+	public void toBuilderWhenPrincipalIsCustomObjectThenBuilds() {
+		Jwt jwt = builder().subject("Hayden").build();
+		Object principal = new Object();
+		JwtAuthenticationToken result = new JwtAuthenticationToken(jwt, AuthorityUtils.NO_AUTHORITIES).toBuilder()
+			.principal(principal)
+			.build();
+		assertThat(result.getPrincipal()).isSameAs(principal);
+		assertThat(result.getCredentials()).isSameAs(jwt);
+		assertThat(result.getToken()).isSameAs(jwt);
+		assertThat(result.getName()).isEqualTo("Hayden");
+	}
+
+	@Test
+	public void toBuilderWhenPrincipalIsAuthenticatedPrincipalThenUsesPrincipalName() {
+		Jwt jwt = builder().subject("Hayden").build();
+		AuthenticatedPrincipal principal = () -> "Samantha";
+		JwtAuthenticationToken result = new JwtAuthenticationToken(jwt, AuthorityUtils.NO_AUTHORITIES).toBuilder()
+			.principal(principal)
+			.build();
+		assertThat(result.getPrincipal()).isSameAs(principal);
+		assertThat(result.getName()).isEqualTo("Samantha");
 	}
 
 	private Jwt.Builder builder() {
