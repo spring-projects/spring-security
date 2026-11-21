@@ -50,6 +50,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  *
  * @author Daniel Garnier-Moiroux
  * @author Joe Grandja
+ * @author Andrey Litvitski
  * @since 7.0
  * @see OidcProviderConfiguration
  * @see AuthorizationServerSettings
@@ -148,6 +149,7 @@ public final class OidcProviderConfigurationEndpointFilter extends OncePerReques
 			authenticationMethods.add(ClientAuthenticationMethod.PRIVATE_KEY_JWT.getValue());
 			authenticationMethods.add(ClientAuthenticationMethod.TLS_CLIENT_AUTH.getValue());
 			authenticationMethods.add(ClientAuthenticationMethod.SELF_SIGNED_TLS_CLIENT_AUTH.getValue());
+			authenticationMethods.add(ClientAuthenticationMethod.NONE.getValue());
 		};
 	}
 
