@@ -184,7 +184,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 	/**
 	 * <p>
 	 * Determines which HTTP methods should be allowed. The default is to allow "DELETE",
-	 * "GET", "HEAD", "OPTIONS", "PATCH", "POST", and "PUT".
+	 * "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT", and "QUERY".
 	 * </p>
 	 * @param allowedHttpMethods the case-sensitive collection of HTTP methods that are
 	 * allowed.
@@ -581,6 +581,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 		result.add(HttpMethod.PATCH.name());
 		result.add(HttpMethod.POST.name());
 		result.add(HttpMethod.PUT.name());
+		result.add(HttpMethod.QUERY.name());
 		return result;
 	}
 
