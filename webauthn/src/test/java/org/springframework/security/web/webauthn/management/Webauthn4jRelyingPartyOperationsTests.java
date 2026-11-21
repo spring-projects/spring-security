@@ -707,21 +707,44 @@ class Webauthn4jRelyingPartyOperationsTests {
 		Bytes credentialId = Bytes.random();
 
 		CredentialRecord registeredCredential = registerCredentialWithSignCount(keyPair, credentialId, rpIdHash, 0,
-				objectConverter);
+				(byte) (UP | UV), objectConverter);
 
 		PublicKeyCredentialRequestOptions requestOptions = TestPublicKeyCredentialRequestOptions.create().build();
 		given(this.userEntities.findById(any())).willReturn(TestPublicKeyCredentialUserEntities.userEntity().build());
 
 		CredentialRecord afterGenuineLogin = authenticateWithSignCountAndCaptureSavedRecord(keyPair, credentialId,
-				rpIdHash, requestOptions, registeredCredential, 1, objectConverter);
+				rpIdHash, requestOptions, registeredCredential, 1, (byte) (UP | UV), objectConverter);
 		assertThat(afterGenuineLogin.getSignatureCount()).isEqualTo(1);
 
 		given(this.userCredentials.findByCredentialId(credentialId)).willReturn(afterGenuineLogin);
 		PublicKeyCredential<AuthenticatorAssertionResponse> clonedAuthenticatorReplay = assertionWithSignCount(keyPair,
-				credentialId, rpIdHash, requestOptions, 1, objectConverter);
+				credentialId, rpIdHash, requestOptions, 1, (byte) (UP | UV), objectConverter);
 
 		assertThatExceptionOfType(MaliciousCounterValueException.class).isThrownBy(() -> this.rpOperations
 			.authenticate(new RelyingPartyAuthenticationRequest(requestOptions, clonedAuthenticatorReplay)));
+	}
+
+	@Test
+	void authenticateWhenBackupStateChangesThenSavedRecordHasCurrentBackupState() throws Exception {
+		KeyPair keyPair = generateEcKeyPair();
+		ObjectConverter objectConverter = new ObjectConverter();
+		byte[] rpIdHash = sha256("example.localhost");
+		Bytes credentialId = Bytes.random();
+
+		CredentialRecord registeredCredential = registerCredentialWithSignCount(keyPair, credentialId, rpIdHash, 0,
+				(byte) (UP | UV | BE), objectConverter);
+		assertThat(registeredCredential.isBackupState()).isFalse();
+
+		PublicKeyCredentialRequestOptions requestOptions = TestPublicKeyCredentialRequestOptions.create().build();
+		given(this.userEntities.findById(any())).willReturn(TestPublicKeyCredentialUserEntities.userEntity().build());
+
+		CredentialRecord afterBackup = authenticateWithSignCountAndCaptureSavedRecord(keyPair, credentialId, rpIdHash,
+				requestOptions, registeredCredential, 1, (byte) (UP | UV | BE | BS), objectConverter);
+		assertThat(afterBackup.isBackupState()).isTrue();
+
+		CredentialRecord afterBackupRemoved = authenticateWithSignCountAndCaptureSavedRecord(keyPair, credentialId,
+				rpIdHash, requestOptions, afterBackup, 2, (byte) (UP | UV | BE), objectConverter);
+		assertThat(afterBackupRemoved.isBackupState()).isFalse();
 	}
 
 	private static KeyPair generateEcKeyPair() throws Exception {
@@ -735,12 +758,12 @@ class Webauthn4jRelyingPartyOperationsTests {
 	}
 
 	private CredentialRecord registerCredentialWithSignCount(KeyPair keyPair, Bytes credentialId, byte[] rpIdHash,
-			long signCount, ObjectConverter objectConverter) throws Exception {
+			long signCount, byte flags, ObjectConverter objectConverter) throws Exception {
 		EC2COSEKey coseKey = EC2COSEKey.create((ECPublicKey) keyPair.getPublic(), COSEAlgorithmIdentifier.ES256);
 		AttestedCredentialData attestedCredentialData = new AttestedCredentialData(AAGUID.ZERO, credentialId.getBytes(),
 				coseKey);
 		AuthenticatorData<RegistrationExtensionAuthenticatorOutput> registrationAuthenticatorData = registrationAuthenticatorData(
-				rpIdHash, attestedCredentialData, signCount);
+				rpIdHash, attestedCredentialData, signCount, flags);
 		AttestationObject attestationObject = new AttestationObject(registrationAuthenticatorData,
 				new NoneAttestationStatement());
 		byte[] attestationObjectBytes = new AttestationObjectConverter(objectConverter)
@@ -768,19 +791,19 @@ class Webauthn4jRelyingPartyOperationsTests {
 	}
 
 	private static AuthenticatorData<RegistrationExtensionAuthenticatorOutput> registrationAuthenticatorData(
-			byte[] rpIdHash, AttestedCredentialData attestedCredentialData, long signCount) {
-		return new AuthenticatorData<>(rpIdHash, (byte) (UP | UV | AT), signCount, attestedCredentialData);
+			byte[] rpIdHash, AttestedCredentialData attestedCredentialData, long signCount, byte flags) {
+		return new AuthenticatorData<>(rpIdHash, (byte) (flags | AT), signCount, attestedCredentialData);
 	}
 
 	private CredentialRecord authenticateWithSignCountAndCaptureSavedRecord(KeyPair keyPair, Bytes credentialId,
 			byte[] rpIdHash, PublicKeyCredentialRequestOptions requestOptions, CredentialRecord storedCredential,
-			long signCount, ObjectConverter objectConverter) throws Exception {
+			long signCount, byte flags, ObjectConverter objectConverter) throws Exception {
 		// registerCredentialWithSignCount() also invoked save(), so start from a clean
 		// slate before capturing the save() triggered by this authenticate() call
 		clearInvocations(this.userCredentials);
 		given(this.userCredentials.findByCredentialId(credentialId)).willReturn(storedCredential);
 		PublicKeyCredential<AuthenticatorAssertionResponse> assertion = assertionWithSignCount(keyPair, credentialId,
-				rpIdHash, requestOptions, signCount, objectConverter);
+				rpIdHash, requestOptions, signCount, flags, objectConverter);
 		this.rpOperations.authenticate(new RelyingPartyAuthenticationRequest(requestOptions, assertion));
 
 		ArgumentCaptor<CredentialRecord> savedRecord = ArgumentCaptor.forClass(CredentialRecord.class);
@@ -796,9 +819,9 @@ class Webauthn4jRelyingPartyOperationsTests {
 
 	private static PublicKeyCredential<AuthenticatorAssertionResponse> assertionWithSignCount(KeyPair keyPair,
 			Bytes credentialId, byte[] rpIdHash, PublicKeyCredentialRequestOptions requestOptions, long signCount,
-			ObjectConverter objectConverter) throws Exception {
+			byte flags, ObjectConverter objectConverter) throws Exception {
 		AuthenticatorData<AuthenticationExtensionAuthenticatorOutput> authenticatorData = new AuthenticatorData<>(
-				rpIdHash, (byte) (UP | UV), signCount);
+				rpIdHash, flags, signCount);
 		byte[] authenticatorDataBytes = new AuthenticatorDataConverter(objectConverter).convert(authenticatorData);
 		Bytes clientDataJSON = clientDataJSON("webauthn.get", requestOptions.getChallenge().toBase64UrlString());
 		byte[] clientDataHash = sha256(clientDataJSON);
