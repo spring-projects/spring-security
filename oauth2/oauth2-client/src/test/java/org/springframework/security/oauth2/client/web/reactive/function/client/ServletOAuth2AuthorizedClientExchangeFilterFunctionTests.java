@@ -659,6 +659,35 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				entry(HttpServletResponse.class.getName(), servletResponse));
 	}
 
+	// gh-17379
+	@Test
+	public void filterWhenUnauthorizedAndRequestResponseInReactorContextThenInvokeFailureHandler() {
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken);
+		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+			.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+			.build();
+		given(this.exchange.getResponse().statusCode()).willReturn(HttpStatus.UNAUTHORIZED);
+		given(this.exchange.getResponse().headers()).willReturn(mock(ClientResponse.Headers.class));
+		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
+		this.function.filter(request, this.exchange)
+			.contextWrite(context(servletRequest, servletResponse, this.authentication))
+			.block();
+		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
+				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
+		assertThat(this.authorizationExceptionCaptor.getValue())
+			.isInstanceOfSatisfying(ClientAuthorizationException.class, (ex) -> {
+				assertThat(ex.getClientRegistrationId()).isEqualTo(this.registration.getRegistrationId());
+				assertThat(ex.getError().getErrorCode()).isEqualTo(OAuth2ErrorCodes.INVALID_TOKEN);
+			});
+		assertThat(this.authenticationCaptor.getValue().getName()).isEqualTo(authorizedClient.getPrincipalName());
+		assertThat(this.attributesCaptor.getValue()).containsExactly(
+				entry(HttpServletRequest.class.getName(), servletRequest),
+				entry(HttpServletResponse.class.getName(), servletResponse));
+	}
+
 	@Test
 	public void filterWhenWWWAuthenticateHeaderIncludesErrorThenInvokeFailureHandler() {
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
