@@ -32,6 +32,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.crypto.SecretKey;
 
@@ -356,6 +359,131 @@ public class NimbusJwtDecoderTests {
 			.build();
 		Jwt jwt = jwtDecoder.decode(ES256_SIGNED_JWT);
 		assertThat(jwt.hasClaim(JwtClaimNames.EXP)).isNotNull();
+	}
+
+	@Test
+	@SuppressWarnings("removal")
+	public void buildWhenBackgroundInitializationThenReturnsBeforeRemoteInitialization() throws Exception {
+		String issuer = "https://example.org/issuer";
+		RestOperations restOperations = mock(RestOperations.class);
+		CountDownLatch requestStarted = new CountDownLatch(1);
+		CountDownLatch allowResponse = new CountDownLatch(1);
+		given(restOperations.exchange(any(RequestEntity.class), any(ParameterizedTypeReference.class)))
+			.willAnswer((invocation) -> {
+				requestStarted.countDown();
+				assertThat(allowResponse.await(5, TimeUnit.SECONDS)).isTrue();
+				return new ResponseEntity<>(Map.of("issuer", issuer, "jwks_uri", issuer + "/jwks"), HttpStatus.OK);
+			});
+		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
+			.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
+
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withIssuerLocation(issuer)
+			.backgroundInitialization()
+			.restOperations(restOperations)
+			.build();
+		decoder.setJwtValidator(JwtValidators.createDefault());
+		assertThat(requestStarted.await(5, TimeUnit.SECONDS)).isTrue();
+		allowResponse.countDown();
+		assertThat(decoder.decode(SIGNED_JWT).hasClaim(JwtClaimNames.EXP)).isNotNull();
+	}
+
+	@Test
+	@SuppressWarnings("removal")
+	public void decodeWhenBackgroundInitializationIsInProgressThenWaitsForVerification() throws Exception {
+		RestOperations restOperations = mock(RestOperations.class);
+		CountDownLatch requestStarted = new CountDownLatch(1);
+		CountDownLatch allowResponse = new CountDownLatch(1);
+		AtomicInteger requests = new AtomicInteger();
+		given(restOperations.exchange(any(RequestEntity.class), eq(String.class))).willAnswer((invocation) -> {
+			requests.incrementAndGet();
+			requestStarted.countDown();
+			assertThat(allowResponse.await(5, TimeUnit.SECONDS)).isTrue();
+			return new ResponseEntity<>(JWK_SET, HttpStatus.OK);
+		});
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
+			.discoverJwsAlgorithms()
+			.backgroundInitialization()
+			.restOperations(restOperations)
+			.build();
+		assertThat(requestStarted.await(5, TimeUnit.SECONDS)).isTrue();
+		CountDownLatch finished = new CountDownLatch(1);
+		Thread thread = new Thread(() -> {
+			decoder.decode(SIGNED_JWT);
+			finished.countDown();
+		});
+		thread.start();
+		assertThat(finished.await(100, TimeUnit.MILLISECONDS)).isFalse();
+		allowResponse.countDown();
+		assertThat(finished.await(5, TimeUnit.SECONDS)).isTrue();
+		assertThat(requests).hasValue(1);
+	}
+
+	@Test
+	@SuppressWarnings("removal")
+	public void decodeWhenBackgroundInitializationFailsThenReturnsJwtExceptionWithCause() throws Exception {
+		RestOperations restOperations = mock(RestOperations.class);
+		CountDownLatch requestStarted = new CountDownLatch(1);
+		CountDownLatch allowFailure = new CountDownLatch(1);
+		given(restOperations.exchange(any(RequestEntity.class), eq(String.class))).willAnswer((invocation) -> {
+			requestStarted.countDown();
+			assertThat(allowFailure.await(5, TimeUnit.SECONDS)).isTrue();
+			throw new IllegalStateException("remote unavailable");
+		});
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
+			.discoverJwsAlgorithms()
+			.backgroundInitialization()
+			.restOperations(restOperations)
+			.build();
+		assertThat(requestStarted.await(5, TimeUnit.SECONDS)).isTrue();
+		allowFailure.countDown();
+		assertThatExceptionOfType(JwtException.class).isThrownBy(() -> decoder.decode(SIGNED_JWT))
+			.withCauseInstanceOf(IllegalStateException.class);
+	}
+
+	@Test
+	@SuppressWarnings("removal")
+	public void buildWhenBackgroundInitializationWithJwkSetUriThenReturnsBeforeAlgorithmDiscovery() throws Exception {
+		RestOperations restOperations = mock(RestOperations.class);
+		CountDownLatch requestStarted = new CountDownLatch(1);
+		CountDownLatch allowResponse = new CountDownLatch(1);
+		given(restOperations.exchange(any(RequestEntity.class), eq(String.class))).willAnswer((invocation) -> {
+			requestStarted.countDown();
+			assertThat(allowResponse.await(5, TimeUnit.SECONDS)).isTrue();
+			String ecJwkSet = JWK_SET.replaceFirst("\\{\\\"kty\\\":\\\"RSA\\\".*?\\},", "");
+			return new ResponseEntity<>(ecJwkSet, HttpStatus.OK);
+		});
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
+			.discoverJwsAlgorithms()
+			.backgroundInitialization()
+			.restOperations(restOperations)
+			.build();
+		assertThat(requestStarted.await(5, TimeUnit.SECONDS)).isTrue();
+		allowResponse.countDown();
+		assertThat(decoder.decode(ES256_SIGNED_JWT).hasClaim(JwtClaimNames.EXP)).isNotNull();
+		assertThatExceptionOfType(BadJwtException.class).isThrownBy(() -> decoder.decode(SIGNED_JWT));
+	}
+
+	@Test
+	@SuppressWarnings("removal")
+	public void decodeWhenBackgroundInitializationReturnsMalformedJwkSetThenFailsClosed() throws Exception {
+		RestOperations restOperations = mock(RestOperations.class);
+		CountDownLatch requestStarted = new CountDownLatch(1);
+		CountDownLatch allowResponse = new CountDownLatch(1);
+		given(restOperations.exchange(any(RequestEntity.class), eq(String.class))).willAnswer((invocation) -> {
+			requestStarted.countDown();
+			assertThat(allowResponse.await(5, TimeUnit.SECONDS)).isTrue();
+			return new ResponseEntity<>("not a JWK set", HttpStatus.OK);
+		});
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI)
+			.discoverJwsAlgorithms()
+			.backgroundInitialization()
+			.restOperations(restOperations)
+			.build();
+		assertThat(requestStarted.await(5, TimeUnit.SECONDS)).isTrue();
+		allowResponse.countDown();
+		assertThatExceptionOfType(JwtException.class)
+			.isThrownBy(() -> decoder.decode(SIGNED_JWT))
+			.withCauseInstanceOf(IllegalStateException.class);
 	}
 
 	@Test

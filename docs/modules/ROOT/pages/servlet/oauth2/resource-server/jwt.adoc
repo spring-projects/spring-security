@@ -1,4 +1,4 @@
-= OAuth 2.0 Resource Server JWT
+`= OAuth 2.0 Resource Server JWT`
 :figures: servlet/oauth2
 
 [[oauth2resourceserver-jwt-minimaldependencies]]
@@ -510,6 +510,23 @@ fun jwtDecoder(): JwtDecoder {
 ======
 
 or you can use the issuer and have `NimbusJwtDecoder` look up the `jwkSetUri` when `build()` is invoked, like the following:
+
+By default, `NimbusJwtDecoder` resolves issuer metadata and supported signing algorithms
+while the decoder is built. To let application startup continue while this remote
+initialization runs, enable background initialization on the builder:
+
+[source,java]
+----
+NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer)
+	.backgroundInitialization()
+	.build();
+----
+
+The same option is available with `withJwkSetUri`. The decoder is returned immediately;
+the first decode request waits for initialization to complete. If metadata or the JWK Set
+cannot be retrieved, decoding fails with a `JwtException` and retains the initialization
+failure as its cause. Algorithm discovery continues to restrict accepted tokens to the
+algorithms supported by the remote JWK Set.
 
 [tabs]
 ======
