@@ -25,6 +25,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationServerMetadataClaimNames;
 import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContext;
 import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContextHolder;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
@@ -36,6 +37,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * Configurer for OpenID Connect 1.0 support.
  *
  * @author Joe Grandja
+ * @author Stefano Cordio
  * @since 7.0
  * @see OAuth2AuthorizationServerConfigurer#oidc
  * @see OidcProviderConfigurationEndpointConfigurer
@@ -191,6 +193,14 @@ public final class OidcConfigurer extends AbstractOAuth2Configurer {
 
 				builder.pushedAuthorizationRequestEndpoint(pushedAuthorizationRequestEndpoint);
 			});
+		}
+
+		if (httpSecurity.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+			.isRequirePushedAuthorizationRequests()) {
+			OidcProviderConfigurationEndpointConfigurer providerConfigurationEndpointConfigurer = getConfigurer(
+					OidcProviderConfigurationEndpointConfigurer.class);
+			providerConfigurationEndpointConfigurer.addDefaultProviderConfigurationCustomizer((builder) -> builder
+				.claim(OAuth2AuthorizationServerMetadataClaimNames.REQUIRE_PUSHED_AUTHORIZATION_REQUESTS, true));
 		}
 
 		this.configurers.values().forEach((configurer) -> configurer.configure(httpSecurity));

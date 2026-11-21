@@ -44,6 +44,7 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationServerMetadataClaimNames;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationContext;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeRequestAuthenticationException;
@@ -71,6 +72,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @author Gerardo Roza
  * @author Ovidiu Popa
  * @author Gaurav Tiwari
+ * @author Stefano Cordio
  * @since 7.0
  * @see AbstractHttpConfigurer
  * @see OAuth2ClientAuthenticationConfigurer
@@ -95,6 +97,8 @@ public final class OAuth2AuthorizationServerConfigurer
 	private final Map<Class<? extends AbstractOAuth2Configurer>, AbstractOAuth2Configurer> configurers = createConfigurers();
 
 	private RequestMatcher endpointsMatcher;
+
+	private boolean requirePushedAuthorizationRequests;
 
 	/**
 	 * Sets the repository of registered clients.
@@ -326,6 +330,22 @@ public final class OAuth2AuthorizationServerConfigurer
 	}
 
 	/**
+	 * Require clients to use pushed authorization requests for authorization requests.
+	 * The default is {@code false}. When enabled, the requirement is advertised in
+	 * authorization server and OpenID Provider metadata, and the pushed authorization
+	 * request endpoint is enabled.
+	 * @param requirePushedAuthorizationRequests whether pushed authorization requests are
+	 * required
+	 * @return the {@link OAuth2AuthorizationServerConfigurer} for further configuration
+	 * @since 7.3
+	 */
+	public OAuth2AuthorizationServerConfigurer requirePushedAuthorizationRequests(
+			boolean requirePushedAuthorizationRequests) {
+		this.requirePushedAuthorizationRequests = requirePushedAuthorizationRequests;
+		return this;
+	}
+
+	/**
 	 * Returns a {@link RequestMatcher} for the authorization server endpoints.
 	 * @return a {@link RequestMatcher} for the authorization server endpoints
 	 */
@@ -335,8 +355,16 @@ public final class OAuth2AuthorizationServerConfigurer
 		return (request) -> this.endpointsMatcher.matches(request);
 	}
 
+	boolean isRequirePushedAuthorizationRequests() {
+		return this.requirePushedAuthorizationRequests;
+	}
+
 	@Override
 	public void init(HttpSecurity httpSecurity) {
+		if (this.requirePushedAuthorizationRequests
+				&& getConfigurer(OAuth2PushedAuthorizationRequestEndpointConfigurer.class) == null) {
+			pushedAuthorizationRequestEndpoint(Customizer.withDefaults());
+		}
 		AuthorizationServerSettings authorizationServerSettings = OAuth2ConfigurerUtils
 			.getAuthorizationServerSettings(httpSecurity);
 		validateAuthorizationServerSettings(authorizationServerSettings);
@@ -501,6 +529,14 @@ public final class OAuth2AuthorizationServerConfigurer
 
 				builder.pushedAuthorizationRequestEndpoint(pushedAuthorizationRequestEndpoint);
 			});
+		}
+
+		if (this.requirePushedAuthorizationRequests) {
+			OAuth2AuthorizationServerMetadataEndpointConfigurer authorizationServerMetadataEndpointConfigurer = getConfigurer(
+					OAuth2AuthorizationServerMetadataEndpointConfigurer.class);
+			authorizationServerMetadataEndpointConfigurer
+				.addDefaultAuthorizationServerMetadataCustomizer((builder) -> builder
+					.claim(OAuth2AuthorizationServerMetadataClaimNames.REQUIRE_PUSHED_AUTHORIZATION_REQUESTS, true));
 		}
 
 		this.configurers.values().forEach((configurer) -> configurer.configure(httpSecurity));
