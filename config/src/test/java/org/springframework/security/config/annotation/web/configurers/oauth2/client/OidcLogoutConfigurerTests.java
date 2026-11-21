@@ -34,6 +34,10 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationHandler;
+import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.observation.ObservationTextPublisher;
 import jakarta.annotation.PreDestroy;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -44,9 +48,11 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.htmlunit.util.UrlUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -54,9 +60,11 @@ import org.springframework.core.annotation.Order;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.security.authentication.AuthenticationObservationContext;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -97,7 +105,9 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -139,6 +149,54 @@ public class OidcLogoutConfigurerTests {
 				.param("logout_token", logoutToken))
 			.andExpect(status().isOk());
 		this.mvc.perform(get("/token/logout").session(session)).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void logoutWhenObservationRegistryThenObservesAuthentication() throws Exception {
+		this.spring
+			.register(WebServerConfig.class, OidcProviderConfig.class, DefaultConfig.class,
+					ObservationRegistryConfig.class)
+			.autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		MockHttpSession session = login();
+		String logoutToken = this.mvc.perform(get("/token/logout").session(session))
+			.andExpect(status().isOk())
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+		ObservationHandler<Observation.Context> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		reset(handler);
+		this.mvc
+			.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+				.param("logout_token", logoutToken))
+			.andExpect(status().isOk());
+		ArgumentCaptor<Observation.Context> context = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, atLeastOnce()).onStart(context.capture());
+		assertThat(context.getAllValues()).anyMatch(AuthenticationObservationContext.class::isInstance);
+	}
+
+	@Test
+	void logoutWhenExcludeAuthenticationObservationsThenUnobserved() throws Exception {
+		this.spring
+			.register(WebServerConfig.class, OidcProviderConfig.class, DefaultConfig.class,
+					ObservationRegistryConfig.class, SelectableObservationsConfig.class)
+			.autowire();
+		String registrationId = this.clientRegistration.getRegistrationId();
+		MockHttpSession session = login();
+		String logoutToken = this.mvc.perform(get("/token/logout").session(session))
+			.andExpect(status().isOk())
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+		ObservationHandler<Observation.Context> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		reset(handler);
+		this.mvc
+			.perform(post(this.web.url("/logout/connect/back-channel/" + registrationId).toString())
+				.param("logout_token", logoutToken))
+			.andExpect(status().isOk());
+		ArgumentCaptor<Observation.Context> context = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, atLeastOnce()).onStart(context.capture());
+		assertThat(context.getAllValues()).noneMatch(AuthenticationObservationContext.class::isInstance);
 	}
 
 	@Test
@@ -833,6 +891,62 @@ public class OidcLogoutConfigurerTests {
 			catch (Exception ex) {
 				throw new RuntimeException(ex);
 			}
+		}
+
+	}
+
+	@Configuration
+	static class ObservationRegistryConfig {
+
+		private final ObservationRegistry registry = ObservationRegistry.create();
+
+		private final ObservationHandler<Observation.Context> handler = spy(new ObservationTextPublisher());
+
+		@Bean
+		ObservationRegistry observationRegistry() {
+			return this.registry;
+		}
+
+		@Bean
+		ObservationHandler<Observation.Context> observationHandler() {
+			return this.handler;
+		}
+
+		@Bean
+		ObservationRegistryPostProcessor observationRegistryPostProcessor(
+				ObjectProvider<ObservationHandler<Observation.Context>> handler) {
+			return new ObservationRegistryPostProcessor(handler);
+		}
+
+	}
+
+	static class ObservationRegistryPostProcessor implements BeanPostProcessor {
+
+		private final ObjectProvider<ObservationHandler<Observation.Context>> handler;
+
+		ObservationRegistryPostProcessor(ObjectProvider<ObservationHandler<Observation.Context>> handler) {
+			this.handler = handler;
+		}
+
+		@Override
+		public Object postProcessAfterInitialization(Object bean, String beanName) {
+			if (bean instanceof ObservationRegistry registry) {
+				registry.observationConfig().observationHandler(this.handler.getObject());
+			}
+			return bean;
+		}
+
+	}
+
+	@Configuration
+	static class SelectableObservationsConfig {
+
+		@Bean
+		SecurityObservationSettings observabilityDefaults() {
+			return SecurityObservationSettings.withDefaults()
+				.shouldObserveRequests(true)
+				.shouldObserveAuthentications(false)
+				.build();
 		}
 
 	}
