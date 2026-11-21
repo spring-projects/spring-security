@@ -58,6 +58,7 @@ import org.springframework.util.StringUtils;
  * Configurer for the OAuth 2.0 Authorization Endpoint.
  *
  * @author Joe Grandja
+ * @author Stefano Cordio
  * @since 7.0
  * @see OAuth2AuthorizationServerConfigurer#authorizationEndpoint
  * @see OAuth2AuthorizationEndpointFilter
@@ -317,6 +318,8 @@ public final class OAuth2AuthorizationEndpointConfigurer extends AbstractOAuth2C
 				registeredClientRepository);
 		authorizationCodeRequestPreValidationFilter
 			.setAuthenticationValidator(getAuthorizationCodeRequestAuthenticationValidator());
+		authorizationCodeRequestPreValidationFilter
+			.setRequirePushedAuthorizationRequests(isPushedAuthorizationRequestRequired(httpSecurity));
 		httpSecurity.addFilterBefore(postProcess(authorizationCodeRequestPreValidationFilter),
 				AbstractPreAuthenticatedProcessingFilter.class);
 	}
@@ -344,6 +347,8 @@ public final class OAuth2AuthorizationEndpointConfigurer extends AbstractOAuth2C
 				OAuth2ConfigurerUtils.getAuthorizationConsentService(httpSecurity));
 		authorizationCodeRequestAuthenticationProvider
 			.setAuthenticationValidator(getAuthorizationCodeRequestAuthenticationValidator());
+		authorizationCodeRequestAuthenticationProvider
+			.setRequirePushedAuthorizationRequests(isPushedAuthorizationRequestRequired(httpSecurity));
 		authenticationProviders.add(authorizationCodeRequestAuthenticationProvider);
 
 		OAuth2AuthorizationConsentAuthenticationProvider authorizationConsentAuthenticationProvider = new OAuth2AuthorizationConsentAuthenticationProvider(
@@ -365,6 +370,11 @@ public final class OAuth2AuthorizationEndpointConfigurer extends AbstractOAuth2C
 				.andThen(this.providedAuthorizationCodeRequestAuthenticationValidator);
 		}
 		return authenticationValidator;
+	}
+
+	private static boolean isPushedAuthorizationRequestRequired(HttpSecurity httpSecurity) {
+		return httpSecurity.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+			.isRequirePushedAuthorizationRequests();
 	}
 
 }

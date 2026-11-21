@@ -66,6 +66,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Sahariar Alam Khandoker
  * @author Joe Grandja
  * @author Daniel Garnier-Moiroux
+ * @author Stefano Cordio
  */
 @ExtendWith(SpringTestContextExtension.class)
 public class OidcProviderConfigurationTests {
@@ -168,7 +169,58 @@ public class OidcProviderConfigurationTests {
 			.andExpect(status().is2xxSuccessful())
 			.andExpectAll(defaultConfigurationMatchers(ISSUER))
 			.andExpect(jsonPath("$.pushed_authorization_request_endpoint")
-				.value(ISSUER.concat(this.authorizationServerSettings.getPushedAuthorizationRequestEndpoint())));
+				.value(ISSUER.concat(this.authorizationServerSettings.getPushedAuthorizationRequestEndpoint())))
+			.andExpect(jsonPath("$.require_pushed_authorization_requests").doesNotExist());
+	}
+
+	@Test
+	public void requestWhenPushedAuthorizationRequestsRequiredThenBothMetadataEndpointsAdvertiseRequirement()
+			throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithRequiredPushedAuthorizationRequests.class).autowire();
+
+		this.mvc.perform(get(ISSUER.concat(DEFAULT_OIDC_PROVIDER_CONFIGURATION_ENDPOINT_URI)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.pushed_authorization_request_endpoint")
+				.value(ISSUER.concat(this.authorizationServerSettings.getPushedAuthorizationRequestEndpoint())))
+			.andExpect(jsonPath("$.require_pushed_authorization_requests").value(true));
+
+		this.mvc.perform(get(ISSUER.concat("/.well-known/oauth-authorization-server")))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.pushed_authorization_request_endpoint")
+				.value(ISSUER.concat(this.authorizationServerSettings.getPushedAuthorizationRequestEndpoint())))
+			.andExpect(jsonPath("$.require_pushed_authorization_requests").value(true));
+	}
+
+	@Test
+	public void requestWhenPushedAuthorizationRequestsRequiredThenAutomaticallyEnabledEndpointIsAdvertised()
+			throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithRequiredParWithoutExplicitEndpoint.class).autowire();
+
+		this.mvc.perform(get(ISSUER.concat(DEFAULT_OIDC_PROVIDER_CONFIGURATION_ENDPOINT_URI)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.pushed_authorization_request_endpoint")
+				.value(ISSUER.concat(this.authorizationServerSettings.getPushedAuthorizationRequestEndpoint())))
+			.andExpect(jsonPath("$.require_pushed_authorization_requests").value(true));
+		this.mvc.perform(get(ISSUER.concat("/.well-known/oauth-authorization-server")))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.pushed_authorization_request_endpoint")
+				.value(ISSUER.concat(this.authorizationServerSettings.getPushedAuthorizationRequestEndpoint())))
+			.andExpect(jsonPath("$.require_pushed_authorization_requests").value(true));
+	}
+
+	@Test
+	public void requestWhenPushedAuthorizationRequestsRequirementDisabledThenMetadataDoesNotAdvertiseRequirement()
+			throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithDisabledParRequirement.class).autowire();
+
+		this.mvc.perform(get(ISSUER.concat(DEFAULT_OIDC_PROVIDER_CONFIGURATION_ENDPOINT_URI)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.pushed_authorization_request_endpoint").doesNotExist())
+			.andExpect(jsonPath("$.require_pushed_authorization_requests").doesNotExist());
+		this.mvc.perform(get(ISSUER.concat("/.well-known/oauth-authorization-server")))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.pushed_authorization_request_endpoint").doesNotExist())
+			.andExpect(jsonPath("$.require_pushed_authorization_requests").doesNotExist());
 	}
 
 	private ResultMatcher[] defaultConfigurationMatchers(String issuer) {
@@ -361,6 +413,67 @@ public class OidcProviderConfigurationTests {
 					.oauth2AuthorizationServer((authorizationServer) ->
 							authorizationServer
 									.deviceAuthorizationEndpoint(Customizer.withDefaults())
+									.oidc(Customizer.withDefaults())
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AuthorizationServerConfigurationWithRequiredPushedAuthorizationRequests
+			extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.requirePushedAuthorizationRequests(true)
+									.pushedAuthorizationRequestEndpoint(Customizer.withDefaults())
+									.oidc(Customizer.withDefaults())
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AuthorizationServerConfigurationWithRequiredParWithoutExplicitEndpoint
+			extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.requirePushedAuthorizationRequests(true)
+									.oidc(Customizer.withDefaults())
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AuthorizationServerConfigurationWithDisabledParRequirement extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.requirePushedAuthorizationRequests(true)
+									.requirePushedAuthorizationRequests(false)
 									.oidc(Customizer.withDefaults())
 					);
 			return http.build();

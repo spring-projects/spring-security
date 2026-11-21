@@ -86,6 +86,7 @@ import org.springframework.web.util.UriUtils;
  * @author Daniel Garnier-Moiroux
  * @author Anoop Garlapati
  * @author Dmitriy Dubson
+ * @author Stefano Cordio
  * @since 7.0
  * @see AuthenticationManager
  * @see OAuth2AuthorizationCodeRequestAuthenticationProvider
@@ -430,6 +431,8 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 
 		private Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authenticationValidator = new OAuth2AuthorizationCodeRequestAuthenticationValidator();
 
+		private boolean requirePushedAuthorizationRequests;
+
 		/**
 		 * Constructs an {@code OAuth2AuthorizationCodeRequestPreValidationFilter} using
 		 * the provided parameters.
@@ -463,6 +466,17 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 			this.authenticationValidator = authenticationValidator;
 		}
 
+		/**
+		 * Require authorization requests to reference a pushed authorization request. The
+		 * default is {@code false}.
+		 * @param requirePushedAuthorizationRequests whether pushed authorization requests
+		 * are required
+		 * @since 7.3
+		 */
+		public void setRequirePushedAuthorizationRequests(boolean requirePushedAuthorizationRequests) {
+			this.requirePushedAuthorizationRequests = requirePushedAuthorizationRequests;
+		}
+
 		@Override
 		protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 				FilterChain filterChain) throws ServletException, IOException {
@@ -478,6 +492,18 @@ public final class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilte
 				if (!(authentication instanceof OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication)) {
 					filterChain.doFilter(request, response);
 					return;
+				}
+
+				if (this.requirePushedAuthorizationRequests) {
+					String[] requestUris = request.getParameterValues(OAuth2ParameterNames.REQUEST_URI);
+					if (requestUris == null || requestUris.length != 1 || !StringUtils.hasText(requestUris[0])
+							|| !requestUris[0].equals(authorizationCodeRequestAuthentication.getAdditionalParameters()
+								.get(OAuth2ParameterNames.REQUEST_URI))) {
+						OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST,
+								"OAuth 2.0 Parameter: " + OAuth2ParameterNames.REQUEST_URI,
+								"https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2.1");
+						throw new OAuth2AuthorizationCodeRequestAuthenticationException(error, null);
+					}
 				}
 
 				String requestUri = (String) authorizationCodeRequestAuthentication.getAdditionalParameters()

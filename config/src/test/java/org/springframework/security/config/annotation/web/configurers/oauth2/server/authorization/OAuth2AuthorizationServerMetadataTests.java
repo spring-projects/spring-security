@@ -64,6 +64,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the OAuth 2.0 Authorization Server Metadata endpoint.
  *
  * @author Daniel Garnier-Moiroux
+ * @author Stefano Cordio
  */
 @ExtendWith(SpringTestContextExtension.class)
 public class OAuth2AuthorizationServerMetadataTests {
@@ -193,7 +194,17 @@ public class OAuth2AuthorizationServerMetadataTests {
 		this.mvc.perform(get(ISSUER.concat(DEFAULT_OAUTH2_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI)))
 			.andExpect(status().is2xxSuccessful())
 			.andExpect(jsonPath("$.pushed_authorization_request_endpoint")
-				.value(ISSUER.concat(this.authorizationServerSettings.getPushedAuthorizationRequestEndpoint())));
+				.value(ISSUER.concat(this.authorizationServerSettings.getPushedAuthorizationRequestEndpoint())))
+			.andExpect(jsonPath("$.require_pushed_authorization_requests").doesNotExist());
+	}
+
+	@Test
+	public void requestWhenPushedAuthorizationRequestsRequiredThenMetadataAdvertisesRequirement() throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithRequiredPushedAuthorizationRequests.class).autowire();
+
+		this.mvc.perform(get(ISSUER.concat(DEFAULT_OAUTH2_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.require_pushed_authorization_requests").value(true));
 	}
 
 	@EnableWebSecurity
@@ -305,6 +316,26 @@ public class OAuth2AuthorizationServerMetadataTests {
 					)
 					.authorizeHttpRequests((authorize) ->
 							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AuthorizationServerConfigurationWithRequiredPushedAuthorizationRequests
+			extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.requirePushedAuthorizationRequests(true)
+									.pushedAuthorizationRequestEndpoint(Customizer.withDefaults())
 					);
 			return http.build();
 		}
