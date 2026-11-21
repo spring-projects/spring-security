@@ -237,6 +237,19 @@ public class WebClientReactiveRefreshTokenTokenResponseClientTests {
 	}
 
 	@Test
+	public void getTokenResponseWhenResponseOmitsScopeAndRequestNarrowsScopeThenAccessTokenHasRequestedScope() {
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
+		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
+				this.clientRegistrationBuilder.build(), this.accessToken, this.refreshToken,
+				Collections.singleton("read"));
+		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
+			.getTokenResponse(refreshTokenGrantRequest)
+			.block();
+		assertThat(accessTokenResponse).isNotNull();
+		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("read");
+	}
+
+	@Test
 	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() {
 		this.server.enqueue(MockResponses.json("unauthorized-client-response.json").setResponseCode(400));
 		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
