@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
+import org.springframework.security.authorization.event.AuthorizationGrantedEvent;
 import org.springframework.security.core.Authentication;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -77,6 +78,16 @@ public class SpringAuthorizationEventPublisherTests {
 		this.authorizationEventPublisher.publishAuthorizationEvent(this.authentication, mock(Object.class), result);
 		verify(this.applicationEventPublisher).publishEvent(isA(AuthorizationDeniedEvent.class));
 		this.authorizationEventPublisher.publishAuthorizationEvent(this.authentication, mock(Object.class), result);
+		verifyNoMoreInteractions(this.applicationEventPublisher);
+	}
+
+	// gh-19584
+	@Test
+	public void publishWhenPredicateMatchesGrantedResultThenGrantedEvent() {
+		this.authorizationEventPublisher.setShouldPublishResult((result) -> true);
+		AuthorizationResult result = new AuthorizationDecision(true);
+		this.authorizationEventPublisher.publishAuthorizationEvent(this.authentication, mock(Object.class), result);
+		verify(this.applicationEventPublisher).publishEvent(isA(AuthorizationGrantedEvent.class));
 		verifyNoMoreInteractions(this.applicationEventPublisher);
 	}
 

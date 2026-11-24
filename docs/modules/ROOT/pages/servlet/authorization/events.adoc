@@ -7,7 +7,7 @@ Also, it's possible to fire an `AuthorizationGrantedEvent` for authorizations th
 To listen for these events, you must first publish an `AuthorizationEventPublisher`.
 
 Spring Security's `SpringAuthorizationEventPublisher` will probably do fine.
-It comes publishes authorization events using Spring's `ApplicationEventPublisher`:
+It publishes authorization events using Spring's `ApplicationEventPublisher`:
 
 [tabs]
 ======
@@ -28,7 +28,7 @@ Kotlin::
 ----
 @Bean
 fun authorizationEventPublisher
-        (applicationEventPublisher: ApplicationEventPublisher?): AuthorizationEventPublisher {
+        (applicationEventPublisher: ApplicationEventPublisher): AuthorizationEventPublisher {
     return SpringAuthorizationEventPublisher(applicationEventPublisher)
 }
 ----
@@ -84,9 +84,9 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
-AuthorizationEventPublisher authorizationEventPublisher() {
-    SpringAuthorizationEventPublisher eventPublisher = new SpringAuthorizationEventPublisher();
-    eventPublisher.setShouldPublishEvent((result) -> {
+AuthorizationEventPublisher authorizationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+    SpringAuthorizationEventPublisher eventPublisher = new SpringAuthorizationEventPublisher(applicationEventPublisher);
+    eventPublisher.setShouldPublishResult((result) -> {
         if (!result.isGranted()) {
             return true;
         }
@@ -105,17 +105,17 @@ Kotlin::
 [source,kotlin,role="secondary"]
 ----
 @Bean
-fun authorizationEventPublisher(): AuthorizationEventPublisher {
-    val eventPublisher = SpringAuthorizationEventPublisher()
-    eventPublisher.setShouldPublishEvent { (result) ->
-        if (!result.isGranted()) {
-            return true
+fun authorizationEventPublisher(applicationEventPublisher: ApplicationEventPublisher): AuthorizationEventPublisher {
+    val eventPublisher = SpringAuthorizationEventPublisher(applicationEventPublisher)
+    eventPublisher.setShouldPublishResult { result ->
+        if (!result.isGranted) {
+            return@setShouldPublishResult true
         }
-        if (decision is AuthorityAuthorizationDecision) {
-            val authorities = decision.getAuthorities()
-            return AuthorityUtils.authorityListToSet(authorities).contains("ROLE_ADMIN")
+        if (result is AuthorityAuthorizationDecision) {
+            val authorities = result.authorities
+            return@setShouldPublishResult AuthorityUtils.authorityListToSet(authorities).contains("ROLE_ADMIN")
         }
-        return false
+        false
     }
     return eventPublisher
 }

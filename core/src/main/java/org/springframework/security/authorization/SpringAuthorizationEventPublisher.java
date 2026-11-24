@@ -31,9 +31,11 @@ import org.springframework.util.Assert;
  * An implementation of {@link AuthorizationEventPublisher} that uses Spring's event
  * publishing support.
  *
+ * <p>
  * Because {@link AuthorizationGrantedEvent}s typically require additional business logic
- * to decide whether to publish, this implementation only publishes
- * {@link AuthorizationDeniedEvent}s.
+ * to decide whether to publish, this implementation by default only publishes
+ * {@link AuthorizationDeniedEvent}s. To also publish {@link AuthorizationGrantedEvent}s,
+ * use {@link #setShouldPublishResult(Predicate)}.
  *
  * @author Parikshit Dutta
  * @author Josh Cummings
@@ -66,12 +68,20 @@ public final class SpringAuthorizationEventPublisher implements AuthorizationEve
 		if (!this.shouldPublishResult.test(result)) {
 			return;
 		}
-		AuthorizationDeniedEvent<T> failure = new AuthorizationDeniedEvent<>(authentication, object, result);
-		this.eventPublisher.publishEvent(failure);
+		if (result.isGranted()) {
+			this.eventPublisher.publishEvent(new AuthorizationGrantedEvent<>(authentication, object, result));
+			return;
+		}
+		this.eventPublisher.publishEvent(new AuthorizationDeniedEvent<>(authentication, object, result));
 	}
 
 	/**
 	 * Use this predicate to test whether to publish an event.
+	 *
+	 * <p>
+	 * A granted result that passes this test is published as an
+	 * {@link AuthorizationGrantedEvent}, and a denied result as an
+	 * {@link AuthorizationDeniedEvent}. By default, only denied results are published.
 	 *
 	 * <p>
 	 * Since you cannot publish a {@code null} event, checking for null is already
