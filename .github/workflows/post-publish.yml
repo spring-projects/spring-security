@@ -8,7 +8,7 @@ run-name: "${{ inputs.tag || github.ref_name }}: Post Publish${{ github.event_na
 # run unless it is unticked). What it does, and the secret that it needs, are in the guide of the
 # reusable workflow that does it:
 #
-#   https://github.com/spring-io/spring-security-actions/blob/0.0.37/docs/post-publish.md
+#   https://github.com/spring-io/spring-security-actions/blob/0.0.38/docs/post-publish.md
 #
 # The reusable workflow and its actions are in the repository spring-io/spring-security-actions,
 # and are called at the commit of a tag.
@@ -52,7 +52,7 @@ jobs:
       issues: read
       pull-requests: read
     name: Post publish
-    uses: spring-io/spring-security-actions/.github/workflows/post-publish.yml@3d12f90253904da59a24c22b96c2cd0d6cec739a # 0.0.37
+    uses: spring-io/spring-security-actions/.github/workflows/post-publish.yml@266e718d1d7c8ad623ac22f63e34ecc64cae561b # 0.0.38
     with:
       tag: ${{ inputs.tag || github.ref_name }}
       ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || '' }}
@@ -66,7 +66,7 @@ jobs:
     name: Deploy Schema
     needs: post-publish
     if: vars.DEPLOY_SCHEMA == 'true'
-    uses: spring-io/spring-security-actions/.github/workflows/ci-deploy-schema.yml@3d12f90253904da59a24c22b96c2cd0d6cec739a # 0.0.37
+    uses: spring-io/spring-security-actions/.github/workflows/ci-deploy-schema.yml@266e718d1d7c8ad623ac22f63e34ecc64cae561b # 0.0.38
     with:
       java-version: '25'
       runner: ${{ vars.UBUNTU_RUNS_ON }}
