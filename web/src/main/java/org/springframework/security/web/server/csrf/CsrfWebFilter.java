@@ -37,9 +37,8 @@ import org.springframework.web.server.WebFilterChain;
 
 /**
  * <p>
- * Applies
- * <a href="https://community.owasp.org/attacks/csrf" >CSRF</a>
- * protection using a synchronizer token pattern. Developers are required to ensure that
+ * Applies <a href="https://community.owasp.org/attacks/csrf" >CSRF</a> protection using a
+ * synchronizer token pattern. Developers are required to ensure that
  * {@link CsrfWebFilter} is invoked for any request that allows state to change. Typically
  * this just means that they should ensure their web application follows proper REST
  * semantics (i.e. do not change state with the HTTP methods GET, HEAD, TRACE, OPTIONS).
