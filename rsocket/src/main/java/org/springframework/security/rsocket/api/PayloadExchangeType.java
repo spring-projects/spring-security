@@ -25,44 +25,46 @@ package org.springframework.security.rsocket.api;
 public enum PayloadExchangeType {
 
 	/**
-	 * The <a href="https://rsocket.io/docs/Protocol#setup-frame-0x01">Setup</a>. Can be
+	 * The <a href="https://rsocket.io/about/protocol#setup-frame-0x01">Setup</a>. Can be
 	 * used to determine if a Payload is part of the connection
 	 */
 	SETUP(false),
 
 	/**
-	 * A <a href="https://rsocket.io/docs/Protocol#frame-fnf">Fire and Forget</a>
-	 * exchange.
+	 * A <a href=
+	 * "https://rsocket.io/about/protocol#request_fnf-fire-n-forget-frame-0x05">Fire and
+	 * Forget</a> exchange.
 	 */
 	FIRE_AND_FORGET(true),
 
 	/**
-	 * A <a href="https://rsocket.io/docs/Protocol#frame-request-response">Request
+	 * A <a href="https://rsocket.io/about/protocol#request_response-frame-0x04">Request
 	 * Response</a> exchange.
 	 */
 	REQUEST_RESPONSE(true),
 
 	/**
-	 * A <a href="https://rsocket.io/docs/Protocol#request-stream-frame">Request
+	 * A <a href="https://rsocket.io/about/protocol#request_stream-frame-0x06">Request
 	 * Stream</a> exchange. This is only represents the request portion. The
 	 * {@link #PAYLOAD} type represents the data that submitted.
 	 */
 	REQUEST_STREAM(true),
 
 	/**
-	 * A <a href="https://rsocket.io/docs/Protocol#request-channel-frame">Request
+	 * A <a href="https://rsocket.io/about/protocol#request_channel-frame-0x07">Request
 	 * Channel</a> exchange.
 	 */
 	REQUEST_CHANNEL(true),
 
 	/**
-	 * A <a href="https://rsocket.io/docs/Protocol#payload-frame">Payload</a> exchange.
+	 * A <a href="https://rsocket.io/about/protocol#payload-frame-0x0a">Payload</a>
+	 * exchange.
 	 */
 	PAYLOAD(false),
 
 	/**
-	 * A <a href="https://rsocket.io/docs/Protocol#frame-metadata-push">Metadata Push</a>
-	 * exchange.
+	 * A <a href="https://rsocket.io/about/protocol#metadata_push-frame-0x0c">Metadata
+	 * Push</a> exchange.
 	 */
 	METADATA_PUSH(true);
 
