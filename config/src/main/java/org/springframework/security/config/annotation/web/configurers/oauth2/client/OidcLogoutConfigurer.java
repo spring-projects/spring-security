@@ -22,10 +22,13 @@ import java.util.function.Function;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.ResolvableType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -116,6 +119,17 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 		if (this.backChannel != null) {
 			this.backChannel.configure(builder);
 		}
+	}
+
+	private ObjectPostProcessor<AuthenticationManager> authenticationManagerPostProcessor(B builder) {
+		ApplicationContext context = builder.getSharedObject(ApplicationContext.class);
+		if (context == null) {
+			return ObjectPostProcessor.identity();
+		}
+		ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class,
+				AuthenticationManager.class);
+		ObjectProvider<ObjectPostProcessor<AuthenticationManager>> postProcessors = context.getBeanProvider(type);
+		return postProcessors.getIfUnique(ObjectPostProcessor::identity);
 	}
 
 	/**
@@ -274,8 +288,10 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 			if (logout != null) {
 				sessionLogout = new CompositeLogoutHandler(logout.getLogoutHandlers());
 			}
+			AuthenticationManager authenticationManager = authenticationManagerPostProcessor(http)
+				.postProcess(authenticationManager());
 			OidcBackChannelLogoutFilter filter = new OidcBackChannelLogoutFilter(authenticationConverter(http),
-					authenticationManager(), new EitherLogoutHandler(oidcLogout, sessionLogout));
+					authenticationManager, new EitherLogoutHandler(oidcLogout, sessionLogout));
 			http.addFilterBefore(filter, CsrfFilter.class);
 		}
 
