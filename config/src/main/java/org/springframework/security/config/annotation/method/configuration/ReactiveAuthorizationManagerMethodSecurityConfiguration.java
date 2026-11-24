@@ -16,6 +16,9 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import java.io.Serializable;
+import java.util.function.Supplier;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
@@ -31,6 +34,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Fallback;
 import org.springframework.context.annotation.Role;
+import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.access.expression.DenyAllPermissionEvaluator;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -44,7 +49,9 @@ import org.springframework.security.authorization.method.PreAuthorizeReactiveAut
 import org.springframework.security.authorization.method.PreFilterAuthorizationReactiveMethodInterceptor;
 import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AnnotationTemplateExpressionDefaults;
+import org.springframework.util.function.SingletonSupplier;
 
 /**
  * Configuration for a {@link ReactiveAuthenticationManager} based Method Security.
@@ -155,12 +162,36 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	@Fallback
 	static DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler(
-			@Autowired(required = false) GrantedAuthorityDefaults grantedAuthorityDefaults) {
+			@Autowired(required = false) GrantedAuthorityDefaults grantedAuthorityDefaults,
+			ObjectProvider<PermissionEvaluator> permissionEvaluators) {
 		DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
 		if (grantedAuthorityDefaults != null) {
 			handler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 		}
+		handler.setPermissionEvaluator(new DeferringPermissionEvaluator(
+				() -> permissionEvaluators.getIfUnique(DenyAllPermissionEvaluator::new)));
 		return handler;
+	}
+
+	private static final class DeferringPermissionEvaluator implements PermissionEvaluator {
+
+		private final Supplier<PermissionEvaluator> delegate;
+
+		private DeferringPermissionEvaluator(Supplier<PermissionEvaluator> delegate) {
+			this.delegate = SingletonSupplier.of(delegate);
+		}
+
+		@Override
+		public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
+			return this.delegate.get().hasPermission(authentication, targetDomainObject, permission);
+		}
+
+		@Override
+		public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
+				Object permission) {
+			return this.delegate.get().hasPermission(authentication, targetId, targetType, permission);
+		}
+
 	}
 
 }
