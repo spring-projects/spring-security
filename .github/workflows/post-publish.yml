@@ -8,7 +8,7 @@ run-name: "${{ inputs.tag || github.ref_name }}: Post Publish${{ github.event_na
 # run unless it is unticked). What it does, and the secret that it needs, are in the guide of the
 # reusable workflow that does it:
 #
-#   https://github.com/spring-io/spring-security-actions/blob/0.0.35/docs/post-publish.md
+#   https://github.com/spring-io/spring-security-actions/blob/0.0.37/docs/post-publish.md
 #
 # The reusable workflow and its actions are in the repository spring-io/spring-security-actions,
 # and are called at the commit of a tag.
@@ -41,15 +41,18 @@ run-name: "${{ inputs.tag || github.ref_name }}: Post Publish${{ github.event_na
 # publish-release-notes creates the GitHub release), and a called workflow cannot be given more
 # than its caller has: with less, the run fails at startup.
 permissions:
-  actions: write
-  contents: write
   issues: read
   pull-requests: read
 
 jobs:
   post-publish:
+    permissions:
+      actions: write
+      contents: write
+      issues: read
+      pull-requests: read
     name: Post publish
-    uses: spring-io/spring-security-actions/.github/workflows/post-publish.yml@ffcef17d3ba156b33fe73535fbd79594ed02b0f8 # 0.0.35
+    uses: spring-io/spring-security-actions/.github/workflows/post-publish.yml@3d12f90253904da59a24c22b96c2cd0d6cec739a # 0.0.37
     with:
       tag: ${{ inputs.tag || github.ref_name }}
       ref: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || '' }}
@@ -59,3 +62,15 @@ jobs:
       RELEASE_AUTOMATION_TOKEN: ${{ secrets.RELEASE_AUTOMATION_TOKEN }}
       GH_WEBSITE_COMMERCIAL_CONTENT_TOKEN: ${{ secrets.GH_WEBSITE_COMMERCIAL_CONTENT_TOKEN }}
       GH_ACTIONS_REPO_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
+  deploy-schema:
+    name: Deploy Schema
+    needs: post-publish
+    if: vars.DEPLOY_SCHEMA == 'true'
+    uses: spring-io/spring-security-actions/.github/workflows/ci-deploy-schema.yml@3d12f90253904da59a24c22b96c2cd0d6cec739a # 0.0.37
+    with:
+      java-version: '17'
+      runner: ${{ vars.UBUNTU_RUNS_ON }}
+    secrets:
+      docs-ssh-key: ${{ secrets.DOCS_SSH_KEY }}
+      docs-username: ${{ secrets.DOCS_USERNAME }}
+      docs-host: ${{ secrets.DOCS_HOST }}

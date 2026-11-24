@@ -6,6 +6,7 @@ workflow:
           primary: 17
     workflows:
       release-tools:
+        uses: spring-io/spring-security-actions@3d12f90253904da59a24c22b96c2cd0d6cec739a # 0.0.37
         ci:
           name: continuous-integration-workflow
         pr:

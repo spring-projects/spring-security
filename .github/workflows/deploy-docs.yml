@@ -7,13 +7,17 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
+    name: Dispatch Deploy Docs
     runs-on: ubuntu-latest
     if: ${{ github.event.repository.fork == false && github.event.repository.visibility == 'public' }}
     permissions:
-      contents: read
       actions: write
+      contents: read
     steps:
       - name: Dispatch (partial build)
         env:
