@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.xml.sax.SAXParseException;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
@@ -476,7 +477,9 @@ public class HttpHeadersConfigTests {
 		assertThatExceptionOfType(XmlBeanDefinitionStoreException.class)
 			.isThrownBy(() -> this.spring.configLocations(this.xml("DefaultsDisabledWithEmptyHpkp")).autowire())
 			.havingRootCause()
-			.withMessageContaining("The content of element 'hpkp' is not complete");
+			.isInstanceOf(SAXParseException.class)
+			.withMessageContaining("cvc-complex-type.2.4.b")
+			.withMessageContaining("hpkp");
 	}
 
 	@Test
@@ -484,7 +487,10 @@ public class HttpHeadersConfigTests {
 		assertThatExceptionOfType(XmlBeanDefinitionStoreException.class)
 			.isThrownBy(() -> this.spring.configLocations(this.xml("DefaultsDisabledWithEmptyPins")).autowire())
 			.havingRootCause()
-			.withMessageContaining("The content of element 'pins' is not complete");
+			.isInstanceOf(SAXParseException.class)
+			.withMessageContaining("cvc-complex-type.2.4.b")
+			.withMessageContaining("pins")
+			.withMessageNotContaining("hpkp");
 	}
 
 	@Test
