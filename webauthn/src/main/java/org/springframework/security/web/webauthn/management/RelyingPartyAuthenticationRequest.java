@@ -55,7 +55,7 @@ public class RelyingPartyAuthenticationRequest implements Serializable {
 	}
 
 	/**
-	 * Ges the request options.
+	 * Gets the request options.
 	 * @return the request options.
 	 */
 	public PublicKeyCredentialRequestOptions getRequestOptions() {
