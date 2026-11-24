@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:security="http://www.springframework.org/schema/security"
+<xs:schema xmlns:security="http://www.springframework.org/schema/security"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
            elementFormDefault="qualified"
            targetNamespace="http://www.springframework.org/schema/security">
    <xs:attributeGroup name="hash">
