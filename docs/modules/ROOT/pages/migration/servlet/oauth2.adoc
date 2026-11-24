@@ -2,7 +2,7 @@
 
 == Validate `typ` Header with `JwtTypeValidator`
 
-If when following the 6.5 preparatory steps you set `validateTypes` to `false`, you can now remove it.
+If when following the 6.5 preparatory steps you set `validateType` to `false`, you can now remove it.
 You can also remove explicitly adding `JwtTypeValidator` to the list of defaults.
 
 For example, change this:
@@ -16,7 +16,7 @@ Java::
 @Bean
 JwtDecoder jwtDecoder() {
 	NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(location)
-        .validateTypes(false) <1>
+        .validateType(false) <1>
         // ... your remaining configuration
         .build();
 	jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithValidators(
@@ -32,7 +32,7 @@ Kotlin::
 @Bean
 fun jwtDecoder(): JwtDecoder {
     val jwtDecoder = NimbusJwtDecoder.withIssuerLocation(location)
-        .validateTypes(false) <1>
+        .validateType(false) <1>
         // ... your remaining configuration
         .build()
     jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithValidators(
@@ -76,7 +76,7 @@ fun jwtDecoder(): JwtDecoder {
 }
 ----
 ======
-<1> - `validateTypes` now defaults to `false`
+<1> - `validateType` now defaults to `false`
 <2> - `JwtTypeValidator#jwt` is added by all `createDefaultXXX` methods
 
 == Provide an AuthenticationConverter to BearerTokenAuthenticationFilter
