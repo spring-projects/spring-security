@@ -491,7 +491,14 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     }
 
     /**
-     * Enables CORS.
+     * Configures Cross-Origin Resource Sharing (CORS).
+     *
+     * When [HttpSecurity] is provided by
+     * [org.springframework.security.config.annotation.web.configuration.EnableWebSecurity] and the
+     * application context contains a [org.springframework.web.cors.UrlBasedCorsConfigurationSource] bean,
+     * CORS is enabled with defaults automatically. In that case, use this method only to customize CORS,
+     * for example to supply a specific [org.springframework.web.cors.CorsConfigurationSource] or to
+     * disable it.
      *
      * Example:
      *
@@ -512,8 +519,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * }
      * ```
      *
-     * @param corsConfiguration custom configurations to configure the
-     * response headers
+     * @param corsConfiguration custom configurations to configure CORS
      * @see [CorsDsl]
      */
     fun cors(corsConfiguration: CorsDsl.() -> Unit) {
