@@ -477,7 +477,9 @@ public class HttpHeadersConfigTests {
 		assertThatExceptionOfType(XmlBeanDefinitionStoreException.class)
 			.isThrownBy(() -> this.spring.configLocations(this.xml("DefaultsDisabledWithEmptyHpkp")).autowire())
 			.havingRootCause()
-			.isInstanceOf(SAXParseException.class);
+			.isInstanceOf(SAXParseException.class)
+			.withMessageContaining("cvc-complex-type.2.4.b")
+			.withMessageContaining("hpkp");
 	}
 
 	@Test
@@ -485,7 +487,10 @@ public class HttpHeadersConfigTests {
 		assertThatExceptionOfType(XmlBeanDefinitionStoreException.class)
 			.isThrownBy(() -> this.spring.configLocations(this.xml("DefaultsDisabledWithEmptyPins")).autowire())
 			.havingRootCause()
-			.isInstanceOf(SAXParseException.class);
+			.isInstanceOf(SAXParseException.class)
+			.withMessageContaining("cvc-complex-type.2.4.b")
+			.withMessageContaining("pins")
+			.withMessageNotContaining("hpkp");
 	}
 
 	@Test

@@ -191,7 +191,9 @@ public class JdbcUserServiceBeanDefinitionParserTests {
 				.isThrownBy(() -> setContext(xml))
 				.withFailMessage("Expected exception due to missing data-source-ref")
 				.havingRootCause()
-				.isInstanceOf(SAXParseException.class);
+				.isInstanceOf(SAXParseException.class)
+				.withMessageContaining("cvc-complex-type.4")
+				.withMessageContaining("data-source-ref");
 		// @formatter:on
 	}
 
