@@ -63,6 +63,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.header.ContentSecurityPolicyNonce;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -613,6 +614,58 @@ public class OAuth2AuthorizationEndpointFilterTests {
 		assertThat(html).doesNotContain(unencodedState);
 		assertThat(html).contains(HtmlUtils.htmlEscape(unencodedScope));
 		assertThat(html).contains("name=\"state\" value=\"" + HtmlUtils.htmlEscape(unencodedState) + "\"");
+	}
+
+	@Test
+	public void doFilterWhenAuthorizationRequestConsentRequiredAndCspNonceThenConsentResponseScriptHasNonce()
+			throws Exception {
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		OAuth2AuthorizationConsentAuthenticationToken authorizationConsentAuthenticationResult = new OAuth2AuthorizationConsentAuthenticationToken(
+				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, STATE, new HashSet<>(), null);
+		authorizationConsentAuthenticationResult.setAuthenticated(true);
+		given(this.authenticationManager.authenticate(any())).willReturn(authorizationConsentAuthenticationResult);
+
+		ContentSecurityPolicyNonce cspNonce = () -> "TEST/CONTENT+SECURITY+POLICY/NONCE";
+		MockHttpServletRequest request = createAuthorizationRequest(registeredClient);
+		request.setAttribute(ContentSecurityPolicyNonce.class.getName(), cspNonce);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain filterChain = mock(FilterChain.class);
+
+		this.filter.doFilter(request, response, filterChain);
+
+		verify(this.authenticationManager).authenticate(any());
+		verifyNoInteractions(filterChain);
+
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+		String html = response.getContentAsString();
+		assertThat(html).contains("<script nonce=\"TEST/CONTENT+SECURITY+POLICY/NONCE\">");
+		assertThat(html).doesNotContain("onclick=");
+	}
+
+	@Test
+	public void doFilterWhenAuthorizationRequestConsentRequiredThenConsentResponseHasNoInlineEventHandler()
+			throws Exception {
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		OAuth2AuthorizationConsentAuthenticationToken authorizationConsentAuthenticationResult = new OAuth2AuthorizationConsentAuthenticationToken(
+				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, STATE, new HashSet<>(), null);
+		authorizationConsentAuthenticationResult.setAuthenticated(true);
+		given(this.authenticationManager.authenticate(any())).willReturn(authorizationConsentAuthenticationResult);
+
+		MockHttpServletRequest request = createAuthorizationRequest(registeredClient);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain filterChain = mock(FilterChain.class);
+
+		this.filter.doFilter(request, response, filterChain);
+
+		verify(this.authenticationManager).authenticate(any());
+		verifyNoInteractions(filterChain);
+
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+		String html = response.getContentAsString();
+		assertThat(html).contains("<script>");
+		assertThat(html).doesNotContain("onclick=");
+		assertThat(html)
+			.contains("document.getElementById(\"cancel-consent\").addEventListener(\"click\", cancelConsent);");
 	}
 
 	@Test
