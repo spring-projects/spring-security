@@ -36,12 +36,12 @@ jobs:
           persist-credentials: false
       - id: environment
         name: Compute Build Environment
-        uses: spring-io/spring-security-actions/compute-build-environment@3d12f90253904da59a24c22b96c2cd0d6cec739a # 0.0.37
+        uses: spring-io/spring-security-actions/compute-build-environment@266e718d1d7c8ad623ac22f63e34ecc64cae561b # 0.0.38
   build:
     name: Build
     needs: setup
     if: needs.setup.outputs.snapshot == 'true'
-    uses: spring-io/spring-security-actions/.github/workflows/ci-build.yml@3d12f90253904da59a24c22b96c2cd0d6cec739a # 0.0.37
+    uses: spring-io/spring-security-actions/.github/workflows/ci-build.yml@266e718d1d7c8ad623ac22f63e34ecc64cae561b # 0.0.38
     with:
       java-version: '17'
       runner: ${{ vars.UBUNTU_RUNS_ON }}
@@ -54,7 +54,7 @@ jobs:
   deploy-artifacts:
     name: Deploy Artifacts
     needs: [ setup, build ]
-    uses: spring-io/spring-security-actions/.github/workflows/ci-deploy-artifacts.yml@3d12f90253904da59a24c22b96c2cd0d6cec739a # 0.0.37
+    uses: spring-io/spring-security-actions/.github/workflows/ci-deploy-artifacts.yml@266e718d1d7c8ad623ac22f63e34ecc64cae561b # 0.0.38
     with:
       runner: ${{ vars.UBUNTU_RUNS_ON }}
       version: ${{ needs.setup.outputs.version }}
@@ -65,7 +65,7 @@ jobs:
     name: Deploy Schema
     needs: [ setup, deploy-artifacts ]
     if: vars.DEPLOY_SCHEMA == 'true'
-    uses: spring-io/spring-security-actions/.github/workflows/ci-deploy-schema.yml@3d12f90253904da59a24c22b96c2cd0d6cec739a # 0.0.37
+    uses: spring-io/spring-security-actions/.github/workflows/ci-deploy-schema.yml@266e718d1d7c8ad623ac22f63e34ecc64cae561b # 0.0.38
     with:
       java-version: '17'
       runner: ${{ vars.UBUNTU_RUNS_ON }}
