@@ -20,9 +20,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -264,6 +268,31 @@ public class AuthenticationConfigurationTests {
 		given(ap.supports(any())).willReturn(true);
 		given(ap.authenticate(any())).willReturn(TestAuthentication.authenticatedUser());
 		am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
+	}
+
+	@Test
+	public void getAuthenticationWhenAuthenticationProviderAndUserDetailsBeanThenWarningUsesConfigurerLogger()
+			throws Exception {
+		Logger logger = (Logger) LoggerFactory.getLogger(InitializeUserDetailsBeanManagerConfigurer.class);
+		ListAppender<ILoggingEvent> appender = new ListAppender<>();
+		appender.start();
+		logger.addAppender(appender);
+
+		try {
+			this.spring.register(AuthenticationProviderBeanAndUserDetailsServiceConfig.class).autowire();
+
+			this.spring.getContext().getBean(AuthenticationConfiguration.class).getAuthenticationManager();
+
+			assertThat(appender.list)
+				.filteredOn(
+						(event) -> event.getFormattedMessage().contains("UserDetailsService beans will not be used"))
+				.extracting(ILoggingEvent::getLoggerName)
+				.containsExactly(InitializeUserDetailsBeanManagerConfigurer.class.getName());
+		}
+		finally {
+			logger.detachAppender(appender);
+			appender.stop();
+		}
 	}
 
 	// gh-3091
