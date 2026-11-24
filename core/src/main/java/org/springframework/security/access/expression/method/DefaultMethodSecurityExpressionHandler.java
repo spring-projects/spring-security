@@ -129,7 +129,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 	 * {@link Stream}
 	 */
 	@Override
-	public Object filter(@Nullable Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
+	public @Nullable Object filter(@Nullable Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
 		MethodSecurityExpressionOperations rootObject = (MethodSecurityExpressionOperations) ctx.getRootObject()
 			.getValue();
 		Assert.notNull(rootObject, "rootObject cannot be null");

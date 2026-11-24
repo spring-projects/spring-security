@@ -40,9 +40,9 @@ public interface MethodSecurityExpressionHandler extends SecurityExpressionHandl
 	 * returned collection
 	 * @param ctx the current evaluation context (as created through a call to
 	 * {@link #createEvaluationContext(org.springframework.security.core.Authentication, Object)}
-	 * @return the filtered collection or array
+	 * @return the filtered collection or array, or {@code null}
 	 */
-	Object filter(@Nullable Object filterTarget, Expression filterExpression, EvaluationContext ctx);
+	@Nullable Object filter(@Nullable Object filterTarget, Expression filterExpression, EvaluationContext ctx);
 
 	/**
 	 * Used to inform the expression system of the return object for the given evaluation
