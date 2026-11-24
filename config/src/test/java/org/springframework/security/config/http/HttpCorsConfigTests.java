@@ -16,7 +16,7 @@
 
 package org.springframework.security.config.http;
 
-import java.util.Arrays;
+import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -176,8 +176,8 @@ public class HttpCorsConfigTests {
 
 		MyCorsConfigurationSource() {
 			CorsConfiguration configuration = new CorsConfiguration();
-			configuration.setAllowedOrigins(Arrays.asList("*"));
-			configuration.setAllowedMethods(Arrays.asList(RequestMethod.GET.name(), RequestMethod.POST.name()));
+			configuration.setAllowedOrigins(List.of("*"));
+			configuration.setAllowedMethods(List.of(RequestMethod.GET.name(), RequestMethod.POST.name()));
 			super.registerCorsConfiguration("/**", configuration);
 		}
 
