@@ -5,6 +5,10 @@ on: pull_request
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   ORG_GRADLE_PROJECT_branch: ${{ github.base_ref }}
   JAVA_VERSION: '17'
@@ -12,18 +16,21 @@ env:
 jobs:
   build:
     name: Build
-    runs-on: ${{ vars.UBUNTU_RUNS_ON }}
-    if: github.actor == 'dependabot[bot]'
+    runs-on: ${{ vars.UBUNTU_RUNS_ON || 'ubuntu-latest' }}
+    timeout-minutes: 60
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - id: environment
         name: Compute Build Environment
-        uses: spring-io/spring-security-actions/compute-build-environment@ffcef17d3ba156b33fe73535fbd79594ed02b0f8 # 0.0.35
-      - uses: spring-io/spring-security-actions/pr-build@ffcef17d3ba156b33fe73535fbd79594ed02b0f8 # 0.0.35
+        uses: spring-io/spring-security-actions/compute-build-environment@3d12f90253904da59a24c22b96c2cd0d6cec739a # 0.0.37
+      - uses: spring-io/spring-security-actions/pr-build@3d12f90253904da59a24c22b96c2cd0d6cec739a # 0.0.37
         env:
           ORG_GRADLE_PROJECT_releaseChannel: ${{ steps.environment.outputs.release-channel }}
-          ORG_GRADLE_PROJECT_artifactoryUsername: ${{ secrets[steps.environment.outputs.dependabot-username] }}
-          ORG_GRADLE_PROJECT_artifactoryPassword: ${{ secrets[steps.environment.outputs.dependabot-password] }}
+          ORG_GRADLE_PROJECT_artifactoryUsername: ${{ secrets.ARTIFACTORY_RO_USERNAME || '' }}
+          ORG_GRADLE_PROJECT_artifactoryPassword: ${{ secrets.ARTIFACTORY_RO_PASSWORD || '' }}
         with:
           java-version: ${{ env.JAVA_VERSION }}
   build-check:
