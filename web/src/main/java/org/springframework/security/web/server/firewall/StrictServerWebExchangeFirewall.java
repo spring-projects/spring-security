@@ -137,12 +137,12 @@ public class StrictServerWebExchangeFirewall implements ServerWebExchangeFirewal
 		.compile("[\\p{IsAssigned}&&[^\\p{IsControl}]]*");
 
 	private static final Predicate<String> ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE = (s) -> s == null
-			|| ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN.matcher(s).matches();
+			|| matchesAssignedPattern(ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN, s);
 
 	private static final Pattern HEADER_VALUE_PATTERN = Pattern.compile("[\\p{IsAssigned}&&[[^\\p{IsControl}]||\\t]]*");
 
 	private static final Predicate<String> HEADER_VALUE_PREDICATE = (s) -> s == null
-			|| HEADER_VALUE_PATTERN.matcher(s).matches();
+			|| matchesAssignedPattern(HEADER_VALUE_PATTERN, s);
 
 	private Predicate<String> allowedHeaderNames = ALLOWED_HEADER_NAMES;
 
@@ -667,6 +667,19 @@ public class StrictServerWebExchangeFirewall implements ServerWebExchangeFirewal
 
 	private static boolean decodedUrlContains(ServerHttpRequest request, String value) {
 		return valueContains(request.getURI().getPath(), value);
+	}
+
+	/**
+	 * Printable ASCII characters are always assigned and never ISO control characters, so
+	 * the given pattern always matches a string made only of them. Checking for them
+	 * first avoids running the regex for the common case, as header and parameter names
+	 * and values are validated on every access.
+	 */
+	private static boolean matchesAssignedPattern(Pattern pattern, String s) {
+		if (s != null && containsOnlyPrintableAsciiCharacters(s)) {
+			return true;
+		}
+		return pattern.matcher(s).matches();
 	}
 
 	private static boolean containsOnlyPrintableAsciiCharacters(String uri) {

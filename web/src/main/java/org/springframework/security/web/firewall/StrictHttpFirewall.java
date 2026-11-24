@@ -128,12 +128,13 @@ public class StrictHttpFirewall implements HttpFirewall {
 	private static final Pattern ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN = Pattern
 		.compile("[\\p{IsAssigned}&&[^\\p{IsControl}]]*");
 
-	private static final Predicate<String> ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE = (
-			s) -> ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN.matcher(s).matches();
+	private static final Predicate<String> ASSIGNED_AND_NOT_ISO_CONTROL_PREDICATE = (s) -> matchesAssignedPattern(
+			ASSIGNED_AND_NOT_ISO_CONTROL_PATTERN, s);
 
 	private static final Pattern HEADER_VALUE_PATTERN = Pattern.compile("[\\p{IsAssigned}&&[[^\\p{IsControl}]||\\t]]*");
 
-	private static final Predicate<String> HEADER_VALUE_PREDICATE = (s) -> HEADER_VALUE_PATTERN.matcher(s).matches();
+	private static final Predicate<String> HEADER_VALUE_PREDICATE = (s) -> matchesAssignedPattern(HEADER_VALUE_PATTERN,
+			s);
 
 	private Predicate<String> allowedHeaderNames = ALLOWED_HEADER_NAMES;
 
@@ -612,6 +613,19 @@ public class StrictHttpFirewall implements HttpFirewall {
 			return true;
 		}
 		return valueContains(request.getPathInfo(), value);
+	}
+
+	/**
+	 * Printable ASCII characters are always assigned and never ISO control characters, so
+	 * the given pattern always matches a string made only of them. Checking for them
+	 * first avoids running the regex for the common case, as header and parameter names
+	 * and values are validated on every access.
+	 */
+	private static boolean matchesAssignedPattern(Pattern pattern, String s) {
+		if (s != null && containsOnlyPrintableAsciiCharacters(s)) {
+			return true;
+		}
+		return pattern.matcher(s).matches();
 	}
 
 	private static boolean containsOnlyPrintableAsciiCharacters(String uri) {
