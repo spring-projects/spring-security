@@ -16,18 +16,17 @@
 
 package org.springframework.security.config.annotation.authentication.configuration;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -274,10 +273,10 @@ public class AuthenticationConfigurationTests {
 	@Test
 	public void getAuthenticationWhenAuthenticationProviderAndUserDetailsBeanThenWarningUsesConfigurerLogger()
 			throws Exception {
-		Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+		Logger logger = (Logger) LoggerFactory.getLogger(InitializeUserDetailsBeanManagerConfigurer.class);
 		ListAppender<ILoggingEvent> appender = new ListAppender<>();
 		appender.start();
-		rootLogger.addAppender(appender);
+		logger.addAppender(appender);
 
 		try {
 			this.spring.register(AuthenticationProviderBeanAndUserDetailsServiceConfig.class).autowire();
@@ -291,7 +290,7 @@ public class AuthenticationConfigurationTests {
 				.containsExactly(InitializeUserDetailsBeanManagerConfigurer.class.getName());
 		}
 		finally {
-			rootLogger.detachAppender(appender);
+			logger.detachAppender(appender);
 			appender.stop();
 		}
 	}
