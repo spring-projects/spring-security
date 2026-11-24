@@ -95,7 +95,8 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
-import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 /**
@@ -285,23 +286,18 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	/**
-	 * Configures Cross-Origin Resource Sharing (CORS).
-	 *
-	 * <p>A {@link CorsFilter} is added to the security filter chain in either of
-	 * the following cases:
-	 * <ul>
-	 * <li>a single {@link org.springframework.web.cors.UrlBasedCorsConfigurationSource}
-	 * bean is present in the application context, in which case it is added
-	 * automatically without invoking this method;
-	 * <li>this method is invoked explicitly. When invoked, a bean named
-	 * {@code corsFilter} is used if available; otherwise a bean named
-	 * {@code corsConfigurationSource} is used.
-	 * </ul>
-	 *
-	 * <p>Invoke this method when you need to customize the {@link CorsConfigurer},
-	 * for example to use a {@link CorsFilter} or a
-	 * {@link org.springframework.web.cors.CorsConfigurationSource} bean with a
-	 * different name:
+	 * Configures Cross-Origin Resource Sharing (CORS) by adding a {@link CorsFilter}.
+	 * <p>
+	 * When {@link HttpSecurity} is provided by {@link EnableWebSecurity} and the
+	 * application context contains a {@link UrlBasedCorsConfigurationSource} bean, CORS
+	 * is enabled with defaults automatically. In that case, invoke this method only to
+	 * customize the {@link CorsConfigurer}, for example to supply a specific
+	 * {@link CorsConfigurationSource}.
+	 * <p>
+	 * By default, if a bean named {@code corsFilter} is provided, that {@link CorsFilter}
+	 * is used. Else if a bean named {@code corsConfigurationSource} is provided, that
+	 * {@link CorsConfigurationSource} is used. Otherwise, Spring MVC's CORS configuration
+	 * is used. You can enable CORS explicitly using:
 	 *
 	 * <pre>
 	 * &#064;Configuration
