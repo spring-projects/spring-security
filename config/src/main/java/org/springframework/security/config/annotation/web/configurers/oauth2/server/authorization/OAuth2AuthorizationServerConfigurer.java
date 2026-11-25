@@ -421,7 +421,8 @@ public final class OAuth2AuthorizationServerConfigurer
 		if (getConfigurer(OAuth2ClientRegistrationEndpointConfigurer.class) != null) {
 			httpSecurity
 				// Accept access tokens for Client Registration
-				.oauth2ResourceServer((oauth2ResourceServer) -> oauth2ResourceServer.jwt(Customizer.withDefaults()));
+				.oauth2ResourceServer((oauth2ResourceServer) -> oauth2ResourceServer.jwt(Customizer.withDefaults())
+					.dPoP(Customizer.withDefaults()));
 		}
 
 		OidcConfigurer oidcConfigurer = getConfigurer(OidcConfigurer.class);
@@ -430,8 +431,8 @@ public final class OAuth2AuthorizationServerConfigurer
 					|| oidcConfigurer.getConfigurer(OidcClientRegistrationEndpointConfigurer.class) != null) {
 				httpSecurity
 					// Accept access tokens for User Info and/or Client Registration
-					.oauth2ResourceServer(
-							(oauth2ResourceServer) -> oauth2ResourceServer.jwt(Customizer.withDefaults()));
+					.oauth2ResourceServer((oauth2ResourceServer) -> oauth2ResourceServer.jwt(Customizer.withDefaults())
+						.dPoP(Customizer.withDefaults()));
 
 			}
 		}
