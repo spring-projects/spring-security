@@ -31,7 +31,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 class EnableMfaFiltersConfiguration {
 
 	@Bean
-	BeanPostProcessor mfaBeanPostProcessor() {
+	static BeanPostProcessor mfaBeanPostProcessor() {
 		return new EnableMfaFiltersPostProcessor();
 	}
 
