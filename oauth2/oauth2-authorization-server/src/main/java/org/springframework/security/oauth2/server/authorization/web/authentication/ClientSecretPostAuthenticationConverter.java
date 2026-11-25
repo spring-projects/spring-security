@@ -50,7 +50,7 @@ public final class ClientSecretPostAuthenticationConverter implements Authentica
 
 	@Override
 	public @Nullable Authentication convert(HttpServletRequest request) {
-		MultiValueMap<String, String> parameters = OAuth2EndpointUtils.getFormParameters(request);
+		MultiValueMap<String, String> parameters = OAuth2EndpointParameters.getFormParameters(request);
 
 		// client_id (REQUIRED)
 		String clientId = parameters.getFirst(OAuth2ParameterNames.CLIENT_ID);

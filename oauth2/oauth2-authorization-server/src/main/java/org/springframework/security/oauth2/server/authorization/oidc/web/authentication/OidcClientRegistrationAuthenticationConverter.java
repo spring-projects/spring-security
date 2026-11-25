@@ -32,6 +32,7 @@ import org.springframework.security.oauth2.server.authorization.oidc.OidcClientR
 import org.springframework.security.oauth2.server.authorization.oidc.authentication.OidcClientRegistrationAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.oidc.http.converter.OidcClientRegistrationHttpMessageConverter;
 import org.springframework.security.oauth2.server.authorization.oidc.web.OidcClientRegistrationEndpointFilter;
+import org.springframework.security.oauth2.server.authorization.web.authentication.OAuth2EndpointParameters;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
@@ -72,7 +73,7 @@ public final class OidcClientRegistrationAuthenticationConverter implements Auth
 			return new OidcClientRegistrationAuthenticationToken(principal, clientRegistration);
 		}
 
-		MultiValueMap<String, String> parameters = OAuth2EndpointUtils.getQueryParameters(request);
+		MultiValueMap<String, String> parameters = OAuth2EndpointParameters.getQueryParameters(request);
 
 		// client_id (REQUIRED)
 		String clientId = parameters.getFirst(OAuth2ParameterNames.CLIENT_ID);

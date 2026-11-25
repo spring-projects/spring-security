@@ -31,7 +31,6 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.util.Assert;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
@@ -49,42 +48,14 @@ final class OAuth2EndpointUtils {
 	private OAuth2EndpointUtils() {
 	}
 
-	static MultiValueMap<String, String> getFormParameters(HttpServletRequest request) {
-		Map<String, String[]> parameterMap = request.getParameterMap();
-		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-		parameterMap.forEach((key, values) -> {
-			String queryString = StringUtils.hasText(request.getQueryString()) ? request.getQueryString() : "";
-			// If not query parameter then it's a form parameter
-			if (!queryString.contains(key) && values.length > 0) {
-				for (String value : values) {
-					parameters.add(key, value);
-				}
-			}
-		});
-		return parameters;
-	}
-
-	static MultiValueMap<String, String> getQueryParameters(HttpServletRequest request) {
-		Map<String, String[]> parameterMap = request.getParameterMap();
-		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-		parameterMap.forEach((key, values) -> {
-			String queryString = StringUtils.hasText(request.getQueryString()) ? request.getQueryString() : "";
-			if (queryString.contains(key) && values.length > 0) {
-				for (String value : values) {
-					parameters.add(key, value);
-				}
-			}
-		});
-		return parameters;
-	}
-
 	static Map<String, Object> getParametersIfMatchesAuthorizationCodeGrantRequest(HttpServletRequest request,
 			String... exclusions) {
 		if (!matchesAuthorizationCodeGrantRequest(request)) {
 			return Collections.emptyMap();
 		}
 		MultiValueMap<String, String> multiValueParameters = "GET".equals(request.getMethod())
-				? getQueryParameters(request) : getFormParameters(request);
+				? OAuth2EndpointParameters.getQueryParameters(request)
+				: OAuth2EndpointParameters.getFormParameters(request);
 		for (String exclusion : exclusions) {
 			multiValueParameters.remove(exclusion);
 		}

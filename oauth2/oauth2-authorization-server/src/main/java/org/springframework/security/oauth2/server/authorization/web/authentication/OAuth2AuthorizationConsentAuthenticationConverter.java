@@ -69,7 +69,7 @@ public final class OAuth2AuthorizationConsentAuthenticationConverter implements 
 			return null;
 		}
 
-		MultiValueMap<String, String> parameters = OAuth2EndpointUtils.getFormParameters(request);
+		MultiValueMap<String, String> parameters = OAuth2EndpointParameters.getFormParameters(request);
 
 		String authorizationUri = request.getRequestURL().toString();
 
