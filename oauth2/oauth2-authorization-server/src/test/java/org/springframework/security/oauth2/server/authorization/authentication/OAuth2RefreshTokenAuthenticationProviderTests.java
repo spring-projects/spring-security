@@ -178,6 +178,13 @@ public class OAuth2RefreshTokenAuthenticationProviderTests {
 	}
 
 	@Test
+	public void setDPoPProofVerifierFactoryWhenNullThenThrowIllegalArgumentException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.authenticationProvider.setDPoPProofVerifierFactory(null))
+			.withMessage("dPoPProofVerifierFactory cannot be null");
+	}
+
+	@Test
 	public void authenticateWhenValidRefreshTokenThenReturnAccessToken() {
 		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
 		OAuth2Authorization authorization = TestOAuth2Authorizations.authorization(registeredClient).build();
