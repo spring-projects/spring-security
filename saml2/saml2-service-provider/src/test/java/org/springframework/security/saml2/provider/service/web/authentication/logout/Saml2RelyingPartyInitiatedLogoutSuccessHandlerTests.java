@@ -103,6 +103,27 @@ public class Saml2RelyingPartyInitiatedLogoutSuccessHandlerTests {
 		assertThat(content).contains("document.getElementById(\"redirect-form\").submit();");
 	}
 
+	@Test
+	public void onLogoutSuccessWhenPostDestinationHasQueryThenPreservesQueryInAction() throws Exception {
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full()
+			.assertingPartyMetadata((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST))
+			.build();
+		Authentication authentication = authentication(registration);
+		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
+			.samlRequest("request")
+			.location("https://idp.example/slo?binding=post&tenant=a%26b")
+			.build();
+		MockHttpServletRequest request = post("/saml2/logout").build();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		given(this.logoutRequestResolver.resolve(any(), any())).willReturn(logoutRequest);
+		this.logoutRequestSuccessHandler.onLogoutSuccess(request, response, authentication);
+		assertThat(response.getContentAsString())
+			.contains("action=\"https://idp.example/slo?binding=post&amp;tenant=a%26b\"")
+			.contains("name=\"SAMLRequest\"")
+			.doesNotContain("name=\"binding\"")
+			.doesNotContain("name=\"tenant\"");
+	}
+
 	private Saml2Authentication authentication(RelyingPartyRegistration registration) {
 		DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal("user", new HashMap<>());
 		principal.setRelyingPartyRegistrationId(registration.getRegistrationId());

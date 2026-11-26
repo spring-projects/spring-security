@@ -56,6 +56,8 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -86,7 +88,7 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 
 	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
-	private final RedirectStrategy formPostRedirectStrategy = new FormPostRedirectStrategy();
+	private final FormPostRedirectStrategy formPostRedirectStrategy = new FormPostRedirectStrategy();
 
 	public Saml2LogoutRequestFilter(Saml2LogoutRequestValidatorParametersResolver logoutRequestResolver,
 			Saml2LogoutRequestValidator logoutRequestValidator, Saml2LogoutResponseResolver logoutResponseResolver,
@@ -223,11 +225,15 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 
 	private void doPost(HttpServletRequest request, HttpServletResponse response, Saml2LogoutResponse logoutResponse)
 			throws IOException {
-		String location = logoutResponse.getResponseLocation();
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location);
-		addParameter(Saml2ParameterNames.SAML_RESPONSE, logoutResponse.getSamlResponse(), uriBuilder);
-		addParameter(Saml2ParameterNames.RELAY_STATE, logoutResponse.getRelayState(), uriBuilder);
-		this.formPostRedirectStrategy.sendRedirect(request, response, uriBuilder.build(true).toUriString());
+		MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
+		if (StringUtils.hasText(logoutResponse.getSamlResponse())) {
+			formParameters.add(Saml2ParameterNames.SAML_RESPONSE, logoutResponse.getSamlResponse());
+		}
+		if (StringUtils.hasText(logoutResponse.getRelayState())) {
+			formParameters.add(Saml2ParameterNames.RELAY_STATE, logoutResponse.getRelayState());
+		}
+		this.formPostRedirectStrategy.sendRedirect(request, response, logoutResponse.getResponseLocation(),
+				formParameters);
 	}
 
 	private void addParameter(String name, @Nullable String value, UriComponentsBuilder builder) {
