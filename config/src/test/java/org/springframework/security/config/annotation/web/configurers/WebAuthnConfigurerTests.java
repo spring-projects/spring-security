@@ -21,26 +21,36 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationHandler;
+import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.observation.ObservationTextPublisher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpOutputMessage;
+import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationObservationContext;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.observation.SecurityObservationSettings;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterChainProxy;
@@ -51,6 +61,9 @@ import org.springframework.security.web.webauthn.api.ImmutablePublicKeyCredentia
 import org.springframework.security.web.webauthn.api.PublicKeyCredentialCreationOptions;
 import org.springframework.security.web.webauthn.api.TestCredentialRecords;
 import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialCreationOptions;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialRequestOptions;
+import org.springframework.security.web.webauthn.api.TestPublicKeyCredentialUserEntities;
+import org.springframework.security.web.webauthn.authentication.PublicKeyCredentialRequestOptionsRepository;
 import org.springframework.security.web.webauthn.authentication.WebAuthnAuthenticationFilter;
 import org.springframework.security.web.webauthn.management.MapPublicKeyCredentialUserEntityRepository;
 import org.springframework.security.web.webauthn.management.MapUserCredentialRepository;
@@ -60,13 +73,18 @@ import org.springframework.security.web.webauthn.management.WebAuthnRelyingParty
 import org.springframework.security.web.webauthn.registration.HttpSessionPublicKeyCredentialCreationOptionsRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -82,6 +100,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @ExtendWith(SpringTestContextExtension.class)
 public class WebAuthnConfigurerTests {
+
+	private static final String REQUEST_OPTIONS_ATTR_NAME = PublicKeyCredentialRequestOptionsRepository.class.getName()
+		.concat(".ATTR_NAME");
+
+	private static final String ASSERTION_BODY = """
+			{
+				"id": "dYF7EGnRFFIXkpXi9XU2wg",
+				"rawId": "dYF7EGnRFFIXkpXi9XU2wg",
+				"response": {
+					"authenticatorData": "y9GqwTRaMpzVDbXq1dyEAXVOxrou08k22ggRC45MKNgdAAAAAA",
+					"clientDataJSON": "eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiRFVsRzRDbU9naWhKMG1vdXZFcE9HdUk0ZVJ6MGRRWmxUQmFtbjdHQ1FTNCIsIm9yaWdpbiI6Imh0dHBzOi8vZXhhbXBsZS5sb2NhbGhvc3Q6ODQ0MyIsImNyb3NzT3JpZ2luIjpmYWxzZX0",
+					"signature": "MEYCIQCW2BcUkRCAXDmGxwMi78jknenZ7_amWrUJEYoTkweldAIhAMD0EMp1rw2GfwhdrsFIeDsL7tfOXVPwOtfqJntjAo4z",
+					"userHandle": "Q3_0Xd64_HW0BlKRAJnVagJTpLKLgARCj8zjugpRnVo"
+				},
+				"clientExtensionResults": {},
+				"authenticatorAttachment": "platform"
+			}
+			""";
 
 	public final SpringTestContext spring = new SpringTestContext(this);
 
@@ -334,6 +370,55 @@ public class WebAuthnConfigurerTests {
 		assertThat(publisher).isNotNull();
 		assertThat(publisher.getClass().getDeclaringClass()).isEqualTo(ProviderManager.class);
 		assertThat(publisher.getClass().getName()).contains("NullEventPublisher");
+	}
+
+	@Test
+	public void webauthnWhenObservationRegistryThenObservesAuthentication() throws Exception {
+		this.spring.register(WebAuthnLoginConfiguration.class, ObservationRegistryConfig.class).autowire();
+		WebAuthnRelyingPartyOperations rpOperations = this.spring.getContext()
+			.getBean(WebAuthnRelyingPartyOperations.class);
+		given(rpOperations.authenticate(any()))
+			.willReturn(TestPublicKeyCredentialUserEntities.userEntity().name("user").build());
+		ObservationHandler<Observation.Context> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		this.mvc.perform(webAuthnLogin()).andExpect(status().isOk());
+		ArgumentCaptor<Observation.Context> context = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, atLeastOnce()).onStart(context.capture());
+		assertThat(context.getAllValues()).anyMatch(AuthenticationObservationContext.class::isInstance);
+		verify(handler, atLeastOnce()).onStop(context.capture());
+		assertThat(context.getAllValues()).anyMatch(AuthenticationObservationContext.class::isInstance);
+		given(rpOperations.authenticate(any())).willThrow(new IllegalArgumentException("invalid assertion"));
+		this.mvc.perform(webAuthnLogin()).andExpect(status().isUnauthorized());
+		verify(handler).onError(context.capture());
+		assertThat(context.getValue()).isInstanceOf(AuthenticationObservationContext.class);
+	}
+
+	@Test
+	public void webauthnWhenExcludeAuthenticationObservationsThenUnobserved() throws Exception {
+		this.spring
+			.register(WebAuthnLoginConfiguration.class, ObservationRegistryConfig.class,
+					SelectableObservationsConfig.class)
+			.autowire();
+		WebAuthnRelyingPartyOperations rpOperations = this.spring.getContext()
+			.getBean(WebAuthnRelyingPartyOperations.class);
+		given(rpOperations.authenticate(any()))
+			.willReturn(TestPublicKeyCredentialUserEntities.userEntity().name("user").build());
+		ObservationHandler<Observation.Context> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		this.mvc.perform(webAuthnLogin()).andExpect(status().isOk());
+		ArgumentCaptor<Observation.Context> context = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, atLeastOnce()).onStart(context.capture());
+		assertThat(context.getAllValues()).noneMatch(AuthenticationObservationContext.class::isInstance);
+		context = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, atLeastOnce()).onStop(context.capture());
+		assertThat(context.getAllValues()).noneMatch(AuthenticationObservationContext.class::isInstance);
+		given(rpOperations.authenticate(any())).willThrow(new IllegalArgumentException("invalid assertion"));
+		this.mvc.perform(webAuthnLogin()).andExpect(status().isUnauthorized());
+		verify(handler, never()).onError(any());
+	}
+
+	private static MockHttpServletRequestBuilder webAuthnLogin() {
+		return post("/login/webauthn").contentType(MediaType.APPLICATION_JSON)
+			.content(ASSERTION_BODY)
+			.sessionAttr(REQUEST_OPTIONS_ATTR_NAME, TestPublicKeyCredentialRequestOptions.create().build());
 	}
 
 	@Configuration
@@ -603,6 +688,84 @@ public class WebAuthnConfigurerTests {
 		@Bean
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 			return http.csrf(AbstractHttpConfigurer::disable).webAuthn(Customizer.withDefaults()).build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class WebAuthnLoginConfiguration {
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(
+					User.withUsername("user").password("{noop}password").roles("USER").build());
+		}
+
+		@Bean
+		WebAuthnRelyingPartyOperations webAuthnRelyingPartyOperations() {
+			return mock(WebAuthnRelyingPartyOperations.class);
+		}
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			return http.csrf(AbstractHttpConfigurer::disable).webAuthn(Customizer.withDefaults()).build();
+		}
+
+	}
+
+	@Configuration
+	static class ObservationRegistryConfig {
+
+		private final ObservationRegistry registry = ObservationRegistry.create();
+
+		private final ObservationHandler<Observation.Context> handler = spy(new ObservationTextPublisher());
+
+		@Bean
+		ObservationRegistry observationRegistry() {
+			return this.registry;
+		}
+
+		@Bean
+		ObservationHandler<Observation.Context> observationHandler() {
+			return this.handler;
+		}
+
+		@Bean
+		ObservationRegistryPostProcessor observationRegistryPostProcessor(
+				ObjectProvider<ObservationHandler<Observation.Context>> handler) {
+			return new ObservationRegistryPostProcessor(handler);
+		}
+
+	}
+
+	static class ObservationRegistryPostProcessor implements BeanPostProcessor {
+
+		private final ObjectProvider<ObservationHandler<Observation.Context>> handler;
+
+		ObservationRegistryPostProcessor(ObjectProvider<ObservationHandler<Observation.Context>> handler) {
+			this.handler = handler;
+		}
+
+		@Override
+		public Object postProcessAfterInitialization(Object bean, String beanName) {
+			if (bean instanceof ObservationRegistry registry) {
+				registry.observationConfig().observationHandler(this.handler.getObject());
+			}
+			return bean;
+		}
+
+	}
+
+	@Configuration
+	static class SelectableObservationsConfig {
+
+		@Bean
+		SecurityObservationSettings observabilityDefaults() {
+			return SecurityObservationSettings.withDefaults()
+				.shouldObserveRequests(true)
+				.shouldObserveAuthentications(false)
+				.build();
 		}
 
 	}
