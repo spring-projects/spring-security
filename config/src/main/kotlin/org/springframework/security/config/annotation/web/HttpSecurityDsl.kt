@@ -73,6 +73,7 @@ operator fun HttpSecurity.invoke(httpConfiguration: HttpSecurityDsl.() -> Unit) 
  * in order to configure [HttpSecurity] using idiomatic Kotlin code.
  *
  * @author Eleftheria Stein
+ * @author Andrey Litvitski
  * @since 5.3
  * @param http the [HttpSecurity] which all configurations will be applied to
  * @param init the configurations to apply to the provided [HttpSecurity]
@@ -82,7 +83,7 @@ operator fun HttpSecurity.invoke(httpConfiguration: HttpSecurityDsl.() -> Unit) 
 class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecurityDsl.() -> Unit) {
 
     var authenticationManager: AuthenticationManager? = null
-    val context: ApplicationContext = http.getSharedObject(ApplicationContext::class.java)
+    val context: ApplicationContext = http.getSharedObject(ApplicationContext::class.java)!!
 
     init {
         applyFunction1HttpSecurityDslBeans(this.context, this)
