@@ -50,9 +50,9 @@ import org.springframework.security.web.SecurityFilterChain;
  * 			.requestMatchers(&quot;/public/**&quot;).permitAll()
  * 			.anyRequest().hasRole(&quot;USER&quot;))
  * 				// Possibly more configuration ...
- * 				.formLogin() // enable form based log in
+ * 			.formLogin((formLogin) -> formLogin // enable form based log in
  * 				// set permitAll for all URLs associated with Form Login
- * 				.permitAll();
+ * 				permitAll());
  * 		return http.build();
  * 	}
  *
