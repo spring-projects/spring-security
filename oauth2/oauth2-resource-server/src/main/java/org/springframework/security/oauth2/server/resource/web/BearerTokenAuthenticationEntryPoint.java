@@ -115,16 +115,13 @@ public final class BearerTokenAuthenticationEntryPoint implements Authentication
 	}
 
 	private static String getResourceMetadataParameter(HttpServletRequest request) {
-		String path = request.getContextPath()
-				+ OAuth2ProtectedResourceMetadataFilter.DEFAULT_OAUTH2_PROTECTED_RESOURCE_METADATA_ENDPOINT_URI;
-		// @formatter:off
-		return UriComponentsBuilder.fromUriString(UrlUtils.buildFullRequestUrl(request))
-				.replacePath(path)
-				.replaceQuery(null)
-				.fragment(null)
-				.build()
-				.toUriString();
-		// @formatter:on
+
+		UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(UrlUtils.buildFullRequestUrl(request));
+		String[] pathSegments = builder.build().getPathSegments().toArray(String[]::new);
+		return builder.replacePath(request.getContextPath())
+			.path(OAuth2ProtectedResourceMetadataFilter.DEFAULT_OAUTH2_PROTECTED_RESOURCE_METADATA_ENDPOINT_URI)
+			.pathSegment(pathSegments)
+			.toUriString();
 	}
 
 	private static String computeWWWAuthenticateHeaderValue(Map<String, String> parameters) {
