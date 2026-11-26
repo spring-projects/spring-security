@@ -225,6 +225,10 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		}
 		if (!StringUtils.hasLength(password)) {
 			UserDetails user = getUserDetailsService().loadUserByUsername(username);
+			if (user == null) {
+				this.logger.debug("Unable to obtain user details for user: " + username);
+				return;
+			}
 			password = user.getPassword();
 			if (!StringUtils.hasLength(password)) {
 				this.logger.debug("Unable to obtain password for user: " + username);
