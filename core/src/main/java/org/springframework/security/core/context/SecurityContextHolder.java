@@ -87,26 +87,27 @@ public class SecurityContextHolder {
 			// Set default
 			strategyName = MODE_THREADLOCAL;
 		}
-		if (strategyName.equals(MODE_THREADLOCAL)) {
-			strategy = new ThreadLocalSecurityContextHolderStrategy();
-			return;
-		}
-		if (strategyName.equals(MODE_INHERITABLETHREADLOCAL)) {
-			strategy = new InheritableThreadLocalSecurityContextHolderStrategy();
-			return;
-		}
-		if (strategyName.equals(MODE_GLOBAL)) {
-			strategy = new GlobalSecurityContextHolderStrategy();
-			return;
-		}
-		// Try to load a custom strategy
-		try {
-			Class<?> clazz = Class.forName(strategyName);
-			Constructor<?> customStrategy = clazz.getConstructor();
-			strategy = (SecurityContextHolderStrategy) customStrategy.newInstance();
-		}
-		catch (Exception ex) {
-			ReflectionUtils.handleReflectionException(ex);
+		switch (strategyName) {
+			case MODE_THREADLOCAL -> {
+				strategy = new ThreadLocalSecurityContextHolderStrategy();
+			}
+			case MODE_INHERITABLETHREADLOCAL -> {
+				strategy = new InheritableThreadLocalSecurityContextHolderStrategy();
+			}
+			case MODE_GLOBAL -> {
+				strategy = new GlobalSecurityContextHolderStrategy();
+			}
+			default -> {
+				// Try to load a custom strategy
+				try {
+					Class<?> clazz = Class.forName(strategyName);
+					Constructor<?> customStrategy = clazz.getConstructor();
+					strategy = (SecurityContextHolderStrategy) customStrategy.newInstance();
+				}
+				catch (Exception ex) {
+					ReflectionUtils.handleReflectionException(ex);
+				}
+			}
 		}
 	}
 
