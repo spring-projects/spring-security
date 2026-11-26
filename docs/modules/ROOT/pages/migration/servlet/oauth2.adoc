@@ -120,7 +120,7 @@ BearerTokenAuthenticationConverter authenticationConverter =
     new BearerTokenAuthenticationConverter();
 authenticationConverter.setBearerTokenResolver(myBearerTokenResolver);
 authenticationConverter.setAuthenticationDetailsSource(myAuthenticationDetailsSource);
-BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(authenticationManager, authenicationConverter);
+BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(authenticationManager, authenticationConverter);
 ----
 
 Kotlin::
