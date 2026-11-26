@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 import org.junit.jupiter.api.Test;
@@ -37,10 +39,13 @@ import org.mockito.ArgumentCaptor;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.schema.XSDateTime;
+import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.core.xml.schema.impl.XSDateTimeBuilder;
+import org.opensaml.core.xml.util.XMLObjectSupport;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.common.assertion.ValidationContext;
 import org.opensaml.saml.common.assertion.ValidationResult;
+import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.assertion.ConditionValidator;
 import org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters;
 import org.opensaml.saml.saml2.core.Assertion;
@@ -61,14 +66,21 @@ import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import org.opensaml.saml.saml2.core.impl.AttributeBuilder;
+import org.opensaml.saml.saml2.core.impl.AttributeStatementBuilder;
 import org.opensaml.saml.saml2.core.impl.EncryptedAssertionBuilder;
 import org.opensaml.saml.saml2.core.impl.EncryptedIDBuilder;
 import org.opensaml.saml.saml2.core.impl.NameIDBuilder;
 import org.opensaml.saml.saml2.core.impl.ProxyRestrictionBuilder;
 import org.opensaml.saml.saml2.core.impl.StatusBuilder;
 import org.opensaml.saml.saml2.core.impl.StatusCodeBuilder;
+import org.opensaml.xmlsec.SignatureSigningParameters;
 import org.opensaml.xmlsec.encryption.impl.EncryptedDataBuilder;
+import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
+import org.opensaml.xmlsec.signature.support.SignatureSupport;
+import org.opensaml.xmlsec.signature.support.Signer;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.core.convert.converter.Converter;
@@ -438,6 +450,22 @@ public class OpenSaml5AuthenticationProviderTests {
 		Assertion assertion = TestOpenSamlObjects.signed(assertion(),
 				TestSaml2X509Credentials.assertingPartySigningCredential(), RELYING_PARTY_ENTITY_ID);
 		EncryptedAssertion encryptedAssertion = TestOpenSamlObjects.encrypted(assertion,
+				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
+		response.getEncryptedAssertions().add(encryptedAssertion);
+		Saml2AuthenticationToken token = token(signed(response), decrypting(verifying(registration())));
+		this.provider.authenticate(token);
+	}
+
+	// gh-19606
+	@Test
+	public void authenticateWhenEncryptedAssertionDeclaresNamespaceOnAttributeValueThenItSucceeds() throws Exception {
+		Response response = response();
+		Assertion assertion = assertion();
+		AttributeStatement statement = new AttributeStatementBuilder().buildObject();
+		statement.getAttributes().add(TestOpenSamlObjects.attribute("PrincipalType", "Employee"));
+		assertion.getAttributeStatements().add(statement);
+		Assertion signed = signedWithXsNamespaceOnAttributeValues(assertion);
+		EncryptedAssertion encryptedAssertion = TestOpenSamlObjects.encrypted(signed,
 				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
 		response.getEncryptedAssertions().add(encryptedAssertion);
 		Saml2AuthenticationToken token = token(signed(response), decrypting(verifying(registration())));
@@ -1087,6 +1115,43 @@ public class OpenSaml5AuthenticationProviderTests {
 		Conditions conditions = assertion.getConditions();
 		conditions.setNotBefore(Instant.now().minus(Duration.ofMillis(5 * 60 * 1000)));
 		conditions.setNotOnOrAfter(Instant.now().plus(Duration.ofMillis(5 * 60 * 1000)));
+		return assertion;
+	}
+
+	/**
+	 * Signs the assertion with the XML Schema namespace declared only on each
+	 * {@code AttributeValue} element, which is where some asserting parties declare it
+	 * for {@code xsi:type="xsd:string"} values. The prefix is not visibly used, so it is
+	 * only included in the canonical form through the exclusive canonicalization
+	 * {@code InclusiveNamespaces} prefix list, at the element that declares it.
+	 */
+	private static Assertion signedWithXsNamespaceOnAttributeValues(Assertion assertion) throws Exception {
+		SignatureSigningParameters parameters = new SignatureSigningParameters();
+		parameters.setSigningCredential(TestOpenSamlObjects
+			.getSigningCredential(TestSaml2X509Credentials.assertingPartySigningCredential(), RELYING_PARTY_ENTITY_ID));
+		parameters.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
+		parameters.setSignatureReferenceDigestMethod(SignatureConstants.ALGO_ID_DIGEST_SHA256);
+		parameters.setSignatureCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+		Signature signature = TestOpenSamlObjects.build(Signature.DEFAULT_ELEMENT_NAME);
+		SignatureSupport.prepareSignatureParams(signature, parameters);
+		assertion.setSignature(signature);
+		Element element = XMLObjectSupport.marshall(assertion);
+		String prefix = XSString.TYPE_NAME.getPrefix();
+		List<Element> elements = new ArrayList<>();
+		elements.add(element);
+		NodeList descendants = element.getElementsByTagNameNS("*", "*");
+		for (int i = 0; i < descendants.getLength(); i++) {
+			elements.add((Element) descendants.item(i));
+		}
+		for (Element candidate : elements) {
+			candidate.removeAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, prefix);
+		}
+		NodeList values = element.getElementsByTagNameNS(SAMLConstants.SAML20_NS, "AttributeValue");
+		for (int i = 0; i < values.getLength(); i++) {
+			((Element) values.item(i)).setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:" + prefix,
+					XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		}
+		Signer.signObject(signature);
 		return assertion;
 	}
 

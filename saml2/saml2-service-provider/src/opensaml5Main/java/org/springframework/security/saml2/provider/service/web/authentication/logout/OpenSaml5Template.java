@@ -45,7 +45,6 @@ import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.core.xml.io.Unmarshaller;
 import org.opensaml.core.xml.io.UnmarshallerFactory;
-import org.opensaml.core.xml.util.XMLObjectSupport;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.criterion.ProtocolCriterion;
 import org.opensaml.saml.ext.saml2delrestrict.Delegate;
@@ -501,18 +500,6 @@ final class OpenSaml5Template implements OpenSamlOperations {
 			}
 
 			response.getAssertions().addAll(decrypteds);
-
-			// Re-marshall the response so that any ID attributes within the decrypted
-			// Assertions
-			// will have their ID-ness re-established at the DOM level.
-			if (!decrypteds.isEmpty()) {
-				try {
-					XMLObjectSupport.marshall(response);
-				}
-				catch (final MarshallingException ex) {
-					throw new Saml2Exception(ex);
-				}
-			}
 		}
 
 		private void decryptAssertion(Assertion assertion) {
