@@ -30,6 +30,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.opensaml.core.Version;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 
@@ -555,6 +556,19 @@ public class Saml2LogoutConfigurerTests {
 		verify(Saml2DefaultsWithObjectPostProcessorConfig.objectPostProcessor, atLeastOnce())
 			.postProcess(any(LogoutFilter.class));
 
+	}
+
+	// gh-19628
+	@Test
+	public void useOpenSaml5WhenImplementationVersionUnavailableThenDoesNotThrow() {
+		// simulates OpenSAML being loaded from the Java module path, where
+		// Package#getImplementationVersion() returns null
+		assertThat(Saml2LogoutConfigurer.useOpenSaml5(getClass())).isTrue();
+	}
+
+	@Test
+	public void useOpenSaml5WhenOpenSamlVersionClassThenMatchesRuntimeVersion() {
+		assertThat(Saml2LogoutConfigurer.useOpenSaml5(Version.class)).isEqualTo(Version.getVersion().startsWith("5"));
 	}
 
 	private <T> T getBean(Class<T> clazz) {
