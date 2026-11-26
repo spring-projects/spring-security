@@ -19,6 +19,8 @@ package org.springframework.security.oauth2.client;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import reactor.core.publisher.Mono;
 
@@ -29,6 +31,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Token;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.util.Assert;
 
 /**
@@ -44,6 +47,8 @@ public final class ClientCredentialsReactiveOAuth2AuthorizedClientProvider
 		implements ReactiveOAuth2AuthorizedClientProvider {
 
 	private ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> accessTokenResponseClient = new WebClientReactiveClientCredentialsTokenResponseClient();
+
+	private final Map<String, Mono<OAuth2AccessTokenResponse>> inFlightTokenResponses = new ConcurrentHashMap<>();
 
 	private Duration clockSkew = Duration.ofSeconds(60);
 
@@ -80,8 +85,23 @@ public final class ClientCredentialsReactiveOAuth2AuthorizedClientProvider
 		//
 		// Therefore, renewing an expired access token (re-authorization)
 		// is the same as acquiring a new access token (authorization).
-		return Mono.just(new OAuth2ClientCredentialsGrantRequest(clientRegistration))
-			.flatMap(this.accessTokenResponseClient::getTokenResponse)
+		//
+		// Concurrent calls may all decide at the same time that a token needs to be
+		// acquired, e.g. when the access token has expired. To avoid sending a token
+		// request for each call, share a single in-flight token response per client
+		// registration id: the first call starts the token request and the remaining
+		// calls subscribe to the in-flight response.
+		//
+		// The in-flight response is removed when the request terminates (successfully
+		// or not) or is cancelled, so that a subsequent call starts a new request
+		// rather than reusing the previous response.
+		return Mono
+			.defer(() -> this.inFlightTokenResponses.computeIfAbsent(clientRegistration.getRegistrationId(),
+					(registrationId) -> Mono.just(new OAuth2ClientCredentialsGrantRequest(clientRegistration))
+						.flatMap(this.accessTokenResponseClient::getTokenResponse)
+						.doOnTerminate(() -> this.inFlightTokenResponses.remove(registrationId))
+						.doOnCancel(() -> this.inFlightTokenResponses.remove(registrationId))
+						.cache()))
 			.onErrorMap(OAuth2AuthorizationException.class,
 					(ex) -> new ClientAuthorizationException(ex.getError(), clientRegistration.getRegistrationId(), ex))
 			.map((tokenResponse) -> new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
