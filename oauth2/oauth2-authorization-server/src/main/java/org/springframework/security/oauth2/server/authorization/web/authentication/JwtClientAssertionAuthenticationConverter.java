@@ -16,9 +16,12 @@
 
 package org.springframework.security.oauth2.server.authorization.web.authentication;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.JWTParser;
 import jakarta.servlet.http.HttpServletRequest;
 import org.jspecify.annotations.Nullable;
 
@@ -75,10 +78,22 @@ public final class JwtClientAssertionAuthenticationConverter implements Authenti
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
 		}
 
-		// client_id (OPTIONAL as per specification but REQUIRED by this implementation)
+		// client_id (OPTIONAL)
 		String clientId = parameters.getFirst(OAuth2ParameterNames.CLIENT_ID);
 		List<String> clientIdParams = parameters.get(OAuth2ParameterNames.CLIENT_ID);
-		if (!StringUtils.hasText(clientId) || clientIdParams == null || clientIdParams.size() != 1) {
+		if (clientIdParams == null) {
+			try {
+				JWTClaimsSet claims = JWTParser.parse(jwtAssertion).getJWTClaimsSet();
+				clientId = (claims != null) ? claims.getSubject() : null;
+			}
+			catch (ParseException ex) {
+				throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
+			}
+		}
+		else if (clientIdParams.size() != 1) {
+			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
+		}
+		if (!StringUtils.hasText(clientId)) {
 			throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST);
 		}
 
