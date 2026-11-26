@@ -31,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests for {@link InetAddressMatchers}.
  *
  * @author Rob Winch
+ * @author Andrey Litvitski
  */
 class InetAddressMatchersTests {
 
@@ -198,6 +199,17 @@ class InetAddressMatchersTests {
 			InetAddress address = InetAddress.getByName(testAddress);
 			boolean expected = testAddress.startsWith("192.168.1.") && !testAddress.equals("192.168.1.100");
 			assertThat(matcher.matches(address)).isEqualTo(expected);
+		}
+
+		@Test
+		void includeAddressesWhenCalledMultipleTimesThenMatchesAllAddresses() throws Exception {
+			InetAddressMatcher matcher = InetAddressMatchers.builder()
+				.includeAddresses(List.of("192.168.1.1"))
+				.includeAddresses(List.of("10.0.0.1"))
+				.build();
+			assertThat(matcher.matches(InetAddress.getByName("192.168.1.1"))).isTrue();
+			assertThat(matcher.matches(InetAddress.getByName("10.0.0.1"))).isTrue();
+			assertThat(matcher.matches(InetAddress.getByName("8.8.8.8"))).isFalse();
 		}
 
 	}
