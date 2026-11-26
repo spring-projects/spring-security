@@ -4711,6 +4711,14 @@ public class ServerHttpSecurity {
 				return this.authenticationManager;
 			}
 
+			private ObjectPostProcessor<ReactiveAuthenticationManager> authenticationManagerPostProcessor() {
+				ResolvableType type = ResolvableType.forClassWithGenerics(ObjectPostProcessor.class,
+						ReactiveAuthenticationManager.class);
+				ObjectProvider<ObjectPostProcessor<ReactiveAuthenticationManager>> postProcessors = getBeanProvider(
+						type);
+				return postProcessors.getIfUnique(ObjectPostProcessor::identity);
+			}
+
 			private ServerLogoutHandler logoutHandler() {
 				OidcBackChannelServerLogoutHandler logoutHandler = getBeanOrNull(
 						OidcBackChannelServerLogoutHandler.class);
@@ -4847,8 +4855,10 @@ public class ServerHttpSecurity {
 				if (logout != null) {
 					sessionLogout = new DelegatingServerLogoutHandler(logout.logoutHandlers);
 				}
+				ReactiveAuthenticationManager authenticationManager = authenticationManagerPostProcessor()
+					.postProcess(authenticationManager());
 				OidcBackChannelLogoutWebFilter filter = new OidcBackChannelLogoutWebFilter(authenticationConverter(),
-						authenticationManager(), new EitherLogoutHandler(oidcLogout, sessionLogout));
+						authenticationManager, new EitherLogoutHandler(oidcLogout, sessionLogout));
 				http.addFilterBefore(filter, SecurityWebFiltersOrder.CSRF);
 			}
 
