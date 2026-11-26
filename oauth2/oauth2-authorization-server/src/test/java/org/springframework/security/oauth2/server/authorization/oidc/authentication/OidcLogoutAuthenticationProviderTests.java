@@ -30,6 +30,7 @@ import java.util.function.Consumer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -344,6 +345,89 @@ public class OidcLogoutAuthenticationProviderTests {
 
 		authenticateValidIdToken(principal, registeredClient, sessionId, idToken);
 		verify(authenticationValidator).accept(any(OidcLogoutAuthenticationContext.class));
+	}
+
+	@Test
+	public void setSessionValidatorWhenNullThenThrowIllegalArgumentException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+			.isThrownBy(() -> this.authenticationProvider.setSessionValidator(null))
+			.withMessage("sessionValidator cannot be null");
+	}
+
+	// gh-20058
+	@Test
+	public void authenticateWhenCustomSessionValidatorThenUsed() throws NoSuchAlgorithmException {
+		TestingAuthenticationToken principal = new TestingAuthenticationToken("principal", "credentials");
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		String sessionId = "session-1";
+		// The Session ID changed after the ID Token was issued
+		OidcIdToken idToken = OidcIdToken.withTokenValue("id-token")
+			.issuer("https://provider.com")
+			.subject(principal.getName())
+			.audience(Collections.singleton(registeredClient.getClientId()))
+			.issuedAt(Instant.now().minusSeconds(60).truncatedTo(ChronoUnit.MILLIS))
+			.expiresAt(Instant.now().plusSeconds(60).truncatedTo(ChronoUnit.MILLIS))
+			.claim("sid", createHash("previous-session"))
+			.build();
+
+		@SuppressWarnings("unchecked")
+		Consumer<OidcLogoutAuthenticationContext> sessionValidator = mock(Consumer.class);
+		this.authenticationProvider.setSessionValidator(sessionValidator);
+
+		authenticateValidIdToken(principal, registeredClient, sessionId, idToken);
+		ArgumentCaptor<OidcLogoutAuthenticationContext> contextCaptor = ArgumentCaptor
+			.forClass(OidcLogoutAuthenticationContext.class);
+		verify(sessionValidator).accept(contextCaptor.capture());
+		OidcLogoutAuthenticationContext context = contextCaptor.getValue();
+		assertThat(context.getIdToken()).isEqualTo(idToken);
+		assertThat(context.getSessionInformation()).isNotNull();
+		assertThat(context.getSessionInformation().getSessionId()).isEqualTo(sessionId);
+		assertThat(context.getRegisteredClient()).isEqualTo(registeredClient);
+		assertThat(context.<OidcLogoutAuthenticationToken>getAuthentication().getPrincipal()).isEqualTo(principal);
+	}
+
+	@Test
+	public void authenticateWhenSessionNotFoundThenSessionValidatorUsedWithoutSessionInformation() {
+		TestingAuthenticationToken principal = new TestingAuthenticationToken("principal", "credentials");
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		OidcIdToken idToken = OidcIdToken.withTokenValue("id-token")
+			.issuer("https://provider.com")
+			.subject(principal.getName())
+			.audience(Collections.singleton(registeredClient.getClientId()))
+			.issuedAt(Instant.now().minusSeconds(60).truncatedTo(ChronoUnit.MILLIS))
+			.expiresAt(Instant.now().plusSeconds(60).truncatedTo(ChronoUnit.MILLIS))
+			.claim("sid", "other-session")
+			.build();
+		OAuth2Authorization authorization = TestOAuth2Authorizations.authorization(registeredClient)
+			.principalName(principal.getName())
+			.token(idToken,
+					(metadata) -> metadata.put(OAuth2Authorization.Token.CLAIMS_METADATA_NAME, idToken.getClaims()))
+			.build();
+		given(this.authorizationService.findByToken(eq(idToken.getTokenValue()), eq(ID_TOKEN_TOKEN_TYPE)))
+			.willReturn(authorization);
+		given(this.registeredClientRepository.findById(eq(authorization.getRegisteredClientId())))
+			.willReturn(registeredClient);
+		given(this.sessionRegistry.getAllSessions(eq(principal.getPrincipal()), eq(true)))
+			.willReturn(Collections.emptyList());
+
+		@SuppressWarnings("unchecked")
+		Consumer<OidcLogoutAuthenticationContext> sessionValidator = mock(Consumer.class);
+		this.authenticationProvider.setSessionValidator(sessionValidator);
+
+		principal.setAuthenticated(true);
+
+		OidcLogoutAuthenticationToken authentication = new OidcLogoutAuthenticationToken(idToken.getTokenValue(),
+				principal, "session-1", null, null, null);
+
+		OidcLogoutAuthenticationToken authenticationResult = (OidcLogoutAuthenticationToken) this.authenticationProvider
+			.authenticate(authentication);
+
+		assertThat(authenticationResult.isAuthenticated()).isTrue();
+		ArgumentCaptor<OidcLogoutAuthenticationContext> contextCaptor = ArgumentCaptor
+			.forClass(OidcLogoutAuthenticationContext.class);
+		verify(sessionValidator).accept(contextCaptor.capture());
+		assertThat(contextCaptor.getValue().getIdToken()).isEqualTo(idToken);
+		assertThat(contextCaptor.getValue().getSessionInformation()).isNull();
 	}
 
 	@Test

@@ -75,6 +75,8 @@ public final class OidcLogoutAuthenticationProvider implements AuthenticationPro
 
 	private Consumer<OidcLogoutAuthenticationContext> authenticationValidator = new OidcLogoutAuthenticationValidator();
 
+	private Consumer<OidcLogoutAuthenticationContext> sessionValidator = OidcLogoutAuthenticationProvider::validateSessionId;
+
 	/**
 	 * Constructs an {@code OidcLogoutAuthenticationProvider} using the provided
 	 * parameters.
@@ -154,26 +156,19 @@ public final class OidcLogoutAuthenticationProvider implements AuthenticationPro
 			}
 
 			// Check for active session
+			SessionInformation sessionInformation = null;
 			if (StringUtils.hasText(oidcLogoutAuthentication.getSessionId())) {
-				SessionInformation sessionInformation = findSessionInformation(currentUserPrincipal,
+				sessionInformation = findSessionInformation(currentUserPrincipal,
 						oidcLogoutAuthentication.getSessionId());
-				if (sessionInformation != null) {
-					String sessionIdHash;
-					try {
-						sessionIdHash = createHash(sessionInformation.getSessionId());
-					}
-					catch (NoSuchAlgorithmException ex) {
-						OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR,
-								"Failed to compute hash for Session ID.", null);
-						throw new OAuth2AuthenticationException(error);
-					}
-
-					String sidClaim = idToken.getClaim("sid");
-					if (!StringUtils.hasText(sidClaim) || !sidClaim.equals(sessionIdHash)) {
-						throw createException(OAuth2ErrorCodes.INVALID_TOKEN, "sid");
-					}
-				}
 			}
+			OidcLogoutAuthenticationContext.Builder sessionContextBuilder = OidcLogoutAuthenticationContext
+				.with(oidcLogoutAuthentication)
+				.registeredClient(registeredClient)
+				.idToken(idToken);
+			if (sessionInformation != null) {
+				sessionContextBuilder.sessionInformation(sessionInformation);
+			}
+			this.sessionValidator.accept(sessionContextBuilder.build());
 		}
 
 		if (this.logger.isTraceEnabled()) {
@@ -209,6 +204,37 @@ public final class OidcLogoutAuthenticationProvider implements AuthenticationPro
 		this.authenticationValidator = authenticationValidator;
 	}
 
+	/**
+	 * Sets the {@code Consumer} providing access to the
+	 * {@link OidcLogoutAuthenticationContext} and is responsible for validating that the
+	 * ID Token is associated with the End-User's current session. It is invoked after the
+	 * End-User identity is validated, and only when the End-User is authenticated. The
+	 * context provides the {@link OidcLogoutAuthenticationContext#getIdToken() ID Token}
+	 * and, when found in the {@link SessionRegistry}, the
+	 * {@link OidcLogoutAuthenticationContext#getSessionInformation() SessionInformation}
+	 * of the current session. The default session validator requires the {@code sid}
+	 * claim to match the hash of the current Session ID, when the
+	 * {@link SessionInformation} is available.
+	 *
+	 * <p>
+	 * A custom session validator is useful when the Session ID changes during the
+	 * End-User's session, for example to protect against session fixation, in which case
+	 * the {@code sid} claim of previously issued ID Tokens no longer matches the current
+	 * Session ID.
+	 *
+	 * <p>
+	 * <b>NOTE:</b> The session validator MUST throw {@link OAuth2AuthenticationException}
+	 * if validation fails.
+	 * @param sessionValidator the {@code Consumer} providing access to the
+	 * {@link OidcLogoutAuthenticationContext} and is responsible for validating that the
+	 * ID Token is associated with the End-User's current session
+	 * @since 7.3
+	 */
+	public void setSessionValidator(Consumer<OidcLogoutAuthenticationContext> sessionValidator) {
+		Assert.notNull(sessionValidator, "sessionValidator cannot be null");
+		this.sessionValidator = sessionValidator;
+	}
+
 	private @Nullable SessionInformation findSessionInformation(Authentication principal, String sessionId) {
 		Object sessionPrincipal = principal.getPrincipal();
 		Assert.notNull(sessionPrincipal, "sessionPrincipal cannot be null");
@@ -223,6 +249,30 @@ public final class OidcLogoutAuthenticationProvider implements AuthenticationPro
 			}
 		}
 		return sessionInformation;
+	}
+
+	private static void validateSessionId(OidcLogoutAuthenticationContext authenticationContext) {
+		SessionInformation sessionInformation = authenticationContext.getSessionInformation();
+		if (sessionInformation == null) {
+			return;
+		}
+		OidcIdToken idToken = authenticationContext.getIdToken();
+		Assert.notNull(idToken, "idToken cannot be null");
+
+		String sessionIdHash;
+		try {
+			sessionIdHash = createHash(sessionInformation.getSessionId());
+		}
+		catch (NoSuchAlgorithmException ex) {
+			OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.SERVER_ERROR, "Failed to compute hash for Session ID.",
+					null);
+			throw new OAuth2AuthenticationException(error);
+		}
+
+		String sidClaim = idToken.getClaim("sid");
+		if (!StringUtils.hasText(sidClaim) || !sidClaim.equals(sessionIdHash)) {
+			throw createException(OAuth2ErrorCodes.INVALID_TOKEN, "sid");
+		}
 	}
 
 	private static OAuth2AuthenticationException createException(String errorCode, String parameterName) {
