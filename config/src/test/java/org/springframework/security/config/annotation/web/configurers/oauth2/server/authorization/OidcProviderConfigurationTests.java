@@ -112,6 +112,24 @@ public class OidcProviderConfigurationTests {
 			.andExpectAll(defaultConfigurationMatchers(issuer));
 	}
 
+	@Test
+	public void requestWhenConfigurationRequestUsesPathInsertionThenConfigurationResponseHasIssuerPath()
+			throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithMultipleIssuersAllowed.class).autowire();
+
+		String issuer = "https://example.com:8443/issuer1";
+		String requestUri = "https://example.com:8443" + DEFAULT_OIDC_PROVIDER_CONFIGURATION_ENDPOINT_URI + "/issuer1";
+		this.mvc.perform(get(requestUri))
+			.andExpect(status().is2xxSuccessful())
+			.andExpectAll(defaultConfigurationMatchers(issuer));
+
+		issuer = "https://example.com:8443/path1/issuer2";
+		requestUri = "https://example.com:8443" + DEFAULT_OIDC_PROVIDER_CONFIGURATION_ENDPOINT_URI + "/path1/issuer2";
+		this.mvc.perform(get(requestUri))
+			.andExpect(status().is2xxSuccessful())
+			.andExpectAll(defaultConfigurationMatchers(issuer));
+	}
+
 	// gh-632
 	@Test
 	public void requestWhenConfigurationRequestAndUserAuthenticatedThenReturnConfigurationResponse() throws Exception {
