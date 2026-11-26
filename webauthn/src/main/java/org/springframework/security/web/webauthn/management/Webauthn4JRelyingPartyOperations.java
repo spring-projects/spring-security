@@ -422,6 +422,7 @@ public class Webauthn4JRelyingPartyOperations implements WebAuthnRelyingPartyOpe
 		ImmutableCredentialRecord updatedRecord = ImmutableCredentialRecord.fromCredentialRecord(credentialRecord)
 			.lastUsed(Instant.now())
 			.signatureCount(updatedSignCount)
+			.backupState(wa4jValidatedAuthData.isFlagBS())
 			.build();
 		this.userCredentials.save(updatedRecord);
 
