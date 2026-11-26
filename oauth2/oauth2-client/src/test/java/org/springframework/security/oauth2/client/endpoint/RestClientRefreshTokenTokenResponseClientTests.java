@@ -265,6 +265,17 @@ public class RestClientRefreshTokenTokenResponseClientTests {
 	}
 
 	@Test
+	public void getTokenResponseWhenResponseOmitsScopeAndRequestNarrowsScopeThenAccessTokenHasRequestedScope() {
+		this.server.enqueue(MockResponses.json("access-token-response.json"));
+		ClientRegistration clientRegistration = this.clientRegistration.build();
+		OAuth2RefreshTokenGrantRequest grantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
+				this.accessToken, this.refreshToken, Collections.singleton("read"));
+		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(grantRequest);
+		assertThat(accessTokenResponse).isNotNull();
+		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("read");
+	}
+
+	@Test
 	public void getTokenResponseWhenRequestDoesNotIncludeScopeThenAccessTokenHasResponseScope() throws Exception {
 		this.server.enqueue(MockResponses.json("access-token-response-read.json"));
 		ClientRegistration clientRegistration = this.clientRegistration.build();
