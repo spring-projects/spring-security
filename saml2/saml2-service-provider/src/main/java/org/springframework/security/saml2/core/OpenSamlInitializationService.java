@@ -88,7 +88,12 @@ public final class OpenSamlInitializationService {
 	 * @throws Saml2Exception if OpenSAML failed to initialize
 	 */
 	public static boolean initialize() {
-		return initialize((registry) -> {
+		return initialize(true, (registry) -> {
+		});
+	}
+
+	public static boolean initializedAlready() {
+		return initialize(false, (registry) -> {
 		});
 	}
 
@@ -104,19 +109,25 @@ public final class OpenSamlInitializationService {
 	 * failed to initialize
 	 */
 	public static void requireInitialize(Consumer<XMLObjectProviderRegistry> registryConsumer) {
-		if (!initialize(registryConsumer)) {
+		if (!initialize(true, registryConsumer)) {
 			throw new Saml2Exception("OpenSAML was already initialized previously");
 		}
 	}
 
-	private static boolean initialize(Consumer<XMLObjectProviderRegistry> registryConsumer) {
+	private static boolean initialize(boolean initOpenSaml, Consumer<XMLObjectProviderRegistry> registryConsumer) {
 		if (initialized.compareAndSet(false, true)) {
 			log.trace("Initializing OpenSAML");
-			try {
-				InitializationService.initialize();
-			}
-			catch (Exception ex) {
-				throw new Saml2Exception(ex);
+			if (initOpenSaml) {
+				try {
+					InitializationService.initialize();
+				} catch (Exception ex) {
+					throw new Saml2Exception(ex);
+				}
+			} else {
+				if (ConfigurationService.get(XMLObjectProviderRegistry.class) == null) {
+					log.debug("OpenSAML not ready");
+					return false;
+				}
 			}
 			registryConsumer.accept(ConfigurationService.get(XMLObjectProviderRegistry.class));
 			log.debug("Initialized OpenSAML");
