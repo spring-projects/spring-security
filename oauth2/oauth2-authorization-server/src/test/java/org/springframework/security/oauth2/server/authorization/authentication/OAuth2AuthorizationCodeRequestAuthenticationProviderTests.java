@@ -380,6 +380,45 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 					PkceParameterNames.CODE_CHALLENGE_METHOD, authentication.getRedirectUri()));
 	}
 
+	// gh-19845
+	@Test
+	public void authenticateWhenPkceCodeChallengeTooShortThenThrowOAuth2AuthorizationCodeRequestAuthenticationException() {
+		assertWhenPkceCodeChallengeMalformedThenThrowOAuth2AuthorizationCodeRequestAuthenticationException(
+				"E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-c");
+	}
+
+	// gh-19845
+	@Test
+	public void authenticateWhenPkceCodeChallengeTooLongThenThrowOAuth2AuthorizationCodeRequestAuthenticationException() {
+		assertWhenPkceCodeChallengeMalformedThenThrowOAuth2AuthorizationCodeRequestAuthenticationException(
+				"E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM" + "a".repeat(86));
+	}
+
+	// gh-19845
+	@Test
+	public void authenticateWhenPkceCodeChallengeContainsInvalidCharacterThenThrowOAuth2AuthorizationCodeRequestAuthenticationException() {
+		assertWhenPkceCodeChallengeMalformedThenThrowOAuth2AuthorizationCodeRequestAuthenticationException(
+				"E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw+cM");
+	}
+
+	private void assertWhenPkceCodeChallengeMalformedThenThrowOAuth2AuthorizationCodeRequestAuthenticationException(
+			String codeChallenge) {
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		given(this.registeredClientRepository.findByClientId(eq(registeredClient.getClientId())))
+			.willReturn(registeredClient);
+		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[2];
+		Map<String, Object> additionalParameters = new HashMap<>();
+		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, codeChallenge);
+		additionalParameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
+		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
+				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, redirectUri, STATE,
+				registeredClient.getScopes(), additionalParameters);
+		assertThatExceptionOfType(OAuth2AuthorizationCodeRequestAuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.satisfies((ex) -> assertAuthenticationException(ex, OAuth2ErrorCodes.INVALID_REQUEST,
+					PkceParameterNames.CODE_CHALLENGE, authentication.getRedirectUri()));
+	}
+
 	@Test
 	public void authenticateWhenAuthenticationRequestWithPromptNoneLoginThenThrowOAuth2AuthorizationCodeRequestAuthenticationException() {
 		assertWhenAuthenticationRequestWithPromptThenThrowOAuth2AuthorizationCodeRequestAuthenticationException(
