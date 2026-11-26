@@ -31,6 +31,7 @@ import org.springframework.util.Assert;
  * strategies for IP addresses.
  *
  * @author Rob Winch
+ * @author Andrey Litvitski
  * @since 7.1
  */
 public final class InetAddressMatchers {
@@ -255,6 +256,9 @@ public final class InetAddressMatchers {
 		public boolean matches(@Nullable InetAddress address) {
 			if (address == null) {
 				return false;
+			}
+			if (address.isAnyLocalAddress()) {
+				return true;
 			}
 			if (address.isLoopbackAddress() || address.isLinkLocalAddress() || address.isSiteLocalAddress()) {
 				return true;
