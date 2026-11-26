@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.ott.DefaultOneTimeToken;
 import org.springframework.security.authentication.ott.GenerateOneTimeTokenRequest;
 import org.springframework.security.authentication.ott.OneTimeToken;
@@ -46,6 +47,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.ott.GenerateOneTimeTokenRequestResolver;
 import org.springframework.security.web.authentication.ott.OneTimeTokenGenerationSuccessHandler;
 import org.springframework.security.web.authentication.ott.RedirectOneTimeTokenGenerationSuccessHandler;
@@ -97,6 +99,39 @@ public class OneTimeTokenLoginConfigurerTests {
 
 		this.mvc.perform(post("/login/ott").param("token", token).with(csrf()))
 			.andExpectAll(status().isFound(), redirectedUrl("/"), authenticated());
+	}
+
+	// gh-19863
+	@Test
+	void oneTimeTokenWhenCorrectTokenThenAuthenticationHasDetails() throws Exception {
+		this.spring.register(OneTimeTokenDefaultConfig.class).autowire();
+		this.mvc.perform(post("/ott/generate").param("username", "user").with(csrf()))
+			.andExpectAll(status().isFound(), redirectedUrl("/login/ott"));
+
+		String token = getLastToken().getTokenValue();
+		String ipAddress = "10.0.0.100";
+
+		this.mvc.perform(post("/login/ott").param("token", token).with(csrf()).with((request) -> {
+			request.setRemoteAddr(ipAddress);
+			return request;
+		})).andExpect(authenticated().withAuthentication((authentication) -> {
+			assertThat(authentication.getDetails()).isInstanceOf(WebAuthenticationDetails.class);
+			WebAuthenticationDetails details = (WebAuthenticationDetails) authentication.getDetails();
+			assertThat(details.getRemoteAddress()).isEqualTo(ipAddress);
+		}));
+	}
+
+	// gh-19863
+	@Test
+	void oneTimeTokenWhenCustomAuthenticationDetailsSourceThenUsed() throws Exception {
+		this.spring.register(OneTimeTokenCustomAuthenticationDetailsSourceConfig.class).autowire();
+		this.mvc.perform(post("/ott/generate").param("username", "user").with(csrf()))
+			.andExpectAll(status().isFound(), redirectedUrl("/login/ott"));
+
+		String token = getLastToken().getTokenValue();
+
+		this.mvc.perform(post("/login/ott").param("token", token).with(csrf())).andExpect(authenticated());
+		verify(this.spring.getContext().getBean(AuthenticationDetailsSource.class)).buildDetails(any());
 	}
 
 	// gh-19128
@@ -301,6 +336,43 @@ public class OneTimeTokenLoginConfigurerTests {
 					);
 			// @formatter:on
 			return http.build();
+		}
+
+		@Bean
+		TestOneTimeTokenGenerationSuccessHandler ottSuccessHandler() {
+			return new TestOneTimeTokenGenerationSuccessHandler();
+		}
+
+	}
+
+	// gh-19863
+	@Configuration(proxyBeanMethods = false)
+	@EnableWebSecurity
+	@Import(UserDetailsServiceConfig.class)
+	static class OneTimeTokenCustomAuthenticationDetailsSourceConfig {
+
+		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = mock(
+				AuthenticationDetailsSource.class);
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http,
+				OneTimeTokenGenerationSuccessHandler ottSuccessHandler) throws Exception {
+			// @formatter:off
+			http
+					.authorizeHttpRequests((authorize) -> authorize
+							.anyRequest().authenticated()
+					)
+					.oneTimeTokenLogin((ott) -> ott
+							.tokenGenerationSuccessHandler(ottSuccessHandler)
+							.authenticationDetailsSource(this.authenticationDetailsSource)
+					);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource() {
+			return this.authenticationDetailsSource;
 		}
 
 		@Bean
