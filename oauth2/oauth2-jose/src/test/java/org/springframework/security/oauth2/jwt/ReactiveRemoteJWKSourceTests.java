@@ -16,8 +16,10 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 import com.nimbusds.jose.jwk.JWK;
@@ -32,7 +34,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
@@ -164,6 +168,44 @@ public class ReactiveRemoteJWKSourceTests {
 		given(this.matcher.matches(any())).willReturn(false);
 		given(this.matcher.getKeyIDs()).willReturn(Collections.singleton("7ddf54d3032d1f0d48c3618892ca74c1ac30ad77"));
 		assertThat(this.source.get(this.selector).block()).isEmpty();
+	}
+
+	@Test
+	public void getWhenConcurrentRequestsThenSingleFetch() {
+		// given
+		given(this.matcher.matches(any())).willReturn(true);
+		int concurrentRequests = 10;
+		for (int i = 0; i < concurrentRequests; i++) {
+			this.server.enqueue(new MockResponse().setBody(this.keys).setBodyDelay(100, TimeUnit.MILLISECONDS));
+		}
+
+		// when
+		List<List<JWK>> results = Flux.range(0, concurrentRequests)
+			.flatMap((i) -> this.source.get(this.selector).subscribeOn(Schedulers.parallel()), concurrentRequests)
+			.collectList()
+			.block(Duration.ofSeconds(5));
+
+		// then
+		assertThat(results).hasSize(concurrentRequests);
+		assertThat(this.server.getRequestCount()).isEqualTo(1);
+	}
+
+	@Test
+	public void getWhenEmptyResponseThenNextCallSucceeds() {
+		// given
+		given(this.matcher.matches(any())).willReturn(true);
+		this.source = new ReactiveRemoteJWKSource(Mono.fromSupplier(this.mockStringSupplier));
+		// first call: supplier returns null URL, causing empty Mono from
+		// jwkSetUrlProvider
+		willReturn(null).given(this.mockStringSupplier).get();
+
+		// when: first call completes empty
+		List<JWK> firstResult = this.source.get(this.selector).block(Duration.ofSeconds(5));
+
+		// then: inflight is cleared and second call can succeed
+		willReturn(this.server.url("/").toString()).given(this.mockStringSupplier).get();
+		List<JWK> secondResult = this.source.get(this.selector).block(Duration.ofSeconds(5));
+		assertThat(secondResult).isNotEmpty();
 	}
 
 	@Test
