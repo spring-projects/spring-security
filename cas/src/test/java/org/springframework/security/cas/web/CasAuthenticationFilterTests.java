@@ -177,8 +177,8 @@ public class CasAuthenticationFilterTests {
 		filter.setAuthenticationManager(manager);
 		filter.afterPropertiesSet();
 		filter.doFilter(request, response, chain);
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull()
-			.withFailMessage("Authentication should not be null");
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).as("Authentication should not be null")
+			.isNotNull();
 		verify(chain).doFilter(request, response);
 		verifyNoInteractions(successHandler);
 		// validate for when the filterProcessUrl matches

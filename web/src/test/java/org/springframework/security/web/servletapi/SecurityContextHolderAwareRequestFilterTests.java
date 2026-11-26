@@ -284,7 +284,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		DelegatingSecurityContextRunnable wrappedRunnable = (DelegatingSecurityContextRunnable) runnableCaptor
 			.getValue();
 		assertThat(ReflectionTestUtils.getField(wrappedRunnable, "delegateSecurityContext")).isEqualTo(context);
-		assertThat(ReflectionTestUtils.getField(wrappedRunnable, "delegate"));
+		assertThat(ReflectionTestUtils.getField(wrappedRunnable, "delegate")).isSameAs(runnable);
 	}
 
 	@Test
@@ -304,7 +304,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		DelegatingSecurityContextRunnable wrappedRunnable = (DelegatingSecurityContextRunnable) runnableCaptor
 			.getValue();
 		assertThat(ReflectionTestUtils.getField(wrappedRunnable, "delegateSecurityContext")).isEqualTo(context);
-		assertThat(ReflectionTestUtils.getField(wrappedRunnable, "delegate"));
+		assertThat(ReflectionTestUtils.getField(wrappedRunnable, "delegate")).isSameAs(runnable);
 	}
 
 	@Test
@@ -324,7 +324,7 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		DelegatingSecurityContextRunnable wrappedRunnable = (DelegatingSecurityContextRunnable) runnableCaptor
 			.getValue();
 		assertThat(ReflectionTestUtils.getField(wrappedRunnable, "delegateSecurityContext")).isEqualTo(context);
-		assertThat(ReflectionTestUtils.getField(wrappedRunnable, "delegate"));
+		assertThat(ReflectionTestUtils.getField(wrappedRunnable, "delegate")).isSameAs(runnable);
 	}
 
 	// SEC-3047
