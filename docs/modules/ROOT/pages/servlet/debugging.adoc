@@ -1,0 +1,127 @@
+[[servlet-debugging]]
+= Debugging
+:page-section-summary-toc: 1
+
+When something is not working as expected, Spring Security's logs and authorization rules are the main tools for finding the cause.
+Spring Security intentionally omits authorization details from HTTP responses, so the logs often explain why a request received `401 Unauthorized` or `403 Forbidden`.
+
+[[servlet-debugging-logging]]
+== Enable Logging
+
+Spring Security logs security-related events at DEBUG and TRACE under the `org.springframework.security` logger.
+The xref:servlet/architecture.adoc#servlet-logging[Logging] section shows how to enable these levels in Spring Boot and Logback and walks through diagnosing a CSRF failure.
+
+At a glance:
+
+* At DEBUG level, javadoc:org.springframework.security.web.FilterChainProxy[] logs when it starts and finishes securing a request (for example, `Securing GET /hello` and `Secured GET /hello`).
+  On startup, javadoc:org.springframework.security.web.DefaultSecurityFilterChain[] logs which filters apply to each request matcher (for example, `Will secure any request with filters: ...`).
+* At TRACE level, javadoc:org.springframework.security.web.FilterChainProxy[] logs each filter invocation (for example, `Invoking CsrfFilter (5/15)`).
+
+[[servlet-debugging-security-debug]]
+== Enable Security Debug Mode
+
+In addition to logger levels, Spring Security can wrap the filter chain with javadoc:org.springframework.security.web.debug.DebugFilter[].
+When enabled, `DebugFilter` writes multi-line INFO messages for each request, including headers and the security filters that apply.
+This may include sensitive information and should only be used in a development environment.
+
+To enable debug mode in Java configuration, set `debug` on javadoc:org.springframework.security.config.annotation.web.configuration.EnableWebSecurity[]:
+
+.Enable Security Debug Mode
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity(debug = true)
+public class SecurityConfiguration {
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebSecurity(debug = true)
+class SecurityConfiguration
+----
+
+Xml::
++
+For the XML namespace, see the xref:servlet/appendix/namespace/http.adoc#nsa-debug[`<debug>`] element.
+======
+
+[[servlet-debugging-error-page]]
+== Permit the `/error` Endpoint
+
+xref:servlet/getting-started.adoc#servlet-hello-auto-configuration[Spring Boot's default security arrangement] requires authentication for every endpoint, including Boot's `/error` endpoint.
+If error responses are blocked by authorization, permit access as needed.
+
+When Spring MVC or Spring Boot handles an error, the container performs an `ERROR` dispatch.
+Authorization runs for the original request and again for the error dispatch.
+To allow error handling to proceed, permit `ERROR` dispatches as described in xref:servlet/authorization/authorize-http-requests.adoc#match-by-dispatcher-type[Matching By Dispatcher Type]:
+
+.Permit Error Dispatches
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize
+        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+        .anyRequest().authenticated()
+    )
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        authorize(DispatcherTypeRequestMatcher(DispatcherType.ERROR), permitAll)
+        authorize(anyRequest, authenticated)
+    }
+}
+----
+======
+
+If you also need unauthenticated access to a direct request to `/error`, add an explicit rule such as `.requestMatchers("/error").permitAll()` before `anyRequest()`.
+
+[[servlet-debugging-log-messages]]
+== Common Log Messages
+
+The following messages appear frequently while troubleshooting servlet applications.
+They are emitted at DEBUG unless noted otherwise.
+
+[cols="1,2"]
+|===
+|Message |Typical meaning
+
+|`Securing` followed by the HTTP method and URL
+|javadoc:org.springframework.security.web.FilterChainProxy[] matched a security filter chain for the request.
+
+|`Secured` followed by the HTTP method and URL
+|The security filter chain finished; the request continues in the servlet container.
+
+|`Will secure` followed by a request matcher and filter list
+|Logged at startup; lists the filters for a security filter chain.
+
+|`Invalid CSRF token found for` followed by a URL
+|xref:servlet/exploits/csrf.adoc[CSRF] validation failed; the request is rejected.
+
+|`Responding with 403 status code`
+|javadoc:org.springframework.security.web.access.AccessDeniedHandlerImpl[] is returning `403 Forbidden` to the client.
+
+|`Sending` followed by an `Authentication` and `to authentication entry point since access is denied` (TRACE)
+|An unauthenticated or anonymous user tried to access a protected resource; the user is sent to the login flow.
+
+|`Sending` followed by an `Authentication` and `to access denied handler since access is denied` (TRACE)
+|An authenticated user lacked the required authorization; the configured access denied handler runs.
+|===
+
+For additional examples, see the xref:servlet/appendix/faq.adoc[FAQ].
