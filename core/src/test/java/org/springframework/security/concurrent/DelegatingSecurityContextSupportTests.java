@@ -16,11 +16,19 @@
 
 package org.springframework.security.concurrent;
 
+import java.util.concurrent.Callable;
+import java.util.function.UnaryOperator;
+
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.stubbing.OngoingStubbing;
 
 import org.springframework.security.core.context.SecurityContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Rob Winch
@@ -30,6 +38,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DelegatingSecurityContextSupportTests extends AbstractDelegatingSecurityContextTestSupport {
 
 	private AbstractDelegatingSecurityContextSupport support;
+
+	@Mock
+	private UnaryOperator<Runnable> runnableWrapper;
+
+	@Mock
+	private UnaryOperator<Callable<?>> callableWrapper;
 
 	@Test
 	public void wrapCallable() throws Exception {
@@ -59,6 +73,29 @@ public class DelegatingSecurityContextSupportTests extends AbstractDelegatingSec
 		currentSecurityContextSetup();
 		this.support = new ConcreteDelegatingSecurityContextSupport(null);
 		assertThat(this.support.wrap(this.runnable)).isSameAs(this.wrappedRunnable);
+	}
+
+	@Test
+	public void setRunnableWrapper() throws Exception {
+		this.support = new ConcreteDelegatingSecurityContextSupport(this.securityContext);
+		this.support.setRunnableWrapper(this.runnableWrapper);
+		Mockito.when(this.runnableWrapper.apply(this.runnable)).thenReturn(this.wrappedRunnable);
+		assertThat(this.support.wrap(this.runnable)).isSameAs(this.wrappedRunnable);
+		ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+		verify(this.runnableWrapper).apply(runnableCaptor.capture());
+		assertThat(runnableCaptor.getValue()).isSameAs(this.runnable);
+	}
+
+	@Test
+	public void setCallableWrapper() throws Exception {
+		this.support = new ConcreteDelegatingSecurityContextSupport(this.securityContext);
+		this.support.setCallableWrapper(this.callableWrapper);
+		OngoingStubbing<Callable<?>> stubbing = Mockito.when(this.callableWrapper.apply(this.callable));
+		stubbing.thenReturn(this.wrappedCallable);
+		assertThat(this.support.wrap(this.callable)).isSameAs(this.wrappedCallable);
+		ArgumentCaptor<Callable<?>> callableCaptor = ArgumentCaptor.forClass(Callable.class);
+		verify(this.callableWrapper).apply(callableCaptor.capture());
+		assertThat(callableCaptor.getValue()).isSameAs(this.callable);
 	}
 
 	private static class ConcreteDelegatingSecurityContextSupport extends AbstractDelegatingSecurityContextSupport {
