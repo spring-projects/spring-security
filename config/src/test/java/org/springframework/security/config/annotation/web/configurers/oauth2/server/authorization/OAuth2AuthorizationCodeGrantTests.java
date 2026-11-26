@@ -45,6 +45,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,6 +90,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResp
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.jose.TestJwks;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
@@ -167,6 +170,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Dmitriy Dubson
  * @author Steve Riesenberg
  * @author Greg Li
+ * @author Stefano Cordio
  */
 @ExtendWith(SpringTestContextExtension.class)
 public class OAuth2AuthorizationCodeGrantTests {
@@ -1023,6 +1027,253 @@ public class OAuth2AuthorizationCodeGrantTests {
 	}
 
 	@Test
+	public void requestWhenPushedAuthorizationRequestsRequiredAndDirectRequestThenRejected() throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithRequiredPushedAuthorizationRequests.class).autowire();
+
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		this.registeredClientRepository.save(registeredClient);
+
+		this.mvc
+			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI)
+				.queryParams(getAuthorizationRequestParameters(registeredClient)))
+			.andExpect(status().isBadRequest());
+
+		this.mvc
+			.perform(
+					post(DEFAULT_AUTHORIZATION_ENDPOINT_URI).params(getAuthorizationRequestParameters(registeredClient))
+						.with(user("user")))
+			.andExpect(status().isBadRequest());
+
+		this.mvc
+			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI)
+				.queryParams(getAuthorizationRequestParameters(registeredClient))
+				.queryParam(OAuth2ParameterNames.REQUEST_URI, " ")
+				.with(user("user")))
+			.andExpect(status().isBadRequest());
+
+		this.mvc
+			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI)
+				.queryParam(OAuth2ParameterNames.CLIENT_ID, registeredClient.getClientId())
+				.queryParam(OAuth2ParameterNames.REQUEST_URI, "first", "second")
+				.with(user("user")))
+			.andExpect(status().isBadRequest());
+
+		this.mvc
+			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI)
+				.queryParams(getAuthorizationRequestParameters(registeredClient))
+				.queryParam(OAuth2ParameterNames.REQUEST_URI, "", "")
+				.with(user("user")))
+			.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void requestWhenPushedAuthorizationRequestsRequiredThenAutomaticallyEnabledEndpointSupportsAuthorization()
+			throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithRequiredParWithoutExplicitEndpoint.class).autowire();
+
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		this.registeredClientRepository.save(registeredClient);
+
+		this.mvc
+			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI)
+				.queryParams(getAuthorizationRequestParameters(registeredClient)))
+			.andExpect(status().isBadRequest());
+
+		MvcResult mvcResult = this.mvc
+			.perform(post("/oauth2/par").params(getAuthorizationRequestParameters(registeredClient))
+				.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(registeredClient)))
+			.andExpect(status().isCreated())
+			.andReturn();
+
+		String requestUri = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.request_uri");
+		this.mvc
+			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI)
+				.queryParam(OAuth2ParameterNames.CLIENT_ID, registeredClient.getClientId())
+				.queryParam(OAuth2ParameterNames.REQUEST_URI, requestUri)
+				.with(user("user")))
+			.andExpect(status().is3xxRedirection())
+			.andExpect(header().string(HttpHeaders.LOCATION, containsString("code=")));
+	}
+
+	@ParameterizedTest
+	@ValueSource(booleans = { false, true })
+	public void requestWhenParEndpointCustomizedAndRequiredThenCustomizationIsPreserved(boolean configureParFirst)
+			throws Exception {
+		Class<?> configuration = configureParFirst ? AuthorizationServerConfigurationWithParCustomizedFirst.class
+				: AuthorizationServerConfigurationWithParCustomizedLast.class;
+		this.spring.register(configuration).autowire();
+
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		this.registeredClientRepository.save(registeredClient);
+		MultiValueMap<String, String> parameters = getAuthorizationRequestParameters(registeredClient);
+		parameters.set(OAuth2ParameterNames.REDIRECT_URI, "https://invalid.example/callback");
+
+		this.mvc
+			.perform(post("/oauth2/par").params(parameters)
+				.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(registeredClient)))
+			.andExpect(status().is(418));
+	}
+
+	@Test
+	public void requestWhenParAutomaticallyEnabledAndOidcDisabledThenOpenIdScopeRejected() throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithRequiredParWithoutExplicitEndpoint.class).autowire();
+
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().scope(OidcScopes.OPENID).build();
+		this.registeredClientRepository.save(registeredClient);
+		MultiValueMap<String, String> parameters = getAuthorizationRequestParameters(registeredClient);
+		parameters.set(OAuth2ParameterNames.SCOPE, OidcScopes.OPENID);
+
+		this.mvc
+			.perform(post("/oauth2/par").params(parameters)
+				.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(registeredClient)))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.error").value("invalid_scope"));
+	}
+
+	@Test
+	public void requestWhenPushedAuthorizationRequestsRequiredAndUnknownRequestUriThenRejected() throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithRequiredPushedAuthorizationRequests.class).autowire();
+
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		this.registeredClientRepository.save(registeredClient);
+
+		this.mvc
+			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI)
+				.queryParam(OAuth2ParameterNames.CLIENT_ID, registeredClient.getClientId())
+				.queryParam(OAuth2ParameterNames.REQUEST_URI, "urn:invalid")
+				.with(user("user")))
+			.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void requestWhenPushedAuthorizationRequestsRequiredAndPostRequestUriInQueryThenRejected() throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithRequiredPushedAuthorizationRequests.class).autowire();
+
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		this.registeredClientRepository.save(registeredClient);
+
+		this.mvc
+			.perform(
+					post(DEFAULT_AUTHORIZATION_ENDPOINT_URI).params(getAuthorizationRequestParameters(registeredClient))
+						.queryParam(OAuth2ParameterNames.REQUEST_URI, "request-uri"))
+			.andExpect(status().isBadRequest());
+
+		this.mvc
+			.perform(
+					post(DEFAULT_AUTHORIZATION_ENDPOINT_URI).params(getAuthorizationRequestParameters(registeredClient))
+						.queryParam(OAuth2ParameterNames.REQUEST_URI, "request-uri")
+						.param(OAuth2ParameterNames.REQUEST_URI, "request-uri"))
+			.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void requestWhenPushedAuthorizationRequestsRequiredAndCustomConverterDropsRequestUriThenRejected()
+			throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithRequiredParAndCustomConverter.class).autowire();
+
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		this.registeredClientRepository.save(registeredClient);
+
+		this.mvc
+			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI)
+				.queryParams(getAuthorizationRequestParameters(registeredClient))
+				.queryParam(OAuth2ParameterNames.REQUEST_URI, "not-a-pushed-request")
+				.with(user("user")))
+			.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void requestWhenPushedAuthorizationRequestsRequiredThenRequestUriIsBoundAndSingleUse() throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithRequiredPushedAuthorizationRequests.class).autowire();
+
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		this.registeredClientRepository.save(registeredClient);
+
+		MvcResult mvcResult = this.mvc
+			.perform(post("/oauth2/par").params(getAuthorizationRequestParameters(registeredClient))
+				.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(registeredClient)))
+			.andExpect(status().isCreated())
+			.andReturn();
+
+		String requestUri = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.request_uri");
+
+		this.mvc
+			.perform(
+					get(DEFAULT_AUTHORIZATION_ENDPOINT_URI).queryParam(OAuth2ParameterNames.CLIENT_ID, "another-client")
+						.queryParam(OAuth2ParameterNames.REQUEST_URI, requestUri)
+						.with(user("user")))
+			.andExpect(status().isBadRequest());
+
+		this.mvc
+			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI)
+				.queryParam(OAuth2ParameterNames.CLIENT_ID, registeredClient.getClientId())
+				.queryParam(OAuth2ParameterNames.REQUEST_URI, requestUri)
+				.with(user("user")))
+			.andExpect(status().is3xxRedirection())
+			.andExpect(header().string(HttpHeaders.LOCATION, containsString("code=")));
+
+		this.mvc
+			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI)
+				.queryParam(OAuth2ParameterNames.CLIENT_ID, registeredClient.getClientId())
+				.queryParam(OAuth2ParameterNames.REQUEST_URI, requestUri)
+				.with(user("user")))
+			.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void requestWhenPushedAuthorizationRequestsRequiredThenConsentAndAuthorizationSucceed() throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithRequiredPushedAuthorizationRequests.class).autowire();
+
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient()
+			.clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
+			.build();
+		this.registeredClientRepository.save(registeredClient);
+
+		MvcResult mvcResult = this.mvc
+			.perform(post("/oauth2/par").params(getAuthorizationRequestParameters(registeredClient))
+				.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeader(registeredClient)))
+			.andExpect(status().isCreated())
+			.andReturn();
+
+		String requestUri = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.request_uri");
+
+		mvcResult = this.mvc
+			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI)
+				.queryParam(OAuth2ParameterNames.CLIENT_ID, registeredClient.getClientId())
+				.queryParam(OAuth2ParameterNames.REQUEST_URI, requestUri)
+				.with(user("user")))
+			.andExpect(status().is3xxRedirection())
+			.andReturn();
+
+		String consentState = extractParameterFromRedirectUri(mvcResult.getResponse().getRedirectedUrl(), "state");
+		assertThat(consentState).isNotBlank();
+
+		this.mvc
+			.perform(post(DEFAULT_AUTHORIZATION_ENDPOINT_URI)
+				.param(OAuth2ParameterNames.CLIENT_ID, registeredClient.getClientId())
+				.param(OAuth2ParameterNames.STATE, consentState)
+				.param(OAuth2ParameterNames.SCOPE, registeredClient.getScopes().toArray(new String[0]))
+				.with(user("user")))
+			.andExpect(status().is3xxRedirection())
+			.andExpect(header().string(HttpHeaders.LOCATION, containsString("code=")));
+	}
+
+	@Test
+	public void requestWhenPushedAuthorizationRequestsOptionalThenDirectRequestSucceeds() throws Exception {
+		this.spring.register(AuthorizationServerConfigurationWithPushedAuthorizationRequests.class).autowire();
+
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		this.registeredClientRepository.save(registeredClient);
+
+		this.mvc
+			.perform(get(DEFAULT_AUTHORIZATION_ENDPOINT_URI)
+				.queryParams(getAuthorizationRequestParameters(registeredClient))
+				.with(user("user")))
+			.andExpect(status().is3xxRedirection())
+			.andExpect(header().string(HttpHeaders.LOCATION, containsString("code=")));
+	}
+
+	@Test
 	public void requestWhenPushedAuthorizationRequestThenReturnAccessTokenResponse() throws Exception {
 		this.spring.register(AuthorizationServerConfigurationWithPushedAuthorizationRequests.class).autowire();
 
@@ -1553,6 +1804,137 @@ public class OAuth2AuthorizationCodeGrantTests {
 		AuthorizationServerSettings authorizationServerSettings() {
 			return AuthorizationServerSettings.builder().multipleIssuersAllowed(true).build();
 		}
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AuthorizationServerConfigurationWithRequiredParAndCustomConverter
+			extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			AuthenticationConverter converter = (request) -> new OAuth2AuthorizationCodeRequestAuthenticationToken(
+					request.getRequestURL().toString(), request.getParameter(OAuth2ParameterNames.CLIENT_ID),
+					new TestingAuthenticationToken("user", "password", "ROLE_USER"),
+					request.getParameter(OAuth2ParameterNames.REDIRECT_URI),
+					request.getParameter(OAuth2ParameterNames.STATE),
+					Set.of(StringUtils.delimitedListToStringArray(request.getParameter(OAuth2ParameterNames.SCOPE),
+							" ")),
+					Map.of(PkceParameterNames.CODE_CHALLENGE, request.getParameter(PkceParameterNames.CODE_CHALLENGE),
+							PkceParameterNames.CODE_CHALLENGE_METHOD,
+							request.getParameter(PkceParameterNames.CODE_CHALLENGE_METHOD)));
+
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.requirePushedAuthorizationRequests(true)
+									.pushedAuthorizationRequestEndpoint(Customizer.withDefaults())
+									.authorizationEndpoint((authorizationEndpoint) ->
+											authorizationEndpoint.authorizationRequestConverter(converter))
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AuthorizationServerConfigurationWithRequiredPushedAuthorizationRequests
+			extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.requirePushedAuthorizationRequests(true)
+									.pushedAuthorizationRequestEndpoint(Customizer.withDefaults())
+									.authorizationEndpoint((authorizationEndpoint) ->
+											authorizationEndpoint.consentPage(consentPage))
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AuthorizationServerConfigurationWithRequiredParWithoutExplicitEndpoint
+			extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.requirePushedAuthorizationRequests(true)
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AuthorizationServerConfigurationWithParCustomizedFirst extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.pushedAuthorizationRequestEndpoint((par) ->
+											par.errorResponseHandler((request, response, exception) ->
+													response.setStatus(418)))
+									.requirePushedAuthorizationRequests(true)
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
+
+	}
+
+	@EnableWebSecurity
+	@Configuration(proxyBeanMethods = false)
+	static class AuthorizationServerConfigurationWithParCustomizedLast extends AuthorizationServerConfiguration {
+
+		// @formatter:off
+		@Bean
+		SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
+			http
+					.oauth2AuthorizationServer((authorizationServer) ->
+							authorizationServer
+									.requirePushedAuthorizationRequests(true)
+									.pushedAuthorizationRequestEndpoint((par) ->
+											par.errorResponseHandler((request, response, exception) ->
+													response.setStatus(418)))
+					)
+					.authorizeHttpRequests((authorize) ->
+							authorize.anyRequest().authenticated()
+					);
+			return http.build();
+		}
+		// @formatter:on
 
 	}
 

@@ -20,6 +20,7 @@ import java.security.Principal;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -28,6 +29,9 @@ import java.util.function.Predicate;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.FieldSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -71,6 +75,7 @@ import static org.mockito.Mockito.verify;
  *
  * @author Joe Grandja
  * @author Steve Riesenberg
+ * @author Stefano Cordio
  */
 public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 
@@ -611,8 +616,36 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProviderTests {
 				authenticationResult);
 	}
 
-	@Test
-	public void authenticateWhenAuthorizationCodeRequestWithRequestUriThenReturnAuthorizationCode() {
+	@ParameterizedTest
+	@FieldSource("invalidRequestUriParameters")
+	public void authenticateWhenPushedAuthorizationRequestsRequiredAndRequestUriMissingOrInvalidThenReject(
+			Map<String, Object> additionalParameters) {
+		this.authenticationProvider.setRequirePushedAuthorizationRequests(true);
+
+		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
+		String redirectUri = registeredClient.getRedirectUris().toArray(new String[0])[0];
+
+		OAuth2AuthorizationCodeRequestAuthenticationToken authentication = new OAuth2AuthorizationCodeRequestAuthenticationToken(
+				AUTHORIZATION_URI, registeredClient.getClientId(), this.principal, redirectUri, STATE,
+				registeredClient.getScopes(), additionalParameters);
+		OAuth2AuthorizationCodeRequestAuthenticationToken.validated(authentication);
+
+		assertThatExceptionOfType(OAuth2AuthorizationCodeRequestAuthenticationException.class)
+			.isThrownBy(() -> this.authenticationProvider.authenticate(authentication))
+			.satisfies((ex) -> assertAuthenticationException(ex, OAuth2ErrorCodes.INVALID_REQUEST,
+					OAuth2ParameterNames.REQUEST_URI, null));
+	}
+
+	static List<Map<String, Object>> invalidRequestUriParameters = List.of(Map.of(),
+			Map.of(OAuth2ParameterNames.REQUEST_URI, " "),
+			Map.of(OAuth2ParameterNames.REQUEST_URI, new String[] { "first", "second" }));
+
+	@ParameterizedTest
+	@ValueSource(booleans = { false, true })
+	public void authenticateWhenAuthorizationCodeRequestWithRequestUriThenReturnAuthorizationCode(
+			boolean requirePushedAuthorizationRequests) {
+		this.authenticationProvider.setRequirePushedAuthorizationRequests(requirePushedAuthorizationRequests);
+
 		RegisteredClient registeredClient = TestRegisteredClients.registeredClient().build();
 		given(this.registeredClientRepository.findByClientId(eq(registeredClient.getClientId())))
 			.willReturn(registeredClient);

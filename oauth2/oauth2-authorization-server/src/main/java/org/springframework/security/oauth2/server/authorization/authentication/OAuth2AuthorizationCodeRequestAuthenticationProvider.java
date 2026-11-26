@@ -66,6 +66,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Joe Grandja
  * @author Steve Riesenberg
+ * @author Stefano Cordio
  * @since 7.0
  * @see OAuth2AuthorizationCodeRequestAuthenticationToken
  * @see OAuth2AuthorizationCodeRequestAuthenticationValidator
@@ -104,6 +105,8 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 
 	private Predicate<OAuth2AuthorizationCodeRequestAuthenticationContext> authorizationConsentRequired = OAuth2AuthorizationCodeRequestAuthenticationProvider::isAuthorizationConsentRequired;
 
+	private boolean requirePushedAuthorizationRequests;
+
 	/**
 	 * Constructs an {@code OAuth2AuthorizationCodeRequestAuthenticationProvider} using
 	 * the provided parameters.
@@ -127,8 +130,14 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 		OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication = (OAuth2AuthorizationCodeRequestAuthenticationToken) authentication;
 
 		OAuth2Authorization pushedAuthorization = null;
-		String requestUri = (String) authorizationCodeRequestAuthentication.getAdditionalParameters()
+		Object requestUriParameter = authorizationCodeRequestAuthentication.getAdditionalParameters()
 			.get(OAuth2ParameterNames.REQUEST_URI);
+		if (this.requirePushedAuthorizationRequests
+				&& (!(requestUriParameter instanceof String requestUri) || !StringUtils.hasText(requestUri))) {
+			throw createException(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.REQUEST_URI,
+					authorizationCodeRequestAuthentication, null);
+		}
+		String requestUri = (String) requestUriParameter;
 		if (StringUtils.hasText(requestUri)) {
 			OAuth2PushedAuthorizationRequestUri pushedAuthorizationRequestUri;
 			try {
@@ -408,6 +417,17 @@ public final class OAuth2AuthorizationCodeRequestAuthenticationProvider implemen
 			Predicate<OAuth2AuthorizationCodeRequestAuthenticationContext> authorizationConsentRequired) {
 		Assert.notNull(authorizationConsentRequired, "authorizationConsentRequired cannot be null");
 		this.authorizationConsentRequired = authorizationConsentRequired;
+	}
+
+	/**
+	 * Require authorization requests to reference a pushed authorization request. The
+	 * default is {@code false}.
+	 * @param requirePushedAuthorizationRequests whether pushed authorization requests are
+	 * required
+	 * @since 7.3
+	 */
+	public void setRequirePushedAuthorizationRequests(boolean requirePushedAuthorizationRequests) {
+		this.requirePushedAuthorizationRequests = requirePushedAuthorizationRequests;
 	}
 
 	private static boolean isAuthorizationConsentRequired(

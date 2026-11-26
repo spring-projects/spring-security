@@ -24,6 +24,7 @@ import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
  *
  * @author Daniel Garnier-Moiroux
  * @author Joe Grandja
+ * @author Stefano Cordio
  * @since 7.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc8414#section-2">2.
  * Authorization Server Metadata</a>
@@ -147,6 +148,13 @@ public class OAuth2AuthorizationServerMetadataClaimNames {
 	 * Signature (JWS) algorithms} supported for DPoP Proof JWTs.
 	 */
 	public static final String DPOP_SIGNING_ALG_VALUES_SUPPORTED = "dpop_signing_alg_values_supported";
+
+	/**
+	 * {@code require_pushed_authorization_requests} - whether authorization requests must
+	 * use the Pushed Authorization Request Endpoint.
+	 * @since 7.3
+	 */
+	public static final String REQUIRE_PUSHED_AUTHORIZATION_REQUESTS = "require_pushed_authorization_requests";
 
 	protected OAuth2AuthorizationServerMetadataClaimNames() {
 	}

@@ -133,14 +133,14 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 	http
 		.oauth2AuthorizationServer((authorizationServer) ->
 			authorizationServer
-				.pushedAuthorizationRequestEndpoint(pushedAuthorizationRequestEndpoint ->
+				.pushedAuthorizationRequestEndpoint((pushedAuthorizationRequestEndpoint) ->
 					pushedAuthorizationRequestEndpoint
-        				.pushedAuthorizationRequestConverter(pushedAuthorizationRequestConverter)   <1>
-                        .pushedAuthorizationRequestConverters(pushedAuthorizationRequestConvertersConsumer) <2>
-                        .authenticationProvider(authenticationProvider) <3>
-                        .authenticationProviders(authenticationProvidersConsumer)   <4>
-                        .pushedAuthorizationResponseHandler(pushedAuthorizationResponseHandler) <5>
-                        .errorResponseHandler(errorResponseHandler) <6>
+						.pushedAuthorizationRequestConverter(pushedAuthorizationRequestConverter)   <1>
+						.pushedAuthorizationRequestConverters(pushedAuthorizationRequestConvertersConsumer) <2>
+						.authenticationProvider(authenticationProvider) <3>
+						.authenticationProviders(authenticationProvidersConsumer)   <4>
+						.pushedAuthorizationResponseHandler(pushedAuthorizationResponseHandler) <5>
+						.errorResponseHandler(errorResponseHandler) <6>
 				)
 		);
 
