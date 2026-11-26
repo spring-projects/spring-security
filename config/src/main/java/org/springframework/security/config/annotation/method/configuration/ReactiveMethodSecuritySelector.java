@@ -59,8 +59,17 @@ class ReactiveMethodSecuritySelector implements ImportSelector {
 		List<String> imports = new ArrayList<>(Arrays.asList(this.autoProxy.selectImports(importMetadata)));
 		if (annotation.useAuthorizationManager()) {
 			imports.add(ReactiveAuthorizationManagerMethodSecurityConfiguration.class.getName());
+			if (annotation.securedEnabled()) {
+				imports.add(ReactiveSecuredMethodSecurityConfiguration.class.getName());
+			}
+			if (annotation.jsr250Enabled()) {
+				imports.add(ReactiveJsr250MethodSecurityConfiguration.class.getName());
+			}
 		}
 		else {
+			Assert.state(!annotation.securedEnabled() && !annotation.jsr250Enabled(),
+					"@EnableReactiveMethodSecurity securedEnabled and jsr250Enabled "
+							+ "require useAuthorizationManager = true");
 			Assert.state(
 					ClassUtils.isPresent(METHOD_SECURITY_METADATA_SOURCE_ADVISOR, ClassUtils.getDefaultClassLoader()),
 					() -> "@EnableReactiveMethodSecurity(useAuthorizationManager = false) requires the "

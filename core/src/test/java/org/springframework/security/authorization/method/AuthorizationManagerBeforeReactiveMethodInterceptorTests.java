@@ -16,6 +16,9 @@
 
 package org.springframework.security.authorization.method;
 
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import org.aopalliance.intercept.MethodInvocation;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
@@ -23,11 +26,15 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.aop.Pointcut;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -225,6 +232,91 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 			.isThrownBy(() -> ((Mono<?>) advice.invoke(mockMethodInvocation)).block());
 	}
 
+	@Test
+	public void jsr250WhenCreatedThenMatchesJsr250AnnotationsWithJsr250Order() {
+		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = AuthorizationManagerBeforeReactiveMethodInterceptor
+			.jsr250();
+		assertThat(interceptor.getOrder()).isEqualTo(AuthorizationInterceptorsOrder.JSR250.getOrder());
+		assertThat(AopUtils.canApply(interceptor.getPointcut(), Jsr250Sample.class)).isTrue();
+		assertThat(AopUtils.canApply(interceptor.getPointcut(), Sample.class)).isFalse();
+	}
+
+	@Test
+	public void jsr250WhenDenyAllThenAccessDeniedException() throws Throwable {
+		MethodInvocation mockMethodInvocation = spy(
+				new MockMethodInvocation(new Jsr250Sample(), Jsr250Sample.class.getDeclaredMethod("denyAll")));
+		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = AuthorizationManagerBeforeReactiveMethodInterceptor
+			.jsr250();
+		assertThatExceptionOfType(AccessDeniedException.class)
+			.isThrownBy(() -> ((Mono<?>) interceptor.invoke(mockMethodInvocation)).block());
+	}
+
+	@Test
+	public void jsr250WhenPermitAllThenProceeds() throws Throwable {
+		MethodInvocation mockMethodInvocation = spy(
+				new MockMethodInvocation(new Jsr250Sample(), Jsr250Sample.class.getDeclaredMethod("permitAll")));
+		given(mockMethodInvocation.proceed()).willReturn(Mono.just("john"));
+		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = AuthorizationManagerBeforeReactiveMethodInterceptor
+			.jsr250();
+		Object result = interceptor.invoke(mockMethodInvocation);
+		assertThat(((Mono<?>) result).block()).isEqualTo("john");
+	}
+
+	@Test
+	public void jsr250WhenRolesAllowedAndRoleUserThenProceeds() throws Throwable {
+		MethodInvocation mockMethodInvocation = spy(
+				new MockMethodInvocation(new Jsr250Sample(), Jsr250Sample.class.getDeclaredMethod("rolesAllowedUser")));
+		given(mockMethodInvocation.proceed()).willReturn(Mono.just("john"));
+		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = AuthorizationManagerBeforeReactiveMethodInterceptor
+			.jsr250();
+		Object result = ((Mono<?>) interceptor.invoke(mockMethodInvocation))
+			.contextWrite(ReactiveSecurityContextHolder.withAuthentication(TestAuthentication.authenticatedUser()))
+			.block();
+		assertThat(result).isEqualTo("john");
+	}
+
+	@Test
+	public void jsr250WhenRolesAllowedAndAnonymousThenAccessDeniedException() throws Throwable {
+		MethodInvocation mockMethodInvocation = spy(
+				new MockMethodInvocation(new Jsr250Sample(), Jsr250Sample.class.getDeclaredMethod("rolesAllowedUser")));
+		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = AuthorizationManagerBeforeReactiveMethodInterceptor
+			.jsr250();
+		assertThatExceptionOfType(AccessDeniedException.class)
+			.isThrownBy(() -> ((Mono<?>) interceptor.invoke(mockMethodInvocation)).block());
+	}
+
+	@Test
+	public void securedWhenRoleUserThenProceeds() throws Throwable {
+		MethodInvocation mockMethodInvocation = spy(
+				new MockMethodInvocation(new SecuredSample(), SecuredSample.class.getDeclaredMethod("securedUser")));
+		given(mockMethodInvocation.proceed()).willReturn(Mono.just("john"));
+		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = AuthorizationManagerBeforeReactiveMethodInterceptor
+			.secured();
+		Object result = ((Mono<?>) interceptor.invoke(mockMethodInvocation))
+			.contextWrite(ReactiveSecurityContextHolder.withAuthentication(TestAuthentication.authenticatedUser()))
+			.block();
+		assertThat(result).isEqualTo("john");
+	}
+
+	@Test
+	public void securedWhenCreatedThenMatchesSecuredAnnotationWithSecuredOrder() {
+		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = AuthorizationManagerBeforeReactiveMethodInterceptor
+			.secured();
+		assertThat(interceptor.getOrder()).isEqualTo(AuthorizationInterceptorsOrder.SECURED.getOrder());
+		assertThat(AopUtils.canApply(interceptor.getPointcut(), SecuredSample.class)).isTrue();
+		assertThat(AopUtils.canApply(interceptor.getPointcut(), Sample.class)).isFalse();
+	}
+
+	@Test
+	public void securedWhenAnonymousThenAccessDeniedException() throws Throwable {
+		MethodInvocation mockMethodInvocation = spy(
+				new MockMethodInvocation(new SecuredSample(), SecuredSample.class.getDeclaredMethod("securedUser")));
+		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = AuthorizationManagerBeforeReactiveMethodInterceptor
+			.secured();
+		assertThatExceptionOfType(AccessDeniedException.class)
+			.isThrownBy(() -> ((Mono<?>) interceptor.invoke(mockMethodInvocation)).block());
+	}
+
 	interface HandlingReactiveAuthorizationManager
 			extends ReactiveAuthorizationManager<MethodInvocation>, MethodAuthorizationDeniedHandler {
 
@@ -238,6 +330,34 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 
 		Flux<String> flux() {
 			return Flux.just("john", "bob");
+		}
+
+	}
+
+	static class Jsr250Sample {
+
+		@DenyAll
+		Mono<String> denyAll() {
+			return Mono.just("john");
+		}
+
+		@PermitAll
+		Mono<String> permitAll() {
+			return Mono.just("john");
+		}
+
+		@RolesAllowed("USER")
+		Mono<String> rolesAllowedUser() {
+			return Mono.just("john");
+		}
+
+	}
+
+	static class SecuredSample {
+
+		@Secured("ROLE_USER")
+		Mono<String> securedUser() {
+			return Mono.just("john");
 		}
 
 	}

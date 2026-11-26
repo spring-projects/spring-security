@@ -25,6 +25,7 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 
 /**
@@ -75,5 +76,21 @@ public @interface EnableReactiveMethodSecurity {
 	 * @since 5.8
 	 */
 	boolean useAuthorizationManager() default true;
+
+	/**
+	 * Determines if Spring Security's {@link Secured} annotation should be enabled.
+	 * Requires {@link #useAuthorizationManager()} to be {@code true}. Default is false.
+	 * @return true if {@link Secured} annotation should be enabled false otherwise
+	 * @since 7.3
+	 */
+	boolean securedEnabled() default false;
+
+	/**
+	 * Determines if JSR-250 annotations should be enabled. Requires
+	 * {@link #useAuthorizationManager()} to be {@code true}. Default is false.
+	 * @return true if JSR-250 should be enabled false otherwise
+	 * @since 7.3
+	 */
+	boolean jsr250Enabled() default false;
 
 }
