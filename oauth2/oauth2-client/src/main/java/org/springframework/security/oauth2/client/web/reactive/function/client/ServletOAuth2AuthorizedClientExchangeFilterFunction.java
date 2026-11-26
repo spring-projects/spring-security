@@ -397,21 +397,29 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 
 	@Override
 	public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
-		// @formatter:off
+		// Merge the servlet request/response and authentication once, and use the merged
+		// request for the whole exchange so that the AuthorizationFailureForwarder can
+		// remove the authorized client when the response is an authorization failure
 		return mergeRequestAttributesIfNecessary(request)
+				.flatMap((mergedRequest) -> filterMergedRequest(mergedRequest, next));
+	}
+
+	private Mono<ClientResponse> filterMergedRequest(ClientRequest request, ExchangeFunction next) {
+		// @formatter:off
+		return Mono.just(request)
 				.filter((req) -> req.attribute(OAUTH2_AUTHORIZED_CLIENT_ATTR_NAME).isPresent())
 				.flatMap((req) -> {
 					OAuth2AuthorizedClient authorizedClient = getOAuth2AuthorizedClient(req.attributes());
 					return (authorizedClient != null) ? reauthorizeClient(authorizedClient, req) : Mono.empty();
 				})
 				.switchIfEmpty(
-						Mono.defer(() ->
-							mergeRequestAttributesIfNecessary(request)
-								.flatMap((req) -> {
-									String clientRegistrationId = resolveClientRegistrationId(req);
-									return (clientRegistrationId != null) ? authorizeClient(clientRegistrationId, req) : Mono.empty();
-								})
-						)
+					Mono.defer(() ->
+						Mono.just(request)
+							.flatMap((req) -> {
+								String clientRegistrationId = resolveClientRegistrationId(req);
+								return (clientRegistrationId != null) ? authorizeClient(clientRegistrationId, req) : Mono.empty();
+							})
+					)
 				)
 				.map((authorizedClient) -> bearer(request, authorizedClient))
 				.flatMap((requestWithBearer) -> exchangeAndHandleResponse(requestWithBearer, next))
