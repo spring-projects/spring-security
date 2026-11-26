@@ -59,8 +59,16 @@ public class InMemoryReactiveSessionRegistry implements ReactiveSessionRegistry 
 	@Override
 	public Mono<Void> saveSessionInformation(ReactiveSessionInformation information) {
 		this.sessionById.put(information.getSessionId(), information);
-		this.sessionIdsByPrincipal.computeIfAbsent(information.getPrincipal(), (key) -> new CopyOnWriteArraySet<>())
-			.add(information.getSessionId());
+		// Add the session id inside the compute so that it cannot race with the key
+		// removal performed by removeSessionInformation (which could otherwise drop a
+		// concurrently added session). This mirrors the blocking SessionRegistryImpl.
+		this.sessionIdsByPrincipal.compute(information.getPrincipal(), (key, sessionsUsedByPrincipal) -> {
+			if (sessionsUsedByPrincipal == null) {
+				sessionsUsedByPrincipal = new CopyOnWriteArraySet<>();
+			}
+			sessionsUsedByPrincipal.add(information.getSessionId());
+			return sessionsUsedByPrincipal;
+		});
 		return Mono.empty();
 	}
 
@@ -73,13 +81,14 @@ public class InMemoryReactiveSessionRegistry implements ReactiveSessionRegistry 
 	public Mono<ReactiveSessionInformation> removeSessionInformation(String sessionId) {
 		return getSessionInformation(sessionId).doOnNext((sessionInformation) -> {
 			this.sessionById.remove(sessionId);
-			Set<String> sessionsUsedByPrincipal = this.sessionIdsByPrincipal.get(sessionInformation.getPrincipal());
-			if (sessionsUsedByPrincipal != null) {
-				sessionsUsedByPrincipal.remove(sessionId);
-				if (sessionsUsedByPrincipal.isEmpty()) {
-					this.sessionIdsByPrincipal.remove(sessionInformation.getPrincipal());
-				}
-			}
+			// Remove and prune atomically so the principal key is dropped only while its
+			// set is empty; otherwise a session added concurrently could be lost. Mirrors
+			// the blocking SessionRegistryImpl.
+			this.sessionIdsByPrincipal.computeIfPresent(sessionInformation.getPrincipal(),
+					(key, sessionsUsedByPrincipal) -> {
+						sessionsUsedByPrincipal.remove(sessionId);
+						return sessionsUsedByPrincipal.isEmpty() ? null : sessionsUsedByPrincipal;
+					});
 		});
 	}
 
