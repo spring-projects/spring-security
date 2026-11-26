@@ -1034,7 +1034,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link HttpSecurity} for further customizations @
 	 */
 	public HttpSecurity anonymous(Customizer<AnonymousConfigurer<HttpSecurity>> anonymousCustomizer) {
-		anonymousCustomizer.customize(getOrApply(new AnonymousConfigurer<>()));
+		anonymousCustomizer.customize(getOrApply(new AnonymousConfigurer<>(getContext())));
 		return HttpSecurity.this;
 	}
 
