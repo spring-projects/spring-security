@@ -18,6 +18,9 @@ package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Method;
 
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import kotlinx.coroutines.reactive.ReactiveFlowKt;
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -32,6 +35,7 @@ import org.springframework.core.KotlinDetector;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ReactiveAdapter;
 import org.springframework.core.ReactiveAdapterRegistry;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -81,6 +85,53 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
 				AuthorizationMethodPointcuts.forAnnotations(PreAuthorize.class), authorizationManager);
 		interceptor.setOrder(AuthorizationInterceptorsOrder.PRE_AUTHORIZE.getOrder());
+		return interceptor;
+	}
+
+	/**
+	 * Creates an instance for the {@link Secured} annotation.
+	 * @return the {@link AuthorizationManagerBeforeReactiveMethodInterceptor} to use
+	 * @since 7.3
+	 */
+	public static AuthorizationManagerBeforeReactiveMethodInterceptor secured() {
+		return secured(new SecuredReactiveAuthorizationManager());
+	}
+
+	/**
+	 * Creates an instance for the {@link Secured} annotation.
+	 * @param authorizationManager the {@link ReactiveAuthorizationManager} to use
+	 * @return the {@link AuthorizationManagerBeforeReactiveMethodInterceptor} to use
+	 * @since 7.3
+	 */
+	public static AuthorizationManagerBeforeReactiveMethodInterceptor secured(
+			ReactiveAuthorizationManager<MethodInvocation> authorizationManager) {
+		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
+				AuthorizationMethodPointcuts.forAnnotations(Secured.class), authorizationManager);
+		interceptor.setOrder(AuthorizationInterceptorsOrder.SECURED.getOrder());
+		return interceptor;
+	}
+
+	/**
+	 * Creates an instance for the JSR-250 annotations.
+	 * @return the {@link AuthorizationManagerBeforeReactiveMethodInterceptor} to use
+	 * @since 7.3
+	 */
+	public static AuthorizationManagerBeforeReactiveMethodInterceptor jsr250() {
+		return jsr250(new Jsr250ReactiveAuthorizationManager());
+	}
+
+	/**
+	 * Creates an instance for the JSR-250 annotations.
+	 * @param authorizationManager the {@link ReactiveAuthorizationManager} to use
+	 * @return the {@link AuthorizationManagerBeforeReactiveMethodInterceptor} to use
+	 * @since 7.3
+	 */
+	public static AuthorizationManagerBeforeReactiveMethodInterceptor jsr250(
+			ReactiveAuthorizationManager<MethodInvocation> authorizationManager) {
+		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
+				AuthorizationMethodPointcuts.forAnnotations(RolesAllowed.class, DenyAll.class, PermitAll.class),
+				authorizationManager);
+		interceptor.setOrder(AuthorizationInterceptorsOrder.JSR250.getOrder());
 		return interceptor;
 	}
 

@@ -143,6 +143,61 @@ class MethodSecurityConfig {
 
 Notice that Spring Security's method security is built using Spring AOP.
 
+[[reactive-secured-jsr250]]
+=== Using `@Secured` and JSR-250 Annotations
+
+You can also enable Spring Security's `@Secured` annotation and the JSR-250 annotations (`@RolesAllowed`, `@PermitAll`, and `@DenyAll`) for reactive methods:
+
+.Enabling @Secured and JSR-250 Annotations
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@EnableReactiveMethodSecurity(securedEnabled = true, jsr250Enabled = true)
+public class MethodSecurityConfig {
+	// ...
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@EnableReactiveMethodSecurity(securedEnabled = true, jsr250Enabled = true)
+class MethodSecurityConfig {
+	// ...
+}
+----
+======
+
+As with `@PreAuthorize`, the annotated methods must return a `Publisher`, such as a `Mono` or a `Flux`, or be a Kotlin coroutine:
+
+.@Secured and JSR-250 Annotation Usage
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+public interface BankService {
+	@RolesAllowed("USER")
+	Mono<Account> readAccount(Long id);
+
+	@Secured("ROLE_TELLER")
+	Mono<Account> post(Account account, Double amount);
+
+	@DenyAll
+	Mono<Void> closeAllAccounts();
+}
+----
+======
+
+`@RolesAllowed` adds the role prefix, which is `ROLE_` unless you publish a `GrantedAuthorityDefaults` bean, while `@Secured` compares the authorities as written.
+`@RolesAllowed` and `@Secured` also apply a `RoleHierarchy` bean when you publish one.
+These annotations need `useAuthorizationManager = true`, which is the default.
+
 === Customizing Authorization
 
 Spring Security's `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, and `@PostFilter` ship with rich expression-based support.
