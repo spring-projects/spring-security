@@ -16,12 +16,19 @@
 
 package org.springframework.security.oauth2.client;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneOffset;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Signal;
+import reactor.core.publisher.Sinks;
+import reactor.test.StepVerifier;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,6 +37,8 @@ import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessT
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
@@ -39,6 +48,8 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link ClientCredentialsReactiveOAuth2AuthorizedClientProvider}.
@@ -137,6 +148,164 @@ public class ClientCredentialsReactiveOAuth2AuthorizedClientProviderTests {
 		assertThat(authorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
 	}
 
+	// gh-17167
+	@Test
+	public void authorizeWhenConcurrentAndNotAuthorizedThenShareTokenResponse() {
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		Sinks.One<OAuth2AccessTokenResponse> tokenResponse = Sinks.one();
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(tokenResponse.asMono());
+		Authentication otherPrincipal = new TestingAuthenticationToken("other-principal", "password");
+		ClientRegistration otherClientRegistration = TestClientRegistrations.clientCredentials().build();
+		// @formatter:off
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
+				.withClientRegistration(this.clientRegistration)
+				.principal(this.principal)
+				.build();
+		OAuth2AuthorizationContext otherAuthorizationContext = OAuth2AuthorizationContext
+				.withClientRegistration(otherClientRegistration)
+				.principal(otherPrincipal)
+				.build();
+		// @formatter:on
+		StepVerifier
+			.create(Flux.merge(this.authorizedClientProvider.authorize(authorizationContext),
+					this.authorizedClientProvider.authorize(otherAuthorizationContext))
+				.collectList())
+			.expectSubscription()
+			.then(() -> {
+				verify(this.accessTokenResponseClient).getTokenResponse(any());
+				assertThat(tokenResponse.tryEmitValue(accessTokenResponse)).isEqualTo(Sinks.EmitResult.OK);
+			})
+			.assertNext((authorizedClients) -> assertThat(authorizedClients).hasSize(2)
+				.allSatisfy((authorizedClient) -> assertThat(authorizedClient.getAccessToken())
+					.isSameAs(accessTokenResponse.getAccessToken()))
+				.extracting(OAuth2AuthorizedClient::getPrincipalName)
+				.containsExactlyInAnyOrder(this.principal.getName(), otherPrincipal.getName()))
+			.verifyComplete();
+	}
+
+	// gh-17167
+	@Test
+	public void authorizeWhenConcurrentAndTokenExpiredThenShareTokenResponse() {
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse()
+			.expiresIn(Duration.ofMinutes(5).toSeconds())
+			.build();
+		Sinks.One<OAuth2AccessTokenResponse> tokenResponse = Sinks.one();
+		OAuth2AccessTokenResponse refreshedTokenResponse = OAuth2AccessTokenResponse.withToken("refreshed-token")
+			.tokenType(OAuth2AccessToken.TokenType.BEARER)
+			.build();
+		Sinks.One<OAuth2AccessTokenResponse> refreshedToken = Sinks.one();
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(tokenResponse.asMono(),
+				refreshedToken.asMono());
+		// @formatter:off
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
+				.withClientRegistration(this.clientRegistration)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
+		StepVerifier.create(this.authorizedClientProvider.authorize(authorizationContext))
+			.expectSubscription()
+			.then(() -> assertThat(tokenResponse.tryEmitValue(accessTokenResponse)).isEqualTo(Sinks.EmitResult.OK))
+			.assertNext((authorizedClient) -> assertThat(authorizedClient.getAccessToken())
+				.isSameAs(accessTokenResponse.getAccessToken()))
+			.verifyComplete();
+		Instant expiresAt = accessTokenResponse.getAccessToken().getExpiresAt().plusSeconds(1);
+		this.authorizedClientProvider.setClock(Clock.fixed(expiresAt, ZoneOffset.UTC));
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.clientRegistration,
+				this.principal.getName(), accessTokenResponse.getAccessToken());
+		// @formatter:off
+		OAuth2AuthorizationContext expiredAuthorizationContext = OAuth2AuthorizationContext
+				.withAuthorizedClient(authorizedClient)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
+		StepVerifier
+			.create(Flux.merge(this.authorizedClientProvider.authorize(expiredAuthorizationContext),
+					this.authorizedClientProvider.authorize(expiredAuthorizationContext))
+				.collectList())
+			.expectSubscription()
+			.then(() -> {
+				verify(this.accessTokenResponseClient, times(2)).getTokenResponse(any());
+				assertThat(refreshedToken.tryEmitValue(refreshedTokenResponse)).isEqualTo(Sinks.EmitResult.OK);
+			})
+			.assertNext((authorizedClients) -> assertThat(authorizedClients).hasSize(2)
+				.allSatisfy((reauthorizedClient) -> assertThat(reauthorizedClient.getAccessToken())
+					.isSameAs(refreshedTokenResponse.getAccessToken())))
+			.verifyComplete();
+	}
+
+	// gh-17167
+	@Test
+	public void authorizeWhenConcurrentAndTokenRequestFailsThenShareErrorAndRetry() {
+		OAuth2AuthorizationException error = new OAuth2AuthorizationException(new OAuth2Error("invalid_client"),
+				new IllegalStateException("token endpoint failure"));
+		Sinks.One<OAuth2AccessTokenResponse> failedTokenResponse = Sinks.one();
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		Sinks.One<OAuth2AccessTokenResponse> tokenResponse = Sinks.one();
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(failedTokenResponse.asMono(),
+				tokenResponse.asMono());
+		// @formatter:off
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
+				.withClientRegistration(this.clientRegistration)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
+		Mono<OAuth2AuthorizedClient> retryingAuthorization = this.authorizedClientProvider
+			.authorize(authorizationContext)
+			.retry(1);
+		StepVerifier
+			.create(Flux.merge(retryingAuthorization.materialize(),
+					this.authorizedClientProvider.authorize(authorizationContext).materialize()))
+			.expectSubscription()
+			.then(() -> {
+				verify(this.accessTokenResponseClient).getTokenResponse(any());
+				assertThat(failedTokenResponse.tryEmitError(error)).isEqualTo(Sinks.EmitResult.OK);
+			})
+			.then(() -> {
+				verify(this.accessTokenResponseClient, times(2)).getTokenResponse(any());
+				assertThat(tokenResponse.tryEmitValue(accessTokenResponse)).isEqualTo(Sinks.EmitResult.OK);
+			})
+			.expectNextMatches((signal) -> isClientAuthorizationException(signal, error))
+			.expectNextMatches((signal) -> isSuccessfulAuthorization(signal, accessTokenResponse.getAccessToken()))
+			.verifyComplete();
+	}
+
+	// gh-17167
+	@Test
+	public void authorizeWhenConcurrentAndAllCancelledThenSubsequentCallRequestsNewToken() {
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		Sinks.One<OAuth2AccessTokenResponse> tokenResponse = Sinks.one();
+		// @formatter:off
+		OAuth2AccessTokenResponse newTokenResponse = OAuth2AccessTokenResponse
+				.withToken("new-access-token")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER)
+				.build();
+		// @formatter:on
+		Sinks.One<OAuth2AccessTokenResponse> newTokenResponseSink = Sinks.one();
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(tokenResponse.asMono(),
+				newTokenResponseSink.asMono());
+		// @formatter:off
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
+				.withClientRegistration(this.clientRegistration)
+				.principal(this.principal)
+				.build();
+		// @formatter:on
+		Disposable firstInFlightRequest = this.authorizedClientProvider.authorize(authorizationContext).subscribe();
+		Disposable secondInFlightRequest = this.authorizedClientProvider.authorize(authorizationContext).subscribe();
+		verify(this.accessTokenResponseClient).getTokenResponse(any());
+		firstInFlightRequest.dispose();
+		secondInFlightRequest.dispose();
+		assertThat(tokenResponse.tryEmitValue(accessTokenResponse)).isEqualTo(Sinks.EmitResult.OK);
+		StepVerifier.create(this.authorizedClientProvider.authorize(authorizationContext))
+			.expectSubscription()
+			.then(() -> {
+				verify(this.accessTokenResponseClient, times(2)).getTokenResponse(any());
+				assertThat(newTokenResponseSink.tryEmitValue(newTokenResponse)).isEqualTo(Sinks.EmitResult.OK);
+			})
+			.assertNext((authorizedClient) -> assertThat(authorizedClient.getAccessToken())
+				.isSameAs(newTokenResponse.getAccessToken()))
+			.verifyComplete();
+	}
+
 	@Test
 	public void authorizeWhenClientCredentialsAndTokenExpiredThenReauthorize() {
 		Instant issuedAt = Instant.now().minus(Duration.ofDays(1));
@@ -198,6 +367,17 @@ public class ClientCredentialsReactiveOAuth2AuthorizedClientProviderTests {
 		assertThat(reauthorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(reauthorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
 		assertThat(reauthorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
+	}
+
+	private boolean isClientAuthorizationException(Signal<OAuth2AuthorizedClient> signal,
+			OAuth2AuthorizationException error) {
+		return signal.isOnError() && signal.getThrowable() instanceof ClientAuthorizationException ex
+				&& ex.getError().equals(error.getError()) && ex.getCause() == error;
+	}
+
+	private boolean isSuccessfulAuthorization(Signal<OAuth2AuthorizedClient> signal, OAuth2AccessToken accessToken) {
+		OAuth2AuthorizedClient authorizedClient = signal.get();
+		return signal.isOnNext() && authorizedClient != null && authorizedClient.getAccessToken() == accessToken;
 	}
 
 }
