@@ -47,7 +47,7 @@ public final class AuthorizationManagerFactories {
 	 * @param <T> the secured object type
 	 * @return a factory configured with the required authorities
 	 */
-	public static <T> AdditionalRequiredFactorsBuilder<T> multiFactor() {
+	public static <T extends @Nullable Object> AdditionalRequiredFactorsBuilder<T> multiFactor() {
 		return new AdditionalRequiredFactorsBuilder<>();
 	}
 
@@ -58,7 +58,7 @@ public final class AuthorizationManagerFactories {
 	 * @param <T> the type for the {@link DefaultAuthorizationManagerFactory}
 	 * @author Rob Winch
 	 */
-	public static final class AdditionalRequiredFactorsBuilder<T> {
+	public static final class AdditionalRequiredFactorsBuilder<T extends @Nullable Object> {
 
 		private final AllRequiredFactorsAuthorizationManager.Builder<T> factors = AllRequiredFactorsAuthorizationManager
 			.builder();
