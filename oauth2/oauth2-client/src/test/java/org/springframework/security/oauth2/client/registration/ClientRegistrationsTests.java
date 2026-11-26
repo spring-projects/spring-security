@@ -34,6 +34,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -435,7 +436,7 @@ public class ClientRegistrationsTests {
 		this.server.enqueue(mockResponse);
 		// @formatter:off
 		assertThatIllegalStateException()
-				.isThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(this.issuer))
+				.isThrownBy(() -> ClientRegistrations.fromOidcIssuerLocation(this.issuer).clientId("client-id").build())
 				.withMessageContaining("The Issuer \"https://example.com\" provided in the configuration metadata did "
 						+ "not match the requested issuer \"" + this.issuer + "\"");
 		// @formatter:on
@@ -450,7 +451,7 @@ public class ClientRegistrationsTests {
 		this.server.enqueue(mockResponse);
 		// @formatter:off
 		assertThatIllegalStateException()
-				.isThrownBy(() -> ClientRegistrations.fromIssuerLocation(this.issuer))
+				.isThrownBy(() -> ClientRegistrations.fromIssuerLocation(this.issuer).clientId("client-id").build())
 				.withMessageContaining("The Issuer \"https://example.com\" provided in the configuration metadata "
 						+ "did not match the requested issuer \"" + this.issuer + "\"");
 		// @formatter:on
@@ -599,6 +600,37 @@ public class ClientRegistrationsTests {
 			.withMessageContaining("405")
 			.withMessageContaining("400")
 			.withMessageContaining("404");
+	}
+
+	@Test
+	public void issuerWhenOidcUsingCustomRestOperationsThenSuccess() {
+		this.issuer = createIssuerFromServer("issuer1");
+		this.response.put("issuer", this.issuer);
+		String body = this.mapper.writeValueAsString(this.response);
+		MockResponse mockResponse = new MockResponse().setBody(body)
+			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+		this.server.enqueue(mockResponse);
+		RestTemplate rest = new RestTemplate();
+		ClientRegistration registration = ClientRegistrations.fromOidcIssuerLocation(this.issuer, rest)
+			.clientId("client-id")
+			.clientSecret("client-secret")
+			.build();
+		assertThat(registration.getProviderDetails().getIssuerUri()).isEqualTo(this.issuer);
+	}
+
+	@Test
+	public void issuerWhenUsingCustomRestOperationsThenSuccess() {
+		this.issuer = createIssuerFromServer("issuer1");
+		this.response.put("issuer", this.issuer);
+		String body = this.mapper.writeValueAsString(this.response);
+		MockResponse mockResponse = new MockResponse().setBody(body)
+			.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+		this.server.enqueue(mockResponse);
+		RestTemplate rest = new RestTemplate();
+		ClientRegistration registration = ClientRegistrations.fromIssuerLocation(this.issuer, rest)
+			.clientId("client-id")
+			.build();
+		assertThat(registration.getProviderDetails().getIssuerUri()).isEqualTo(this.issuer);
 	}
 
 	private ClientRegistration.Builder registration(String path) throws Exception {
