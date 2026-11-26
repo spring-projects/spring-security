@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.PopulatedDatabase;
@@ -50,6 +52,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
@@ -62,6 +65,7 @@ import static org.mockito.BDDMockito.verify;
  * @author Luke Taylor
  * @author dae won
  * @author Junhyeok Lee
+ * @author Josh Long
  */
 public class JdbcUserDetailsManagerTests {
 
@@ -142,6 +146,59 @@ public class JdbcUserDetailsManagerTests {
 		this.manager.createUser(joe);
 		UserDetails joe2 = this.manager.loadUserByUsername("joe");
 		assertThat(joe2).isEqualTo(joe);
+	}
+
+	@Test
+	public void createUserWhenMixedCaseUsernameThenStoresLowerCase() {
+		this.manager.createUser(User.withUserDetails(joe).username("JoE").build());
+		assertThat(this.template.queryForList("select username from users where lower(username) = 'joe'", String.class))
+			.containsExactly("joe");
+		assertThat(this.template.queryForList("select username from authorities where lower(username) = 'joe'",
+				String.class))
+			.containsOnly("joe");
+		assertThat(this.manager.loadUserByUsername("JOE").getUsername()).isEqualTo("joe");
+	}
+
+	@Test
+	public void createUserWhenUsernameDiffersOnlyInCaseThenFails() {
+		this.manager.createUser(joe);
+		assertThatExceptionOfType(DuplicateKeyException.class)
+			.isThrownBy(() -> this.manager.createUser(User.withUserDetails(joe).username("JOE").build()));
+	}
+
+	@Test
+	public void createUserWhenCustomUsernameNormalizerThenApplied() {
+		JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource, Function.identity());
+		manager.createUser(User.withUserDetails(joe).username("JoE").build());
+		assertThat(this.template.queryForList("select username from users where lower(username) = 'joe'", String.class))
+			.containsExactly("JoE");
+		assertThat(manager.userExists("joe")).isFalse();
+		assertThat(manager.userExists("JoE")).isTrue();
+	}
+
+	@Test
+	public void constructorWhenNullUsernameNormalizerThenThrowsException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new JdbcUserDetailsManager(dataSource, null));
+	}
+
+	@Test
+	public void userManagementWhenMixedCaseUsernameThenNormalized() {
+		insertJoe();
+		assertThat(this.manager.userExists("JOE")).isTrue();
+		this.manager.updateUser(User.withUserDetails(joe).username("Joe").password("newpassword").build());
+		assertThat(this.manager.loadUserByUsername("joe").getPassword()).isEqualTo("newpassword");
+		assertThat(this.cache.getUserMap()).doesNotContainKey("joe");
+		this.manager.deleteUser("JOE");
+		assertThat(this.template.queryForList(SELECT_JOE_SQL)).isEmpty();
+		assertThat(this.template.queryForList(SELECT_JOE_AUTHORITIES_SQL)).isEmpty();
+	}
+
+	@Test
+	public void addUserToGroupWhenMixedCaseUsernameThenStoresLowerCase() {
+		this.manager.addUserToGroup("KeLLy", "GROUP_0");
+		assertThat(this.manager.findUsersInGroup("GROUP_0")).contains("kelly").doesNotContain("KeLLy");
+		this.manager.removeUserFromGroup("KELLY", "GROUP_0");
+		assertThat(this.manager.findUsersInGroup("GROUP_0")).doesNotContain("kelly");
 	}
 
 	@Test
