@@ -16,6 +16,7 @@
 
 package org.springframework.security.authorization;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -44,7 +45,7 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	private final Set<String> authorities;
 
 	private AuthorityAuthorizationManager(String... authorities) {
-		this.authorities = Set.of(authorities);
+		this.authorities = Set.copyOf(Arrays.asList(authorities));
 	}
 
 	/**

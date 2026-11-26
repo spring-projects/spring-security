@@ -119,6 +119,12 @@ public class SecurityExpressionRootTests {
 	}
 
 	@Test
+	public void hasAnyRoleWhenSameRoleWithAndWithoutDefaultPrefixThenGranted() {
+		assertThat(this.root.hasAnyRole("A", "ROLE_A")).isTrue();
+		assertThat(this.root.hasAnyRole("NO", "ROLE_NO")).isFalse();
+	}
+
+	@Test
 	public void hasAnyRoleEmptyPrefixDoesNotAddsDefaultPrefix() {
 		this.root.setDefaultRolePrefix("");
 		assertThat(this.root.hasRole("A")).isFalse();
