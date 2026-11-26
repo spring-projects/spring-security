@@ -60,6 +60,8 @@ public class SecurityContextHolder {
 
 	private static final String MODE_PRE_INITIALIZED = "MODE_PRE_INITIALIZED";
 
+	private static final String MODE_SCOPEDVALUE = "MODE_SCOPEDVALUE";
+
 	public static final String SYSTEM_PROPERTY = "spring.security.strategy";
 
 	private static String strategyName = System.getProperty(SYSTEM_PROPERTY);
@@ -97,6 +99,10 @@ public class SecurityContextHolder {
 		}
 		if (strategyName.equals(MODE_GLOBAL)) {
 			strategy = new GlobalSecurityContextHolderStrategy();
+			return;
+		}
+		if (strategyName.equals(MODE_SCOPEDVALUE)) {
+			strategy = new ScopedSecurityContextHolderStrategy();
 			return;
 		}
 		// Try to load a custom strategy
