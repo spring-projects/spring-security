@@ -875,6 +875,28 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		verifyNoInteractions(this.authorizationFailureHandler);
 	}
 
+	@Test
+	public void filterWhenUnauthorizedAndServletAttributesFromContextThenInvokeFailureHandlerWithServletAttributes() {
+		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(this.registration, "principalName",
+				this.accessToken);
+		MockHttpServletRequest servletRequest = new MockHttpServletRequest();
+		MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+			.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
+			.build();
+		given(this.exchange.getResponse().statusCode()).willReturn(HttpStatus.UNAUTHORIZED);
+		given(this.exchange.getResponse().headers()).willReturn(mock(ClientResponse.Headers.class));
+		this.function.setAuthorizationFailureHandler(this.authorizationFailureHandler);
+		this.function.filter(request, this.exchange)
+			.contextWrite(context(servletRequest, servletResponse, this.authentication))
+			.block();
+		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
+				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
+		assertThat(this.attributesCaptor.getValue()).containsExactly(
+				entry(HttpServletRequest.class.getName(), servletRequest),
+				entry(HttpServletResponse.class.getName(), servletResponse));
+	}
+
 	private Context context(HttpServletRequest servletRequest, HttpServletResponse servletResponse,
 			Authentication authentication) {
 		Map<Object, Object> contextAttributes = new HashMap<>();
