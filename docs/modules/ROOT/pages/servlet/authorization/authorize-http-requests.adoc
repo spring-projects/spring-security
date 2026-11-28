@@ -52,7 +52,7 @@ In many cases, your authorization rules will be more sophisticated than that, so
 * I have an app that uses `authorizeRequests` and I want to <<migrate-authorize-requests,migrate it to `authorizeHttpRequests`>>
 * I want to <<request-authorization-architecture,understand how the `AuthorizationFilter` components work>>
 * I want to <<match-requests, match requests>> based on a pattern; specifically <<match-by-regex,regex>>
-* I want to match request, and I map Spring MVC to <<mvc-not-default-servlet, something other than the default servlet>>
+* I want to match request, and I map Spring MVC to <<match-by-mvc, something other than the default servlet>>
 * I want to <<authorize-requests, authorize requests>>
 * I want to <<match-by-custom, match a request programmatically>>
 * I want to <<authorize-requests, authorize a request programmatically>>
@@ -69,9 +69,11 @@ This section builds on xref:servlet/architecture.adoc#servlet-architecture[Servl
 [.invert-dark]
 image::{figures}/authorizationfilter.png[]
 
+[none]
 * image:{icondir}/number_1.png[] First, the `AuthorizationFilter` constructs a `Supplier` that retrieves an  xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[Authentication] from the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder].
-* image:{icondir}/number_2.png[] Second, it passes the `Supplier<Authentication>` and the `HttpServletRequest` to the xref:servlet/architecture.adoc#authz-authorization-manager[`AuthorizationManager`].
+* image:{icondir}/number_2.png[] Second, it passes the `Supplier<Authentication>` and the `HttpServletRequest` to the xref:servlet/authorization/architecture.adoc#_the_authorizationmanager[`AuthorizationManager`].
 The `AuthorizationManager` matches the request to the patterns in `authorizeHttpRequests`, and runs the corresponding rule.
+[none]
 ** image:{icondir}/number_3.png[] If authorization is denied, xref:servlet/authorization/events.adoc[an `AuthorizationDeniedEvent` is published], and an `AccessDeniedException` is thrown.
 In this case the xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] handles the `AccessDeniedException`.
 ** image:{icondir}/number_4.png[] If access is granted, xref:servlet/authorization/events.adoc[an `AuthorizationGrantedEvent` is published] and `AuthorizationFilter` continues with the xref:servlet/architecture.adoc#servlet-filters-review[FilterChain] which allows the application to process normally.
