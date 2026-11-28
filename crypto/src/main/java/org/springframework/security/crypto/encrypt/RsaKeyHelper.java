@@ -68,7 +68,7 @@ final class RsaKeyHelper {
 	}
 
 	static KeyPair parseKeyPair(String pemData) {
-		Matcher m = PEM_DATA.matcher(pemData.replaceAll("\n *", "").trim());
+		Matcher m = PEM_DATA.matcher(pemData.replaceAll("\\R *", "").trim());
 
 		if (!m.matches()) {
 			try {
@@ -219,8 +219,9 @@ final class RsaKeyHelper {
 		catch (IOException ex) {
 			throw new IllegalStateException("Cannot encode key", ex);
 		}
-		output.append(base64Encode(stream.toByteArray()));
-		output.append(" " + id);
+		output.append(base64Encode(stream.toByteArray()))
+			.append(" ")
+			.append(id);
 		return output.toString();
 	}
 

@@ -17,8 +17,6 @@
 package org.springframework.security.crypto.encrypt;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 
 import org.springframework.core.io.ClassPathResource;
 
@@ -28,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  *
  */
-@DisabledOnOs(OS.WINDOWS)
 public class KeyStoreKeyFactoryTests {
 
 	@Test
