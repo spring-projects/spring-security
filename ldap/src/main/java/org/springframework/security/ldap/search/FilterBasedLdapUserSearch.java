@@ -77,6 +77,7 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 		this.searchFilter = searchFilter;
 		this.contextSource = contextSource;
 		this.searchBase = searchBase;
+		this.searchControls.setReturningObjFlag(false);
 		setSearchSubtree(true);
 		if (searchBase.isEmpty()) {
 			logger.info(LogMessage.format("Searches will be performed from the root %s since SearchBase not set",

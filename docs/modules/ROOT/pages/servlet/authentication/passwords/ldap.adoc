@@ -294,6 +294,25 @@ fun contextSource(container: UnboundIdContainer): ContextSource {
 ----
 ======
 
+[[servlet-authentication-ldap-object-decoding]]
+=== JNDI Object Decoding
+
+`SpringSecurityLdapTemplate` performs its LDAP searches with `SearchControls.setReturningObjFlag(false)` by default.
+This prevents the JNDI provider from decoding Java object attributes (such as `javaSerializedData`) stored on directory entries.
+If your application relies on that decoding, provide search controls with the flag enabled:
+
+.JNDI Object Decoding Opt-In
+[source,java]
+----
+SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(contextSource);
+SearchControls controls = new SearchControls();
+controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+controls.setReturningObjFlag(true);
+template.setSearchControls(controls);
+----
+
+NOTE: Enabling the returning object flag makes the LDAP provider deserialize Java objects stored in the directory. Enable it only when the directory contents are trusted.
+
 [[servlet-authentication-ldap-authentication]]
 == Authentication
 

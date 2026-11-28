@@ -163,6 +163,7 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 	 */
 	public DefaultLdapAuthoritiesPopulator(ContextSource contextSource, @Nullable String groupSearchBase) {
 		Assert.notNull(contextSource, "contextSource must not be null");
+		this.searchControls.setReturningObjFlag(false);
 		this.ldapTemplate = new SpringSecurityLdapTemplate(contextSource);
 		getLdapTemplate().setSearchControls(getSearchControls());
 		this.groupSearchBase = groupSearchBase;

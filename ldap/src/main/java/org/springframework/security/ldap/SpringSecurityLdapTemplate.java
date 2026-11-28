@@ -41,11 +41,11 @@ import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
-import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.LdapTemplate;
+import org.springframework.ldap.core.NameClassPairCallbackHandler;
 import org.springframework.ldap.support.LdapNameBuilder;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -53,6 +53,14 @@ import org.springframework.util.ObjectUtils;
 /**
  * Extension of Spring LDAP's LdapTemplate class which adds extra functionality required
  * by Spring Security.
+ *
+ * <p>
+ * Searches performed by the methods defined in this class do not ask the JNDI provider to
+ * return Java objects by default: {@link SearchControls#setReturningObjFlag(boolean)} is
+ * set to {@code false}. This prevents the provider from decoding Java object attributes
+ * of directory entries during a search. If your application relies on that behavior, pass
+ * search controls with the returning object flag set to {@code true} to
+ * {@link #setSearchControls(SearchControls)}.
  *
  * @author Ben Alex
  * @author Luke Taylor
@@ -71,8 +79,6 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	 */
 	public static final String DN_KEY = "spring.security.ldap.dn";
 
-	private static final boolean RETURN_OBJECT = true;
-
 	/** Default search controls. */
 	private SearchControls searchControls = new SearchControls();
 
@@ -80,6 +86,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 		Assert.notNull(contextSource, "ContextSource cannot be null");
 		setContextSource(contextSource);
 		this.searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+		this.searchControls.setReturningObjFlag(false);
 	}
 
 	/**
@@ -96,6 +103,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 			SearchControls searchControls = new SearchControls();
 			searchControls.setReturningAttributes(NO_ATTRS);
 			searchControls.setSearchScope(SearchControls.OBJECT_SCOPE);
+			searchControls.setReturningObjFlag(false);
 			Object[] params = new Object[] { value };
 			NamingEnumeration<SearchResult> results = ctx.search(dn, comparisonFilter, params, searchControls);
 			boolean match = results.hasMore();
@@ -169,36 +177,48 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 		}
 		String formattedFilter = MessageFormat.format(filter, encodedParams);
 		logger.trace(LogMessage.format("Using filter: %s", formattedFilter));
-		HashSet<Map<String, List<String>>> result = new HashSet<>();
-		ContextMapper<?> roleMapper = (ctx) -> {
-			DirContextAdapter adapter = (DirContextAdapter) ctx;
-			Map<String, List<String>> record = new HashMap<>();
-			if (ObjectUtils.isEmpty(attributeNames)) {
-				try {
-					for (NamingEnumeration<? extends Attribute> enumeration = adapter.getAttributes()
-						.getAll(); enumeration.hasMore();) {
-						Attribute attr = enumeration.next();
-						extractStringAttributeValues(adapter, record, attr.getID());
-					}
-				}
-				catch (NamingException ex) {
-					throw org.springframework.ldap.support.LdapUtils.convertLdapException(ex);
-				}
-			}
-			else {
-				for (String attributeName : attributeNames) {
-					extractStringAttributeValues(adapter, record, attributeName);
-				}
-			}
-			record.put(DN_KEY, Collections.singletonList(getAdapterDN(adapter)));
-			result.add(record);
-			return void.class;
-		};
+		Set<Map<String, List<String>>> result = new HashSet<>();
 		SearchControls ctls = new SearchControls();
 		ctls.setSearchScope(this.searchControls.getSearchScope());
+		ctls.setReturningObjFlag(this.searchControls.getReturningObjFlag());
 		ctls.setReturningAttributes((attributeNames != null && attributeNames.length > 0) ? attributeNames : null);
-		search(base, formattedFilter, ctls, roleMapper);
+		NameClassPairCallbackHandler handler = (nameClassPair) -> {
+			SearchResult searchResult = (SearchResult) nameClassPair;
+			DirContextAdapter adapter = buildDirContextAdapter(searchResult, ctls.getReturningObjFlag());
+			result.add(mapRecord(adapter, attributeNames));
+		};
+		search(base, formattedFilter, ctls, handler);
 		return result;
+	}
+
+	/**
+	 * Maps a search result to the record returned by
+	 * {@link #searchForMultipleAttributeValues(String, String, Object[], String[])}.
+	 * @param adapter the entry to map
+	 * @param attributeNames the attributes to map
+	 * @return the record for the entry
+	 */
+	private Map<String, List<String>> mapRecord(DirContextAdapter adapter, String @Nullable [] attributeNames) {
+		Map<String, List<String>> record = new HashMap<>();
+		if (ObjectUtils.isEmpty(attributeNames)) {
+			try {
+				for (NamingEnumeration<? extends Attribute> enumeration = adapter.getAttributes().getAll(); enumeration
+					.hasMore();) {
+					Attribute attr = enumeration.next();
+					extractStringAttributeValues(adapter, record, attr.getID());
+				}
+			}
+			catch (NamingException ex) {
+				throw org.springframework.ldap.support.LdapUtils.convertLdapException(ex);
+			}
+		}
+		else {
+			for (String attributeName : attributeNames) {
+				extractStringAttributeValues(adapter, record, attributeName);
+			}
+		}
+		record.put(DN_KEY, Collections.singletonList(getAdapterDN(adapter)));
+		return record;
 	}
 
 	/**
@@ -270,16 +290,15 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 			String base, String filter, Object[] params) throws NamingException {
 		final LdapName ctxBaseDn = LdapNameBuilder.newInstance(ctx.getNameInNamespace()).build();
 		final LdapName searchBaseDn = LdapNameBuilder.newInstance(base).build();
-		final NamingEnumeration<SearchResult> resultsEnum = ctx.search(searchBaseDn, filter, params,
-				buildControls(searchControls));
+		final SearchControls controls = buildControls(searchControls);
+		final NamingEnumeration<SearchResult> resultsEnum = ctx.search(searchBaseDn, filter, params, controls);
 		logger.trace(LogMessage.format("Searching for entry under DN '%s', base = '%s', filter = '%s'", ctxBaseDn,
 				searchBaseDn, filter));
 		Set<DirContextOperations> results = new HashSet<>();
 		try {
 			while (resultsEnum.hasMore()) {
 				SearchResult searchResult = resultsEnum.next();
-				DirContextAdapter dca = (DirContextAdapter) searchResult.getObject();
-				Assert.notNull(dca, "No object returned by search, DirContext is not correctly configured");
+				DirContextAdapter dca = buildDirContextAdapter(ctx, searchResult, controls.getReturningObjFlag());
 				logger.debug(LogMessage.format("Found DN: %s", dca.getDn()));
 				results.add(dca);
 			}
@@ -295,20 +314,58 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 	}
 
 	/**
-	 * We need to make sure the search controls has the return object flag set to true, in
-	 * order for the search to return DirContextAdapter instances.
-	 * @param originalControls the {@link SearchControls} that might have the return
-	 * object flag set to true
-	 * @return a {@link SearchControls} that does have the return object flag set to true
+	 * Creates a copy of the supplied controls that preserves the returning object flag.
+	 * @param originalControls the {@link SearchControls} to copy
+	 * @return a copy of the supplied controls
 	 */
 	private static SearchControls buildControls(SearchControls originalControls) {
 		return new SearchControls(originalControls.getSearchScope(), originalControls.getCountLimit(),
-				originalControls.getTimeLimit(), originalControls.getReturningAttributes(), RETURN_OBJECT,
-				originalControls.getDerefLinkFlag());
+				originalControls.getTimeLimit(), originalControls.getReturningAttributes(),
+				originalControls.getReturningObjFlag(), originalControls.getDerefLinkFlag());
+	}
+
+	/**
+	 * Creates a {@link DirContextAdapter} for the given search result, relative to the
+	 * base of the supplied context.
+	 */
+	private static DirContextAdapter buildDirContextAdapter(DirContext ctx, SearchResult searchResult,
+			boolean returnObj) throws NamingException {
+		if (returnObj) {
+			return getReturnedObject(searchResult);
+		}
+		LdapName baseDn = LdapNameBuilder.newInstance(ctx.getNameInNamespace()).build();
+		LdapName nameInNamespace = LdapNameBuilder.newInstance(searchResult.getNameInNamespace()).build();
+		if (!baseDn.isEmpty() && nameInNamespace.startsWith(baseDn)) {
+			return new DirContextAdapter(searchResult.getAttributes(), nameInNamespace.getSuffix(baseDn.size()),
+					baseDn);
+		}
+		return new DirContextAdapter(searchResult.getAttributes(), nameInNamespace);
+	}
+
+	/**
+	 * Creates a {@link DirContextAdapter} for the given search result.
+	 */
+	private static DirContextAdapter buildDirContextAdapter(SearchResult searchResult, boolean returnObj)
+			throws NamingException {
+		if (returnObj) {
+			return getReturnedObject(searchResult);
+		}
+		return new DirContextAdapter(searchResult.getAttributes(),
+				LdapNameBuilder.newInstance(searchResult.getNameInNamespace()).build());
+	}
+
+	private static DirContextAdapter getReturnedObject(SearchResult searchResult) {
+		Object object = searchResult.getObject();
+		Assert.notNull(object, "No object returned by search, DirContext is not correctly configured");
+		return (DirContextAdapter) object;
 	}
 
 	/**
 	 * Sets the search controls which will be used for search operations by the template.
+	 * <p>
+	 * The {@link SearchControls#getReturningObjFlag() returning object flag} is
+	 * {@code false} by default. Set it to {@code true} to restore the previous behavior
+	 * of having the JNDI provider decode Java object attributes.
 	 * @param searchControls the SearchControls instance which will be cached in the
 	 * template.
 	 */
