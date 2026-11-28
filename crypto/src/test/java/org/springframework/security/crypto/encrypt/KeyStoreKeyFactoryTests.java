@@ -28,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Dave Syer
  *
  */
-@DisabledOnOs(OS.WINDOWS)
 public class KeyStoreKeyFactoryTests {
 
 	@Test
