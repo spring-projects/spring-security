@@ -148,7 +148,7 @@ assertThat(user.authorities).containsExactly(SimpleGrantedAuthority("SCOPE_read"
 
 Spring Security does the necessary work to make sure that the `OidcUser` instance is available for xref:servlet/integrations/mvc.adoc#mvc-authentication-principal[the `@AuthenticationPrincipal` annotation].
 
-Further, it also links that `OidcUser` to a simple instance of `OAuth2AuthorizedClient` that it deposits into an mock `OAuth2AuthorizedClientRepository`.
+Further, it also links that `OidcUser` to a simple instance of `OAuth2AuthorizedClient` that it deposits into a mock `OAuth2AuthorizedClientRepository`.
 This can be handy if your tests <<testing-oauth2-client,use the `@RegisteredOAuth2AuthorizedClient` annotation>>..
 
 [[testing-oidc-login-authorities]]

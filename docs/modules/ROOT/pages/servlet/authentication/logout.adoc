@@ -7,7 +7,7 @@ By default, Spring Security stands up a `/logout` endpoint, so no additional cod
 
 The rest of this section covers a number of use cases for you to consider:
 
-* I want to <<logout-java-configuration,understand logout's architecture>>
+* I want to <<logout-architecture,understand logout's architecture>>
 * I want to <<customizing-logout-uris, customize the logout or logout success URI>>
 * I want to know when I need to <<permit-logout-endpoints, explicitly permit the `/logout` endpoint>>
 * I want to <<clear-all-site-data, clear cookies, storage, and/or cache>> when the user logs out
@@ -16,7 +16,6 @@ The rest of this section covers a number of use cases for you to consider:
 * I am using CAS and I want to xref:servlet/authentication/cas.adoc#cas-singlelogout[coordinate logout with an Identity Provider]
 
 [[logout-architecture]]
-[[logout-java-configuration]]
 == Understanding Logout's Architecture
 
 When you include {spring-boot-reference-url}reference/using/build-systems.html#using.build-systems.starters[the `spring-boot-starter-security` dependency] or use the `@EnableWebSecurity` annotation, Spring Security will add its logout support and by default respond both to `GET /logout` and `POST /logout`.
@@ -393,7 +392,7 @@ fun performLogout(): String {
 ----
 ======
 
-then you will need to have that endpoint invoke Spring Security's javadoc:org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler[] to ensure a secure and complete logout.
+then you will need to have that endpoint invokes Spring Security's javadoc:org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler[] to ensure a secure and complete logout.
 Something like the following is needed at a minimum:
 
 .Custom Logout Endpoint

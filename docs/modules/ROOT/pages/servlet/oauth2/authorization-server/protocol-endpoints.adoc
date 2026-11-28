@@ -87,15 +87,14 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 private Consumer<List<AuthenticationProvider>> configureAuthenticationValidator() {
 	return (authenticationProviders) ->
 		authenticationProviders.forEach((authenticationProvider) -> {
-			if (authenticationProvider instanceof OAuth2AuthorizationCodeRequestAuthenticationProvider) {
+			if (authenticationProvider instanceof OAuth2AuthorizationCodeRequestAuthenticationProvider provider) {
 				Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authenticationValidator =
 					// Override default redirect_uri validator
 					new CustomRedirectUriValidator()
 						// Reuse default scope validator
 						.andThen(OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_SCOPE_VALIDATOR);
 
-				((OAuth2AuthorizationCodeRequestAuthenticationProvider) authenticationProvider)
-					.setAuthenticationValidator(authenticationValidator);
+				provider.setAuthenticationValidator(authenticationValidator);
 			}
 		});
 }
@@ -202,15 +201,14 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 private Consumer<List<AuthenticationProvider>> configureAuthenticationValidator() {
 	return (authenticationProviders) ->
 		authenticationProviders.forEach((authenticationProvider) -> {
-			if (authenticationProvider instanceof OAuth2PushedAuthorizationRequestAuthenticationProvider) {
+			if (authenticationProvider instanceof OAuth2PushedAuthorizationRequestAuthenticationProvider provider) {
 				Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authenticationValidator =
 					// Override default redirect_uri validator
 					new CustomRedirectUriValidator()
 						// Reuse default scope validator
 						.andThen(OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_SCOPE_VALIDATOR);
 
-				((OAuth2PushedAuthorizationRequestAuthenticationProvider) authenticationProvider)
-					.setAuthenticationValidator(authenticationValidator);
+				provider.setAuthenticationValidator(authenticationValidator);
 			}
 		});
 }
@@ -418,13 +416,12 @@ public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity h
 private Consumer<List<AuthenticationProvider>> configureAuthenticationValidator() {
 	return (authenticationProviders) ->
 		authenticationProviders.forEach((authenticationProvider) -> {
-			if (authenticationProvider instanceof OAuth2ClientCredentialsAuthenticationProvider) {
+			if (authenticationProvider instanceof OAuth2ClientCredentialsAuthenticationProvider provider) {
 				Consumer<OAuth2ClientCredentialsAuthenticationContext> authenticationValidator =
 					new CustomScopeValidator();
 
 				// Override default scope validation
-				((OAuth2ClientCredentialsAuthenticationProvider) authenticationProvider)
-					.setAuthenticationValidator(authenticationValidator);
+				provider.setAuthenticationValidator(authenticationValidator);
 			}
 		});
 }

@@ -113,14 +113,12 @@ First, it provides a starting point for all of Spring Security's Servlet support
 For that reason, if you try to troubleshoot Spring Security's Servlet support, adding a debug point in `FilterChainProxy` is a great place to start.
 
 Second, since `FilterChainProxy` is central to Spring Security usage, it can perform tasks that are not viewed as optional.
-// FIXME: Add a link to SecurityContext
-For example, it clears out the `SecurityContext` to avoid memory leaks.
+For example, it clears out the javadoc:org.springframework.security.core.context.SecurityContext[] to avoid memory leaks.
 It also applies Spring Security's xref:servlet/exploits/firewall.adoc#servlet-httpfirewall[`HttpFirewall`] to protect applications against certain types of attacks.
 
 In addition, it provides more flexibility in determining when a `SecurityFilterChain` should be invoked.
 In a Servlet container, `Filter` instances are invoked based upon the URL alone.
-// FIXME: Link to RequestMatcher
-However, `FilterChainProxy` can determine invocation based upon anything in the `HttpServletRequest` by using the `RequestMatcher` interface.
+However, `FilterChainProxy` can determine invocation based upon anything in the `HttpServletRequest` by using the javadoc:org.springframework.security.web.util.matcher.RequestMatcher[] interface.
 
 The following image shows multiple `SecurityFilterChain` instances:
 
@@ -556,17 +554,17 @@ The following image shows the relationship of `ExceptionTranslationFilter` to ot
 image::{figures}/exceptiontranslationfilter.png[]
 
 
+[none]
 * image:{icondir}/number_1.png[] First, the `ExceptionTranslationFilter` invokes `FilterChain.doFilter(request, response)` to invoke the rest of the application.
 * image:{icondir}/number_2.png[] If the user is not authenticated or it is an `AuthenticationException`, then __Start Authentication__.
+[none]
 ** The xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder] is cleared out.
 ** The `HttpServletRequest` is <<savedrequests,saved>> so that it can be used to replay the original request once authentication is successful.
 // FIXME: add link to authentication success
-** The `AuthenticationEntryPoint` is used to request credentials from the client.
+** The javadoc:org.springframework.security.web.AuthenticationEntryPoint[] is used to request credentials from the client.
 For example, it might redirect to a log in page or send a `WWW-Authenticate` header.
-// FIXME: link to AuthenticationEntryPoint
 * image:{icondir}/number_3.png[] Otherwise, if it is an `AccessDeniedException`, then __Access Denied__.
-The `AccessDeniedHandler` is invoked to handle access denied.
-// FIXME: link to AccessDeniedHandler
+The javadoc:org.springframework.security.web.access.AccessDeniedHandler[] is invoked to handle access denied.
 
 [NOTE]
 ====
